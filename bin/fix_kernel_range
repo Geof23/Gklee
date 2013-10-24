@@ -1,0 +1,16 @@
+#!/usr/bin/perl -w
+
+if ($#ARGV < 0){
+    print "usage: $0 [infile0 infile1 ...] \n";
+    exit;
+}
+
+#@files = $ARGV;
+
+#print "files = @files\n";
+
+foreach (@ARGV){
+    if(length($_) > 3 && substr($_, length($_)-3, 3) eq ".cu"){
+	`fix_kernel $_ > $_.c`
+    }
+}

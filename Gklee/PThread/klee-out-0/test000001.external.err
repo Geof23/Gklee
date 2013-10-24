@@ -1,0 +1,3 @@
+Error: failed external call: pthread_join
+Stack: 
+	#0 00000114 in main (argc=1, argv=28790656)

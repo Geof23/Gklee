@@ -1,0 +1,111 @@
+#!/usr/bin/perl -w
+
+if ($#ARGV != 0){ #strange this gives the index of the last item in array (size - 1)
+    print "Usage: $0 [infile] \n";
+    #print "ARGV count was $#ARGV\n";
+    #print "ARGV[0] was $ARGV[0]\n";
+    exit;
+}
+
+$filename = $ARGV[0];
+
+#$outfile = $ARGV[1];
+
+#input record separator
+$/ = "__end_GPU();";
+
+open ( FILE, $filename ) or die "Can't open file: $!";
+
+#print "begin debug . . . . . . . .\n";
+while ( $line = <FILE> ) {
+    #there are 6 versions of this substitution regex --
+    #because of the permutations of __modify_Block(), __modify_Grid(),
+    #__begin_GPU() and __end_GPU() possible, plus __begin_GPU(size)
+
+    #first one is basic case where all calls are supplied and we get 
+    #our kernel config params from the 'modify' calls
+    if ( $line =~ s/
+               ([\s]*)__modify_Block[\s]*\(([\w ,]+)\)[\s]*;[\s]*
+               ([\s]*)__modify_Grid[\s]*\(([\w ,]+)\)[\s]*;[\s]*
+               ([\s]*)__begin_GPU[\s]*\([\s]*\)[\s]*;[\s]*
+               ([\s]*)([\w<, >]+)[\s]*\((.*)\)[\s]*;[\s]*
+               ([\s]*)__end_GPU[\s]*\([\s]*\)[\s]*;[\s]*
+               /
+               $1\{\n
+               $1dim3\ bsize($2);\n
+               $1dim3\ gsize($4);\n
+               $1$7<<<gsize,\ bsize>>>($8);\n
+               $1\}\n
+               /xs ||
+         $line =~ s/
+               ([\s]*)__modify_Grid[\s]*\(([\w ,]+)\)[\s]*;[\s]*
+               ([\s]*)__modify_Block[\s]*\(([\w ,]+)\)[\s]*;[\s]*
+               ([\s]*)__begin_GPU[\s]*\([\s]*\)[\s]*;[\s]*
+               ([\s]*)([\w<, >]+)[\s]*\((.*)\)[\s]*;[\s]*
+               ([\s]*)__end_GPU[\s]*\([\s]*\)[\s]*;[\s]*
+               /
+               $1\{\n
+               $1dim3\ bsize($4);\n
+               $1dim3\ gsize($2);\n
+               $1$7<<<gsize,\ bsize>>>($8);
+               $1\}\n
+               /xs ||
+         $line =~ s/
+               ([\s]*)__modify_Block[\s]*\(([\w, ]+)\)[\s]*;[\s]*
+               ([\s]*)__begin_GPU[\s]*\([\s]*\)[\s]*;[\s]*
+               ([\s]*)([\w<, >]+)[\s]*\((.*)\)[\s]*;[\s]*
+               ([\s]*)__end_GPU[\s]*\([\s]*\)[\s]*;[\s]*
+               /
+               $1\{\n
+               $1dim3\ bsize($2);\n
+               $1$5<<<1,\ bsize>>>($6);
+               $1\}\n
+               /xs ||
+         $line =~ s/
+               ([\s]*)__modify_Grid[\s]*\(([\w ,]+)\)[\s]*;[\s]*
+               ([\s]*)__begin_GPU[\s]*\([\s]*\)[\s]*;[\s]*
+               ([\s]*)([\w<, >]+)[\s]*\((.*)\)[\s]*;[\s]*
+               ([\s]*)__end_GPU[\s]*\([\s]*\)[\s]*;[\s]*
+               /
+               $1\{\n
+               $1dim3\ gsize($2);\n
+               $1$5<<<gsize,\ 2>>>($6);\n
+               $1\}\n
+               /xs ||
+         $line =~ s/
+               ([\s]*)__begin_GPU[\s]*\([\s]*\)[\s]*;[\s]*
+               ([\s]*)([\w<, >]+)[\s]*\((.*)\)[\s]*;[\s]*
+               ([\s]*)__end_GPU[\s]*\([\s]*\)[\s]*;[\s]*
+               /
+               $1\{\n
+               $1$3<<<1,\ 2>>>($4);\n
+               $1\}\n
+               /sx ||
+         $line =~ s/
+               ([\s]*)__begin_GPU[\s]*\(([\w, ]+)\)[\s]*;[\s]*
+               ([\s]*)([\w<, >]+)[\s]*\((.*)\)[\s]*;[\s]*
+               ([\s]*)__end_GPU[\s]*\([\s]*\)[\s]*;[\s]*
+               /
+               $1\{\n
+               $1dim3\ bsize($2);\n
+               $1$4<<<1,\ bsize>>>($5);\n
+               $1\}\n
+               /sx
+
+    ) {
+	push(@outLines, $line);
+    } else{
+        push(@outLines, $line);
+    }
+    #print "line after sub: $line\n";
+}
+#print "\n\noutLines is @outLines\n\n";
+#print "end debug............\n";
+close FILE;
+
+print @outLines;
+
+#OPEN ( OUTFILE, $outfile );
+#print ( OUTFILE @outLines ) ;
+#close ( OUTFILE );
+  

@@ -1,0 +1,2 @@
+#!/bin/bash 
+clang -emit-llvm -c -g -I $FLA_KLEE_HOME_DIR/Gklee/include/klee -include klee.h -include hutil.h -x cuda -Xclang -D__CUDACC__ -I$FLA_KLEE_HOME_DIR/Gklee/include/cuda -include cuda_runtime.h $*

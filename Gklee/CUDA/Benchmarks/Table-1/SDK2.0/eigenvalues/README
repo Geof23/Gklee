@@ -1,0 +1,5 @@
+bisect small:
+gklee-nvcc bisect_kernel_small.cu
+
+bisect large:
+gklee-nvcc bisect_kernel_large.cu

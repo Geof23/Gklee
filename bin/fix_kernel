@@ -1,0 +1,57 @@
+#!/usr/bin/perl -w
+
+if ($#ARGV != 0){ #strange this gives the index of the last item in array (size - 1)
+    print "Usage: $0 [infile] \n";
+    exit;
+}
+
+$filename = $ARGV[0];
+
+#$outfile = $ARGV[1];
+
+#input record separator
+$/ = ";";
+
+open ( FILE, $filename ) or die "Can't open file: $!";
+
+#print "begin debug . . . . . . . .\n";
+while ( $line = <FILE> ) {
+    #these are the 3 kernel configurations due to 2 of the 4 parameters being optional
+    #print "this line is: $line\n";
+    #the first part of the search gets any space, the kernel name, and any trailing space 
+    #the next line gets the kernel configuration parameters
+    #the line after gets the function parameters
+    #then the remaining lines are the substitution, inserting the groups
+    #that were gathered in the search portion (#1 through #7) (i.e. 
+    #s[for substitution]/[search term]/[substitution part]/[options -- 
+    #in this case x, so that the expression can have embedded whitespace to make it
+    #more readable
+    
+    if ($line =~ s/([\p{PosixSpace}])*([\w<, >\(\)]*)[\p{PosixSpace}]* 
+         \<\<\<[\p{PosixSpace}]*([^,]+),[\p{PosixSpace}]*([^,]+)[\p{PosixSpace}]*>>> #the kernel config params
+         [\p{PosixSpace}]*\((.*)\)[\p{PosixSpace}]*; 
+         /\n{$1__set_CUDAConfig($3, $4); 
+          \n$1$2($5);}
+          /xs ||
+        $line =~ s/([\p{PosixSpace}]*)([\w<, >\(\)]*)[\p{PosixSpace}]* 
+         \<\<\<[\p{PosixSpace}]*([^,]+),[\p{PosixSpace}]*([^,]+),[\p{PosixSpace}]*([^,]+)[\p{PosixSpace}]*>>> #the kernel config params
+         [\p{PosixSpace}]*\((.*)\)[\p{PosixSpace}]*; 
+         /\n{$1__set_CUDAConfig($3, $4, $5); 
+          \n$1$2($6);}
+         /xs ||
+        $line =~ s/([\p{PosixSpace}]*)([\w<, >\(\)]*)[\p{PosixSpace}]*
+         \<\<\<[\p{PosixSpace}]*([^,]+),[\p{PosixSpace}]*([^,]+),[\p{PosixSpace}]*([^,]+),[\p{PosixSpace}]*([^,]+)[\p{PosixSpace}]*>>> #the kernel config params
+         [\p{PosixSpace}]*\((.*)\)[\p{PosixSpace}]*; 
+         /\n{$1__set_CUDAConfig($3, $4, $5); 
+         \n$1$2($7);}
+         /xs 
+         #now we list a substitution regex for handling #include of .cu files 
+    ) {
+      push(@outLines, $line);
+    } else {
+      push(@outLines, $line);
+    }
+}
+close FILE;
+
+print @outLines;

@@ -1,0 +1,56 @@
+======================= Build GKLEE ToolChain ===========================
+1. Go to the 'gklee/Gklee' dir, and run the script 'expandExtra'
+
+2. Refer to the link below to build and install GKLEE tool chain.
+http://www.cs.utah.edu/formal_verification/mediawiki/index.php/Building_GKLEE_from_scratch
+
+======================= Run GKLEE =========================
+Some of the setup assumes that you will be using GKLEE on a machine with
+enabled NVIDIA GPGPU hardware.
+
+Here are the basic steps to use GKLEE (please refer to `tutorial.pdf'
+in the top level for more detailed instructions on generating
+test cases)
+
+1. Untar this distro (which you must have already done)
+
+2. Add the following line to your /home/[username]/.bashrc file, modifying 
+   the given path as needed:
+
+export FLA_KLEE_HOME_DIR=/home/[username]/gklee
+export PATH=$FLA_KLEE_HOME_DIR/Gklee/Debug/bin:$FLA_KLEE_HOME_DIR/llvm-2.9/Debug/bin:$FLA_KLEE_HOME_DIR/llvm-gcc-4.2-2.9/bin:$FLA_KLEE_HOME_DIR/bin:$PATH
+
+Note that here we build llvm-2.9 and GKLEE under 'Debug' mode, users can choose the building mode as they want, and 
+the path is changed correspondingly, e.g., 'Debug' in the path is changed to 'Release' or 'Release+Asserts'
+
+3. From the shell you would like to run from, execute `source ~/.bashrc`.  You
+   won't have to do this on subsequent invocations of the bash shell.
+
+After this, you should be able to run GKLEE.
+
+4.  Compile your program with `klee-l++':
+    `'klee-l++ [programName].cpp'
+
+5.  Run your program, the generated *.o, with gklee:
+    i.e. `gklee [programName].o'
+
+Once you have generated some test cases with GKLEE (which step 2 above should
+     generate), you can execute them on NVIDIA hardware (with the steps
+     below).
+
+The test cases will be in the same directory that you executed
+`gklee' in, and appear as 'klee-out-[number]' and 'klee-last'.
+
+So, to execute your program with the test cases generated above (the test
+    cases are basically concrete values for the data locations
+    that you declared with `klee_make_symbolic'):
+
+6.  Run your C/C++ source file with `gklee-replay':
+    `gklee-replay [progName].o'
+
+gklee-replay will by default execute the test cases listed
+by the last run of `gklee' -- in the `klee-last' directory 
+(as test#.ktst).
+
+For more information about generating test cases, please see
+'tutorial.pdf' in the top level

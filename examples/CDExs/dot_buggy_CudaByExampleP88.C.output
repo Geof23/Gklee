@@ -1,0 +1,98 @@
+executed with: 
+/home/ganesh/Tools/gklee/bin/gklee --trace --emacs --checklevel=2 /home/ganesh/Tools/gklee/Gklee/CUDA/Benchmarks/Others/CudaByExample/chapter05/target.o
+
+gklee output:
+Configuration: concurrency bug checking level is: 2
+KLEE: output directory = "klee-out-7"
+KLEE: WARNING: undefined reference to function: __begin_GPU
+KLEE: WARNING: undefined reference to function: __clear_Malloc
+KLEE: WARNING: undefined reference to function: __end_GPU
+KLEE: WARNING: undefined reference to function: __modify_Block
+KLEE: WARNING: undefined reference to function: __modify_Grid
+KLEE: WARNING: undefined reference to function: __set_Malloc
+KLEE: WARNING: undefined reference to function: __syncthreads
+KLEE: WARNING: undefined reference to function: llvm.memcpy.i64
+KLEE: WARNING: undefined reference to function: llvm.memset.i64
+KLEE: WARNING: undefined reference to function: printf
+
+GKLEE: Start executing a GPU kernel 
+
+
+**************************** Start checking bank conflicts at SharedMemory 0... ***********************************
+The read set is empty in bank conflict checking for capability 1.x
+
+********************************* Start checking memory coalescing at DeviceMemory at capability: 1.0 or 1.1... *************************************
+
+GKLEE: ********** CAPACITY 1.0 or 1.1 half-warp ( 1 )*************
+
+GKLEE: The word size in this half warp : 4
+
+GKLEE: All memory accesses reside in one segment, so one memory transaction starting at 0
+
+
+GKLEE: **************************************************************************
+
+GKLEE: ********** CAPACITY 1.0 or 1.1 half-warp ( 2 )*************
+
+GKLEE: The word size in this half warp : 4
+
+GKLEE: All memory accesses reside in one segment, so one memory transaction starting at 0
+
+
+GKLEE: **************************************************************************
+
+GKLEE: The write set for memory coalescing cap 0 is empty
+
+********************************* Start checking warp divergence ****************************
+In warp 0, threads are diverged into following sub-sets: 
+Set 0:
+Thread 0 , Thread 1 , Thread 2 , Thread 3 , 
+Set 1:
+Thread 4 , Thread 5 , Thread 6 , Thread 7 , Thread 8 , Thread 9 , Thread 10 , Thread 11 , Thread 12 , Thread 13 , Thread 14 , Thread 15 , Thread 16 , Thread 17 , Thread 18 , Thread 19 , Thread 20 , Thread 21 , Thread 22 , Thread 23 , Thread 24 , Thread 25 , Thread 26 , Thread 27 , Thread 28 , Thread 29 , Thread 30 , Thread 31 , 
+In warp 1, threads are diverged into following sub-sets: 
+Set 0:
+Thread 32 , Thread 33 , Thread 34 , Thread 35 , Thread 36 , Thread 37 , Thread 38 , Thread 39 , Thread 40 , Thread 41 , Thread 42 , Thread 43 , Thread 44 , Thread 45 , Thread 46 , Thread 47 , Thread 48 , Thread 49 , Thread 50 , Thread 51 , Thread 52 , Thread 53 , Thread 54 , Thread 55 , Thread 56 , Thread 57 , Thread 58 , Thread 59 , Thread 60 , Thread 61 , Thread 62 , Thread 63 , 
+In warp 2, threads are diverged into following sub-sets: 
+Set 0:
+Thread 64 , Thread 65 , Thread 66 , Thread 67 , Thread 68 , Thread 69 , Thread 70 , Thread 71 , Thread 72 , Thread 73 , Thread 74 , Thread 75 , Thread 76 , Thread 77 , Thread 78 , Thread 79 , Thread 80 , Thread 81 , Thread 82 , Thread 83 , Thread 84 , Thread 85 , Thread 86 , Thread 87 , Thread 88 , Thread 89 , Thread 90 , Thread 91 , Thread 92 , Thread 93 , Thread 94 , Thread 95 , 
+In warp 3, threads are diverged into following sub-sets: 
+Set 0:
+Thread 96 , Thread 97 , Thread 98 , Thread 99 , Thread 100 , Thread 101 , Thread 102 , Thread 103 , Thread 104 , Thread 105 , Thread 106 , Thread 107 , Thread 108 , Thread 109 , Thread 110 , Thread 111 , Thread 112 , Thread 113 , Thread 114 , Thread 115 , Thread 116 , Thread 117 , Thread 118 , Thread 119 , Thread 120 , Thread 121 , Thread 122 , Thread 123 , Thread 124 , Thread 125 , Thread 126 , Thread 127 , 
+In warp 4, threads are diverged into following sub-sets: 
+Set 0:
+Thread 128 , Thread 129 , Thread 130 , Thread 131 , Thread 132 , Thread 133 , Thread 134 , Thread 135 , Thread 136 , Thread 137 , Thread 138 , Thread 139 , Thread 140 , Thread 141 , Thread 142 , Thread 143 , Thread 144 , Thread 145 , Thread 146 , Thread 147 , Thread 148 , Thread 149 , Thread 150 , Thread 151 , Thread 152 , Thread 153 , Thread 154 , Thread 155 , Thread 156 , Thread 157 , Thread 158 , Thread 159 , 
+In warp 5, threads are diverged into following sub-sets: 
+Set 0:
+Thread 160 , Thread 161 , Thread 162 , Thread 163 , Thread 164 , Thread 165 , Thread 166 , Thread 167 , Thread 168 , Thread 169 , Thread 170 , Thread 171 , Thread 172 , Thread 173 , Thread 174 , Thread 175 , Thread 176 , Thread 177 , Thread 178 , Thread 179 , Thread 180 , Thread 181 , Thread 182 , Thread 183 , Thread 184 , Thread 185 , Thread 186 , Thread 187 , Thread 188 , Thread 189 , Thread 190 , Thread 191 , 
+In warp 6, threads are diverged into following sub-sets: 
+Set 0:
+Thread 192 , Thread 193 , Thread 194 , Thread 195 , Thread 196 , Thread 197 , Thread 198 , Thread 199 , Thread 200 , Thread 201 , Thread 202 , Thread 203 , Thread 204 , Thread 205 , Thread 206 , Thread 207 , Thread 208 , Thread 209 , Thread 210 , Thread 211 , Thread 212 , Thread 213 , Thread 214 , Thread 215 , Thread 216 , Thread 217 , Thread 218 , Thread 219 , Thread 220 , Thread 221 , Thread 222 , Thread 223 , 
+In warp 7, threads are diverged into following sub-sets: 
+Set 0:
+Thread 224 , Thread 225 , Thread 226 , Thread 227 , Thread 228 , Thread 229 , Thread 230 , Thread 231 , Thread 232 , Thread 233 , Thread 234 , Thread 235 , Thread 236 , Thread 237 , Thread 238 , Thread 239 , Thread 240 , Thread 241 , Thread 242 , Thread 243 , Thread 244 , Thread 245 , Thread 246 , Thread 247 , Thread 248 , Thread 249 , Thread 250 , Thread 251 , Thread 252 , Thread 253 , Thread 254 , Thread 255 , 
+
+*****************************************************************
+
+****************************************** Start checking races at SharedMemory 0... *********************************************
+GKLEE: Thread 128 and Thread 127 encounter different barrier sequences, one hits the end of kernel, but the other does not!
+t128 found a deadlock: #barriers at the threads:
+t0:2 t1:2 t2:2 t3:2 t4:2 t5:2 t6:2 t7:2 t8:2 t9:2 t10:2 t11:2 t12:2 t13:2 t14:2 t15:2 t16:2 t17:2 t18:2 t19:2 t20:2 t21:2 t22:2 t23:2 t24:2 t25:2 t26:2 t27:2 t28:2 t29:2 t30:2 t31:2 t32:2 t33:2 t34:2 t35:2 t36:2 t37:2 t38:2 t39:2 t40:2 t41:2 t42:2 t43:2 t44:2 t45:2 t46:2 t47:2 t48:2 t49:2 t50:2 t51:2 t52:2 t53:2 t54:2 t55:2 t56:2 t57:2 t58:2 t59:2 t60:2 t61:2 t62:2 t63:2 t64:2 t65:2 t66:2 t67:2 t68:2 t69:2 t70:2 t71:2 t72:2 t73:2 t74:2 t75:2 t76:2 t77:2 t78:2 t79:2 t80:2 t81:2 t82:2 t83:2 t84:2 t85:2 t86:2 t87:2 t88:2 t89:2 t90:2 t91:2 t92:2 t93:2 t94:2 t95:2 t96:2 t97:2 t98:2 t99:2 t100:2 t101:2 t102:2 t103:2 t104:2 t105:2 t106:2 t107:2 t108:2 t109:2 t110:2 t111:2 t112:2 t113:2 t114:2 t115:2 t116:2 t117:2 t118:2 t119:2 t120:2 t121:2 t122:2 t123:2 t124:2 t125:2 t126:2 t127:2 t128:2 t129:1 t130:1 t131:1 t132:1 t133:1 t134:1 t135:1 t136:1 t137:1 t138:1 t139:1 t140:1 t141:1 t142:1 t143:1 t144:1 t145:1 t146:1 t147:1 t148:1 t149:1 t150:1 t151:1 t152:1 t153:1 t154:1 t155:1 t156:1 t157:1 t158:1 t159:1 t160:1 t161:1 t162:1 t163:1 t164:1 t165:1 t166:1 t167:1 t168:1 t169:1 t170:1 t171:1 t172:1 t173:1 t174:1 t175:1 t176:1 t177:1 t178:1 t179:1 t180:1 t181:1 t182:1 t183:1 t184:1 t185:1 t186:1 t187:1 t188:1 t189:1 t190:1 t191:1 t192:1 t193:1 t194:1 t195:1 t196:1 t197:1 t198:1 t199:1 t200:1 t201:1 t202:1 t203:1 t204:1 t205:1 t206:1 t207:1 t208:1 t209:1 t210:1 t211:1 t212:1 t213:1 t214:1 t215:1 t216:1 t217:1 t218:1 t219:1 t220:1 t221:1 t222:1 t223:1 t224:1 t225:1 t226:1 t227:1 t228:1 t229:1 t230:1 t231:1 t232:1 t233:1 t234:1 t235:1 t236:1 t237:1 t238:1 t239:1 t240:1 t241:1 t242:1 t243:1 t244:1 t245:1 t246:1 t247:1 t248:1 t249:1 t250:1 t251:1 t252:1 t253:1 t254:1 t255:1 
+KLEE: ERROR: /home/ganesh/Tools/gklee/Gklee/CUDA/Benchmarks/Others/CudaByExample/chapter05/dot_buggy_CudaByExampleP88.C:129: execution halts on a barrier mismatch, which will incur a deadlock
+KLEE: NOTE: now ignoring this error at this location
+path num explored here: 1
+Across 1 BIs, the total num of warps with BC : 0, the total num of warps: 8
+In shared memory 0, num of BIs with BC: 0, num of BIs: 1
+The bc query num: 1920
+BC:1:0:0:8:0:0:1
+Across 1 BIs, the total num of warps with MC: 1, the total num of warps: 1
+num of BIs with MC: 1, num of BIs: 1
+The mc query number: 14
+MC:1:100:1:1:100:1:1
+Across 1 BIs, the total num of warps with WD: 1, the total num of warps: 8
+num of BIs with WD: 1, num of BIs: 1
+WD:1:12:1:8:100:1:1
+The race query number: 32640
+
+KLEE: done: total instructions = 6509
+KLEE: done: completed paths = 1
+KLEE: done: generated tests = 1

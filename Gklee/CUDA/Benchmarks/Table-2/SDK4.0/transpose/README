@@ -1,0 +1,10 @@
+How to build:
+
+gklee-nvcc transpose_main.cu -Dtranpose0
+gklee-nvcc transpose_main.cu -Dtranpose1
+gklee-nvcc transpose_main.cu -Dtranpose2
+gklee-nvcc transpose_main.cu -Dtranpose3
+gklee-nvcc transpose_main.cu -Dtranpose4
+gklee-nvcc transpose_main.cu -Dtranpose5
+gklee-nvcc transpose_main.cu -Dtranpose6
+gklee-nvcc transpose_main.cu -Dtranpose7

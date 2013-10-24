@@ -1,0 +1,312 @@
+
+ConstantDivision.h,43
+#define __UTIL_CONSTANTDIVISION_H__11,379
+
+SolverStats.h,34
+#define KLEE_SOLVERSTATS_H11,370
+
+STPBuilder.h,478
+#define __UTIL_STPBUILDER_H__11,373
+#define Expr 19,506
+#undef Expr25,628
+  class ExprHolder 28,658
+    ExprHolder(34,762
+    ~ExprHolder(35,826
+  class ExprHandle 40,897
+    ExprHandle(44,952
+    ExprHandle(45,1008
+    ExprHandle(46,1082
+    ~ExprHandle(47,1143
+    operator bool 56,1347
+    operator ::VCExpr VCExpr57,1388
+class STPBuilder 60,1439
+  unsigned getShiftBits(STPBuilder::getShiftBits71,1741
+  ExprHandle construct(STPBuilder::construct116,3692
+
+CachingSolver.cpp,1039
+class CachingSolver 26,588
+  struct CacheEntry CachingSolver::CacheEntry37,953
+    CacheEntry(CachingSolver::CacheEntry::CacheEntry38,975
+    CacheEntry(CachingSolver::CacheEntry::CacheEntry41,1068
+    bool operator==(CachingSolver::CacheEntry::operator==47,1223
+  struct CacheEntryHash CachingSolver::CacheEntryHash52,1359
+    unsigned operator()(CachingSolver::CacheEntryHash::operator()53,1385
+                                  CacheEntryHash> cache_map;CachingSolver::cache_map66,1802
+  CachingSolver(CachingSolver::CachingSolver72,1912
+  ~CachingSolver(CachingSolver::~CachingSolver73,1954
+  bool computeValue(CachingSolver::computeValue77,2122
+  bool computeInitialValues(CachingSolver::computeInitialValues81,2285
+ref<Expr> CachingSolver::canonicalizeQuery(93,2846
+bool CachingSolver::cacheLookup(109,3393
+void CachingSolver::cacheInsert(128,3967
+bool CachingSolver::computeValidity(140,4430
+bool CachingSolver::computeTruth(206,6255
+Solver *klee::createCachingSolver(klee::createCachingSolver242,7283
+
+CexCachingSolver.cpp,1265
+typedef std::set< ref<Expr> > KeyType;46,1113
+struct AssignmentLessThan 48,1153
+  bool operator()(AssignmentLessThan::operator()49,1181
+class CexCachingSolver 55,1290
+  typedef std::set<Assignment*, AssignmentLessThan> assignmentsTable_ty;CexCachingSolver::assignmentsTable_ty56,1335
+  bool lookupAssignment(CexCachingSolver::lookupAssignment69,1705
+  CexCachingSolver(CexCachingSolver::CexCachingSolver77,1917
+struct NullAssignment 91,2416
+  bool operator()(NullAssignment::operator()92,2440
+struct NonNullAssignment 95,2498
+  bool operator()(NonNullAssignment::operator()96,2525
+struct NullOrSatisfyingAssignment 99,2585
+  NullOrSatisfyingAssignment(NullOrSatisfyingAssignment::NullOrSatisfyingAssignment102,2640
+  bool operator()(NullOrSatisfyingAssignment::operator()104,2700
+bool CexCachingSolver::searchForAssignment(116,3146
+bool CexCachingSolver::lookupAssignment(181,5487
+bool CexCachingSolver::getAssignment(198,6005
+CexCachingSolver::~CexCachingSolver(238,6990
+bool CexCachingSolver::computeValidity(246,7206
+bool CexCachingSolver::computeTruth(270,7952
+bool CexCachingSolver::computeValue(297,8802
+CexCachingSolver::computeInitialValues(314,9305
+Solver *klee::createCexCachingSolver(klee::createCexCachingSolver348,10333
+
+ConstantDivision.cpp,380
+namespace klee 17,444
+#define TWO_TO_THE_32_U64 28,794
+#define TWO_TO_THE_31_S64 31,908
+#define ABS(34,974
+#define XSIGN(37,1099
+#define LOG2_CEIL(40,1187
+static uint32_t ones(klee::ones43,1294
+static uint32_t ldz(54,1597
+static uint32_t exp_base_2(65,1805
+void ComputeMultConstants64(82,2533
+void ComputeUDivConstants32(118,3405
+void ComputeSDivConstants32(128,3747
+
+FastCexSolver.cpp,4376
+static uint64_t minOR(32,801
+static uint64_t maxOR(48,1183
+static uint64_t minAND(64,1543
+static uint64_t maxAND(79,1899
+class ValueRange 98,2301
+  ValueRange(ValueRange::ValueRange103,2363
+  ValueRange(ValueRange::ValueRange104,2401
+  ValueRange(ValueRange::ValueRange108,2528
+  ValueRange(ValueRange::ValueRange109,2589
+  ValueRange(ValueRange::ValueRange110,2662
+  void print(ValueRange::print112,2733
+  bool isEmpty(ValueRange::isEmpty120,2885
+  bool contains(ValueRange::contains123,2940
+  bool intersects(ValueRange::intersects126,3034
+  bool isFullRange(ValueRange::isFullRange130,3137
+  ValueRange set_intersection(ValueRange::set_intersection134,3239
+  ValueRange set_union(ValueRange::set_union137,3375
+  ValueRange set_difference(ValueRange::set_difference140,3504
+  ValueRange binaryAnd(ValueRange::binaryAnd156,4124
+  ValueRange binaryAnd(ValueRange::binaryAnd166,4466
+  ValueRange binaryOr(ValueRange::binaryOr167,4544
+  ValueRange binaryOr(ValueRange::binaryOr177,4876
+  ValueRange binaryXor(ValueRange::binaryXor178,4952
+  ValueRange binaryShiftLeft(ValueRange::binaryShiftLeft189,5256
+  ValueRange binaryShiftRight(ValueRange::binaryShiftRight192,5361
+  ValueRange concat(ValueRange::concat196,5468
+  ValueRange extract(ValueRange::extract199,5582
+  ValueRange add(ValueRange::add203,5737
+  ValueRange sub(ValueRange::sub206,5861
+  ValueRange mul(ValueRange::mul209,5985
+  ValueRange udiv(ValueRange::udiv212,6109
+  ValueRange sdiv(ValueRange::sdiv215,6234
+  ValueRange urem(ValueRange::urem218,6359
+  ValueRange srem(ValueRange::srem221,6484
+  bool isFixed(ValueRange::isFixed227,6702
+  bool operator==(ValueRange::operator==229,6751
+  bool operator!=(ValueRange::operator!=232,6849
+  bool mustEqual(ValueRange::mustEqual234,6919
+  bool mayEqual(ValueRange::mayEqual235,6997
+  bool mustEqual(ValueRange::mustEqual237,7073
+  bool mayEqual(ValueRange::mayEqual240,7180
+  uint64_t min(ValueRange::min242,7256
+  uint64_t max(ValueRange::max247,7369
+  int64_t minSigned(ValueRange::minSigned252,7484
+  int64_t maxSigned(ValueRange::maxSigned268,7955
+inline std::ostream &operator<<(operator<<286,8461
+typedef ValueRange CexValueData;292,8617
+class CexObjectData 294,8651
+  CexObjectData(CexObjectData::CexObjectData311,9254
+  const CexValueData getPossibleValues(CexObjectData::getPossibleValues318,9480
+  void setPossibleValues(CexObjectData::setPossibleValues321,9582
+  void setPossibleValue(CexObjectData::setPossibleValue324,9686
+  const CexValueData getExactValues(CexObjectData::getExactValues328,9803
+  void setExactValues(CexObjectData::setExactValues331,9899
+  unsigned char getPossibleValue(CexObjectData::getPossibleValue336,10051
+class CexRangeEvaluator 342,10221
+  CexRangeEvaluator(CexRangeEvaluator::CexRangeEvaluator345,10346
+  ValueRange getInitialReadRange(CexRangeEvaluator::getInitialReadRange348,10445
+class CexPossibleEvaluator 359,10787
+  ref<Expr> getInitialValue(CexPossibleEvaluator::getInitialValue361,10850
+  CexPossibleEvaluator(CexPossibleEvaluator::CexPossibleEvaluator376,11521
+class CexExactEvaluator 380,11626
+  ref<Expr> getInitialValue(CexExactEvaluator::getInitialValue382,11686
+  CexExactEvaluator(CexExactEvaluator::CexExactEvaluator404,12602
+#define DEBUG409,12710
+class CexData 412,12732
+  CexData(CexData::CexData420,12917
+  ~CexData(CexData::~CexData421,12932
+  CexObjectData &getObjectData(CexData::getObjectData427,13104
+  void propogatePossibleValue(CexData::propogatePossibleValue436,13277
+  void propogateExactValue(CexData::propogateExactValue440,13402
+  void propogatePossibleValues(CexData::propogatePossibleValues444,13521
+  void propogateExactValues(CexData::propogateExactValues785,25159
+  ValueRange evalRangeForExpr(CexData::evalRangeForExpr925,28528
+  ref<Expr> evaluatePossible(CexData::evaluatePossible932,28778
+  ref<Expr> evaluateExact(CexData::evaluateExact936,28878
+  void dump(CexData::dump940,28972
+class FastCexSolver 969,29715
+FastCexSolver::FastCexSolver(982,30174
+FastCexSolver::~FastCexSolver(984,30210
+static bool propogateValues(1000,30792
+FastCexSolver::computeTruth(1051,32196
+bool FastCexSolver::computeValue(1063,32473
+FastCexSolver::computeInitialValues(1090,33147
+Solver *klee::createFastCexSolver(klee::createFastCexSolver1136,34494
+
+IncompleteSolver.cpp,367
+IncompleteSolver::negatePartialValidity(20,497
+IncompleteSolver::computeValidity(32,866
+StagedSolverImpl::StagedSolverImpl(61,1600
+StagedSolverImpl::~StagedSolverImpl(67,1774
+bool StagedSolverImpl::computeTruth(72,1855
+bool StagedSolverImpl::computeValidity(83,2199
+bool StagedSolverImpl::computeValue(116,3094
+StagedSolverImpl::computeInitialValues(125,3333
+
+IndependentSolver.cpp,1555
+class DenseSet 27,621
+  typedef std::set<T> set_ty;DenseSet::set_ty28,638
+  DenseSet(DenseSet::DenseSet32,689
+  void add(DenseSet::add34,706
+  void add(DenseSet::add37,745
+  bool add(DenseSet::add43,882
+  bool intersects(DenseSet::intersects55,1171
+  void print(DenseSet::print63,1371
+inline std::ostream &operator<<(operator<<80,1689
+class IndependentElementSet 85,1798
+  typedef std::map<const Array*, DenseSet<unsigned> > elements_ty;IndependentElementSet::elements_ty86,1828
+  IndependentElementSet(IndependentElementSet::IndependentElementSet91,1967
+  IndependentElementSet(IndependentElementSet::IndependentElementSet92,1996
+  IndependentElementSet(IndependentElementSet::IndependentElementSet117,2835
+  IndependentElementSet &operator=(IndependentElementSet::operator=121,2967
+  void print(IndependentElementSet::print127,3127
+  bool intersects(IndependentElementSet::intersects159,3893
+  bool add(IndependentElementSet::add182,4682
+inline std::ostream &operator<<(operator<<217,5732
+IndependentElementSet getIndependentConstraints(223,5859
+class IndependentSolver 268,7612
+  IndependentSolver(IndependentSolver::IndependentSolver273,7694
+  ~IndependentSolver(IndependentSolver::~IndependentSolver275,7757
+  bool computeInitialValues(IndependentSolver::computeInitialValues280,7968
+bool IndependentSolver::computeValidity(289,8354
+bool IndependentSolver::computeTruth(299,8755
+bool IndependentSolver::computeValue(308,9098
+Solver *klee::createIndependentSolver(klee::createIndependentSolver318,9454
+
+PCLoggingSolver.cpp,596
+class PCLoggingSolver 29,707
+  void startQuery(PCLoggingSolver::startQuery36,858
+  void finishQuery(PCLoggingSolver::finishQuery53,1622
+  PCLoggingSolver(PCLoggingSolver::PCLoggingSolver60,1814
+  ~PCLoggingSolver(PCLoggingSolver::~PCLoggingSolver66,2045
+  bool computeTruth(PCLoggingSolver::computeTruth71,2114
+  bool computeValidity(PCLoggingSolver::computeValidity81,2420
+  bool computeValue(PCLoggingSolver::computeValue91,2723
+  bool computeInitialValues(PCLoggingSolver::computeInitialValues103,3107
+Solver *klee::createPCLoggingSolver(klee::createPCLoggingSolver144,4515
+
+Solver.cpp,2201
+#define vc_bvBoolExtract 24,684
+const char *Solver::validity_to_str(Solver::validity_to_str65,1768
+Solver::~Solver(73,1931
+SolverImpl::~SolverImpl(77,1971
+bool Solver::evaluate(80,2002
+bool SolverImpl::computeValidity(92,2369
+bool Solver::mustBeTrue(106,2732
+bool Solver::mustBeFalse(118,3094
+bool Solver::mayBeTrue(122,3207
+bool Solver::mayBeFalse(130,3363
+bool Solver::getValue(138,3519
+Solver::getInitialValues(160,4018
+std::pair< ref<Expr>, ref<Expr> > Solver::getRange(173,4410
+class ValidatingSolver 288,7527
+  ValidatingSolver(ValidatingSolver::ValidatingSolver293,7618
+  ~ValidatingSolver(ValidatingSolver::~ValidatingSolver295,7714
+bool ValidatingSolver::computeTruth(306,8169
+bool ValidatingSolver::computeValidity(321,8539
+bool ValidatingSolver::computeValue(336,8945
+ValidatingSolver::computeInitialValues(358,9579
+Solver *klee::createValidatingSolver(klee::createValidatingSolver403,11409
+class DummySolverImpl 409,11539
+  DummySolverImpl(DummySolverImpl::DummySolverImpl411,11592
+  bool computeValidity(DummySolverImpl::computeValidity413,11618
+  bool computeTruth(DummySolverImpl::computeTruth418,11778
+  bool computeValue(DummySolverImpl::computeValue423,11924
+  bool computeInitialValues(DummySolverImpl::computeInitialValues430,12101
+Solver *klee::createDummySolver(klee::createDummySolver440,12426
+class STPSolverImpl 446,12516
+  void setTimeout(STPSolverImpl::setTimeout460,12883
+static unsigned char *shared_memory_ptr;shared_memory_ptr470,13290
+static const unsigned shared_memory_size 471,13331
+static int shared_memory_id;472,13381
+static void stp_error_handler(474,13411
+STPSolverImpl::STPSolverImpl(479,13532
+STPSolverImpl::~STPSolverImpl(500,14283
+STPSolver::STPSolver(508,14364
+char *STPSolver::getConstraintLog(STPSolver::getConstraintLog513,14498
+void STPSolver::setTimeout(517,14628
+char *STPSolverImpl::getConstraintLog(STPSolverImpl::getConstraintLog523,14741
+bool STPSolverImpl::computeTruth(540,15295
+bool STPSolverImpl::computeValue(553,15637
+static void runAndGetCex(585,16684
+static void stpTimeoutHandler(614,17639
+static bool runAndGetCexForked(618,17694
+STPSolverImpl::computeInitialValues(711,20617
+
+STPBuilder.cpp,1666
+#define vc_bvBoolExtract 23,559
+#define vc_bvLeftShiftExpr 25,621
+#define vc_bvRightShiftExpr 26,667
+#define vc_bvVar32LeftShiftExpr 28,731
+#define vc_bvVar32RightShiftExpr 29,782
+#define vc_bvVar32DivByPowOfTwoExpr 30,834
+#define vc_bvCreateMemoryArray 31,889
+#define vc_bvReadMemoryArray 32,939
+#define vc_bvWriteToMemoryArray 33,987
+STPBuilder::STPBuilder(55,1406
+STPBuilder::~STPBuilder(64,1689
+::VCExpr STPBuilder::buildVar(73,1909
+::VCExpr STPBuilder::buildArray(81,2183
+ExprHandle STPBuilder::getTempVar(93,2582
+ExprHandle STPBuilder::getTrue(103,2854
+ExprHandle STPBuilder::getFalse(106,2917
+ExprHandle STPBuilder::bvOne(109,2982
+ExprHandle STPBuilder::bvZero(112,3061
+ExprHandle STPBuilder::bvMinusOne(115,3141
+ExprHandle STPBuilder::bvConst32(118,3236
+ExprHandle STPBuilder::bvConst64(121,3355
+ExprHandle STPBuilder::bvBoolExtract(125,3474
+ExprHandle STPBuilder::bvExtract(128,3602
+ExprHandle STPBuilder::eqExpr(131,3733
+ExprHandle STPBuilder::bvRightShift(136,3849
+ExprHandle STPBuilder::bvLeftShift(152,4303
+ExprHandle STPBuilder::bvVarLeftShift(170,4936
+ExprHandle STPBuilder::bvVarRightShift(189,5648
+ExprHandle STPBuilder::bvVarArithRightShift(209,6366
+ExprHandle STPBuilder::constructAShrByConstant(237,7498
+ExprHandle STPBuilder::constructMulByConstant(258,8341
+ExprHandle STPBuilder::constructUDivByConstant(312,9790
+ExprHandle STPBuilder::constructSDivByConstant(349,11351
+::VCExpr STPBuilder::getInitialArray(387,13097
+ExprHandle STPBuilder::getInitialRead(415,14098
+::VCExpr STPBuilder::getArrayForUpdate(419,14247
+ExprHandle STPBuilder::construct(437,14841
+ExprHandle STPBuilder::constructActual(460,15543
+
+SolverStats.cpp,0

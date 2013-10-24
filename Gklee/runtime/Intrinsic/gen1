@@ -1,0 +1,6 @@
+#!/bin/bash
+
+llvm-gcc -O3 -emit-llvm -I /home/ligd/klee/include -c $1.c
+llvm-ld $1.o -o $1
+llvm-dis -f $1.bc
+

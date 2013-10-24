@@ -1,0 +1,82 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Cwd;
+use File::Basename;
+
+print "Before running this script, please make sure 'bison' and 'flex' are installed in your system. \n";
+print "Which compilation mode do you want? (1 <Release> /2 <Debug>)\n";
+
+my $mode = <>;
+chomp($mode);
+my $cmd = "";
+
+if ($mode != 1) {
+  print("mode: DEBUG_SYMBOLS=1 KEEP_SYMBOLS=1 ENABLE_OPTIMIZED=0\n");
+  $cmd = "DEBUG_SYMBOLS=1 KEEP_SYMBOLS=1 ENABLE_OPTIMIZED=0";
+} 
+
+my $cwd = getcwd();
+
+# Download the LLVM/Clang and Build them
+unless (-d "llvm") {
+  system("wget http://www.llvm.org/releases/3.2/llvm-3.2.src.tar.gz");
+  system("tar -xzvf llvm-3.2.src.tar.gz");
+  system("mv llvm-3.2.src llvm");
+  system("rm llvm-3.2.src.tar.gz");
+} 
+
+chdir("llvm/tools");
+
+unless (-d "clang") {
+  system("wget http://www.llvm.org/releases/3.2/clang-3.2.src.tar.gz");
+  system("tar -xzvf clang-3.2.src.tar.gz");
+  system("mv clang-3.2.src clang");
+  system("rm clang-3.2.src.tar.gz");
+  chdir("clang");
+  system("cp ../../../clang.patch .");
+  system("patch -p1 < clang.patch");
+  chdir("..");
+} 
+
+chdir("..");
+
+chdir("projects");
+unless (-d "compiler-rt") {
+  system("wget http://www.llvm.org/releases/3.2/compiler-rt-3.2.src.tar.gz");
+  system("tar -xzvf compiler-rt-3.2.src.tar.gz");
+  system("mv compiler-rt-3.2.src compiler-rt");
+}
+
+chdir("../..");
+
+unless (-d "llvm-inst") {
+  system("mkdir llvm-inst");
+}
+
+chdir("llvm-inst");
+
+if ($mode != 1) {
+  system("../llvm/configure");
+} else {
+  system("../llvm/configure --enable-optimized --enable-assertions");
+}
+
+system("make -j4 $cmd");
+chdir("..");
+
+# Go to Gklee dir, and build it 
+chdir("Gklee");
+chdir("klee-uclibc");
+system("tar -xzvf klee-uclibc.tgz");
+chdir("..");
+chdir("stp");
+system("./stp-install");
+chdir("..");
+my $llvmsrc = $cwd . "/llvm";
+my $llvmobj = $cwd . "/llvm-inst";
+my $stppath = $cwd . "/Gklee/stp_install";
+my $kleeuclibcpath = $cwd . "/Gklee/klee-uclibc";
+system("./configure --with-llvmsrc=$llvmsrc --with-llvmobj=$llvmobj --with-stp=$stppath --with-uclibc=$kleeuclibcpath --enable-posix-runtime");
+system("make -j4 $cmd");

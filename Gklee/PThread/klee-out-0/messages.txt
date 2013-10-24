@@ -1,0 +1,8 @@
+KLEE: WARNING: undefined reference to function: fprintf
+KLEE: WARNING: undefined reference to function: printf
+KLEE: WARNING: undefined reference to function: pthread_create
+KLEE: WARNING: undefined reference to function: pthread_join
+KLEE: WARNING: undefined reference to variable: stderr
+KLEE: WARNING: undefined reference to function: strerror
+KLEE: WARNING: calling external: pthread_create(28975328, 0, 28430720, 28975456)
+KLEE: WARNING: calling external: pthread_join(140361407899408, 28974624)

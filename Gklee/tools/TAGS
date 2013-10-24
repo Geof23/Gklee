@@ -1,0 +1,72 @@
+
+gen-random-bout/gen-random-bout.cpp,124
+static int getint(13,268
+#define MAX 21,396
+static void push_obj(22,411
+static void push_range(40,873
+int main(51,1155
+
+kleaver/main.cpp,599
+  enum ToolActions ::ToolActions31,756
+    PrintTokens,::ToolActions::PrintTokens32,777
+    PrintAST,::ToolActions::PrintAST33,794
+    Evaluate::ToolActions::Evaluate34,808
+  enum BuilderKinds ::BuilderKinds49,1362
+    DefaultBuilder,::BuilderKinds::DefaultBuilder50,1384
+    ConstantFoldingBuilder,::BuilderKinds::ConstantFoldingBuilder51,1404
+    SimplifyingBuilder::BuilderKinds::SimplifyingBuilder52,1432
+static std::string escapedString(81,2312
+static void PrintInputTokens(99,2741
+static bool PrintInputAST(111,3099
+static bool EvaluateInputAST(145,3921
+int main(265,7874
+
+klee/Debug.cpp,25
+void kdb_printExpr(4,44
+
+klee/main.cpp,2090
+#undef PACKAGE_BUGREPORT29,862
+#undef PACKAGE_NAME30,887
+#undef PACKAGE_STRING31,907
+#undef PACKAGE_TARNAME32,929
+#undef PACKAGE_VERSION33,952
+  enum LibcType ::LibcType104,2794
+    NoLibc,::LibcType::NoLibc105,2812
+    NoLibc, KleeLibc,::LibcType::KleeLibc105,2812
+    NoLibc, KleeLibc, UcLibc::LibcType::UcLibc105,2812
+class KleeHandler 193,5624
+  std::ostream &getInfoStream(KleeHandler::getInfoStream211,6079
+  unsigned getNumTestCases(KleeHandler::getNumTestCases212,6141
+  unsigned getNumPathsExplored(KleeHandler::getNumPathsExplored213,6194
+  void incPathsExplored(KleeHandler::incPathsExplored214,6255
+KleeHandler::KleeHandler(239,7108
+KleeHandler::~KleeHandler(317,9101
+void KleeHandler::setInterpreter(323,9243
+std::string KleeHandler::getOutputFilename(339,9699
+std::ostream *KleeHandler::openOutputFile(KleeHandler::openOutputFile345,9882
+std::string KleeHandler::getTestFilename(362,10364
+std::ostream *KleeHandler::openTestFile(KleeHandler::openTestFile368,10567
+void KleeHandler::processTestCase(376,10839
+void KleeHandler::loadPathFile(499,14782
+void KleeHandler::getOutFiles(514,15136
+static std::string strip(544,16020
+static void readArgumentsFromFile(554,16277
+static void parseArguments(567,16624
+static int initEnv(592,17234
+static const char *modelledExternals[modelledExternals657,19463
+static const char *dontCareExternals[dontCareExternals704,20437
+static const char *dontCareKlee[dontCareKlee752,21192
+static const char *dontCareUclibc[dontCareUclibc763,21403
+static const char *unsafeExternals[unsafeExternals772,21602
+#define NELEMS(779,21761
+void externalsAndGlobalsCheck(780,21816
+static Interpreter *theInterpreter theInterpreter866,24862
+static bool interrupted 868,24903
+void halt_execution(872,25006
+void stop_forking(877,25086
+static void interrupt_handle(881,25154
+static void halt_via_gdb(898,25804
+static char *format_tdiff(format_tdiff910,26175
+static llvm::Module *linkWithUclibc(linkWithUclibc925,26586
+static llvm::Module *linkWithUclibc(linkWithUclibc931,26745
+int main(1070,32296

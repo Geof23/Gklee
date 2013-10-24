@@ -1,0 +1,6 @@
+GKLEE:
+gklee-nvcc reduction.cu -DRED0
+
+GKLEE_p:
+gklee-nvcc reduction.cu -DRED0 -D_SYM
+

@@ -1,0 +1,112 @@
+#!/usr/bin/env python
+#NOTE: This doesn't handle line spanning c-style comments!
+
+#Peng Li & Geof Sawaya, 2011 Gauss Group
+
+class Error(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+
+import os, sys
+
+def main():
+    from optparse import OptionParser
+    #import call, check_call
+    import subprocess
+    if len(sys.argv) <= 1:
+        print "No arguments provided or number of arguments is not enough!"
+        sys.exit(1)
+
+    #op = OptionParser("usage: %prog <source code> [options]")# + \
+    #op.add_option("-o", "--outFile", dest="outFile", type="string",
+    #              help="specify output executable name")#[x,y,z] (3-tuple)")
+    #opts,args = op.parse_args()
+ 
+    #if opts.outFile is None:
+    #  print "No output name is provided"
+    #  sys.exit(1)
+    exeNameFound = 0
+    devCapFound = 0
+    combineArgs = " " 
+    num = 0;
+    for i in range(1, len(sys.argv)):
+       print i, sys.argv[i] 
+       part = sys.argv[i] + " "
+       combineArgs += part 
+       if sys.argv[i] == "-arch":
+         devCapFound = 1
+       if sys.argv[i] == "-o":
+         exeNameFound = 1
+         num = i
+
+    if devCapFound == 0:
+      print "No GPU capability specified, set it as the default (capability 2.0)!"
+      combineArgs += "-arch sm_20"
+
+    if exeNameFound == 1:
+      exeName = sys.argv[num+1]
+    else:
+      print "No executable name specified, set it as the default (a.out)!"
+      combineArgs += "-o a.out"
+      exeName = "a.out"
+
+    print "args after parsing are: " + combineArgs
+    #make sure environment is set correctly
+    if os.getenv("FLA_KLEE_HOME_DIR") is None:
+        print "Please set FLA_KLEE_HOME_DIR"
+        sys.exit(1)
+    else:
+        kleeHome = os.getenv("FLA_KLEE_HOME_DIR")
+
+    cmdLine = "nvcc " + combineArgs + \
+        " -I ./" + \
+        " -I " + kleeHome + "/Gklee/include/klee" + \
+        " -I " + kleeHome + "/Gklee/include/ " + \
+        kleeHome + "/Gklee/lib/Basic/KTest.cpp " + \
+        kleeHome + "/Gklee/runtime/Runtest/intrinsics.c "
+
+    print "With command line: " + cmdLine
+
+    result = subprocess.call(cmdLine, shell=True)
+                
+    if result != 0:
+        print "nvcc failed"
+        sys.exit(result)
+    else:
+        print "nvcc compilation succeeded" 
+
+    # command line profiling computation 
+    profDir = "./prof_" + exeName
+    print "profDir: " + profDir
+    if (os.path.exists(profDir)):
+      removeCmd = "rm -rf " + profDir 
+      subprocess.call(removeCmd, shell=True)
+    os.mkdir(profDir)
+
+    if 'COMPUTE_PROFILE' in os.environ:
+       cudaProfBU = os.environ['COMPUTE_PROFILE']
+    else:
+       cudaProfBU = None
+    if 'COMPUTE_PROFILE_LOG' in os.environ:
+       cudaProfLogBU = os.environ['COMPUTE_PROFILE_LOG']
+    else:
+       cudaProfLogBU = None
+    os.environ['COMPUTE_PROFILE'] = '1'
+    #os.environ['COMPUTE_PROFILE_CONFIG'] = '/home/peng/config.txt' 
+
+    for file in os.listdir(os.path.join(os.getcwd(), "klee-last")):
+      if (file.endswith(".ktest")):
+         os.environ['KTEST_FILE'] = os.path.join(os.getcwd(), "klee-last", file)
+         profFile = file + ".prof"
+         logPath = os.path.join(profDir, profFile)
+         os.environ['COMPUTE_PROFILE_LOG'] = logPath
+         print "COMPUTE_PROFILE_LOG is set to " + logPath
+         print "Executible is: " + exeName
+         cmd = "./" + exeName
+         retCode = subprocess.call(cmd, shell=True)
+         print "\n"
+         print "Test " + file + " return value is: " + str(retCode)
+    
+if __name__ == "__main__":
+    sys.exit(main())
+

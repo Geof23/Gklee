@@ -1,0 +1,2 @@
+KLEE: ERROR: failed external call: pthread_join
+KLEE: NOTE: now ignoring this error at this location

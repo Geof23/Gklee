@@ -1,0 +1,178 @@
+#!/usr/bin/env python
+#NOTE: This doesn't handle line spanning c-style comments!
+
+#Geof Sawaya, 2011 Gauss Group
+
+class Error(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+
+import os, sys
+
+def main(argv=None):
+    from optparse import OptionParser
+    from subprocess import call, check_call
+    if argv is None:
+        argv=sys.argv
+    op = OptionParser("usage: %prog <source code> [options]")# + \
+    op.add_option("-b", "--blocksize", dest="blocksize", type="string",
+                  help="set the blocksize for gklee anaysis")#[x,y,z] (3-tuple)")
+    op.add_option("-g", "--gridsize", dest="gridsize", type="int",
+                  help="set the gridsize for gklee analysis")#[i,j] (2-tuple)")
+    op.add_option("-l", "--nvccOpts", dest="nvccOpts", type="string",
+                  help="pass parameters for NVCC compiler front end")
+    op.add_option("-n", "--noExec", dest="noexec", action="store_true",
+                  help="don't run generated executible")
+    op.add_option("-o", "--outFile", dest="outFile", type="string",
+                  help="specify output executable name")
+    op.add_option("-k", "--keepTemp", dest="keepTemp", action="store_true",
+                  help="keep temporary source file")
+    op.add_option("-p", "--profile", dest="profile", action="store_true",
+                  help="generate profile per test")
+#    op.add_option("-c", "--compile", dest="compile", type="string",
+#                  help="compile only passed file")
+    opts,args = op.parse_args()
+    if not args:
+        op.error("wrong number of arguments")
+    print "args after parsing are: " + str(args)
+#set blocksize and gridsize, if not by optional args
+    if opts.blocksize is None:
+        blocksize = 2
+    else:
+        blocksize = opts.blocksize
+    if opts.gridsize is None:
+        gridsize = 1
+    else:
+        gridsize = opts.gridsize
+
+#make sure environment is set correctly
+    if os.getenv("FLA_KLEE_HOME_DIR") is None:
+        print "Please set FLA_KLEE_HOME_DIR"
+        sys.exit(1)
+    else:
+        kleeHome = os.getenv("FLA_KLEE_HOME_DIR")
+
+#'preprocess' source code -- format for nvcc and not klee
+    from tempfile import NamedTemporaryFile
+    temp = NamedTemporaryFile(mode='w+', 
+                              bufsize=-1, 
+                              suffix=".cu", 
+                              prefix='tmp', 
+                              dir='./', 
+                              delete=False)
+    print "The temp generated here: " + temp.name
+    inGPUSection = False
+    with open(args[0], 'r') as f:
+        for line in f.readlines():
+            line = line.split("//")[0].rstrip()
+            line = line + "\n"
+            newLines = line.splitlines()[0].split(";")
+            while len(newLines):
+                if newLines[0].find("__begin_GPU") > -1:
+                    if inGPUSection:
+                        raise Error("__begin_GPU out of sequence in " + 
+                                        args[0] + "on line " + line)
+                    inGPUSection = True
+                    temp.write("//" + newLines[0])
+                elif newLines[0].find("__end_GPU") > -1:
+                    if not inGPUSection:
+                        raise Error("__end_GPU out of sequence in " +
+                                        args[0] + " on line " + line)
+                    inGPUSection = False
+                    temp.write("//" + newLines[0])
+                elif inGPUSection:
+                    if newLines[0].find("(") > -1:
+                        temp.write(newLines[0].replace(newLines[0]
+                                                       [newLines[0].find("("):],
+                                                       "<<<dim3(" + str(gridsize) + 
+                                                       "), dim3(" + str(blocksize) + 
+                                                       ")>>>" +
+                                                       newLines[0]
+                                                       [newLines[0].find("("):]))
+                    else:
+                        temp.write(newLines[0])
+                else:
+                    temp.write(newLines[0])
+                if len(newLines) > 1:
+                    temp.write(";\n")
+                else:
+                    temp.write("\n")
+                newLines = newLines[1:len(newLines)]
+                    
+    temp.close()
+    print "Successfuly preprocessed source file: " + args[0]
+    print "Now compiling " + temp.name + " with nvcc . . ."
+    nvccArgs = "-DGKLEE_NATIVE_COMP "
+    if not opts.nvccOpts is None:
+        nvccArgs += opts.nvccOpts
+    if not opts.outFile is None:
+        tempExe = opts.outFile
+    else:
+        tempFile = NamedTemporaryFile(dir = ".", delete = False)
+        tempFile.close() #we just need a non-conflicting temp name for exe
+        tempExe = tempFile.name
+    cmdLine = "nvcc " + nvccArgs + " " + temp.name +  " -o " + tempExe + \
+        " -I " + kleeHome + "/Gklee/include/klee" + \
+        " -I " + kleeHome + "/Gklee/include/ " + \
+        kleeHome + "/Gklee/lib/Basic/KTest.cpp " + \
+        kleeHome + "/Gklee/runtime/Runtest/intrinsics.c "
+    print "With command line: " + cmdLine
+
+    result = call(cmdLine,
+                  shell=True)
+                
+    if result != 0:
+        print "nvcc failed"
+        sys.exit(result)
+    else:
+        print "nvcc compilation succeeded" 
+        if not opts.keepTemp:
+           os.remove(temp.name)
+
+#iterate through the test data and run the binary for each test in klee-last
+#    print "testing, testing"
+#    call("./a.out")
+    from tempfile import mkdtemp
+    if opts.profile:
+        profDir = mkdtemp(prefix="prof_", dir="./")
+        if 'COMPUTE_PROFILE' in os.environ:
+            cudaProfBU = os.environ['COMPUTE_PROFILE']
+        else:
+            cudaProfBU = None
+        if 'COMPUTE_PROFILE_LOG' in os.environ:
+            cudaProfLogBU = os.environ['COMPUTE_PROFILE_LOG']
+        else:
+            cudaProfLogBU = None
+        os.environ['COMPUTE_PROFILE'] = '1'
+
+    if opts.noexec:
+        print "NoExec option activated.  Exiting . . ."
+    else:
+        for file in os.listdir(os.path.join(os.getcwd(), "klee-last")):
+            if(file.endswith(".ktest")):
+                os.environ['KTEST_FILE'] = os.path.join(os.getcwd(), "klee-last", file)
+                if opts.profile:
+                    profFile = file + ".prof"
+                    logPath = os.path.join(profDir, profFile)
+                    os.environ['COMPUTE_PROFILE_LOG'] = logPath
+                    print "COMPUTE_PROFILE_LOG is set to " + logPath
+                print "Running compiled " + args[0] + " with input " + file + " . . ."
+                print "Executible is: " + tempExe
+                retCode = call([tempExe])
+                print "\n"
+                print "Test " + file + " return value is: " + str(retCode)
+#                if retCode != 0:
+#                    print "Test " + file + "failed. Continuing . . ."
+        #else:
+            #print file + " doesn't end with .ktest"
+    if opts.noexec is None:
+        print "Do not remove temp executable"
+        #os.remove(tempExe)
+    if opts.profile:
+        if not cudaProfBU is None:
+            os.environ['COMPUTE_PROFILE'] = cudaProfBU
+        if not cudaProfLogBU is None:
+            os.environ['COMPUTE_PROFILE_LOG'] = cudaProfLogBU
+if __name__ == "__main__":
+    sys.exit(main())
+

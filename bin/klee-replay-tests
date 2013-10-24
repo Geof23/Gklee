@@ -1,0 +1,14 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then
+  executable=a.out
+else
+  executable=$1
+fi
+
+# run all the tests
+for test in klee-last/test*.ktest; do
+  echo Running test: $test
+  export KTEST_FILE=$test 
+  ./$executable
+done

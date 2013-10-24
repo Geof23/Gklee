@@ -1,0 +1,6 @@
+GKLEE:
+gklee-nvcc scan.cu
+
+GKLEE_p:
+gklee-nvcc scan.cu -D_SYM
+

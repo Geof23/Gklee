@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# print all the tests
+for test in klee-last/test*.ktest; do
+  echo
+  ktest-tool $test
+done

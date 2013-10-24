@@ -1,0 +1,15 @@
+How to build:
+
+scan short build:
+
+gklee-nvcc scan_kernel.cu
+klee-l++ main.cpp -DSCANSHORT 
+- klee-l++ main.cpp -DSCANSHORT -D_SYM (for parametric flow work)
+llvm-link -o scan_short main.o scan_kernel
+
+scan large build:
+
+gklee-nvcc scan_kernel.cu
+klee-l++ main.cpp -DSCANLARGE 
+- klee-l++ main.cpp -DSCANLARGE -D_SYM (for parametric flow work)
+llvm-link -o scan_large main.o scan_kernel

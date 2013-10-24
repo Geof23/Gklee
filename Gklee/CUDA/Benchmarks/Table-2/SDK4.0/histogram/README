@@ -1,0 +1,15 @@
+How to build:
+
+histogram64 build:
+
+gklee-nvcc histogram64_kernel.cu 
+klee-l++ histogram_main.cpp -DHIST64 
+- klee-l++ histogram_main.cpp -DHIST64 -D_SYM (for parametric flow work)
+llvm-link -o histogram64 histogram_main.o histogram64_kernel
+
+histogram256 build:
+
+gklee-nvcc histogram256_kernel.cu 
+klee-l++ histogram_main.cpp -DHIST256
+- klee-l++ histogram_main.cpp -DHIST256 -D_SYM (for parametric flow work)
+llvm-link -o histogram256 histogram_main.o histogram256_kernel

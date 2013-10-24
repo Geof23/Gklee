@@ -1,0 +1,6 @@
+GKLEE:
+gklee-nvcc bitonic.cu
+
+GKLEE_p:
+gklee-nvcc bitonic.cu -D_SYM
+

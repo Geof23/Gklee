@@ -1,0 +1,159 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use File::Basename;
+
+sub addExternSharedFlag($);
+
+my $cudaFile = "";
+my $cmdLine = "";
+my $objFile = "";
+my $objFlag = 0;
+
+foreach (@ARGV) {
+  chomp($_);
+  if ($_ =~ m/\.cu$/) {
+    $cudaFile = $_;  
+  } elsif ($_ =~ m/-o/) {
+    $objFlag = 1;
+  } elsif ($objFlag == 1) {
+    $objFile = $_; 
+    $objFlag = 0;
+  }
+
+  # Do not include the -o xxx  
+  $cmdLine = $cmdLine . " " . $_;
+}
+
+if ($cudaFile eq "") {
+  print "This script only accepts programs with .cu suffix \n";
+  exit 0;
+}
+
+# Ensure the required environment variables are set 
+if (not exists($ENV{"FLA_KLEE_HOME_DIR"})) {
+  print "FLA_KLEE_HOME_DIR is not set!\n";
+  exit 0;
+}
+
+my $gkleeHomeDir = $ENV{"FLA_KLEE_HOME_DIR"};
+my $symbolCmd = "-include $gkleeHomeDir/Gklee/include/klee/klee.h";
+my $headerCmd = "-include $gkleeHomeDir/Gklee/include/klee/gklee.h";
+my $cudaRuntime = "-D__CUDACC__ -I $gkleeHomeDir/Gklee/include/cuda -include cuda_runtime.h";
+
+my $cudaPrefix = `basename $cudaFile .cu`;
+chomp($cudaPrefix);
+
+# Remove comments from xxx.cu file since those 
+# comments might affect the fix_kernel script running
+my $tmpCUDAFile = $cudaFile . ".tmp";
+system("remove_comment $cudaFile > $tmpCUDAFile");  
+
+# Run fix_kernel script to transform <<<...>>> 
+my $newCPPFile = $cudaPrefix . ".cpp";
+system("fix_kernel $tmpCUDAFile > $newCPPFile");
+$cmdLine =~ s/$cudaFile/$newCPPFile/g;
+system("rm $tmpCUDAFile");
+
+my $CC = "clang++";
+my $CFLAGSDEVICE = "-emit-llvm -c -g -O0 -x cuda -Xclang -fgpu-device"; 
+
+if ($objFile ne "") {
+  print "$CC $CFLAGSDEVICE $cmdLine $symbolCmd $headerCmd $cudaRuntime \n";
+  system("$CC $CFLAGSDEVICE $cmdLine $symbolCmd $headerCmd $cudaRuntime");
+} else {
+  print "$CC $CFLAGSDEVICE $cmdLine -o $cudaPrefix $symbolCmd $headerCmd $cudaRuntime \n";
+  system("$CC $CFLAGSDEVICE $cmdLine -o $cudaPrefix $symbolCmd $headerCmd $cudaRuntime");
+}
+
+if (-e "a.out") {
+  system("rm a.out");
+}
+    
+my $externAttrFile = "ExternAttribute.txt";
+if (-e $externAttrFile) {
+  # Preprocess the final object file  
+  if ($objFile ne "") {
+    addExternSharedFlag($objFile);
+  } else {
+    addExternSharedFlag($cudaPrefix);
+  }
+}
+
+sub existNameInSet {
+  my ($varName, @set) = @_;
+  my $exist = 0;
+
+  foreach (@set) {
+    my @split = split(/\:/, $_);
+    chomp($split[0]);
+    if ($split[0] eq $varName) {
+      $split[1] =~ s/^\s+//;
+      chomp($split[1]);
+      if ($split[1] eq "shared") {
+        $exist = 1;
+      } elsif ($split[1] eq "device") {
+        $exist = 2;
+      } elsif ($split[1] eq "constant") {
+        $exist = 3;
+      }
+      last; 
+    }
+  }
+
+  return $exist;
+}
+
+sub addExternSharedFlag($) {
+  my $cudaObj = shift;
+
+  system("llvm-dis $cudaObj"); 
+  my $cudaObjLL = $cudaObj . ".ll";
+
+  # Open the CUDA LLVM OBJ FILE ...
+  open CUDAOBJLL, "<", $cudaObjLL, or die "can not open $cudaObjLL !\n";
+  my @content = <CUDAOBJLL>;
+  close CUDAOBJLL;
+
+  # Open the extern attribute file ...
+  my $externAttrFile = "ExternAttribute.txt";
+  open EXTERNATTR, "<", $externAttrFile, or die "can not open $externAttrFile !\n"; 
+  my @attrContent = <EXTERNATTR>;
+  close EXTERNATTR;
+
+  my $found = 0;
+  foreach (@content) {
+    if ($_ =~ m/\@.+=\s*external\s*global/) {
+      $found = 1; 
+      my @split = split(/\=/, $_);
+      my @split1 = split(/\@/, $split[0]);
+      chomp($split1[1]);
+      my $varName = $split1[1]; 
+      my $exist = existNameInSet($varName, @attrContent);
+      if ($exist != 0) {
+        chomp($_);
+        if ($exist == 1) { # Shared
+          $_ = $_ . " , section \"__shared__\"\n"; 
+        } elsif ($exist == 2) { # Device
+          $_ = $_ . " , section \"__device__\"\n"; 
+        } else { # Constant
+          $_ = $_ . " , section \"__constant__\"\n"; 
+        }
+      }
+    } else {
+      if ($found == 1 and $_ =~ m/^define\s+/) { # a function definition
+        $found = 0;
+        last;
+      }
+    }
+  }    
+
+  # Copy back to LLVM Obj FILE ... 
+  open CUDAOBJLL, ">", $cudaObjLL, or die "can not open $cudaObjLL !\n";
+  print CUDAOBJLL @content;
+  close CUDAOBJLL;
+
+  system("llvm-as $cudaObjLL -o $cudaObj"); 
+  system("rm $cudaObjLL");
+}

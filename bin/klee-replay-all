@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# check the argument for the source file
+if [ -z "$1" ]; then 
+  echo usage: $0 sourcefile
+  exit
+fi
+
+# call GCC to prepare infor needed by GCOV
+SRC=$1
+klee-g++ $SRC
+
+# run all the tests
+for test in klee-last/test*.klee; do
+  echo Running test: $test
+  export KTEST_FILE=$test ./a.out
+done
+
+gcov -b $SRC

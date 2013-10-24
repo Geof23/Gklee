@@ -1,0 +1,1304 @@
+
+Basic/KTest.cpp,490
+#define KTEST_VERSION 16,441
+#define KTEST_MAGIC_SIZE 17,465
+#define KTEST_MAGIC 18,492
+#define BOUT_MAGIC 21,550
+static int read_uint32(25,586
+static int write_uint32(33,799
+static int read_string(42,1005
+static int write_string(55,1280
+unsigned kTest_getCurrentVersion(67,1481
+static int kTest_checkHeader(72,1546
+int kTest_isKTestFile(82,1817
+KTest *kTest_fromFile(kTest_fromFile94,1989
+int kTest_toFile(178,3769
+unsigned kTest_numBytes(222,4671
+void kTest_free(229,4819
+
+Basic/Statistics.cpp,641
+StatisticManager::StatisticManager(16,415
+StatisticManager::~StatisticManager(24,551
+void StatisticManager::useIndexedStats(29,678
+void StatisticManager::registerStatistic(35,930
+int StatisticManager::getStatisticID(43,1182
+Statistic *StatisticManager::getStatisticByName(StatisticManager::getStatisticByName50,1363
+StatisticManager *klee::theStatisticManager klee::theStatisticManager57,1561
+static StatisticManager &getStatisticManager(getStatisticManager59,1611
+Statistic::Statistic(67,1746
+Statistic::~Statistic(74,1946
+Statistic &Statistic::operator +=(Statistic::operator +=77,1975
+uint64_t Statistic::getValue(82,2111
+
+Core/AddressSpace.cpp,506
+void AddressSpace::bindObject(22,530
+void AddressSpace::unbindObject(28,757
+const ObjectState *AddressSpace::findObject(AddressSpace::findObject32,850
+ObjectState *AddressSpace::getWriteable(AddressSpace::getWriteable38,1021
+bool AddressSpace::resolveOne(54,1428
+bool AddressSpace::resolveOne(71,1897
+bool AddressSpace::resolve(161,4409
+void AddressSpace::copyOutConcretes(292,8796
+bool AddressSpace::copyInConcretes(307,9198
+bool MemoryObjectLT::operator()(MemoryObjectLT::operator()332,9805
+
+Core/CallPathManager.cpp,375
+CallPathNode::CallPathNode(24,552
+void CallPathNode::print(33,791
+CallPathManager::CallPathManager(46,1118
+CallPathManager::~CallPathManager(49,1174
+void CallPathManager::getSummaryStatistics(55,1338
+CallPathNode *CallPathManager::computeCallPath(CallPathManager::computeCallPath75,2002
+CallPathNode *CallPathManager::getCallPath(CallPathManager::getCallPath87,2400
+
+Core/Common.cpp,322
+FILE* klee::klee_warning_file 22,503
+FILE* klee::klee_message_file 23,541
+static void klee_vfmessage(25,580
+static void klee_vmessage(45,1110
+void klee::klee_message(58,1434
+void klee::klee_message_to_file(66,1614
+void klee::klee_error(73,1760
+void klee::klee_warning(81,1911
+void klee::klee_warning_once(90,2097
+
+Core/Context.cpp,292
+static bool Initialized 21,487
+static Context TheContext;22,520
+void Context::initialize(24,548
+const Context &Context::get(Context::get30,764
+Expr::Width Expr::getWidthForLLVMType(38,985
+ref<Expr> Expr::createCoerceToPointerType(50,1472
+ref<ConstantExpr> Expr::createPointer(54,1596
+
+Core/ExecutionState.cpp,600
+StackFrame::StackFrame(40,893
+StackFrame::StackFrame(46,1093
+StackFrame::~StackFrame(58,1440
+ExecutionState::ExecutionState(64,1499
+ExecutionState::ExecutionState(79,1803
+ExecutionState::~ExecutionState(87,2000
+ExecutionState *ExecutionState::branch(ExecutionState::branch91,2076
+void ExecutionState::pushFrame(104,2333
+void ExecutionState::popFrame(108,2448
+std::string ExecutionState::getFnAlias(118,2703
+void ExecutionState::addFnAlias(125,2908
+void ExecutionState::removeFnAlias(129,3015
+std::ostream &klee::operator<<(klee::operator<<135,3100
+bool ExecutionState::merge(148,3451
+
+Core/Executor.cpp,2479
+static void *theMMap theMMap256,7293
+static unsigned theMMapSize 257,7319
+namespace klee 259,7353
+Solver *constructSolverChain(constructSolverChain263,7387
+Executor::Executor(296,8313
+const Module *Executor::setModule(Executor::setModule332,9523
+Executor::~Executor(359,10362
+void Executor::initializeGlobalObject(374,10630
+MemoryObject * Executor::addExternalObject(413,12325
+void Executor::initializeGlobals(426,12851
+void Executor::branch(596,19535
+Executor::fork(670,21785
+void Executor::addConstraint(897,29516
+ref<klee::ConstantExpr> Executor::evalConstant(930,30625
+const Cell& Executor::eval(951,31497
+void Executor::bindLocal(970,32054
+void Executor::bindArgument(975,32216
+ref<Expr> Executor::toUnique(980,32400
+Executor::toConstant(1003,33051
+void Executor::executeGetValue(1030,33872
+void Executor::stepInstruction(1073,35420
+void Executor::executeCall(1091,35860
+void Executor::transferToBasicBlock(1234,41933
+void Executor::printFileLine(1258,43075
+Function* Executor::getCalledFunction(1267,43325
+static bool isDebugIntrinsic(1287,43868
+static inline const llvm::fltSemantics * fpWidthToSemantics(1309,44360
+void Executor::executeInstruction(1322,44671
+void Executor::updateStates(2222,75436
+void Executor::bindInstructionConstants(2247,76174
+void Executor::bindModuleConstants(2285,77819
+void Executor::run(2300,78345
+std::string Executor::getAddressInfo(2442,82907
+void Executor::terminateState(2491,84547
+void Executor::terminateStateEarly(2516,85301
+void Executor::terminateStateOnExit(2525,85686
+void Executor::terminateStateOnError(2532,85940
+static const char *okExternalsList[okExternalsList2597,88261
+void Executor::callExternalFunction(2605,88683
+ref<Expr> Executor::replaceReadWithSymbolic(2692,91868
+ObjectState *Executor::bindObjectInState(Executor::bindObjectInState2718,92747
+void Executor::executeAlloc(2735,93422
+void Executor::executeFree(2843,97666
+void Executor::resolveExact(2877,98938
+void Executor::executeMemoryOperation(2908,99915
+void Executor::executeMakeSymbolic(3034,104110
+void Executor::runFunctionAsMain(3108,106923
+unsigned Executor::getPathStreamID(3216,109823
+unsigned Executor::getSymbolicPathStreamID(3221,109945
+void Executor::getConstraintLog(3226,110081
+bool Executor::getSymbolicSolution(3241,110562
+void Executor::getCoveredLines(3284,112190
+void Executor::doImpliedValueConcretization(3289,112370
+Interpreter *Interpreter::create(Interpreter::create3325,113711
+
+Core/ExecutorTimers.cpp,736
+class HaltTimer 42,1011
+  HaltTimer(HaltTimer::HaltTimer46,1085
+  ~HaltTimer(HaltTimer::~HaltTimer47,1143
+  void run(HaltTimer::run49,1162
+static const double kSecondsPerTick 57,1274
+static volatile unsigned timerTicks 58,1316
+extern "C" unsigned dumpStates,61,1370
+extern "C" unsigned dumpStates, dumpPTree;61,1370
+unsigned dumpStates 62,1413
+static void onAlarm(64,1454
+static void setupHandler(69,1513
+void Executor::initTimers(82,1794
+Executor::Timer::Timer(97,1985
+Executor::Timer::~Timer(99,2014
+class Executor::TimerInfo 101,2044
+  TimerInfo(Executor::TimerInfo::TimerInfo111,2223
+  ~TimerInfo(Executor::TimerInfo::~TimerInfo115,2355
+void Executor::addTimer(118,2392
+void Executor::processTimers(122,2496
+
+Core/ExecutorUtil.cpp,111
+namespace klee 36,925
+  ref<ConstantExpr> Executor::evalConstantExpr(klee::Executor::evalConstantExpr38,943
+
+Core/ExternalDispatcher.cpp,647
+#undef PACKAGE_BUGREPORT14,416
+#undef PACKAGE_NAME15,441
+#undef PACKAGE_STRING16,461
+#undef PACKAGE_TARNAME17,483
+#undef PACKAGE_VERSION18,506
+static jmp_buf escapeCallJmpBuf;45,1184
+static void sigsegv_handler(49,1232
+void *ExternalDispatcher::resolveSymbol(ExternalDispatcher::resolveSymbol55,1344
+ExternalDispatcher::ExternalDispatcher(82,2147
+ExternalDispatcher::~ExternalDispatcher(119,3441
+bool ExternalDispatcher::executeCall(123,3514
+static uint64_t *gTheArgsP;gTheArgsP160,4585
+bool ExternalDispatcher::runProtectedCall(162,4614
+Function *ExternalDispatcher::createDispatcher(ExternalDispatcher::createDispatcher195,5674
+
+Core/ImpliedValue.cpp,95
+void ImpliedValue::getImpliedValues(29,761
+void ImpliedValue::checkForImpliedValues(190,5473
+
+Core/Memory.cpp,1662
+ObjectHolder::ObjectHolder(42,894
+ObjectHolder::ObjectHolder(46,988
+ObjectHolder::~ObjectHolder(50,1076
+ObjectHolder &ObjectHolder::operator=(ObjectHolder::operator=54,1157
+int MemoryObject::counter 63,1331
+MemoryObject::~MemoryObject(65,1363
+void MemoryObject::getAllocInfo(68,1398
+ObjectState::ObjectState(92,2004
+ObjectState::ObjectState(112,2472
+ObjectState::ObjectState(126,2789
+ObjectState::~ObjectState(148,3483
+const UpdateList &ObjectState::getUpdates(ObjectState::getUpdates157,3672
+void ObjectState::makeConcrete(213,5618
+void ObjectState::makeSymbolic(222,5838
+void ObjectState::initializeToZero(234,6160
+void ObjectState::initializeToRandom(239,6254
+void ObjectState::fastRangeCheckOffset(255,6614
+void ObjectState::flushRangeForRead(262,6829
+void ObjectState::flushRangeForWrite(282,7562
+bool ObjectState::isByteConcrete(312,8619
+bool ObjectState::isByteFlushed(316,8733
+bool ObjectState::isByteKnownSymbolic(320,8840
+void ObjectState::markByteConcrete(324,8963
+void ObjectState::markByteSymbolic(329,9071
+void ObjectState::markByteUnflushed(335,9225
+void ObjectState::markByteFlushed(340,9328
+void ObjectState::setKnownSymbolic(348,9492
+ref<Expr> ObjectState::read8(362,9803
+ref<Expr> ObjectState::read8(375,10253
+void ObjectState::write8(392,10823
+void ObjectState::write8(401,11073
+void ObjectState::write8(413,11419
+ref<Expr> ObjectState::read(432,11989
+ref<Expr> ObjectState::read(459,13012
+void ObjectState::write(477,13644
+void ObjectState::write(504,14550
+void ObjectState::write16(537,15676
+void ObjectState::write32(545,15947
+void ObjectState::write64(553,16218
+void ObjectState::print(561,16489
+
+Core/MemoryManager.cpp,229
+MemoryManager::~MemoryManager(26,586
+MemoryObject *MemoryManager::allocate(MemoryManager::allocate34,735
+MemoryObject *MemoryManager::allocateFixed(MemoryManager::allocateFixed52,1351
+void MemoryManager::deallocate(70,1968
+
+Core/PTree.cpp,179
+PTree::PTree(22,498
+PTree::~PTree(25,566
+PTree::split(28,620
+void PTree::remove(37,884
+void PTree::dump(54,1189
+PTreeNode::PTreeNode(92,2227
+PTreeNode::~PTreeNode(101,2401
+
+Core/Searcher.cpp,2316
+namespace klee 48,1206
+Searcher::~Searcher(52,1247
+ExecutionState &DFSSearcher::selectState(DFSSearcher::selectState57,1279
+void DFSSearcher::update(61,1352
+ExecutionState &RandomSearcher::selectState(RandomSearcher::selectState91,2196
+void RandomSearcher::update(95,2298
+WeightedRandomSearcher::WeightedRandomSearcher(121,3060
+WeightedRandomSearcher::~WeightedRandomSearcher(142,3553
+ExecutionState &WeightedRandomSearcher::selectState(WeightedRandomSearcher::selectState146,3625
+double WeightedRandomSearcher::getWeight(150,3731
+void WeightedRandomSearcher::update(187,4932
+bool WeightedRandomSearcher::empty(205,5640
+RandomPathSearcher::RandomPathSearcher(211,5715
+RandomPathSearcher::~RandomPathSearcher(215,5804
+ExecutionState &RandomPathSearcher::selectState(RandomPathSearcher::selectState218,5851
+void RandomPathSearcher::update(240,6282
+bool RandomPathSearcher::empty(245,6502
+BumpMergingSearcher::BumpMergingSearcher(251,6581
+BumpMergingSearcher::~BumpMergingSearcher(257,6781
+Instruction *BumpMergingSearcher::getMergePoint(BumpMergingSearcher::getMergePoint263,6858
+ExecutionState &BumpMergingSearcher::selectState(BumpMergingSearcher::selectState277,7164
+void BumpMergingSearcher::update(321,8299
+MergingSearcher::MergingSearcher(329,8588
+MergingSearcher::~MergingSearcher(335,8780
+Instruction *MergingSearcher::getMergePoint(MergingSearcher::getMergePoint341,8849
+ExecutionState &MergingSearcher::selectState(MergingSearcher::selectState355,9149
+void MergingSearcher::update(435,11787
+BatchingSearcher::BatchingSearcher(457,12582
+BatchingSearcher::~BatchingSearcher(467,12892
+ExecutionState &BatchingSearcher::selectState(BatchingSearcher::selectState471,12958
+void BatchingSearcher::update(491,13608
+IterativeDeepeningTimeSearcher::IterativeDeepeningTimeSearcher(501,13947
+IterativeDeepeningTimeSearcher::~IterativeDeepeningTimeSearcher(506,14086
+ExecutionState &IterativeDeepeningTimeSearcher::selectState(IterativeDeepeningTimeSearcher::selectState510,14180
+void IterativeDeepeningTimeSearcher::update(516,14349
+InterleavedSearcher::InterleavedSearcher(552,15605
+InterleavedSearcher::~InterleavedSearcher(557,15733
+ExecutionState &InterleavedSearcher::selectState(InterleavedSearcher::selectState563,15915
+void InterleavedSearcher::update(569,16076
+
+Core/SeedInfo.cpp,101
+KTestObject *SeedInfo::getNextInput(SeedInfo::getNextInput23,582
+void SeedInfo::patchSeed(61,1671
+
+Core/SpecialFunctionHandler.cpp,2128
+struct HandlerInfo 37,845
+HandlerInfo handlerInfo[handlerInfo50,1412
+#define add(51,1442
+#define addDNR(54,1608
+#undef addDNR106,3663
+#undef add 107,3677
+SpecialFunctionHandler::SpecialFunctionHandler(110,3694
+void SpecialFunctionHandler::prepare(114,3792
+void SpecialFunctionHandler::bind(138,4555
+bool SpecialFunctionHandler::handle(151,4926
+SpecialFunctionHandler::readStringAtAddress(176,5743
+void SpecialFunctionHandler::handleAbort(212,6924
+void SpecialFunctionHandler::handleExit(226,7401
+void SpecialFunctionHandler::handleSilentExit(233,7693
+void SpecialFunctionHandler::handleAliasFunction(240,8023
+void SpecialFunctionHandler::handleAssert(253,8572
+void SpecialFunctionHandler::handleAssertFail(269,9264
+void SpecialFunctionHandler::handleReportError(285,9972
+void SpecialFunctionHandler::handleMerge(304,10825
+void SpecialFunctionHandler::handleNew(310,11015
+void SpecialFunctionHandler::handleDelete(319,11355
+void SpecialFunctionHandler::handleNewArray(330,11800
+void SpecialFunctionHandler::handleDeleteArray(338,12156
+void SpecialFunctionHandler::handleMalloc(346,12508
+void SpecialFunctionHandler::handleAssume(354,12871
+void SpecialFunctionHandler::handleIsSymbolic(376,13642
+void SpecialFunctionHandler::handlePreferCex(386,14093
+void SpecialFunctionHandler::handlePrintExpr(405,14806
+void SpecialFunctionHandler::handleSetForking(415,15219
+void SpecialFunctionHandler::handleWarning(431,15881
+void SpecialFunctionHandler::handleWarningOnce(441,16353
+void SpecialFunctionHandler::handlePrintRange(452,16863
+void SpecialFunctionHandler::handleGetObjSize(482,18075
+void SpecialFunctionHandler::handleGetErrno(497,18746
+void SpecialFunctionHandler::handleCalloc(507,19190
+void SpecialFunctionHandler::handleRealloc(519,19648
+void SpecialFunctionHandler::handleFree(556,21107
+void SpecialFunctionHandler::handleCheckMemoryAccess(565,21443
+void SpecialFunctionHandler::handleGetValue(600,23023
+void SpecialFunctionHandler::handleDefineFixedObject(609,23390
+void SpecialFunctionHandler::handleMakeSymbolic(626,24290
+void SpecialFunctionHandler::handleMarkGlobal(680,26264
+
+Core/StatsTracker.cpp,1818
+bool StatsTracker::useStatistics(96,2799
+namespace klee 100,2877
+  class WriteIStatsTimer klee::WriteIStatsTimer101,2894
+    WriteIStatsTimer(klee::WriteIStatsTimer::WriteIStatsTimer105,2993
+    ~WriteIStatsTimer(klee::WriteIStatsTimer::~WriteIStatsTimer106,3076
+    void run(klee::WriteIStatsTimer::run108,3108
+  class WriteStatsTimer klee::WriteStatsTimer111,3164
+    WriteStatsTimer(klee::WriteStatsTimer::WriteStatsTimer115,3262
+    ~WriteStatsTimer(klee::WriteStatsTimer::~WriteStatsTimer116,3344
+    void run(klee::WriteStatsTimer::run118,3375
+  class UpdateReachableTimer klee::UpdateReachableTimer121,3432
+    UpdateReachableTimer(klee::UpdateReachableTimer::UpdateReachableTimer125,3535
+    void run(klee::UpdateReachableTimer::run127,3627
+static bool instructionIsCoverable(138,3955
+StatsTracker::StatsTracker(157,4440
+StatsTracker::~StatsTracker(224,6532
+void StatsTracker::done(231,6649
+void StatsTracker::stepInstruction(238,6758
+void StatsTracker::framePushed(291,8564
+void StatsTracker::framePopped(316,9412
+void StatsTracker::markBranchVisited(321,9489
+void StatsTracker::writeStatsHeader(345,10378
+double StatsTracker::elapsed(368,11077
+void StatsTracker::writeStatsLine(372,11159
+void StatsTracker::updateStateStatistics(395,12068
+void StatsTracker::writeIStats(406,12535
+typedef std::map<Instruction*Instruction550,17398
+typedef std::map<Instruction*, std::vector<Function*> > calltargets_ty;550,17398
+static calltargets_ty callTargets;552,17471
+static std::map<Function*, std::vector<Instruction*> > functionCallers;553,17506
+static std::map<Function*, unsigned> functionShortestPath;554,17578
+static std::vector<Instruction*> getSuccs(556,17638
+uint64_t klee::computeMinDistToUncovered(570,17991
+void StatsTracker::computeReachableUncovered(592,18892
+
+Core/TimingSolver.cpp,303
+bool TimingSolver::evaluate(25,568
+bool TimingSolver::mustBeTrue(49,1296
+bool TimingSolver::mustBeFalse(73,2003
+bool TimingSolver::mayBeTrue(78,2191
+bool TimingSolver::mayBeFalse(87,2414
+bool TimingSolver::getValue(96,2638
+TimingSolver::getInitialValues(121,3335
+TimingSolver::getRange(145,4179
+
+Core/UserSearcher.cpp,178
+bool klee::userSearcherRequiresMD2U(90,3050
+bool klee::userSearcherRequiresBranchSequences(101,3441
+Searcher *klee::constructUserSearcher(klee::constructUserSearcher105,3511
+
+Expr/Constraints.cpp,663
+class ExprReplaceVisitor 20,505
+  ExprReplaceVisitor(ExprReplaceVisitor::ExprReplaceVisitor25,593
+  Action visitExpr(ExprReplaceVisitor::visitExpr27,673
+  Action visitExprPost(ExprReplaceVisitor::visitExprPost35,831
+class ExprReplaceVisitor2 44,996
+  ExprReplaceVisitor2(ExprReplaceVisitor2::ExprReplaceVisitor249,1119
+  Action visitExprPost(ExprReplaceVisitor2::visitExprPost53,1260
+bool ConstraintManager::rewriteConstraints(64,1556
+void ConstraintManager::simplifyForValidConstraint(85,2068
+ref<Expr> ConstraintManager::simplifyExpr(89,2147
+void ConstraintManager::addConstraintInternal(114,2983
+void ConstraintManager::addConstraint(153,4075
+
+Expr/ExprBuilder.cpp,9170
+ExprBuilder::ExprBuilder(14,397
+ExprBuilder::~ExprBuilder(17,429
+  class DefaultExprBuilder ::DefaultExprBuilder21,474
+    virtual ref<Expr> Constant(::DefaultExprBuilder::Constant22,524
+    virtual ref<Expr> NotOptimized(::DefaultExprBuilder::NotOptimized26,631
+    virtual ref<Expr> Read(::DefaultExprBuilder::Read30,744
+    virtual ref<Expr> Select(::DefaultExprBuilder::Select35,904
+    virtual ref<Expr> Concat(::DefaultExprBuilder::Concat40,1086
+    virtual ref<Expr> Extract(::DefaultExprBuilder::Extract44,1210
+    virtual ref<Expr> ZExt(::DefaultExprBuilder::ZExt49,1382
+    virtual ref<Expr> SExt(::DefaultExprBuilder::SExt53,1493
+    virtual ref<Expr> Add(::DefaultExprBuilder::Add57,1604
+    virtual ref<Expr> Sub(::DefaultExprBuilder::Sub61,1722
+    virtual ref<Expr> Mul(::DefaultExprBuilder::Mul65,1840
+    virtual ref<Expr> UDiv(::DefaultExprBuilder::UDiv69,1958
+    virtual ref<Expr> SDiv(::DefaultExprBuilder::SDiv73,2078
+    virtual ref<Expr> URem(::DefaultExprBuilder::URem77,2198
+    virtual ref<Expr> SRem(::DefaultExprBuilder::SRem81,2318
+    virtual ref<Expr> Not(::DefaultExprBuilder::Not85,2438
+    virtual ref<Expr> And(::DefaultExprBuilder::And89,2529
+    virtual ref<Expr> Or(::DefaultExprBuilder::Or93,2647
+    virtual ref<Expr> Xor(::DefaultExprBuilder::Xor97,2763
+    virtual ref<Expr> Shl(::DefaultExprBuilder::Shl101,2881
+    virtual ref<Expr> LShr(::DefaultExprBuilder::LShr105,2999
+    virtual ref<Expr> AShr(::DefaultExprBuilder::AShr109,3119
+    virtual ref<Expr> Eq(::DefaultExprBuilder::Eq113,3239
+    virtual ref<Expr> Ne(::DefaultExprBuilder::Ne117,3355
+    virtual ref<Expr> Ult(::DefaultExprBuilder::Ult121,3471
+    virtual ref<Expr> Ule(::DefaultExprBuilder::Ule125,3589
+    virtual ref<Expr> Ugt(::DefaultExprBuilder::Ugt129,3707
+    virtual ref<Expr> Uge(::DefaultExprBuilder::Uge133,3825
+    virtual ref<Expr> Slt(::DefaultExprBuilder::Slt137,3943
+    virtual ref<Expr> Sle(::DefaultExprBuilder::Sle141,4061
+    virtual ref<Expr> Sgt(::DefaultExprBuilder::Sgt145,4179
+    virtual ref<Expr> Sge(::DefaultExprBuilder::Sge149,4297
+  class ChainedBuilder ::ChainedBuilder157,4619
+    ChainedBuilder(::ChainedBuilder::ChainedBuilder167,4912
+    ~ChainedBuilder(::ChainedBuilder::~ChainedBuilder169,5017
+    ref<Expr> Constant(::ChainedBuilder::Constant171,5057
+    ref<Expr> NotOptimized(::ChainedBuilder::NotOptimized175,5151
+    ref<Expr> Read(::ChainedBuilder::Read179,5251
+    ref<Expr> Select(::ChainedBuilder::Select184,5390
+    ref<Expr> Concat(::ChainedBuilder::Concat189,5551
+    ref<Expr> Extract(::ChainedBuilder::Extract193,5662
+    ref<Expr> ZExt(::ChainedBuilder::ZExt198,5813
+    ref<Expr> SExt(::ChainedBuilder::SExt202,5911
+    ref<Expr> Add(::ChainedBuilder::Add206,6009
+    ref<Expr> Sub(::ChainedBuilder::Sub210,6114
+    ref<Expr> Mul(::ChainedBuilder::Mul214,6219
+    ref<Expr> UDiv(::ChainedBuilder::UDiv218,6324
+    ref<Expr> SDiv(::ChainedBuilder::SDiv222,6431
+    ref<Expr> URem(::ChainedBuilder::URem226,6538
+    ref<Expr> SRem(::ChainedBuilder::SRem230,6645
+    ref<Expr> Not(::ChainedBuilder::Not234,6752
+    ref<Expr> And(::ChainedBuilder::And238,6830
+    ref<Expr> Or(::ChainedBuilder::Or242,6935
+    ref<Expr> Xor(::ChainedBuilder::Xor246,7038
+    ref<Expr> Shl(::ChainedBuilder::Shl250,7143
+    ref<Expr> LShr(::ChainedBuilder::LShr254,7248
+    ref<Expr> AShr(::ChainedBuilder::AShr258,7355
+    ref<Expr> Eq(::ChainedBuilder::Eq262,7462
+    ref<Expr> Ne(::ChainedBuilder::Ne266,7565
+    ref<Expr> Ult(::ChainedBuilder::Ult270,7668
+    ref<Expr> Ule(::ChainedBuilder::Ule274,7773
+    ref<Expr> Ugt(::ChainedBuilder::Ugt278,7878
+    ref<Expr> Uge(::ChainedBuilder::Uge282,7983
+    ref<Expr> Slt(::ChainedBuilder::Slt286,8088
+    ref<Expr> Sle(::ChainedBuilder::Sle290,8193
+    ref<Expr> Sgt(::ChainedBuilder::Sgt294,8298
+    ref<Expr> Sge(::ChainedBuilder::Sge298,8403
+  class ConstantSpecializedExprBuilder ::ConstantSpecializedExprBuilder311,8968
+    ConstantSpecializedExprBuilder(::ConstantSpecializedExprBuilder::ConstantSpecializedExprBuilder315,9073
+    ~ConstantSpecializedExprBuilder(::ConstantSpecializedExprBuilder::~ConstantSpecializedExprBuilder316,9152
+    virtual ref<Expr> Constant(::ConstantSpecializedExprBuilder::Constant318,9194
+    virtual ref<Expr> NotOptimized(::ConstantSpecializedExprBuilder::NotOptimized322,9298
+    virtual ref<Expr> Read(::ConstantSpecializedExprBuilder::Read326,9408
+    virtual ref<Expr> Select(::ConstantSpecializedExprBuilder::Select339,9878
+    virtual ref<Expr> Concat(::ConstantSpecializedExprBuilder::Concat347,10181
+    virtual ref<Expr> Extract(::ConstantSpecializedExprBuilder::Extract360,10738
+    virtual ref<Expr> ZExt(::ConstantSpecializedExprBuilder::ZExt368,11028
+    virtual ref<Expr> SExt(::ConstantSpecializedExprBuilder::SExt375,11246
+    virtual ref<Expr> Add(::ConstantSpecializedExprBuilder::Add382,11464
+    virtual ref<Expr> Sub(::ConstantSpecializedExprBuilder::Sub395,12003
+    virtual ref<Expr> Mul(::ConstantSpecializedExprBuilder::Mul408,12542
+    virtual ref<Expr> UDiv(::ConstantSpecializedExprBuilder::UDiv421,13081
+    virtual ref<Expr> SDiv(::ConstantSpecializedExprBuilder::SDiv434,13626
+    virtual ref<Expr> URem(::ConstantSpecializedExprBuilder::URem447,14171
+    virtual ref<Expr> SRem(::ConstantSpecializedExprBuilder::SRem460,14716
+    virtual ref<Expr> Not(::ConstantSpecializedExprBuilder::Not473,15261
+    virtual ref<Expr> And(::ConstantSpecializedExprBuilder::And484,15563
+    virtual ref<Expr> Or(::ConstantSpecializedExprBuilder::Or497,16102
+    virtual ref<Expr> Xor(::ConstantSpecializedExprBuilder::Xor510,16635
+    virtual ref<Expr> Shl(::ConstantSpecializedExprBuilder::Shl523,17174
+    virtual ref<Expr> LShr(::ConstantSpecializedExprBuilder::LShr536,17713
+    virtual ref<Expr> AShr(::ConstantSpecializedExprBuilder::AShr549,18258
+    virtual ref<Expr> Eq(::ConstantSpecializedExprBuilder::Eq562,18803
+    virtual ref<Expr> Ne(::ConstantSpecializedExprBuilder::Ne575,19336
+    virtual ref<Expr> Ult(::ConstantSpecializedExprBuilder::Ult588,19869
+    virtual ref<Expr> Ule(::ConstantSpecializedExprBuilder::Ule601,20408
+    virtual ref<Expr> Ugt(::ConstantSpecializedExprBuilder::Ugt614,20947
+    virtual ref<Expr> Uge(::ConstantSpecializedExprBuilder::Uge627,21486
+    virtual ref<Expr> Slt(::ConstantSpecializedExprBuilder::Slt640,22025
+    virtual ref<Expr> Sle(::ConstantSpecializedExprBuilder::Sle653,22564
+    virtual ref<Expr> Sgt(::ConstantSpecializedExprBuilder::Sgt666,23103
+    virtual ref<Expr> Sge(::ConstantSpecializedExprBuilder::Sge679,23642
+  class ConstantFoldingBuilder ::ConstantFoldingBuilder693,24186
+    ConstantFoldingBuilder(::ConstantFoldingBuilder::ConstantFoldingBuilder696,24257
+    ref<Expr> Add(::ConstantFoldingBuilder::Add699,24367
+    ref<Expr> Add(::ConstantFoldingBuilder::Add734,25499
+    ref<Expr> Add(::ConstantFoldingBuilder::Add739,25635
+    ref<Expr> Sub(::ConstantFoldingBuilder::Sub788,27232
+    ref<Expr> Sub(::ConstantFoldingBuilder::Sub819,28297
+    ref<Expr> Sub(::ConstantFoldingBuilder::Sub825,28472
+    ref<Expr> Mul(::ConstantFoldingBuilder::Mul872,30013
+    ref<Expr> Mul(::ConstantFoldingBuilder::Mul883,30345
+    ref<Expr> Mul(::ConstantFoldingBuilder::Mul888,30481
+    ref<Expr> And(::ConstantFoldingBuilder::And893,30626
+    ref<Expr> And(::ConstantFoldingBuilder::And904,30961
+    ref<Expr> And(::ConstantFoldingBuilder::And909,31097
+    ref<Expr> Or(::ConstantFoldingBuilder::Or914,31242
+    ref<Expr> Or(::ConstantFoldingBuilder::Or925,31574
+    ref<Expr> Or(::ConstantFoldingBuilder::Or930,31707
+    ref<Expr> Xor(::ConstantFoldingBuilder::Xor935,31849
+    ref<Expr> Xor(::ConstantFoldingBuilder::Xor944,32135
+    ref<Expr> Xor(::ConstantFoldingBuilder::Xor949,32271
+    ref<Expr> Eq(::ConstantFoldingBuilder::Eq954,32416
+    ref<Expr> Eq(::ConstantFoldingBuilder::Eq970,32779
+    ref<Expr> Eq(::ConstantFoldingBuilder::Eq975,32913
+    ConstantFoldingExprBuilder;::ConstantFoldingExprBuilder982,33126
+  class SimplifyingBuilder ::SimplifyingBuilder984,33159
+    SimplifyingBuilder(::SimplifyingBuilder::SimplifyingBuilder986,33222
+    ref<Expr> Eq(::SimplifyingBuilder::Eq989,33328
+    ref<Expr> Eq(::SimplifyingBuilder::Eq1005,33689
+    ref<Expr> Eq(::SimplifyingBuilder::Eq1010,33823
+    ref<Expr> Not(::SimplifyingBuilder::Not1019,34048
+    ref<Expr> Ne(::SimplifyingBuilder::Ne1027,34311
+    ref<Expr> Ugt(::SimplifyingBuilder::Ugt1032,34461
+    ref<Expr> Uge(::SimplifyingBuilder::Uge1037,34596
+    ref<Expr> Sgt(::SimplifyingBuilder::Sgt1042,34733
+    ref<Expr> Sge(::SimplifyingBuilder::Sge1047,34868
+    SimplifyingExprBuilder;::SimplifyingExprBuilder1054,35071
+ExprBuilder *klee::createDefaultExprBuilder(klee::createDefaultExprBuilder1057,35102
+ExprBuilder *klee::createConstantFoldingExprBuilder(klee::createConstantFoldingExprBuilder1061,35188
+ExprBuilder *klee::createSimplifyingExprBuilder(klee::createSimplifyingExprBuilder1065,35311
+
+Expr/Expr.cpp,4526
+unsigned Expr::count 34,885
+ref<Expr> Expr::createTempRead(36,912
+int Expr::compare(83,3426
+void Expr::printKind(104,3864
+#define X(106,3927
+#undef X139,4378
+unsigned Expr::computeHash(151,4516
+unsigned ConstantExpr::computeHash(164,4782
+unsigned CastExpr::computeHash(169,4917
+unsigned ExtractExpr::computeHash(175,5093
+unsigned ReadExpr::computeHash(182,5318
+unsigned NotExpr::computeHash(189,5480
+ref<Expr> Expr::createFromKind(194,5614
+#define CAST_EXPR_CASE(225,6574
+#define BINARY_EXPR_CASE(232,6937
+void Expr::printWidth(270,8058
+ref<Expr> Expr::createImplies(282,8483
+ref<Expr> Expr::createIsZero(286,8605
+void Expr::print(290,8720
+void Expr::dump(294,8828
+ref<Expr> ConstantExpr::fromMemory(301,8916
+void ConstantExpr::toMemory(317,9666
+void ConstantExpr::toString(332,10281
+ref<ConstantExpr> ConstantExpr::Concat(336,10373
+ref<ConstantExpr> ConstantExpr::Extract(346,10629
+ref<ConstantExpr> ConstantExpr::ZExt(350,10772
+ref<ConstantExpr> ConstantExpr::SExt(354,10882
+ref<ConstantExpr> ConstantExpr::Add(358,10992
+ref<ConstantExpr> ConstantExpr::Neg(362,11113
+ref<ConstantExpr> ConstantExpr::Sub(366,11194
+ref<ConstantExpr> ConstantExpr::Mul(370,11315
+ref<ConstantExpr> ConstantExpr::UDiv(374,11436
+ref<ConstantExpr> ConstantExpr::SDiv(378,11562
+ref<ConstantExpr> ConstantExpr::URem(382,11688
+ref<ConstantExpr> ConstantExpr::SRem(386,11814
+ref<ConstantExpr> ConstantExpr::And(390,11940
+ref<ConstantExpr> ConstantExpr::Or(394,12061
+ref<ConstantExpr> ConstantExpr::Xor(398,12181
+ref<ConstantExpr> ConstantExpr::Shl(402,12302
+ref<ConstantExpr> ConstantExpr::LShr(406,12426
+ref<ConstantExpr> ConstantExpr::AShr(410,12552
+ref<ConstantExpr> ConstantExpr::Not(414,12678
+ref<ConstantExpr> ConstantExpr::Eq(418,12759
+ref<ConstantExpr> ConstantExpr::Ne(422,12892
+ref<ConstantExpr> ConstantExpr::Ult(426,13025
+ref<ConstantExpr> ConstantExpr::Ule(430,13161
+ref<ConstantExpr> ConstantExpr::Ugt(434,13297
+ref<ConstantExpr> ConstantExpr::Uge(438,13433
+ref<ConstantExpr> ConstantExpr::Slt(442,13569
+ref<ConstantExpr> ConstantExpr::Sle(446,13705
+ref<ConstantExpr> ConstantExpr::Sgt(450,13841
+ref<ConstantExpr> ConstantExpr::Sge(454,13977
+ref<Expr>  NotOptimizedExpr::create(460,14120
+Array::~Array(468,14261
+ref<Expr> ReadExpr::create(478,14422
+int ReadExpr::compareContents(502,15173
+ref<Expr> SelectExpr::create(506,15297
+ref<Expr> ConcatExpr::create(537,16172
+ref<Expr> ConcatExpr::createN(561,16979
+ref<Expr> ConcatExpr::create4(573,17351
+ref<Expr> ConcatExpr::create8(579,17679
+ref<Expr> ExtractExpr::create(589,18100
+ref<Expr> NotExpr::create(619,19123
+ref<Expr> ZExtExpr::create(629,19287
+ref<Expr> SExtExpr::create(642,19626
+static ref<Expr> AddExpr_createPartialR(665,20394
+static ref<Expr> AddExpr_createPartial(685,21124
+static ref<Expr> AddExpr_create(688,21245
+static ref<Expr> SubExpr_createPartialR(713,22299
+static ref<Expr> SubExpr_createPartial(731,22986
+static ref<Expr> SubExpr_create(736,23206
+static ref<Expr> MulExpr_createPartialR(763,24328
+static ref<Expr> MulExpr_createPartial(776,24653
+static ref<Expr> MulExpr_create(779,24774
+static ref<Expr> AndExpr_createPartial(789,24977
+static ref<Expr> AndExpr_createPartialR(798,25190
+static ref<Expr> AndExpr_create(801,25311
+static ref<Expr> OrExpr_createPartial(805,25397
+static ref<Expr> OrExpr_createPartialR(814,25608
+static ref<Expr> OrExpr_create(817,25727
+static ref<Expr> XorExpr_createPartialR(821,25811
+static ref<Expr> XorExpr_createPartial(831,26097
+static ref<Expr> XorExpr_create(834,26218
+static ref<Expr> UDivExpr_create(838,26304
+static ref<Expr> SDivExpr_create(846,26496
+static ref<Expr> URemExpr_create(854,26688
+static ref<Expr> SRemExpr_create(862,26914
+static ref<Expr> ShlExpr_create(870,27140
+static ref<Expr> LShrExpr_create(878,27365
+static ref<Expr> AShrExpr_create(886,27592
+#define BCREATE_R(894,27774
+#define BCREATE(907,28565
+#define CMPCREATE(930,29607
+#define CMPCREATE_T(939,30082
+static ref<Expr> EqExpr_create(954,30962
+static ref<Expr> TryConstArrayOpt(967,31395
+static ref<Expr> EqExpr_createPartialR(994,32343
+static ref<Expr> EqExpr_createPartial(1071,35006
+ref<Expr> NeExpr::create(1075,35130
+ref<Expr> UgtExpr::create(1080,35308
+ref<Expr> UgeExpr::create(1083,35410
+ref<Expr> SgtExpr::create(1087,35513
+ref<Expr> SgeExpr::create(1090,35615
+static ref<Expr> UltExpr_create(1094,35718
+static ref<Expr> UleExpr_create(1103,35966
+static ref<Expr> SltExpr_create(1111,36195
+static ref<Expr> SleExpr_create(1119,36422
+
+Expr/ExprEvaluator.cpp,442
+ExprVisitor::Action ExprEvaluator::evalRead(14,404
+ExprVisitor::Action ExprEvaluator::visitExpr(39,1412
+ExprVisitor::Action ExprEvaluator::visitRead(60,2026
+ExprVisitor::Action ExprEvaluator::protectedDivOperation(73,2437
+ExprVisitor::Action ExprEvaluator::visitUDiv(88,2849
+ExprVisitor::Action ExprEvaluator::visitSDiv(91,2954
+ExprVisitor::Action ExprEvaluator::visitURem(94,3059
+ExprVisitor::Action ExprEvaluator::visitSRem(97,3164
+
+Expr/ExprPPrinter.cpp,1727
+class PrintContext 43,1085
+  PrintContext(PrintContext::PrintContext54,1264
+  void setNewline(PrintContext::setNewline56,1335
+  void breakLine(PrintContext::breakLine60,1413
+  void write(PrintContext::write69,1663
+  PrintContext &operator<<(PrintContext::operator<<75,1765
+class PPrinter 83,1879
+  bool shouldPrintWidth(PPrinter::shouldPrintWidth99,2397
+  bool isVerySimple(PPrinter::isVerySimple105,2521
+  bool isVerySimpleUpdate(PPrinter::isVerySimpleUpdate109,2638
+  bool isSimple(PPrinter::isSimple115,2777
+  bool hasSimpleKids(PPrinter::hasSimpleKids129,3186
+  void scanUpdate(PPrinter::scanUpdate136,3363
+  void scan1(PPrinter::scan1149,3669
+  void printUpdateList(PPrinter::printUpdateList165,4110
+  void printWidth(PPrinter::printWidth225,5928
+  bool isReadExprAtOffset(PPrinter::isReadExprAtOffset239,6149
+  const ReadExpr* hasOrderedReads(PPrinter::hasOrderedReads264,7192
+  bool hasAllByteReads(PPrinter::hasAllByteReads303,8405
+  void printRead(PPrinter::printRead321,8808
+  void printExtract(PPrinter::printExtract327,9008
+  void printExpr(PPrinter::printExpr332,9147
+  PPrinter(PPrinter::PPrinter343,9477
+  void setNewline(PPrinter::setNewline347,9552
+  void reset(PPrinter::reset351,9630
+  void scan(PPrinter::scan363,9875
+  void print(PPrinter::print368,9948
+  void printConst(PPrinter::printConst374,10069
+  void print(PPrinter::print398,10581
+  void printSeparator(PPrinter::printSeparator455,12529
+ExprPPrinter *klee::ExprPPrinter::create(klee::ExprPPrinter::create464,12691
+void ExprPPrinter::printOne(468,12782
+void ExprPPrinter::printSingleExpr(482,13181
+void ExprPPrinter::printConstraints(492,13466
+void ExprPPrinter::printQuery(498,13671
+
+Expr/ExprUtil.cpp,453
+void klee::findReads(21,510
+namespace klee 79,2452
+class SymbolicObjectFinder klee::SymbolicObjectFinder81,2470
+  Action visitRead(klee::SymbolicObjectFinder::visitRead83,2531
+  SymbolicObjectFinder(klee::SymbolicObjectFinder::SymbolicObjectFinder103,3033
+void klee::findSymbolicObjects(110,3160
+void klee::findSymbolicObjects(118,3423
+typedef std::vector< ref<Expr> >::iterator A;123,3581
+typedef std::set< ref<Expr> >::iterator B;126,3707
+
+Expr/ExprVisitor.cpp,1828
+ref<Expr> ExprVisitor::visit(24,656
+ref<Expr> ExprVisitor::visitActual(40,1024
+ExprVisitor::Action ExprVisitor::visitExpr(127,4539
+ExprVisitor::Action ExprVisitor::visitExprPost(131,4631
+ExprVisitor::Action ExprVisitor::visitNotOptimized(135,4729
+ExprVisitor::Action ExprVisitor::visitRead(139,4842
+ExprVisitor::Action ExprVisitor::visitSelect(143,4939
+ExprVisitor::Action ExprVisitor::visitConcat(147,5040
+ExprVisitor::Action ExprVisitor::visitExtract(151,5141
+ExprVisitor::Action ExprVisitor::visitZExt(155,5244
+ExprVisitor::Action ExprVisitor::visitSExt(159,5341
+ExprVisitor::Action ExprVisitor::visitAdd(163,5438
+ExprVisitor::Action ExprVisitor::visitSub(167,5533
+ExprVisitor::Action ExprVisitor::visitMul(171,5628
+ExprVisitor::Action ExprVisitor::visitUDiv(175,5723
+ExprVisitor::Action ExprVisitor::visitSDiv(179,5820
+ExprVisitor::Action ExprVisitor::visitURem(183,5917
+ExprVisitor::Action ExprVisitor::visitSRem(187,6014
+ExprVisitor::Action ExprVisitor::visitNot(191,6111
+ExprVisitor::Action ExprVisitor::visitAnd(195,6206
+ExprVisitor::Action ExprVisitor::visitOr(199,6301
+ExprVisitor::Action ExprVisitor::visitXor(203,6394
+ExprVisitor::Action ExprVisitor::visitShl(207,6489
+ExprVisitor::Action ExprVisitor::visitLShr(211,6584
+ExprVisitor::Action ExprVisitor::visitAShr(215,6681
+ExprVisitor::Action ExprVisitor::visitEq(219,6778
+ExprVisitor::Action ExprVisitor::visitNe(223,6871
+ExprVisitor::Action ExprVisitor::visitUlt(227,6964
+ExprVisitor::Action ExprVisitor::visitUle(231,7059
+ExprVisitor::Action ExprVisitor::visitUgt(235,7154
+ExprVisitor::Action ExprVisitor::visitUge(239,7249
+ExprVisitor::Action ExprVisitor::visitSlt(243,7344
+ExprVisitor::Action ExprVisitor::visitSle(247,7439
+ExprVisitor::Action ExprVisitor::visitSgt(251,7534
+ExprVisitor::Action ExprVisitor::visitSge(255,7629
+
+Expr/Lexer.cpp,635
+const char *Token::getKindName(Token::getKindName25,584
+void Token::dump(55,1544
+static inline bool isInternalIdentifierChar(63,1733
+Lexer::Lexer(67,1846
+Lexer::~Lexer(72,1999
+int Lexer::PeekNextChar(75,2020
+int Lexer::GetNextChar(81,2117
+Token &Lexer::SetTokenKind(Lexer::SetTokenKind104,2593
+static bool isReservedKW(110,2735
+static bool isWidthKW(133,3201
+Token &Lexer::SetIdentifierTokenKind(Lexer::SetIdentifierTokenKind141,3394
+void Lexer::SkipToEndOfLine(189,4793
+Token &Lexer::LexNumber(Lexer::LexNumber197,4923
+Token &Lexer::LexIdentifier(Lexer::LexIdentifier203,5089
+Token &Lexer::Lex(Lexer::Lex211,5284
+
+Expr/Parser.cpp,5131
+  struct ParseResult ::ParseResult35,867
+    ParseResult(::ParseResult::ParseResult40,932
+    ParseResult(::ParseResult::ParseResult41,979
+    ParseResult(::ParseResult::ParseResult42,1039
+    bool isValid(::ParseResult::isValid44,1119
+    T get(::ParseResult::get47,1170
+  class ExprResult ::ExprResult53,1278
+    ExprResult(::ExprResult::ExprResult58,1350
+    ExprResult(::ExprResult::ExprResult59,1387
+    ExprResult(::ExprResult::ExprResult60,1455
+    ExprResult(::ExprResult::ExprResult61,1536
+    bool isValid(::ExprResult::isValid63,1624
+    ExprHandle get(::ExprResult::get66,1675
+  typedef ParseResult<Decl*> DeclResult;::DeclResult72,1790
+  typedef ParseResult<Expr::Width> TypeResult;::TypeResult73,1831
+  typedef ParseResult<VersionHandle> VersionResult;::VersionResult74,1878
+  typedef ParseResult<uint64_t> IntegerResult;::IntegerResult75,1930
+  class NumberOrExprResult ::NumberOrExprResult80,2161
+    NumberOrExprResult(::NumberOrExprResult::NumberOrExprResult86,2263
+    explicit NumberOrExprResult(::NumberOrExprResult::NumberOrExprResult87,2309
+    explicit NumberOrExprResult(::NumberOrExprResult::NumberOrExprResult89,2450
+    bool isNumber(::NumberOrExprResult::isNumber92,2599
+    const Token &getNumber(::NumberOrExprResult::getNumber93,2646
+    const ExprResult &getExpr(::NumberOrExprResult::getExpr97,2766
+  class ParserImpl ::ParserImpl104,2934
+    typedef std::map<const std::string, const Identifier*> IdentifierTabTy;::ParserImpl::IdentifierTabTy105,2971
+    typedef std::map<const Identifier*, ExprHandle> ExprSymTabTy;::ParserImpl::ExprSymTabTy106,3047
+    typedef std::map<const Identifier*, VersionHandle> VersionSymTabTy;::ParserImpl::VersionSymTabTy107,3113
+    void GetNextNonCommentToken(::ParserImpl::GetNextNonCommentToken136,3898
+    void ConsumeToken(::ParserImpl::ConsumeToken143,4101
+    void ConsumeExpectedToken(::ParserImpl::ConsumeExpectedToken151,4417
+    void _ConsumeExpectedToken(::ParserImpl::_ConsumeExpectedToken156,4645
+    void ConsumeLParen(::ParserImpl::ConsumeLParen161,4784
+    void ConsumeRParen(::ParserImpl::ConsumeRParen166,4882
+    void ConsumeLSquare(::ParserImpl::ConsumeLSquare172,5029
+    void ConsumeRSquare(::ParserImpl::ConsumeRSquare177,5130
+    void ConsumeAnyToken(::ParserImpl::ConsumeAnyToken183,5281
+    void SkipUntilRParen(::ParserImpl::SkipUntilRParen198,5764
+    void SkipUntilRParen(::ParserImpl::SkipUntilRParen216,6455
+    void ExpectRParen(::ParserImpl::ExpectRParen223,6705
+    void SkipUntilRSquare(::ParserImpl::SkipUntilRSquare237,7170
+    void SkipUntilRSquare(::ParserImpl::SkipUntilRSquare255,7866
+    void ExpectRSquare(::ParserImpl::ExpectRSquare262,8120
+    void Error(::ParserImpl::Error320,10175
+    ParserImpl(::ParserImpl::ParserImpl323,10247
+    void Initialize(::ParserImpl::Initialize334,10788
+    virtual void SetMaxErrors(::ParserImpl::SetMaxErrors344,10964
+    virtual unsigned GetNumErrors(::ParserImpl::GetNumErrors348,11036
+const Identifier *ParserImpl::GetOrCreateIdentifier(ParserImpl::GetOrCreateIdentifier354,11119
+Decl *ParserImpl::ParseTopLevelDecl(ParserImpl::ParseTopLevelDecl368,11584
+DeclResult ParserImpl::ParseArrayDecl(401,12415
+DeclResult ParserImpl::ParseCommandDecl(544,15945
+DeclResult ParserImpl::ParseQueryCommand(568,16500
+NumberOrExprResult ParserImpl::ParseNumberOrExpr(686,19778
+ExprResult ParserImpl::ParseExpr(704,20289
+enum MacroKind 778,22327
+  eMacroKind_ReadLSB MacroKind::eMacroKind_ReadLSB779,22344
+  eMacroKind_ReadLSB = Expr::LastKind MacroKind::Expr::LastKind779,22344
+  eMacroKind_ReadMSB,MacroKind::eMacroKind_ReadMSB780,22405
+  eMacroKind_Neg,MacroKind::eMacroKind_Neg781,22467
+  eMacroKind_Concat,MacroKind::eMacroKind_Concat782,22547
+  eMacroKind_LastMacroKind MacroKind::eMacroKind_LastMacroKind783,22620
+  eMacroKind_LastMacroKind = eMacroKind_ConcatMacroKind::eMacroKind_Concat783,22620
+static bool LookupExprInfo(796,23160
+#define SetOK(798,23280
+#undef SetOK891,26366
+ExprResult ParserImpl::ParseParenExpr(901,26729
+ExprResult ParserImpl::ParseUnaryParenExpr(1001,29425
+void ParserImpl::ParseMatchedBinaryArgs(1040,30791
+ExprResult ParserImpl::ParseBinaryParenExpr(1092,32292
+ExprResult ParserImpl::ParseSelectParenExpr(1140,34272
+ExprResult ParserImpl::ParseConcatParenExpr(1159,34938
+IntegerResult ParserImpl::ParseIntegerConstant(1188,35643
+ExprResult ParserImpl::ParseExtractParenExpr(1197,35863
+ExprResult ParserImpl::ParseAnyReadParenExpr(1216,36513
+VersionResult ParserImpl::ParseVersionSpecifier(1281,38769
+  struct WriteInfo ::WriteInfo1321,39843
+    WriteInfo(::WriteInfo::WriteInfo1327,39961
+VersionResult ParserImpl::ParseVersion(1337,40317
+ExprResult ParserImpl::ParseNumber(1417,42486
+ExprResult ParserImpl::ParseNumberToken(1425,42727
+TypeResult ParserImpl::ParseTypeSpecifier(1509,44712
+void ParserImpl::Error(1521,45063
+Decl::Decl(1565,46301
+void ArrayDecl::dump(1567,46346
+void QueryCommand::dump(1585,46797
+Parser::Parser(1604,47400
+Parser::~Parser(1607,47422
+Parser *Parser::Create(Parser::Create1610,47445
+
+Expr/Updates.cpp,401
+UpdateNode::UpdateNode(18,415
+UpdateNode::~UpdateNode(38,889
+int UpdateNode::compare(44,982
+unsigned UpdateNode::computeHash(50,1124
+UpdateList::UpdateList(59,1277
+UpdateList::UpdateList(65,1413
+UpdateList::~UpdateList(71,1527
+UpdateList &UpdateList::operator=(UpdateList::operator=82,1838
+void UpdateList::extend(90,2030
+int UpdateList::compare(96,2202
+unsigned UpdateList::hash(122,2896
+
+Module/Checks.cpp,69
+char DivCheckPass::ID;32,906
+bool DivCheckPass::runOnModule(34,930
+
+Module/InstructionInfoTable.cpp,688
+class InstructionToLineAnnotator 33,947
+  void emitInstructionAnnot(InstructionToLineAnnotator::emitInstructionAnnot35,1030
+static void buildInstructionToLineMap(40,1155
+static std::string getDSPIPath(67,1858
+static std::string getDSPIPath(82,2315
+bool InstructionInfoTable::getInstructionDebugInfo(95,2596
+InstructionInfoTable::InstructionInfoTable(116,3236
+      sourceinfo_ty;136,4050
+InstructionInfoTable::~InstructionInfoTable(186,5930
+const std::string *InstructionInfoTable::internString(InstructionInfoTable::internString193,6141
+unsigned InstructionInfoTable::getMaxID(204,6468
+InstructionInfoTable::getInfo(209,6568
+InstructionInfoTable::getFunctionInfo(220,6841
+
+Module/IntrinsicCleaner.cpp,162
+namespace klee 32,916
+bool IntrinsicCleanerPass::runOnModule(klee::IntrinsicCleanerPass::runOnModule36,966
+bool IntrinsicCleanerPass::runOnBasicBlock(44,1235
+
+Module/KInstruction.cpp,36
+KInstruction::~KInstruction(17,443
+
+Module/KModule.cpp,718
+  enum SwitchImplType ::SwitchImplType46,1306
+    eSwitchTypeSimple,::SwitchImplType::eSwitchTypeSimple47,1330
+    eSwitchTypeLLVM,::SwitchImplType::eSwitchTypeLLVM48,1353
+    eSwitchTypeInternal::SwitchImplType::eSwitchTypeInternal49,1374
+KModule::KModule(85,2680
+KModule::~KModule(94,2859
+namespace llvm 108,3102
+static Function *getStubFunctionForCtorList(getStubFunctionForCtorList113,3168
+static void injectStaticConstructorsAndDestructors(156,4701
+static void forceImport(178,5484
+void KModule::prepare(200,6204
+KConstant* KModule::getKConstant(455,14898
+unsigned KModule::getConstantID(462,15094
+KConstant::KConstant(476,15387
+KFunction::KFunction(484,15510
+KFunction::~KFunction(551,17643
+
+Module/LowerSwitch.cpp,271
+namespace klee 25,827
+struct SwitchCaseCmp klee::SwitchCaseCmp30,953
+  bool operator () klee::SwitchCaseCmp::operator ()31,976
+bool LowerSwitchPass::runOnFunction(40,1286
+void LowerSwitchPass::switchConvert(57,1762
+void LowerSwitchPass::processSwitchInst(94,3184
+
+Module/ModuleUtil.cpp,207
+Module *klee::linkWithLibrary(klee::linkWithLibrary34,925
+Function *klee::getDirectCallTarget(klee::getDirectCallTarget48,1289
+static bool valueIsOnlyCalled(67,1934
+bool klee::functionEscapes(102,3168
+
+Module/Optimize.cpp,161
+static inline void addPass(74,2487
+namespace llvm 83,2728
+static void AddStandardCompilePasses(llvm::AddStandardCompilePasses86,2747
+void Optimize(161,6848
+
+Module/PhiCleaner.cpp,87
+char klee::PhiCleanerPass::ID 16,403
+bool klee::PhiCleanerPass::runOnFunction(18,439
+
+Module/RaiseAsm.cpp,186
+char RaiseAsmPass::ID 20,532
+Function *RaiseAsmPass::getIntrinsic(RaiseAsmPass::getIntrinsic22,560
+bool RaiseAsmPass::runOnInstruction(31,970
+bool RaiseAsmPass::runOnModule(58,1979
+
+SMT/main.cpp,236
+int main(10,120
+  enum BuilderKinds 16,251
+    DefaultBuilder,BuilderKinds::DefaultBuilder17,273
+    ConstantFoldingBuilder,BuilderKinds::ConstantFoldingBuilder18,293
+    SimplifyingBuilderBuilderKinds::SimplifyingBuilder19,321
+
+SMT/SMTParser.cpp,746
+SMTParser* SMTParser::parserTemp 37,905
+SMTParser::SMTParser(39,947
+void SMTParser::Parse(54,1340
+Decl* SMTParser::ParseTopLevelDecl(64,1573
+bool SMTParser::Solve(70,1746
+int SMTParser::Error(105,2770
+int SMTParser::StringToInt(114,2962
+ExprHandle SMTParser::CreateAnd(123,3093
+ExprHandle SMTParser::CreateOr(135,3394
+ExprHandle SMTParser::CreateXor(147,3692
+void SMTParser::DeclareExpr(160,3994
+ExprHandle SMTParser::GetConstExpr(184,4649
+void SMTParser::PushVarEnv(192,4888
+void SMTParser::PopVarEnv(199,5016
+void SMTParser::AddVar(206,5117
+ExprHandle SMTParser::GetVar(213,5302
+void SMTParser::PushFVarEnv(223,5518
+void SMTParser::PopFVarEnv(227,5595
+void SMTParser::AddFVar(234,5703
+ExprHandle SMTParser::GetFVar(241,5891
+
+Solver/CachingSolver.cpp,1039
+class CachingSolver 24,567
+  struct CacheEntry CachingSolver::CacheEntry35,932
+    CacheEntry(CachingSolver::CacheEntry::CacheEntry36,954
+    CacheEntry(CachingSolver::CacheEntry::CacheEntry39,1047
+    bool operator==(CachingSolver::CacheEntry::operator==45,1202
+  struct CacheEntryHash CachingSolver::CacheEntryHash50,1338
+    unsigned operator()(CachingSolver::CacheEntryHash::operator()51,1364
+                                  CacheEntryHash> cache_map;CachingSolver::cache_map64,1781
+  CachingSolver(CachingSolver::CachingSolver70,1891
+  ~CachingSolver(CachingSolver::~CachingSolver71,1933
+  bool computeValue(CachingSolver::computeValue75,2101
+  bool computeInitialValues(CachingSolver::computeInitialValues78,2220
+ref<Expr> CachingSolver::canonicalizeQuery(90,2781
+bool CachingSolver::cacheLookup(106,3328
+void CachingSolver::cacheInsert(125,3902
+bool CachingSolver::computeValidity(137,4365
+bool CachingSolver::computeTruth(203,6190
+Solver *klee::createCachingSolver(klee::createCachingSolver239,7218
+
+Solver/CexCachingSolver.cpp,1265
+typedef std::set< ref<Expr> > KeyType;44,1092
+struct AssignmentLessThan 46,1132
+  bool operator()(AssignmentLessThan::operator()47,1160
+class CexCachingSolver 53,1269
+  typedef std::set<Assignment*, AssignmentLessThan> assignmentsTable_ty;CexCachingSolver::assignmentsTable_ty54,1314
+  bool lookupAssignment(CexCachingSolver::lookupAssignment67,1684
+  CexCachingSolver(CexCachingSolver::CexCachingSolver75,1896
+struct NullAssignment 89,2395
+  bool operator()(NullAssignment::operator()90,2419
+struct NonNullAssignment 93,2477
+  bool operator()(NonNullAssignment::operator()94,2504
+struct NullOrSatisfyingAssignment 97,2564
+  NullOrSatisfyingAssignment(NullOrSatisfyingAssignment::NullOrSatisfyingAssignment100,2619
+  bool operator()(NullOrSatisfyingAssignment::operator()102,2679
+bool CexCachingSolver::searchForAssignment(114,3125
+bool CexCachingSolver::lookupAssignment(179,5466
+bool CexCachingSolver::getAssignment(196,5984
+CexCachingSolver::~CexCachingSolver(236,6969
+bool CexCachingSolver::computeValidity(244,7185
+bool CexCachingSolver::computeTruth(268,7931
+bool CexCachingSolver::computeValue(295,8781
+CexCachingSolver::computeInitialValues(310,9238
+Solver *klee::createCexCachingSolver(klee::createCexCachingSolver344,10266
+
+Solver/ConstantDivision.cpp,380
+namespace klee 17,444
+#define TWO_TO_THE_32_U64 28,794
+#define TWO_TO_THE_31_S64 31,908
+#define ABS(34,974
+#define XSIGN(37,1099
+#define LOG2_CEIL(40,1187
+static uint32_t ones(klee::ones43,1294
+static uint32_t ldz(54,1597
+static uint32_t exp_base_2(65,1805
+void ComputeMultConstants64(82,2533
+void ComputeUDivConstants32(118,3405
+void ComputeSDivConstants32(128,3747
+
+Solver/FastCexSolver.cpp,4376
+static uint64_t minOR(32,801
+static uint64_t maxOR(48,1183
+static uint64_t minAND(64,1543
+static uint64_t maxAND(79,1899
+class ValueRange 98,2301
+  ValueRange(ValueRange::ValueRange103,2363
+  ValueRange(ValueRange::ValueRange104,2401
+  ValueRange(ValueRange::ValueRange108,2528
+  ValueRange(ValueRange::ValueRange109,2589
+  ValueRange(ValueRange::ValueRange110,2662
+  void print(ValueRange::print112,2733
+  bool isEmpty(ValueRange::isEmpty120,2885
+  bool contains(ValueRange::contains123,2940
+  bool intersects(ValueRange::intersects126,3034
+  bool isFullRange(ValueRange::isFullRange130,3137
+  ValueRange set_intersection(ValueRange::set_intersection134,3239
+  ValueRange set_union(ValueRange::set_union137,3375
+  ValueRange set_difference(ValueRange::set_difference140,3504
+  ValueRange binaryAnd(ValueRange::binaryAnd156,4124
+  ValueRange binaryAnd(ValueRange::binaryAnd166,4466
+  ValueRange binaryOr(ValueRange::binaryOr167,4544
+  ValueRange binaryOr(ValueRange::binaryOr177,4876
+  ValueRange binaryXor(ValueRange::binaryXor178,4952
+  ValueRange binaryShiftLeft(ValueRange::binaryShiftLeft189,5256
+  ValueRange binaryShiftRight(ValueRange::binaryShiftRight192,5361
+  ValueRange concat(ValueRange::concat196,5468
+  ValueRange extract(ValueRange::extract199,5582
+  ValueRange add(ValueRange::add203,5737
+  ValueRange sub(ValueRange::sub206,5861
+  ValueRange mul(ValueRange::mul209,5985
+  ValueRange udiv(ValueRange::udiv212,6109
+  ValueRange sdiv(ValueRange::sdiv215,6234
+  ValueRange urem(ValueRange::urem218,6359
+  ValueRange srem(ValueRange::srem221,6484
+  bool isFixed(ValueRange::isFixed227,6702
+  bool operator==(ValueRange::operator==229,6751
+  bool operator!=(ValueRange::operator!=232,6849
+  bool mustEqual(ValueRange::mustEqual234,6919
+  bool mayEqual(ValueRange::mayEqual235,6997
+  bool mustEqual(ValueRange::mustEqual237,7073
+  bool mayEqual(ValueRange::mayEqual240,7180
+  uint64_t min(ValueRange::min242,7256
+  uint64_t max(ValueRange::max247,7369
+  int64_t minSigned(ValueRange::minSigned252,7484
+  int64_t maxSigned(ValueRange::maxSigned268,7955
+inline std::ostream &operator<<(operator<<286,8461
+typedef ValueRange CexValueData;292,8617
+class CexObjectData 294,8651
+  CexObjectData(CexObjectData::CexObjectData311,9254
+  const CexValueData getPossibleValues(CexObjectData::getPossibleValues318,9480
+  void setPossibleValues(CexObjectData::setPossibleValues321,9582
+  void setPossibleValue(CexObjectData::setPossibleValue324,9686
+  const CexValueData getExactValues(CexObjectData::getExactValues328,9803
+  void setExactValues(CexObjectData::setExactValues331,9899
+  unsigned char getPossibleValue(CexObjectData::getPossibleValue336,10051
+class CexRangeEvaluator 342,10221
+  CexRangeEvaluator(CexRangeEvaluator::CexRangeEvaluator345,10346
+  ValueRange getInitialReadRange(CexRangeEvaluator::getInitialReadRange348,10445
+class CexPossibleEvaluator 359,10787
+  ref<Expr> getInitialValue(CexPossibleEvaluator::getInitialValue361,10850
+  CexPossibleEvaluator(CexPossibleEvaluator::CexPossibleEvaluator376,11521
+class CexExactEvaluator 380,11626
+  ref<Expr> getInitialValue(CexExactEvaluator::getInitialValue382,11686
+  CexExactEvaluator(CexExactEvaluator::CexExactEvaluator404,12602
+#define DEBUG409,12710
+class CexData 412,12732
+  CexData(CexData::CexData420,12917
+  ~CexData(CexData::~CexData421,12932
+  CexObjectData &getObjectData(CexData::getObjectData427,13104
+  void propogatePossibleValue(CexData::propogatePossibleValue436,13277
+  void propogateExactValue(CexData::propogateExactValue440,13402
+  void propogatePossibleValues(CexData::propogatePossibleValues444,13521
+  void propogateExactValues(CexData::propogateExactValues785,25159
+  ValueRange evalRangeForExpr(CexData::evalRangeForExpr925,28528
+  ref<Expr> evaluatePossible(CexData::evaluatePossible932,28778
+  ref<Expr> evaluateExact(CexData::evaluateExact936,28878
+  void dump(CexData::dump940,28972
+class FastCexSolver 969,29715
+FastCexSolver::FastCexSolver(982,30174
+FastCexSolver::~FastCexSolver(984,30210
+static bool propogateValues(1000,30792
+FastCexSolver::computeTruth(1051,32196
+bool FastCexSolver::computeValue(1063,32473
+FastCexSolver::computeInitialValues(1090,33147
+Solver *klee::createFastCexSolver(klee::createFastCexSolver1136,34494
+
+Solver/IncompleteSolver.cpp,367
+IncompleteSolver::negatePartialValidity(20,497
+IncompleteSolver::computeValidity(32,866
+StagedSolverImpl::StagedSolverImpl(61,1600
+StagedSolverImpl::~StagedSolverImpl(67,1774
+bool StagedSolverImpl::computeTruth(72,1855
+bool StagedSolverImpl::computeValidity(83,2199
+bool StagedSolverImpl::computeValue(116,3094
+StagedSolverImpl::computeInitialValues(125,3333
+
+Solver/IndependentSolver.cpp,1555
+class DenseSet 27,621
+  typedef std::set<T> set_ty;DenseSet::set_ty28,638
+  DenseSet(DenseSet::DenseSet32,689
+  void add(DenseSet::add34,706
+  void add(DenseSet::add37,745
+  bool add(DenseSet::add43,882
+  bool intersects(DenseSet::intersects55,1171
+  void print(DenseSet::print63,1371
+inline std::ostream &operator<<(operator<<80,1689
+class IndependentElementSet 85,1798
+  typedef std::map<const Array*, DenseSet<unsigned> > elements_ty;IndependentElementSet::elements_ty86,1828
+  IndependentElementSet(IndependentElementSet::IndependentElementSet91,1967
+  IndependentElementSet(IndependentElementSet::IndependentElementSet92,1996
+  IndependentElementSet(IndependentElementSet::IndependentElementSet117,2835
+  IndependentElementSet &operator=(IndependentElementSet::operator=121,2967
+  void print(IndependentElementSet::print127,3127
+  bool intersects(IndependentElementSet::intersects159,3893
+  bool add(IndependentElementSet::add182,4682
+inline std::ostream &operator<<(operator<<217,5732
+IndependentElementSet getIndependentConstraints(223,5859
+class IndependentSolver 268,7612
+  IndependentSolver(IndependentSolver::IndependentSolver273,7694
+  ~IndependentSolver(IndependentSolver::~IndependentSolver275,7757
+  bool computeInitialValues(IndependentSolver::computeInitialValues280,7968
+bool IndependentSolver::computeValidity(289,8354
+bool IndependentSolver::computeTruth(299,8755
+bool IndependentSolver::computeValue(308,9098
+Solver *klee::createIndependentSolver(klee::createIndependentSolver316,9407
+
+Solver/PCLoggingSolver.cpp,596
+class PCLoggingSolver 29,707
+  void startQuery(PCLoggingSolver::startQuery36,858
+  void finishQuery(PCLoggingSolver::finishQuery53,1622
+  PCLoggingSolver(PCLoggingSolver::PCLoggingSolver60,1814
+  ~PCLoggingSolver(PCLoggingSolver::~PCLoggingSolver66,2045
+  bool computeTruth(PCLoggingSolver::computeTruth71,2114
+  bool computeValidity(PCLoggingSolver::computeValidity81,2420
+  bool computeValue(PCLoggingSolver::computeValue91,2723
+  bool computeInitialValues(PCLoggingSolver::computeInitialValues102,3066
+Solver *klee::createPCLoggingSolver(klee::createPCLoggingSolver143,4474
+
+Solver/Solver.cpp,2197
+#define vc_bvBoolExtract 24,684
+const char *Solver::validity_to_str(Solver::validity_to_str41,934
+Solver::~Solver(49,1097
+SolverImpl::~SolverImpl(53,1137
+bool Solver::evaluate(56,1168
+bool SolverImpl::computeValidity(68,1535
+bool Solver::mustBeTrue(82,1898
+bool Solver::mustBeFalse(94,2260
+bool Solver::mayBeTrue(98,2373
+bool Solver::mayBeFalse(106,2529
+bool Solver::getValue(114,2685
+Solver::getInitialValues(131,3091
+std::pair< ref<Expr>, ref<Expr> > Solver::getRange(144,3483
+class ValidatingSolver 259,6600
+  ValidatingSolver(ValidatingSolver::ValidatingSolver264,6691
+  ~ValidatingSolver(ValidatingSolver::~ValidatingSolver266,6787
+bool ValidatingSolver::computeTruth(277,7242
+bool ValidatingSolver::computeValidity(292,7612
+bool ValidatingSolver::computeValue(307,8018
+ValidatingSolver::computeInitialValues(327,8607
+Solver *klee::createValidatingSolver(klee::createValidatingSolver372,10437
+class DummySolverImpl 378,10567
+  DummySolverImpl(DummySolverImpl::DummySolverImpl380,10620
+  bool computeValidity(DummySolverImpl::computeValidity382,10646
+  bool computeTruth(DummySolverImpl::computeTruth387,10806
+  bool computeValue(DummySolverImpl::computeValue392,10952
+  bool computeInitialValues(DummySolverImpl::computeInitialValues397,11088
+Solver *klee::createDummySolver(klee::createDummySolver407,11413
+class STPSolverImpl 413,11503
+  void setTimeout(STPSolverImpl::setTimeout427,11870
+static unsigned char *shared_memory_ptr;shared_memory_ptr437,12277
+static const unsigned shared_memory_size 438,12318
+static int shared_memory_id;439,12368
+static void stp_error_handler(441,12398
+STPSolverImpl::STPSolverImpl(446,12519
+STPSolverImpl::~STPSolverImpl(467,13270
+STPSolver::STPSolver(475,13351
+char *STPSolver::getConstraintLog(STPSolver::getConstraintLog480,13485
+void STPSolver::setTimeout(484,13615
+char *STPSolverImpl::getConstraintLog(STPSolverImpl::getConstraintLog490,13728
+bool STPSolverImpl::computeTruth(507,14282
+bool STPSolverImpl::computeValue(520,14624
+static void runAndGetCex(540,15277
+static void stpTimeoutHandler(567,16202
+static bool runAndGetCexForked(571,16257
+STPSolverImpl::computeInitialValues(664,19180
+
+Solver/STPBuilder.cpp,1666
+#define vc_bvBoolExtract 23,559
+#define vc_bvLeftShiftExpr 25,621
+#define vc_bvRightShiftExpr 26,667
+#define vc_bvVar32LeftShiftExpr 28,731
+#define vc_bvVar32RightShiftExpr 29,782
+#define vc_bvVar32DivByPowOfTwoExpr 30,834
+#define vc_bvCreateMemoryArray 31,889
+#define vc_bvReadMemoryArray 32,939
+#define vc_bvWriteToMemoryArray 33,987
+STPBuilder::STPBuilder(55,1406
+STPBuilder::~STPBuilder(64,1689
+::VCExpr STPBuilder::buildVar(73,1909
+::VCExpr STPBuilder::buildArray(81,2183
+ExprHandle STPBuilder::getTempVar(93,2582
+ExprHandle STPBuilder::getTrue(103,2854
+ExprHandle STPBuilder::getFalse(106,2917
+ExprHandle STPBuilder::bvOne(109,2982
+ExprHandle STPBuilder::bvZero(112,3061
+ExprHandle STPBuilder::bvMinusOne(115,3141
+ExprHandle STPBuilder::bvConst32(118,3236
+ExprHandle STPBuilder::bvConst64(121,3355
+ExprHandle STPBuilder::bvBoolExtract(125,3474
+ExprHandle STPBuilder::bvExtract(128,3602
+ExprHandle STPBuilder::eqExpr(131,3733
+ExprHandle STPBuilder::bvRightShift(136,3849
+ExprHandle STPBuilder::bvLeftShift(152,4303
+ExprHandle STPBuilder::bvVarLeftShift(170,4936
+ExprHandle STPBuilder::bvVarRightShift(189,5648
+ExprHandle STPBuilder::bvVarArithRightShift(209,6366
+ExprHandle STPBuilder::constructAShrByConstant(237,7498
+ExprHandle STPBuilder::constructMulByConstant(258,8341
+ExprHandle STPBuilder::constructUDivByConstant(312,9790
+ExprHandle STPBuilder::constructSDivByConstant(349,11351
+::VCExpr STPBuilder::getInitialArray(387,13097
+ExprHandle STPBuilder::getInitialRead(415,14098
+::VCExpr STPBuilder::getArrayForUpdate(419,14247
+ExprHandle STPBuilder::construct(437,14841
+ExprHandle STPBuilder::constructActual(460,15543
+
+Support/RNG.cpp,326
+RNG::RNG(50,2144
+void RNG::seed(54,2185
+unsigned int RNG::getInt32(69,2727
+int RNG::getInt31(103,3569
+double RNG::getDoubleLR(108,3680
+double RNG::getDoubleL(114,3834
+double RNG::getDouble(120,3984
+float RNG::getFloatLR(125,4096
+float RNG::getFloatL(129,4194
+float RNG::getFloat(133,4288
+bool RNG::getBool(138,4391
+
+Support/Time.cpp,66
+double util::getUserTime(17,462
+double util::getWallTime(23,648
+
+Support/Timer.cpp,63
+WallTimer::WallTimer(17,464
+uint64_t WallTimer::check(23,616
+
+Support/TreeStream.cpp,657
+TreeStreamWriter::TreeStreamWriter(25,548
+TreeStreamWriter::~TreeStreamWriter(38,851
+bool TreeStreamWriter::good(44,938
+TreeOStream TreeStreamWriter::open(48,992
+TreeOStream TreeStreamWriter::open(52,1072
+void TreeStreamWriter::write(62,1392
+void TreeStreamWriter::flushBuffer(86,2144
+void TreeStreamWriter::flush(95,2405
+void TreeStreamWriter::readStream(100,2477
+TreeOStream::TreeOStream(169,4285
+TreeOStream::TreeOStream(174,4342
+TreeOStream::~TreeOStream(179,4447
+unsigned TreeOStream::getID(182,4480
+void TreeOStream::write(187,4552
+TreeOStream &TreeOStream::operator<<(TreeOStream::operator<<192,4672
+void TreeOStream::flush(198,4800
+
+Solver/SolverStats.cpp,0
+
+Core/CoreStats.cpp,0

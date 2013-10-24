@@ -1,0 +1,6 @@
+GKLEE:
+gklee-nvcc scalarProd_kernel.cu
+
+GKLEE_p:
+gklee-nvcc scalarProd_kernel.cu -D_SYM
+

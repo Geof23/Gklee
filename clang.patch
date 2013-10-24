@@ -1,0 +1,420 @@
+diff -urN clang-3.2.src/include/clang/Basic/Attr.td clang/include/clang/Basic/Attr.td
+--- clang-3.2.src/include/clang/Basic/Attr.td	2012-11-01 17:55:47.000000000 -0600
++++ clang/include/clang/Basic/Attr.td	2013-08-05 16:14:42.265182108 -0600
+@@ -277,18 +277,46 @@
+ }
+ 
+ def CUDAConstant : InheritableAttr {
++  let Spellings = [GNU<"cudaconstant">];
++}
++
++def GPUConstant : InheritableAttr {
+   let Spellings = [GNU<"constant">];
+ }
+ 
+ def CUDADevice : InheritableAttr {
++  let Spellings = [GNU<"cudadevice">];
++}
++
++def GPUDevice : InheritableAttr {
+   let Spellings = [GNU<"device">];
+ }
+ 
++def CUDADeviceBuiltIn : InheritableAttr {
++  let Spellings = [GNU<"device_builtin">];
++}
++
++def CUDADeviceBuiltInTexture : InheritableAttr {
++  let Spellings = [GNU<"device_builtin_texture_type">];
++}
++
++def CUDADeviceBuiltInSurface : InheritableAttr {
++  let Spellings = [GNU<"device_builtin_surface_type">];
++}
++
+ def CUDAGlobal : InheritableAttr {
++  let Spellings = [GNU<"cudaglobal">];
++}
++
++def GPUGlobal : InheritableAttr {
+   let Spellings = [GNU<"global">];
+ }
+ 
+ def CUDAHost : InheritableAttr {
++  let Spellings = [GNU<"cudahost">];
++}
++
++def GPUHost : InheritableAttr {
+   let Spellings = [GNU<"host">];
+ }
+ 
+@@ -298,6 +326,10 @@
+ }
+ 
+ def CUDAShared : InheritableAttr {
++  let Spellings = [GNU<"cudashared">];
++}
++
++def GPUShared : InheritableAttr {
+   let Spellings = [GNU<"shared">];
+ }
+ 
+diff -urN clang-3.2.src/include/clang/Driver/CC1Options.td clang/include/clang/Driver/CC1Options.td
+--- clang-3.2.src/include/clang/Driver/CC1Options.td	2012-11-21 01:33:40.000000000 -0700
++++ clang/include/clang/Driver/CC1Options.td	2013-08-05 23:44:41.857773022 -0600
+@@ -532,4 +532,7 @@
+ def fcuda_is_device : Flag<["-"], "fcuda-is-device">,
+   HelpText<"Generate code for CUDA device">;
+ 
++def fgpu_device : Flag<["-"], "fgpu-device">,
++  HelpText<"Generate code for CUDA kernel device">;
++
+ } // let Flags = [CC1Option]
+diff -urN clang-3.2.src/include/clang/Frontend/CodeGenOptions.def clang/include/clang/Frontend/CodeGenOptions.def
+--- clang-3.2.src/include/clang/Frontend/CodeGenOptions.def	2012-11-09 11:27:01.000000000 -0700
++++ clang/include/clang/Frontend/CodeGenOptions.def	2013-08-05 16:03:02.233347627 -0600
+@@ -31,6 +31,7 @@
+ CODEGENOPT(AsmVerbose        , 1, 0) ///< -dA, -fverbose-asm.
+ CODEGENOPT(ObjCAutoRefCountExceptions , 1, 0) ///< Whether ARC should be EH-safe.
+ CODEGENOPT(CUDAIsDevice      , 1, 0) ///< Set when compiling for CUDA device.
++CODEGENOPT(GPUDevice         , 1, 0) ///< Set when compiling for CUDA device (Optional).
+ CODEGENOPT(CXAAtExit         , 1, 1) ///< Use __cxa_atexit for calling destructors.
+ CODEGENOPT(CXXCtorDtorAliases, 1, 0) ///< Emit complete ctors/dtors as linker
+                                      ///< aliases to base ctors when possible.
+diff -urN clang-3.2.src/lib/CodeGen/CodeGenModule.cpp clang/lib/CodeGen/CodeGenModule.cpp
+--- clang-3.2.src/lib/CodeGen/CodeGenModule.cpp	2012-11-21 23:10:56.000000000 -0700
++++ clang/lib/CodeGen/CodeGenModule.cpp	2013-08-05 16:49:18.866523041 -0600
+@@ -45,6 +45,8 @@
+ #include "llvm/DataLayout.h"
+ #include "llvm/Support/CallSite.h"
+ #include "llvm/Support/ErrorHandling.h"
++#include <iostream>
++#include <fstream>
+ using namespace clang;
+ using namespace CodeGen;
+ 
+@@ -953,6 +955,18 @@
+   } else {
+     const VarDecl *VD = cast<VarDecl>(Global);
+     assert(VD->isFileVarDecl() && "Cannot emit local var decl as global.");
++    if (VD->isThisDeclarationADefinition() != VarDecl::Definition) {
++      if (Global->hasAttr<GPUSharedAttr>()) {
++        // shared variables ...
++        std::ofstream extAttrFile;
++        extAttrFile.open("ExternAttribute.txt", std::ios::app);
++        std::string info = VD->getNameAsString();
++        info += " : shared";
++        extAttrFile << info.c_str() << std::endl;
++        extAttrFile.close();
++      }
++      return;
++    }
+ 
+     if (VD->isThisDeclarationADefinition() != VarDecl::Definition)
+       return;
+@@ -1206,6 +1220,15 @@
+     Ty = getTypes().ConvertType(cast<ValueDecl>(GD.getDecl())->getType());
+   
+   StringRef MangledName = getMangledName(GD);
++  if (LangOpts.CUDA
++       && CodeGenOpts.GPUDevice) {
++    if (GD.getDecl()->hasAttr<GPUGlobalAttr>()) {
++      std::ofstream kernelSetFile;
++      kernelSetFile.open("kernelSet.txt", std::ios::app);
++      kernelSetFile << MangledName.str() << std::endl;
++      kernelSetFile.close();
++    }
++  }
+   return GetOrCreateLLVMFunction(MangledName, Ty, GD, ForVTable);
+ }
+ 
+diff -urN clang-3.2.src/lib/Frontend/CompilerInvocation.cpp clang/lib/Frontend/CompilerInvocation.cpp
+--- clang-3.2.src/lib/Frontend/CompilerInvocation.cpp	2012-11-21 01:33:40.000000000 -0700
++++ clang/lib/Frontend/CompilerInvocation.cpp	2013-08-05 16:16:16.065203361 -0600
+@@ -352,6 +352,7 @@
+   Opts.AsmVerbose = Args.hasArg(OPT_masm_verbose);
+   Opts.ObjCAutoRefCountExceptions = Args.hasArg(OPT_fobjc_arc_exceptions);
+   Opts.CUDAIsDevice = Args.hasArg(OPT_fcuda_is_device);
++  Opts.GPUDevice = Args.hasArg(OPT_fgpu_device);
+   Opts.CXAAtExit = !Args.hasArg(OPT_fno_use_cxa_atexit);
+   Opts.CXXCtorDtorAliases = Args.hasArg(OPT_mconstructor_aliases);
+   Opts.CodeModel = Args.getLastArgValue(OPT_mcode_model);
+diff -urN clang-3.2.src/lib/Sema/SemaDeclAttr.cpp clang/lib/Sema/SemaDeclAttr.cpp
+--- clang-3.2.src/lib/Sema/SemaDeclAttr.cpp	2012-11-07 14:31:36.000000000 -0700
++++ clang/lib/Sema/SemaDeclAttr.cpp	2013-08-05 16:41:54.473297482 -0600
+@@ -3421,7 +3421,8 @@
+                                                         S.Context));
+ }
+ 
+-static void handleConstantAttr(Sema &S, Decl *D, const AttributeList &Attr) {
++static void handleConstantAttr(Sema &S, Decl *D, const AttributeList &Attr, 
++                               bool isCUDADevice) {
+   if (S.LangOpts.CUDA) {
+     // check the attribute arguments.
+     if (Attr.hasParameterOrArguments()) {
+@@ -3435,13 +3436,17 @@
+       return;
+     }
+ 
+-    D->addAttr(::new (S.Context) CUDAConstantAttr(Attr.getRange(), S.Context));
++    if (isCUDADevice)
++      D->addAttr(::new (S.Context) CUDAConstantAttr(Attr.getRange(), S.Context));
++    else
++      D->addAttr(::new (S.Context) GPUConstantAttr(Attr.getRange(), S.Context));
+   } else {
+     S.Diag(Attr.getLoc(), diag::warn_attribute_ignored) << "constant";
+   }
+ }
+ 
+-static void handleDeviceAttr(Sema &S, Decl *D, const AttributeList &Attr) {
++static void handleDeviceAttr(Sema &S, Decl *D, const AttributeList &Attr,
++                             bool isCUDADevice) {
+   if (S.LangOpts.CUDA) {
+     // check the attribute arguments.
+     if (Attr.getNumArgs() != 0) {
+@@ -3455,13 +3460,77 @@
+       return;
+     }
+ 
+-    D->addAttr(::new (S.Context) CUDADeviceAttr(Attr.getRange(), S.Context));
++    if (isCUDADevice)
++      D->addAttr(::new (S.Context) CUDADeviceAttr(Attr.getRange(), S.Context));
++    else 
++      D->addAttr(::new (S.Context) GPUDeviceAttr(Attr.getRange(), S.Context));
+   } else {
+     S.Diag(Attr.getLoc(), diag::warn_attribute_ignored) << "device";
+   }
+ }
+ 
+-static void handleGlobalAttr(Sema &S, Decl *D, const AttributeList &Attr) {
++static void handleDeviceBuiltInAttr(Sema &S, Decl *D, const AttributeList &Attr) {
++  if (S.LangOpts.CUDA) {
++    // check the attribute arguments.
++    if (Attr.getNumArgs() != 0) {
++      S.Diag(Attr.getLoc(), diag::err_attribute_wrong_number_arguments) << 0;
++      return;
++    }
++
++    if (!isa<FunctionDecl>(D) && !isa<VarDecl>(D) && !isa<TypeDecl>(D)) {
++      S.Diag(Attr.getLoc(), diag::warn_attribute_wrong_decl_type)
++        << Attr.getName() << ExpectedVariableOrFunction;
++      return;
++    }
++
++    D->addAttr(::new (S.Context) CUDADeviceBuiltInAttr(Attr.getRange(), S.Context));
++  } else {
++    S.Diag(Attr.getLoc(), diag::warn_attribute_ignored) << "device builtin";
++  }
++}
++
++static void handleDeviceBuiltInTextureAttr(Sema &S, Decl *D, const AttributeList &Attr) {
++  if (S.LangOpts.CUDA) {
++    // check the attribute arguments.
++    if (Attr.getNumArgs() != 0) {
++      S.Diag(Attr.getLoc(), diag::err_attribute_wrong_number_arguments) << 0;
++      return;
++    }
++
++    if (!isa<TypeDecl>(D)) {
++      S.Diag(Attr.getLoc(), diag::warn_attribute_wrong_decl_type)
++        << Attr.getName() << ExpectedVariableOrFunction;
++      return;
++    }
++
++    D->addAttr(::new (S.Context) CUDADeviceBuiltInTextureAttr(Attr.getRange(), S.Context));
++  } else {
++    S.Diag(Attr.getLoc(), diag::warn_attribute_ignored) << "device builtin texture";
++  }
++}
++
++static void handleDeviceBuiltInSurfaceAttr(Sema &S, Decl *D, const AttributeList &Attr) {
++  if (S.LangOpts.CUDA) {
++    // check the attribute arguments.
++    if (Attr.getNumArgs() != 0) {
++      S.Diag(Attr.getLoc(), diag::err_attribute_wrong_number_arguments) << 0;
++      return;
++    }
++
++    if (!isa<TypeDecl>(D)) {
++      S.Diag(Attr.getLoc(), diag::warn_attribute_wrong_decl_type)
++        << Attr.getName() << ExpectedVariableOrFunction;
++      return;
++    }
++
++    D->addAttr(::new (S.Context) CUDADeviceBuiltInSurfaceAttr(Attr.getRange(), S.Context));
++  } else {
++    S.Diag(Attr.getLoc(), diag::warn_attribute_ignored) << "device builtin surface";
++  }
++}
++
++static void handleGlobalAttr(Sema &S, Decl *D, const AttributeList &Attr, 
++                             bool isCUDADevice) {
+   if (S.LangOpts.CUDA) {
+     // check the attribute arguments.
+     if (!checkAttributeNumArgs(S, Attr, 0))
+@@ -3488,13 +3557,17 @@
+       return;
+     }
+ 
+-    D->addAttr(::new (S.Context) CUDAGlobalAttr(Attr.getRange(), S.Context));
++    if (isCUDADevice)
++      D->addAttr(::new (S.Context) CUDAGlobalAttr(Attr.getRange(), S.Context));
++    else
++      D->addAttr(::new (S.Context) GPUGlobalAttr(Attr.getRange(), S.Context));
+   } else {
+     S.Diag(Attr.getLoc(), diag::warn_attribute_ignored) << "global";
+   }
+ }
+ 
+-static void handleHostAttr(Sema &S, Decl *D, const AttributeList &Attr) {
++static void handleHostAttr(Sema &S, Decl *D, const AttributeList &Attr, 
++                           bool isCUDADevice) {
+   if (S.LangOpts.CUDA) {
+     // check the attribute arguments.
+     if (!checkAttributeNumArgs(S, Attr, 0))
+@@ -3507,13 +3580,17 @@
+       return;
+     }
+ 
+-    D->addAttr(::new (S.Context) CUDAHostAttr(Attr.getRange(), S.Context));
++    if (isCUDADevice)
++      D->addAttr(::new (S.Context) CUDAHostAttr(Attr.getRange(), S.Context));
++    else
++      D->addAttr(::new (S.Context) GPUHostAttr(Attr.getRange(), S.Context));
+   } else {
+     S.Diag(Attr.getLoc(), diag::warn_attribute_ignored) << "host";
+   }
+ }
+ 
+-static void handleSharedAttr(Sema &S, Decl *D, const AttributeList &Attr) {
++static void handleSharedAttr(Sema &S, Decl *D, const AttributeList &Attr, 
++                             bool isCUDADevice) {
+   if (S.LangOpts.CUDA) {
+     // check the attribute arguments.
+     if (!checkAttributeNumArgs(S, Attr, 0))
+@@ -3526,7 +3603,10 @@
+       return;
+     }
+ 
+-    D->addAttr(::new (S.Context) CUDASharedAttr(Attr.getRange(), S.Context));
++    if (isCUDADevice)
++      D->addAttr(::new (S.Context) CUDASharedAttr(Attr.getRange(), S.Context));
++    else
++      D->addAttr(::new (S.Context) GPUSharedAttr(Attr.getRange(), S.Context));
+   } else {
+     S.Diag(Attr.getLoc(), diag::warn_attribute_ignored) << "shared";
+   }
+@@ -4250,8 +4330,17 @@
+ static void ProcessNonInheritableDeclAttr(Sema &S, Scope *scope, Decl *D,
+                                           const AttributeList &Attr) {
+   switch (Attr.getKind()) {
+-  case AttributeList::AT_CUDADevice:  handleDeviceAttr      (S, D, Attr); break;
+-  case AttributeList::AT_CUDAHost:    handleHostAttr        (S, D, Attr); break;
++  case AttributeList::AT_CUDADevice:
++    handleDeviceAttr      (S, D, Attr, true); break;
++  case AttributeList::AT_GPUDevice:
++    handleDeviceAttr      (S, D, Attr, false); break;
++  case AttributeList::AT_CUDADeviceBuiltIn:  handleDeviceBuiltInAttr      (S, D, Attr); break;
++  case AttributeList::AT_CUDADeviceBuiltInTexture:  handleDeviceBuiltInTextureAttr      (S, D, Attr); break;
++  case AttributeList::AT_CUDADeviceBuiltInSurface:  handleDeviceBuiltInSurfaceAttr      (S, D, Attr); break;
++  case AttributeList::AT_CUDAHost:
++    handleHostAttr        (S, D, Attr, true); break;
++  case AttributeList::AT_GPUHost:
++    handleHostAttr        (S, D, Attr, false); break;
+   case AttributeList::AT_Overloadable:handleOverloadableAttr(S, D, Attr); break;
+   default:
+     break;
+@@ -4275,7 +4364,12 @@
+     // ProcessTypeAttributes.
+     break;
+   case AttributeList::AT_CUDADevice:
++  case AttributeList::AT_GPUDevice:
++  case AttributeList::AT_CUDADeviceBuiltIn:
++  case AttributeList::AT_CUDADeviceBuiltInTexture:
++  case AttributeList::AT_CUDADeviceBuiltInSurface:
+   case AttributeList::AT_CUDAHost:
++  case AttributeList::AT_GPUHost:
+   case AttributeList::AT_Overloadable:
+     // Ignore, this is a non-inheritable attribute, handled
+     // by ProcessNonInheritableDeclAttr.
+@@ -4293,7 +4387,8 @@
+   case AttributeList::AT_CarriesDependency:
+                                       handleDependencyAttr  (S, D, Attr); break;
+   case AttributeList::AT_Common:      handleCommonAttr      (S, D, Attr); break;
+-  case AttributeList::AT_CUDAConstant:handleConstantAttr    (S, D, Attr); break;
++  case AttributeList::AT_CUDAConstant:handleConstantAttr    (S, D, Attr, true); break;
++  case AttributeList::AT_GPUConstant: handleConstantAttr    (S, D, Attr, false); break;
+   case AttributeList::AT_Constructor: handleConstructorAttr (S, D, Attr); break;
+   case AttributeList::AT_Deprecated:
+     handleAttrWithMessage<DeprecatedAttr>(S, D, Attr, "deprecated");
+@@ -4307,7 +4402,8 @@
+     break;
+   case AttributeList::AT_Format:      handleFormatAttr      (S, D, Attr); break;
+   case AttributeList::AT_FormatArg:   handleFormatArgAttr   (S, D, Attr); break;
+-  case AttributeList::AT_CUDAGlobal:  handleGlobalAttr      (S, D, Attr); break;
++  case AttributeList::AT_CUDAGlobal:  handleGlobalAttr      (S, D, Attr, true); break;
++  case AttributeList::AT_GPUGlobal:   handleGlobalAttr      (S, D, Attr, false); break;
+   case AttributeList::AT_GNUInline:   handleGNUInlineAttr   (S, D, Attr); break;
+   case AttributeList::AT_CUDALaunchBounds:
+     handleLaunchBoundsAttr(S, D, Attr);
+@@ -4326,7 +4422,8 @@
+   case AttributeList::AT_Naked:       handleNakedAttr       (S, D, Attr); break;
+   case AttributeList::AT_NoReturn:    handleNoReturnAttr    (S, D, Attr); break;
+   case AttributeList::AT_NoThrow:     handleNothrowAttr     (S, D, Attr); break;
+-  case AttributeList::AT_CUDAShared:  handleSharedAttr      (S, D, Attr); break;
++  case AttributeList::AT_CUDAShared:  handleSharedAttr      (S, D, Attr, true); break;
++  case AttributeList::AT_GPUShared:   handleSharedAttr      (S, D, Attr, false); break;
+   case AttributeList::AT_VecReturn:   handleVecReturnAttr   (S, D, Attr); break;
+ 
+   case AttributeList::AT_ObjCOwnership:
+diff -urN clang-3.2.src/lib/Sema/SemaOverload.cpp clang/lib/Sema/SemaOverload.cpp
+--- clang-3.2.src/lib/Sema/SemaOverload.cpp	2012-11-29 07:56:07.000000000 -0700
++++ clang/lib/Sema/SemaOverload.cpp	2013-08-05 16:51:48.284577297 -0600
+@@ -5219,6 +5219,29 @@
+   return DefaultLvalueConversion(From);
+ }
+ 
++static bool functionBelongsToKleeFamily(std::string fName) {
++  return (fName.compare("klee_define_fixed_object") == 0
++          || fName.compare("klee_make_symbolic") == 0
++           || fName.compare("klee_range") == 0
++            || fName.compare("klee_int") == 0
++             || fName.compare("klee_silent_exit") == 0
++              || fName.compare("klee_abort") == 0
++               || fName.compare("klee_report_error") == 0
++                || fName.compare("klee_get_obj_size") == 0
++                 || fName.compare("klee_print_expr") == 0
++                  || fName.compare("klee_choose") == 0
++                   || fName.compare("klee_is_symbolic") == 0
++                    || fName.compare("klee_assume") == 0
++                     || fName.find("klee_warning") != std::string::npos
++                      || fName.compare("klee_prefer_cex") == 0
++                       || fName.compare("klee_mark_global") == 0
++                        || fName.find("klee_get_value") != std::string::npos
++                         || fName.compare("klee_check_memory_access") == 0
++                          || fName.compare("klee_set_forking") == 0
++                           || fName.compare("klee_alias_function") == 0
++                            || fName.compare("klee_stack_trace") == 0);
++}
++
+ /// AddOverloadCandidate - Adds the given function to the set of
+ /// candidate functions, using the given function call arguments.  If
+ /// @p SuppressUserConversions, then don't allow user-defined
+@@ -5314,10 +5337,13 @@
+   // (CUDA B.1): Check for invalid calls between targets.
+   if (getLangOpts().CUDA)
+     if (const FunctionDecl *Caller = dyn_cast<FunctionDecl>(CurContext))
+-      if (CheckCUDATarget(Caller, Function)) {
+-        Candidate.Viable = false;
+-        Candidate.FailureKind = ovl_fail_bad_target;
+-        return;
++      if (Function->getNameAsString().compare("printf") != 0
++           && !functionBelongsToKleeFamily(Function->getNameAsString())) {
++        if (CheckCUDATarget(Caller, Function)) {
++          Candidate.Viable = false;
++          Candidate.FailureKind = ovl_fail_bad_target;
++          return;
++        }
+       }
+ 
+   // Determine the implicit conversion sequences for each of the
