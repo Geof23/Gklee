@@ -4,8 +4,6 @@
 help you download and build all necessary parts automatically.
 
 ======================= Run GKLEE =========================
-Some of the setup assumes that you will be using GKLEE on a machine with
-enabled NVIDIA GPGPU hardware.
 
 Here are the basic steps to use GKLEE (please refer to `tutorial.pdf'
 in the top level for more detailed instructions on generating
