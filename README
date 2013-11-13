@@ -1,11 +1,16 @@
 ======================= Build GKLEE ToolChain ===========================
 
-1. In the 'Gklee' dir, and run the script 'BuildGklee'. This script will 
-help you download and build all necessary parts automatically.
+1. Before you install the GKLEE toolchain, please ensure "flex" and "bison"
+are both installed in your Linux system.
+
+2. In the 'Gklee' dir, and run the script 'BuildGklee'. 
+You will be asked to build Clang/LLVM and GKLEE with the 
+"Release" or "Debug" mode. This script will download and 
+build all necessary parts automatically.
 
 ======================= Run GKLEE =========================
 
-1. add one line
+1. After you finish installing GKLEE toolchain. 
 
 2. Add the following line to your /home/[username]/.bashrc file, modifying 
    the given path as needed:
