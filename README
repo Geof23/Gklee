@@ -1,5 +1,6 @@
 ======================= Build GKLEE ToolChain ===========================
-1. Go to the 'gklee/Gklee' dir, and run the script 'expandExtra'
+
+1. In the 'Gklee' dir, and run the script 'BuildGklee'
 
 2. Refer to the link below to build and install GKLEE tool chain.
 http://www.cs.utah.edu/formal_verification/mediawiki/index.php/Building_GKLEE_from_scratch
