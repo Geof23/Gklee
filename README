@@ -5,6 +5,8 @@ help you download and build all necessary parts automatically.
 
 ======================= Run GKLEE =========================
 
+1. add one line
+
 2. Add the following line to your /home/[username]/.bashrc file, modifying 
    the given path as needed:
 
