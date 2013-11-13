@@ -5,10 +5,6 @@ help you download and build all necessary parts automatically.
 
 ======================= Run GKLEE =========================
 
-Here are the basic steps to use GKLEE (please refer to `tutorial.pdf'
-in the top level for more detailed instructions on generating
-test cases)
-
 1. Untar this distro (which you must have already done)
 
 2. Add the following line to your /home/[username]/.bashrc file, modifying 
