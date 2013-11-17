@@ -232,11 +232,4 @@ runTest( int argc, char** argv)
     cudaFree(d_odata[0]);
     cudaFree(d_odata[1]);
     cudaFree(d_odata[2]);
-    //cutilSafeCall(cudaFree(d_idata));
-    //cutilSafeCall(cudaFree(d_odata[0]));
-    //cutilSafeCall(cudaFree(d_odata[1]));
-    //cutilSafeCall(cudaFree(d_odata[2]));
-    //cutilCheckError(cutDeleteTimer(timer));
-
-    //cudaThreadExit();
 }

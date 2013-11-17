@@ -57,7 +57,8 @@
 // @param g_odata  output data in global memory
 // @param g_idata  input data in global memory
 // @param n        input number of elements to scan from input data
-    __extern__shared__  float temp[];
+__extern__shared__  float temp[];
+
 __global__ void scan_best(float *g_odata, float *g_idata, int n)
 {
     // Dynamically allocated shared memory for scan kernels
