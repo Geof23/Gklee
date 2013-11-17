@@ -1,54 +1,42 @@
 ======================= Build GKLEE ToolChain ===========================
 
 1. Before you install the GKLEE toolchain, please ensure "flex" and "bison"
-are both installed in your Linux system.
+   are both installed in your Linux system.
 
 2. In the 'Gklee' dir, and run the script 'BuildGklee'. 
-You will be asked to build Clang/LLVM and GKLEE with the 
-"Release" or "Debug" mode. This script will download and 
-build all necessary parts automatically.
+   You will be asked to build Clang/LLVM and GKLEE with the 
+   "Release" or "Debug" mode. This script is able to download 
+   and build all necessary parts automatically.
+
+======================= Set Environment Variables =========================
+
+1. After you finish the instalation, please customize the environment variables
+   in the following two ways:
+ 
+   -- Add the following lines to your /home/[username]/.bashrc file
+   -- Create an environment file including the following lines
+
+   export FLA_KLEE_HOME_DIR=/Path/To/Gklee
+   export PATH=$FLA_KLEE_HOME_DIR/bin:$FLA_KLEE_HOME_DIR/Gklee/Release+Asserts/bin:$FLA_KLEE_HOME_DIR/llvm-inst/Release+Asserts/bin:$PATH
+
+   NOTE: The above environment variables are present under the "Release" building mode, you should adjust "Release" to "Debug" accordingly
+         if you build GKLEE under the "Debug" mode.
 
 ======================= Run GKLEE =========================
 
-1. After you finish installing GKLEE toolchain. 
+After building GKLEE and setting environment variables properly, you could run GKLEE.
 
-2. Add the following line to your /home/[username]/.bashrc file, modifying 
-   the given path as needed:
+1. Compile your CUDA programs into LLVM bytecode with the command: 
 
-export FLA_KLEE_HOME_DIR=/home/[username]/gklee
-export PATH=$FLA_KLEE_HOME_DIR/Gklee/Debug/bin:$FLA_KLEE_HOME_DIR/llvm-2.9/Debug/bin:$FLA_KLEE_HOME_DIR/llvm-gcc-4.2-2.9/bin:$FLA_KLEE_HOME_DIR/bin:$PATH
+   gklee-nvcc xxx.cu [-o executable] [other options used in nvcc ...] 
+   
+   NOTE: if you do not specify a executable name, gklee-nvcc will use the prefix of the CUDA program 
+   as the default name
 
-Note that here we build llvm-2.9 and GKLEE under 'Debug' mode, users can choose the building mode as they want, and 
-the path is changed correspondingly, e.g., 'Debug' in the path is changed to 'Release' or 'Release+Asserts'
+2. Run your program with GKLEE command
 
-3. From the shell you would like to run from, execute `source ~/.bashrc`.  You
-   won't have to do this on subsequent invocations of the bash shell.
+   gklee executable [Normal Mode] 
+   gklee --symbolic-config executable [Parametric Flow Mode] 
 
-After this, you should be able to run GKLEE.
-
-4.  Compile your program with `klee-l++':
-    `'klee-l++ [programName].cpp'
-
-5.  Run your program, the generated *.o, with gklee:
-    i.e. `gklee [programName].o'
-
-Once you have generated some test cases with GKLEE (which step 2 above should
-     generate), you can execute them on NVIDIA hardware (with the steps
-     below).
-
-The test cases will be in the same directory that you executed
-`gklee' in, and appear as 'klee-out-[number]' and 'klee-last'.
-
-So, to execute your program with the test cases generated above (the test
-    cases are basically concrete values for the data locations
-    that you declared with `klee_make_symbolic'):
-
-6.  Run your C/C++ source file with `gklee-replay':
-    `gklee-replay [progName].o'
-
-gklee-replay will by default execute the test cases listed
-by the last run of `gklee' -- in the `klee-last' directory 
-(as test#.ktst).
-
-For more information about generating test cases, please see
-'tutorial.pdf' in the top level
+3. The test cases will be generated in the same dir where you execute gklee, 
+   and appear as 'klee-out-[number]' and 'klee-last'.
