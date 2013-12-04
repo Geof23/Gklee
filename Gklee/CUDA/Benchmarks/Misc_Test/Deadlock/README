@@ -1,0 +1,5 @@
+Build and Run under the normal and parametric mode of GKLEE:
+
+gklee-nvcc -o Deadlock Deadlock.cu 
+gklee [--symbolic-config] Deadlock
+

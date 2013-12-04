@@ -1140,9 +1140,12 @@ static void concludeWarpDivergStatistics(SameInstVec &sameSets, std::vector<Inst
     
   for (unsigned k = 0; k < sameSets.size(); k++) {
     GKLEE_INFO << "Set " << k << ":" << std::endl;
-    std::vector <unsigned>::iterator ii;
+    GKLEE_INFO << "Threads: ";
+    std::vector<unsigned>::iterator ii;
     for (ii = sameSets[k].begin(); ii != sameSets[k].end(); ii++) {
-      std::cout << "Thread " << *ii << " , "; 
+      std::cout << *ii; 
+      if (ii != sameSets[k].end()-1)
+        std::cout << ", "; 
     }
     std::cout << std::endl;
   }
