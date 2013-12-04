@@ -1,0 +1,10 @@
+Build and Run under the normal mode of GKLEE:
+
+gklee-nvcc -o compact compact.cu 
+gklee compact
+
+
+Build and Run under the parametric mode of GKLEE:
+
+gklee-nvcc -o compact compact.cu -D_SYM
+gklee --symbolic-config compact
