@@ -65,12 +65,9 @@ namespace klee {
   class SpecialFunctionHandler;
   struct StackFrame;
   class StatsTracker;
-  // by Guodong
   class TimingSolver;
-//   class StringSolver;
   class TreeStreamWriter;
 
-  // by Guodong
   //  class StringHandler;
   template<class T> class ref;
 
@@ -78,40 +75,50 @@ namespace klee {
   /// during an instruction step. Should contain addedStates,
   /// removedStates, and haltExecution, among others.
 
-struct SharedMemoryObject {
+class SharedMemoryObject {
+public:
   unsigned kernelNum;
   MemoryObject *sharedGLMO;
   Cell *glCell;
   
-  SharedMemoryObject(unsigned _kernelNum, MemoryObject *_sharedGLMO, 
-                     Cell *_glCell) : 
-                     kernelNum(_kernelNum), 
-                     sharedGLMO(_sharedGLMO), 
-                     glCell(_glCell) {}; 
+  explicit SharedMemoryObject(unsigned _kernelNum, 
+                              MemoryObject *_sharedGLMO, 
+                              Cell *_glCell) : kernelNum(_kernelNum), 
+                                               sharedGLMO(_sharedGLMO), 
+                                               glCell(_glCell) {}
   ~SharedMemoryObject() {
     delete glCell;
   }
 };
 
-struct AccumMemoryMark {
+class AccumMemoryMark {
+public:
   ref<Expr> soffset;
   ref<Expr> eoffset;
   ref<Expr> value;
   bool isAccum;
   
-  AccumMemoryMark(ref<Expr> _soffset, ref<Expr> _eoffset, 
-                  ref<Expr> _value, bool _isAccum) : soffset(_soffset), eoffset(_eoffset),
-                                                     value(_value), isAccum(_isAccum) {}
+  explicit AccumMemoryMark(ref<Expr> _soffset, 
+                           ref<Expr> _eoffset, 
+                           ref<Expr> _value, 
+                           bool _isAccum) : soffset(_soffset), 
+                                            eoffset(_eoffset),
+                                            value(_value), 
+                                            isAccum(_isAccum) {}
+  ~AccumMemoryMark();
 };
 
-struct ExternSharedVar {
+class ExternSharedVar {
+public:
   unsigned kernelNum;
   unsigned tableNum; // the location in constantTable...
   MemoryObject *externSharedMO;
 
-  ExternSharedVar(unsigned _kernelNum, unsigned _tableNum, 
-                  MemoryObject *_externSharedMO) : kernelNum(_kernelNum), 
-                  tableNum(_tableNum), externSharedMO(_externSharedMO) {}; 
+  explicit ExternSharedVar(unsigned _kernelNum, 
+                           unsigned _tableNum, 
+                           MemoryObject *_externSharedMO) : kernelNum(_kernelNum), 
+                                                            tableNum(_tableNum), 
+                                                            externSharedMO(_externSharedMO) {}
 };
 
 class Executor : public Interpreter {

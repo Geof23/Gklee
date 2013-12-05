@@ -42,7 +42,8 @@ namespace klee {
     bool operator()(const MemoryObject *a, const MemoryObject *b) const;
   };
 
-  struct MemoryAccess {
+  class MemoryAccess {
+  public:
     const MemoryObject* mo;
     ref<Expr> offset;
     Expr::Width width;
@@ -56,13 +57,13 @@ namespace klee {
                               // to this memory access
     ref<Expr> val;            // written value
 
-    MemoryAccess(const MemoryObject* _mo, ref<Expr> _offset, 
-		 Expr::Width _width, unsigned _bid, unsigned _tid, 
-                 llvm::Instruction *_instr, unsigned _instSeqNum,
-                 bool _isAtomic = false, 
-                 bool _is_write = false, 
-                 ref<Expr> _accessCondExpr = NULL, 
-                 ref<Expr> _val = NULL) :
+    explicit MemoryAccess(const MemoryObject* _mo, ref<Expr> _offset, 
+			  Expr::Width _width, unsigned _bid, unsigned _tid, 
+			  llvm::Instruction *_instr, unsigned _instSeqNum,
+			  bool _isAtomic = false, 
+			  bool _is_write = false, 
+			  ref<Expr> _accessCondExpr = NULL, 
+			  ref<Expr> _val = NULL) :
       offset(_offset), width(_width), bid(_bid), tid(_tid), instr(_instr), 
       instSeqNum(_instSeqNum), isAtomic(_isAtomic), 
       is_write(_is_write),
@@ -83,28 +84,35 @@ namespace klee {
     };
     
     void dump() const;
-    void dump(Executor &executor, ExecutionState &state, ref<Expr> cond) const;
+    void dump(Executor &executor, 
+              ExecutionState &state, 
+              ref<Expr> cond) const;
   };
   
   typedef ImmutableMap<const MemoryObject*, ObjectHolder, MemoryObjectLT> MemoryMap;
   typedef std::vector< MemoryAccess > MemoryAccessVec;
 
-  struct InstAccess {
+  class InstAccess {
+  public:
     unsigned bid;
     unsigned tid;
     llvm::Instruction *inst; 
     bool isBr;
 
-    InstAccess(unsigned _bid, unsigned _tid, llvm::Instruction *_inst, bool _isBr) :
-          bid(_bid), tid(_tid), inst(_inst), isBr(_isBr) {};
+    InstAccess(unsigned _bid, unsigned _tid, 
+               llvm::Instruction *_inst, bool _isBr) :
+                    bid(_bid), tid(_tid), 
+                    inst(_inst), isBr(_isBr) {}
     InstAccess(const InstAccess &access) :
-          bid(access.bid), tid(access.tid), inst(access.inst), isBr(access.isBr) {};
+                    bid(access.bid), tid(access.tid), 
+                    inst(access.inst), isBr(access.isBr) {}
     void dump() const;
   };
 
   // To get finer statistics information, we define
   // this struct ...
-  struct WarpDefectInfo {
+  class WarpDefectInfo {
+  public:
     unsigned warpID;
     unsigned blockID;
     unsigned occur;
@@ -116,19 +124,28 @@ namespace klee {
     unsigned instWriteOccur;
     unsigned instWriteTotal;
 
-    WarpDefectInfo(unsigned _warpID, unsigned _blockID) :
-    warpID(_warpID), blockID(_blockID), occur(0), consider(false),
-    instReadOccur(0), instReadTotal(0), instWriteOccur(0), instWriteTotal(0) {};
+    explicit WarpDefectInfo(unsigned _warpID, 
+                            unsigned _blockID) :
+                            warpID(_warpID), blockID(_blockID), 
+                            occur(0), consider(false),
+                            instReadOccur(0), instReadTotal(0), 
+                            instWriteOccur(0), instWriteTotal(0) {}
   };
 
-  struct BasicBlockAccess {
+  class BasicBlockAccess {
+  public:
     std::string funcName;
     llvm::BasicBlock *bb; 
     unsigned startIdx;
     unsigned endIdx;   
 
-    BasicBlockAccess(std::string _funcName, llvm::BasicBlock *_bb, unsigned _startIdx, unsigned _endIdx):
-                     funcName(_funcName), bb(_bb), startIdx(_startIdx), endIdx(_endIdx) {};
+    explicit BasicBlockAccess(std::string _funcName, 
+                              llvm::BasicBlock *_bb, 
+                              unsigned _startIdx, 
+                              unsigned _endIdx):
+                              funcName(_funcName), bb(_bb), 
+                              startIdx(_startIdx), 
+                              endIdx(_endIdx) {}
 
     ~BasicBlockAccess() {
       bb = NULL;
@@ -136,19 +153,26 @@ namespace klee {
   };
 
   // Used in simd-aware canonical schedule   
-  struct MemoryAccessSet {
+  class MemoryAccessSet {
+  public:
     unsigned bid; // which block
     unsigned warpNum; // which warp
     unsigned biNum; // which BI
     std::vector<MemoryAccessVec> readVecSet;
     std::vector<MemoryAccessVec> writeVecSet;
     
-    MemoryAccessSet(unsigned _bid, unsigned _warpNum, unsigned _biNum): 
-    bid(_bid), warpNum(_warpNum), biNum(_biNum) {};  
+    explicit MemoryAccessSet(unsigned _bid, 
+                             unsigned _warpNum, 
+                             unsigned _biNum): 
+                             bid(_bid), 
+                             warpNum(_warpNum), 
+                             biNum(_biNum) {}  
 
     MemoryAccessSet(const MemoryAccessSet &set): 
-    bid(set.bid), warpNum(set.warpNum), biNum(set.biNum), 
-    readVecSet(set.readVecSet), writeVecSet(set.writeVecSet) {};  
+                    bid(set.bid), warpNum(set.warpNum), 
+                    biNum(set.biNum), 
+                    readVecSet(set.readVecSet), 
+                    writeVecSet(set.writeVecSet) {}
 
     ~MemoryAccessSet() {
       readVecSet.clear();
@@ -157,18 +181,20 @@ namespace klee {
   };
 
   // Used in pure canonical schedule   
-  struct MemoryAccessSetPureCS {
+  class MemoryAccessSetPureCS {
+  public:
     unsigned bid;
     unsigned biNum;
     MemoryAccessVec readSet;
     MemoryAccessVec writeSet;
 
-    MemoryAccessSetPureCS(unsigned _bid, unsigned _biNum) : 
-    bid(_bid), biNum(_biNum) {};
+    explicit MemoryAccessSetPureCS(unsigned _bid, unsigned _biNum) : 
+                                   bid(_bid), biNum(_biNum) {}
 
-    MemoryAccessSetPureCS(const MemoryAccessSetPureCS &set): 
-    bid(set.bid), biNum(set.biNum), 
-    readSet(set.readSet), writeSet(set.writeSet) {};  
+    MemoryAccessSetPureCS(const MemoryAccessSetPureCS &set) : 
+                                   bid(set.bid), biNum(set.biNum), 
+                                   readSet(set.readSet), 
+                                   writeSet(set.writeSet) {}
 
     ~MemoryAccessSetPureCS() {
       readSet.clear();
@@ -176,15 +202,20 @@ namespace klee {
     }
   };
 
-  struct DivRegion {
+  class DivRegion {
+  public:
     unsigned bbStart;
     unsigned bbEnd;
     unsigned startIdx;
     unsigned endIdx;
     bool isEmpty;
     
-    DivRegion(unsigned _bbStart, unsigned _bbEnd, unsigned _startIdx, unsigned _endIdx, bool _isEmpty) :
-    bbStart(_bbStart), bbEnd(_bbEnd), startIdx(_startIdx), endIdx(_endIdx), isEmpty(_isEmpty) {};
+    explicit DivRegion(unsigned _bbStart, unsigned _bbEnd, 
+                       unsigned _startIdx, unsigned _endIdx, 
+                       bool _isEmpty) :
+		       bbStart(_bbStart), bbEnd(_bbEnd), 
+		       startIdx(_startIdx), endIdx(_endIdx), 
+		       isEmpty(_isEmpty) {}
   };
 
   typedef std::vector< DivRegion > DivRegionSet;
@@ -193,12 +224,15 @@ namespace klee {
   typedef std::vector< std::vector<unsigned> > SameInstVec;  
   typedef std::vector< WarpDefectInfo > WarpDefVec;
 
-  struct RefDivRegionSet {
+  class RefDivRegionSet {
+  public:
     unsigned otherTid;
     DivRegionSet regionSet;
 
-    RefDivRegionSet(unsigned _otherTid, DivRegionSet _regionSet) : 
-    otherTid(_otherTid), regionSet(_regionSet) {};
+    explicit RefDivRegionSet(unsigned _otherTid, 
+                             DivRegionSet _regionSet) : 
+                             otherTid(_otherTid), 
+                             regionSet(_regionSet) {}
 
     ~RefDivRegionSet() {
       regionSet.clear();

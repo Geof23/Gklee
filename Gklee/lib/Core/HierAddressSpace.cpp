@@ -923,19 +923,6 @@ void AddressSpace::constructGlobalMemAccessSet(Executor &executor, ExecutionStat
   }
 }
 
-static void dumpMemoryAccessVec(const MemoryAccessVec &vec) {
-  if (vec.empty()) return;
-  MemoryAccessVec::const_iterator ii = vec.begin();
-  GKLEE_INFO << "SeqNum: " << ii->instSeqNum << std::endl;
-  //GKLEE_INFO << "Inst: " << *(ii->instr) << std::endl;
-  GKLEE_INFO << "Basic Block: " << ii->instr->getParent()->getName().str() << std::endl;
-  for (; ii != vec.end(); ii++) {
-    //ii->dump(); 
-  }
-
-  GKLEE_INFO << std::endl;
-}
-
 static bool checkSetRaceInGlobal(Executor &executor, ExecutionState &state, 
                                  std::vector<MemoryAccessVec> &VecSet1, 
                                  std::vector<MemoryAccessVec> &VecSet2, 
