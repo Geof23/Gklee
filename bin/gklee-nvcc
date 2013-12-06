@@ -60,10 +60,8 @@ my $CC = "clang++";
 my $CFLAGSDEVICE = "-emit-llvm -c -g -O0 -x cuda -Xclang -fgpu-device"; 
 
 if ($objFile ne "") {
-  print "$CC $CFLAGSDEVICE $cmdLine $symbolCmd $headerCmd $cudaRuntime \n";
   system("$CC $CFLAGSDEVICE $cmdLine $symbolCmd $headerCmd $cudaRuntime");
 } else {
-  print "$CC $CFLAGSDEVICE $cmdLine -o $cudaPrefix $symbolCmd $headerCmd $cudaRuntime \n";
   system("$CC $CFLAGSDEVICE $cmdLine -o $cudaPrefix $symbolCmd $headerCmd $cudaRuntime");
 }
 
