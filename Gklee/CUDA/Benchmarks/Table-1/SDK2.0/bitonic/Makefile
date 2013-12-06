@@ -3,23 +3,17 @@
 PROG=bitonic
 SRC=$(PROG).cu
 
-P= #--symbolic-config # Parametric
-
-R=--check-level=2
-WD=--check-WD=1
-BC=--check-BC=1
-MC=--check-MC=1
-
-FLAGS= $(R) $(WD) $(BC) $(MC) $(P)
-
 NVCC_FLAGS=-D_SYM
+P_FLAGS=--symbolic-config # Parametric
 
-all: compile run
+all: compile run para-run
 
 compile:
 	gklee-nvcc $(NVCC_FLAGS) $(SRC)
 run:
-	gklee $(FLAGS) $(PROG)
+	gklee $(PROG)
+para-run:
+	gklee $(P_FLAGS)$ $(PROG) 
 clean:
-	rm -fR klee* $(PROG)
+	rm -rf klee* $(PROG) kernelSet.txt
 	rm -f $(PROG).cpp
