@@ -1,6 +1,7 @@
 GKLEE is a symbolic analyser and test generator tailored for CUDA C++ programs,
 it supports almost all of CUDA intrinsic functions in kernel code and majority 
-of CUDA runtimes in host code.
+of CUDA runtimes in host code. For more details, please visit GKLEE's homepage:
+www.cs.utah.edu/fv/GKLEE
 
 ======================= Build GKLEE ToolChain ===========================
 
