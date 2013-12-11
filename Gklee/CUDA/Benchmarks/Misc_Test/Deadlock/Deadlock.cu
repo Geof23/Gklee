@@ -11,7 +11,7 @@ __global__ void deadlock() {
   }
   else {
     v[threadIdx.x]--;    
-    __syncthreads();  // remove this one to incur a barrier dismatch
+    //__syncthreads();  // remove this one to incur a barrier dismatch
   }
 }
 

@@ -7,7 +7,8 @@
 
 using namespace klee;
 
-struct CorrespondTid {
+class CorrespondTid {
+public:
   unsigned rBid;
   unsigned rTid;
   unsigned warpNum;
@@ -17,15 +18,19 @@ struct CorrespondTid {
   ref<Expr> inheritExpr;
   bool slotUsed;
 
-  CorrespondTid(unsigned _rBid, unsigned _rTid, unsigned _warpNum, 
-                bool _syncEncounter, bool _barrierEncounter, 
-                bool _inBranch, ref<Expr> _inheritExpr, bool _slotUsed = false) : 
-  rBid(_rBid), rTid(_rTid), warpNum(_warpNum), syncEncounter(_syncEncounter), 
-  barrierEncounter(_barrierEncounter), inBranch(_inBranch), inheritExpr(_inheritExpr), 
-  slotUsed(_slotUsed) {};
+  CorrespondTid(unsigned _rBid, unsigned _rTid, 
+                unsigned _warpNum, bool _syncEncounter, 
+                bool _barrierEncounter, bool _inBranch, 
+                ref<Expr> _inheritExpr, bool _slotUsed = false) : 
+                rBid(_rBid), rTid(_rTid), warpNum(_warpNum), 
+                syncEncounter(_syncEncounter), 
+                barrierEncounter(_barrierEncounter), 
+                inBranch(_inBranch), inheritExpr(_inheritExpr), 
+                slotUsed(_slotUsed) {}
 };
 
-struct ParaConfig {
+class ParaConfig {
+public:
   unsigned sym_bid;
   unsigned sym_tid;
   ref<Expr> cond;
@@ -40,7 +45,7 @@ struct ParaConfig {
              cond(_cond), start(_start), end(_end) {
     syncEncounter = false;
     postDomEncounter = false;
-  };
+  }
 
   ParaConfig(const ParaConfig &config) : 
   sym_bid(config.sym_bid), sym_tid(config.sym_tid),
@@ -56,7 +61,8 @@ enum SymBrType {
   Other // Conditions other than ones above
 };
 
-struct ParaTreeNode {
+class ParaTreeNode {
+public:
   llvm::Instruction *brInst;
   llvm::BasicBlock *postDom;
   SymBrType symBrType;

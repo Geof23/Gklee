@@ -165,7 +165,8 @@ public:
                  ExecutionState &state, 
                  ref<Expr> value);
 
-  ObjectState *bindObjectInState(ExecutionState &state, const MemoryObject *mo,
+  ObjectState *bindObjectInState(ExecutionState &state, 
+                                 const MemoryObject *mo,
                                  bool isLocal, const Array *array = 0);
 
   ObjectState *bindObjectInStateToShared(ExecutionState &state, 
@@ -437,7 +438,8 @@ private:
                               unsigned seqNum = 0,  
                               bool isAtomic = false);
 
-  void executeMakeSymbolic(ExecutionState &state, const MemoryObject *mo,
+  void executeMakeSymbolic(ExecutionState &state, 
+                           const MemoryObject *mo,
                            const std::string &name);
 
   /// Create a new state where each input condition has been added as
