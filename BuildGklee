@@ -50,19 +50,7 @@ unless (-d "compiler-rt") {
   system("rm compiler-rt-3.2.src");
 }
 
-chdir("../..");
-
-unless (-d "llvm-inst") {
-  system("mkdir llvm-inst");
-}
-
-chdir("llvm-inst");
-
-if ($mode != 1) {
-  system("../llvm/configure");
-} else {
-  system("../llvm/configure --enable-optimized --enable-assertions");
-}
+chdir("..");
 
 system("make -j4 $cmd");
 chdir("..");
