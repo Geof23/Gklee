@@ -1,9 +1,0 @@
-#!/bin/bash
-
-mkdir bin
-cwd=$(pwd)
-PREFIX=$cwd/../stp_install
-make configclean
-. scripts/configure --with-cryptominisat2 
-make clean
-make install

@@ -51,20 +51,33 @@ unless (-d "compiler-rt") {
 }
 
 chdir("..");
-
+if ($mode != 1) {
+  system("./configure");
+} else {
+  system("./configure --enable-optimized --enable-assertions");
+}
 system("make -j4 $cmd");
 chdir("..");
 
 # Go to Gklee dir, and build it 
 chdir("Gklee");
+
+# Untar the klee-uclibc
 chdir("klee-uclibc");
 system("tar -xzvf klee-uclibc.tgz");
 chdir("..");
+
+# Install stp SMT solver
 chdir("stp");
-system("./stp-install");
+system("mkdir bin");
+system("make configclean");
+system("./scripts/configure --with-prefix=`pwd`/install --with-cryptominisat2");
+system("make OPTIMIZE=-O2 CFLAGS_M32= install ");
 chdir("..");
+
+# Build GKLEE toolchain
 my $llvmsrc = $cwd . "/llvm";
-my $stppath = $cwd . "/Gklee/stp_install";
+my $stppath = $cwd . "/Gklee/stp/install";
 my $kleeuclibcpath = $cwd . "/Gklee/klee-uclibc";
 system("./configure --with-llvm=$llvmsrc --with-stp=$stppath --with-uclibc=$kleeuclibcpath --enable-posix-runtime");
 system("make -j4 $cmd");
