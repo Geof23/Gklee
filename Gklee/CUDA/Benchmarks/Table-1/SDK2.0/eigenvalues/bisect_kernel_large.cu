@@ -13,7 +13,6 @@
 #include "bisect_util.cpp"
 
 // declaration, forward
-
 ////////////////////////////////////////////////////////////////////////////////
 //! Write data to global memory
 ////////////////////////////////////////////////////////////////////////////////
@@ -145,7 +144,7 @@ bisectKernelLarge( float* g_d, float* g_s, const unsigned int n,
 {
   const unsigned int tid = threadIdx.x;
 
-  printf("abc, 2*MAX_THREADS_BLOCK + 1: %u!\n", 2 * MAX_THREADS_BLOCK + 1);
+  printf("2*MAX_THREADS_BLOCK + 1: %u!\n", 2 * MAX_THREADS_BLOCK + 1);
   // intervals (store left and right because the subdivision tree is in general 
   // not dense
   __shared__  float  s_left[2 * MAX_THREADS_BLOCK + 1];
@@ -196,6 +195,7 @@ bisectKernelLarge( float* g_d, float* g_s, const unsigned int n,
   s_left_count[tid] = 0;
   s_right_count[tid] = 0;
 
+  printf("First __syncthreads \n");
   __syncthreads();
 
   // set up initial configuration
@@ -214,23 +214,25 @@ bisectKernelLarge( float* g_d, float* g_s, const unsigned int n,
     all_threads_converged = 1;
   }
 
+  printf("Second __syncthreads \n");
   __syncthreads();
 
   // for all active threads read intervals from the last level 
   // the number of (worst case) active threads per level l is 2^l
   while( true) {
-
     subdivideActiveInterval( tid, s_left, s_right, s_left_count, s_right_count,
                              num_threads_active,
                              left, right, left_count, right_count,
                              mid, all_threads_converged);
 
+    printf("Third __syncthreads \n");
     __syncthreads();
 
     // check if done
     if( 1 == all_threads_converged) {
       break;
     }
+    printf("all_threads_converged: %d \n", all_threads_converged);
 
     // compute number of eigenvalues smaller than mid
     // use all threads for reading the necessary matrix data from global 
@@ -914,18 +916,20 @@ initInputData( InputData& input, const unsigned int mat_size)
   input.a = (float*) malloc( sizeof(float) * mat_size);
   input.b = (float*) malloc( sizeof(float) * mat_size);
 
+#ifndef _SYM
+  // // initialize diagonal and superdiagonal entries with random values
+  srand( 278217421);
+  srand( clock());
+  for( unsigned int i = 0; i < mat_size; ++i) {
+     input.a[i] = (float) (2.0 * (((double)rand() 
+   				    / (double) RAND_MAX) - 0.5));
+     input.b[i] = (float) (2.0 * (((double)rand() 
+   				    / (double) RAND_MAX) - 0.5));
+  } 
+#else
   klee_make_symbolic(input.a, sizeof(float) * mat_size, "input_a");
   klee_make_symbolic(input.b, sizeof(float) * mat_size, "input_b");
-  
-  // // initialize diagonal and superdiagonal entries with random values
-  // srand( 278217421);
-  // // srand( clock());
-  // for( unsigned int i = 0; i < mat_size; ++i) {
-  //   input.a[i] = (float) (2.0 * (((double)rand() 
-  // 				    / (double) RAND_MAX) - 0.5));
-  //   input.b[i] = (float) (2.0 * (((double)rand() 
-  // 				    / (double) RAND_MAX) - 0.5));
-  // } 
+#endif
   
   // the first element of s is used as padding on the device (thus the 
   // whole vector is copied to the device but the kernels are launched
@@ -964,7 +968,6 @@ initResultDataLargeMatrix( ResultDataLarge& result, const unsigned int mat_size)
     }
     
 
-    printf("matrix kkk!\n");
     // number of intervals containing only one eigenvalue after the first step
     cutilSafeCall( cudaMalloc( (void**) &result.g_num_one, 
                               sizeof( unsigned int)) );
@@ -1048,10 +1051,7 @@ int main(int argc, char** argv) {
   // computeGerschgorin( input.a, input.b+1, mat_size, lg, ug);
   
   ResultDataLarge result;
-
   initResultDataLargeMatrix(result, mat_size);
-  
-  // klee_make_symbolic(g_idata, sizeof(g_idata), "input");
   
   bisectKernelLarge<<<1, NUM>>>(input.g_a, input.g_b, mat_size,
 		                lg, ug, 0, mat_size, precision,
@@ -1062,6 +1062,5 @@ int main(int argc, char** argv) {
 		                result.g_blocks_mult, result.g_blocks_mult_sum
 		               );
 }
-
 
 #endif // #ifndef _BISECT_KERNEL_LARGE_H_

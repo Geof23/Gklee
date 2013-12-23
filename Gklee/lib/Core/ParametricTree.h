@@ -81,9 +81,10 @@ public:
   ParaTreeNode(llvm::Instruction *_brInst, llvm::BasicBlock *_postDom,
                SymBrType _symBrType, bool _isCondBr, bool _allSync, 
                ref<Expr> _inheritCond, ref<Expr> _tdcCond):
-  brInst(_brInst), postDom(_postDom), symBrType(_symBrType), 
-  isCondBr(_isCondBr), allSync(_allSync), inheritCond(_inheritCond), 
-  tdcCond(_tdcCond) {
+               brInst(_brInst), postDom(_postDom), 
+               symBrType(_symBrType), isCondBr(_isCondBr), 
+               allSync(_allSync), inheritCond(_inheritCond), 
+               tdcCond(_tdcCond) {
     whichSuccessor = 0;
     parent = NULL;
   }

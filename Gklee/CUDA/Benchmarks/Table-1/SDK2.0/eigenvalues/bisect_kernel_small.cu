@@ -256,14 +256,19 @@ initInputData( InputData& input, const unsigned int mat_size)
   input.b = (float*) malloc( sizeof(float) * mat_size);
   
   // // initialize diagonal and superdiagonal entries with random values
-  // srand( 278217421);
-  // // srand( clock());
-  // for( unsigned int i = 0; i < mat_size; ++i) {
-  //   input.a[i] = (float) (2.0 * (((double)rand() 
-  // 				    / (double) RAND_MAX) - 0.5));
-  //   input.b[i] = (float) (2.0 * (((double)rand() 
-  // 				    / (double) RAND_MAX) - 0.5));
-  // } 
+#ifndef _SYM
+  srand( 278217421);
+  srand( clock());
+  for( unsigned int i = 0; i < mat_size; ++i) {
+    input.a[i] = (float) (2.0 * (((double)rand() 
+  				    / (double) RAND_MAX) - 0.5));
+    input.b[i] = (float) (2.0 * (((double)rand() 
+   				    / (double) RAND_MAX) - 0.5));
+  } 
+#else
+  klee_make_symbolic(input.a, sizeof(float) * mat_size, "input_a");
+  klee_make_symbolic(input.b, sizeof(float) * mat_size, "input_b");
+#endif
   
   // the first element of s is used as padding on the device (thus the 
   // whole vector is copied to the device but the kernels are launched
@@ -353,7 +358,7 @@ int main() {
   initInputData(input, mat_size);
 
   // desired precision of eigenvalues
-  float  precision = 0.00001f;
+  float precision = 0.00001f;
 
   float lg = FLT_MAX;
   float ug = -FLT_MAX;
@@ -362,7 +367,6 @@ int main() {
   ResultDataSmall result;
   initResultSmallMatrix( result, mat_size);
 
-  // klee_make_symbolic(g_idata, sizeof(g_idata), "input");
   dim3  blocks( 1, 1, 1);
   dim3  threads( MAX_THREADS_BLOCK_SMALL_MATRIX, 1, 1);
 

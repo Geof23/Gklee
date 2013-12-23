@@ -202,8 +202,8 @@ public:
   void evaluateConstraintAsNewFlow(ExecutionState &state, ParaTree &pTree, 
                                    ref<Expr> &cond, bool flowCreated);
 
-  bool conditionRelatedToBuiltInVariables(ExecutionState &state, ref<Expr> &cond, 
-                                          bool &relatedToSym, bool &accum);
+  bool identifyConditionType(ExecutionState &state, ref<Expr> &cond, 
+                             bool &relatedToSym, bool &accum);
  
   void clearConfigRelatedConstraints(ExecutionState &state);
   // ***

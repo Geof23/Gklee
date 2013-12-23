@@ -1,25 +1,22 @@
-1=small
-2=large
-PROG=bisect_kernel_$(1)
+PROG=bisect_kernel_small
+PROGL=bisect_kernel_large
 SRC=$(PROG).cu
-
-P= #--symbolic-config # Parametric
-
-R=--check-level=2
-WD=--check-WD=1
-BC=--check-BC=1
-MC=--check-MC=1
-
-FLAGS= $(R) $(WD) $(BC) $(MC) $(P)
+SRCL=$(PROGL).cu
 
 NVCC_FLAGS=-D_SYM
+P_FLAGS=--symbolic-config # Parametric
 
-all: compile run
+all: compile run para-run
 
 compile:
 	gklee-nvcc $(NVCC_FLAGS) $(SRC)
+	gklee-nvcc $(NVCC_FLAGS) $(SRCL)
 run:
-	gklee $(FLAGS) $(PROG)
+	gklee $(PROG)
+	gklee $(PROGL)
+para-run:
+	gklee $(P_FLAGS)$ $(PROG) 
+	gklee $(P_FLAGS)$ $(PROGL) 
 clean:
-	rm -fR klee* $(PROG)
-	rm -f $(PROG).cpp
+	rm -rf klee* $(PROG) $(PROGL) kernelSet.txt
+	rm -f $(PROG).cpp $(PROGL).cpp

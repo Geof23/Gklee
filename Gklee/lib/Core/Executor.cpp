@@ -613,9 +613,9 @@ void Executor::branch(ExecutionState &state,
 
 // True: condition is totally or partially related to built-in variables
 // False: condition is not related to built-in variables  
-bool Executor::conditionRelatedToBuiltInVariables(ExecutionState &state, ref<Expr> &cond, 
-                                                  bool &relatedToSym, bool &accum) {
-  //std::cout << "condition in conditionRelatedToBuiltInVariables: " << std::endl;
+bool Executor::identifyConditionType(ExecutionState &state, ref<Expr> &cond, 
+                                     bool &relatedToSym, bool &accum) {
+  //std::cout << "condition in identifyConditionType: " << std::endl;
   //cond->dump();
 
   // Accumulative
@@ -729,25 +729,19 @@ Executor::fork(ExecutionState &current, ref<Expr> condition, bool isInternal) {
   solver->setTimeout(timeout);
 
   bool success = false;
+  bool isSymCond = false;
+  bool isAccumCond = false;
+  bool isTDCCond = false;
   if (UseSymbolicConfig) {
-    bool relToSym = false;
-    bool accum = false;
-    bool relToBuiltIn = conditionRelatedToBuiltInVariables(current, condition, 
-                                                           relToSym, accum);
+    isTDCCond = identifyConditionType(current, condition, 
+                                      isSymCond, isAccumCond);
     if (current.tinfo.is_GPU_mode) {
-      if (relToSym) {
-        if (!RacePrune) {
-          // SYM, Accumulative or other kinds of conditionals
-          bool ignoreCurrent = !isInternal;
-          ExecutorUtil::copyOutConstraint(current, ignoreCurrent);
-          success = solver->evaluate(current, condition, res);
-          ExecutorUtil::copyBackConstraint(current);
-        } else {
-          // SYM, Accumulative or other kinds of conditionals
-          bool ignoreCurrent = !isInternal;
-          ExecutorUtil::copyOutConstraint(current, ignoreCurrent);
-          success = solver->evaluate(current, condition, res);
-          ExecutorUtil::copyBackConstraint(current);
+      if (isSymCond) {
+        // SYM, Accumulative or other kinds of conditionals
+        ExecutorUtil::copyOutConstraint(current, !isInternal);
+        success = solver->evaluate(current, condition, res);
+        ExecutorUtil::copyBackConstraint(current);
+        if (RacePrune) {
           if (!isInternal
                && success 
                  && res == Solver::Unknown) {
@@ -770,11 +764,12 @@ Executor::fork(ExecutionState &current, ref<Expr> condition, bool isInternal) {
             }
           }
         }
-      } else { // TDC conditionals 
-        if (relToBuiltIn) {
+      } else { 
+        if (isTDCCond) {
+          // TDC conditionals 
           success = true;
           res = Solver::Unknown;
-        } else if (accum) {
+        } else if (isAccumCond) {
           bool ignoreCurrent = !isInternal;
           ExecutorUtil::copyOutConstraint(current, ignoreCurrent);
           success = solver->evaluate(current, condition, res);
@@ -789,7 +784,7 @@ Executor::fork(ExecutionState &current, ref<Expr> condition, bool isInternal) {
   } else {
     success = solver->evaluate(current, condition, res);
   }
-  
+
   solver->setTimeout(0);
   if (!success) {
     current.setPC(current.getPrevPC());
@@ -900,9 +895,11 @@ Executor::fork(ExecutionState &current, ref<Expr> condition, bool isInternal) {
 
     if (UseSymbolicConfig
          && current.tinfo.is_GPU_mode
-           && current.tinfo.builtInFork) {
-      ParaTree &paraTree = current.getCurrentParaTree();
-      paraTree.resetNonTDCNodeCond();
+           && isSymCond) {
+      // If the current node's cond type is non-TDC, and 
+      // it's evaluated to be TRUE, then reset the condition
+      // of this node to TRUE 
+      current.getCurrentParaTree().resetNonTDCNodeCond();
     }
     return StatePair(&current, 0);
   } else if (res==Solver::False) {
@@ -915,9 +912,11 @@ Executor::fork(ExecutionState &current, ref<Expr> condition, bool isInternal) {
 
     if (UseSymbolicConfig
          && current.tinfo.is_GPU_mode
-           && current.tinfo.builtInFork) {
-      ParaTree &paraTree = current.getCurrentParaTree();
-      paraTree.resetNonTDCNodeCond();
+           && isSymCond) {
+      // If the current node's cond type is non-TDC, and 
+      // it's evaluated to be FALSE, then reset the condition
+      // of this node to FALSE 
+      current.getCurrentParaTree().resetNonTDCNodeCond();
     }
     return StatePair(0, &current);
   } else {  // both branches are possible
@@ -1024,7 +1023,7 @@ Executor::fork(ExecutionState &current, ref<Expr> condition, bool isInternal) {
         if (!isInternal) {
           ParaTree &paraTree = falseState->getCurrentParaTree();
           paraTree.negateNonTDCNodeCond();
-        } 
+        }
       }
     } else {
       addConstraint(*trueState, condition);
@@ -3189,8 +3188,8 @@ static ref<Expr> constructInheritExpr(ExecutionState &state,
 }
 
 // Only used in parameterized implementation
-// Fork a new parametric flow based on BDC (block-dependent) 
-// or TDC (thread-dependent)
+// Fork a new parametric flow based on BDC (block-dependent conditional) 
+// or TDC (thread-dependent conditional)
 bool Executor::forkNewParametricFlow(ExecutionState &state, KInstruction *ki) {
   Instruction *i = ki->inst;
   ref<Expr> cond = eval(ki, 0, state).value;
@@ -3199,14 +3198,11 @@ bool Executor::forkNewParametricFlow(ExecutionState &state, KInstruction *ki) {
   
   bool relatedToSym = false;
   bool accum = false;
-  bool relatedToBuiltIn = conditionRelatedToBuiltInVariables(state, cond, relatedToSym, accum);
+  bool relatedToBuiltIn = identifyConditionType(state, cond, relatedToSym, accum);
   bool builtInFork = false;
  
   if (relatedToSym) {
     // Insert to the Parametric tree
-    //GKLEE_INFO << "The symbolic condition (Symbolic Inputs Conditionals) encountered!" << std::endl;
-    //std::cout << "The br inst: " << std::endl;
-    //i->dump();
     bool isCondBr = determineBranchType(i);
     llvm::BasicBlock *postDom = state.findNearestCommonPostDominator(postDominator, i, isCondBr); 
     ParaTree &pTree = state.getCurrentParaTree();

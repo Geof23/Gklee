@@ -281,7 +281,6 @@ ref<Expr> ParaTree::getCurrentNodeTDCExpr() {
 
 void ParaTree::negateNonTDCNodeCond() {
   if (current) {
-    assert(current->symBrType != TDC && "Non-TDC condition property violated!");
     std::vector<ParaConfig> &configVec = current->successorConfigVec;
     configVec[0].cond = Expr::createIsZero(configVec[0].cond); 
   }
@@ -289,7 +288,6 @@ void ParaTree::negateNonTDCNodeCond() {
 
 void ParaTree::resetNonTDCNodeCond() {
   if (current) {
-    assert(current->symBrType != TDC && "Non-TDC condition property violated!");
     std::vector<ParaConfig> &configVec = current->successorConfigVec;
     configVec[0].cond = ConstantExpr::create(1, Expr::Bool); 
   }

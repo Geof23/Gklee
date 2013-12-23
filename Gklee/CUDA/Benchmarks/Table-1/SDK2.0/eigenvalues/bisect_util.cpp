@@ -209,13 +209,12 @@ computeNumSmallerEigenvalsLarge( float* g_d, float* g_s, const unsigned int n,
 
   unsigned int rem = n;
 
-  printf("threadIdx.x: %u, rem: %u \n", threadIdx.x, rem);
+  printf("rem: %u \n", rem);
   // do until whole diagonal and superdiagonal has been loaded and processed
   for( unsigned int i = 0; i < n; i += blockDim.x) {
 
     __syncthreads();
 
-    printf("In current barrier interval, (i + threadIdx.x): %d, n: %d \n", (i + threadIdx.x), n);
     // read new chunk of data into shared memory
     if( (i + threadIdx.x) < n) {
       
