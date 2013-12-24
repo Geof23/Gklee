@@ -426,7 +426,6 @@ namespace klee {
     bool hasSymRaceInSharePureCS(Executor &, ExecutionState &);
     bool hasSymRaceInGlobalWithinBlockPureCS(Executor &, ExecutionState &);
     bool hasSymRaceInShare(Executor &, ExecutionState &);
-    bool hasAccumVarInShare(Executor &, ExecutionState &);
     bool hasSymRaceInGlobalWithinBlock(Executor &, ExecutionState &);
     bool hasSymRaceInGlobalAcrossBlocks(Executor &, ExecutionState &, bool);
 
@@ -621,7 +620,6 @@ namespace klee {
                          std::vector<CorrespondTid> &, ref<Expr> &, 
                          unsigned, bool);
     bool hasSymRaceInGlobal(Executor &, ExecutionState &, bool);
-    void checkMemoryAccessThreadParametric(Executor &, ExecutionState &);
     void constructGlobalMemAccessSets(Executor &, ExecutionState &, 
                                       std::vector<CorrespondTid>&, unsigned);
     bool foundMismatchBarrierInParametricFlow(ExecutionState &, unsigned, unsigned);

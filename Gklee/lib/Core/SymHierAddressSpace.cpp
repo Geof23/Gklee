@@ -1492,49 +1492,6 @@ bool AddressSpace::hasSymRaceInShare(Executor &executor, ExecutionState &state) 
   return hasRace;
 }
 
-static bool resolveReadAccessThreadParametric(Executor &executor, 
-                                              ExecutionState &state, 
-                                              MemoryAccess &readAccess, 
-                                              MemoryAccessVec &writeAccessVec) {
-  for (unsigned i = 0; i < writeAccessVec.size(); i++) {
-    MemoryAccess tmpAccess(readAccess);
-    ConstraintManager constr;
-    AddressSpaceUtil::updateMemoryAccess(state, constr, tmpAccess);
-    bool hasAccum = checkSymTwoAccessIncurAccumVar(executor, state, writeAccessVec[i], tmpAccess); 
-
-    if (hasAccum) {
-      std::cout << "Found a potential accumulative variable" << std::endl;
-      return true;
-    }
-  }
-
-  return false;
-}
-
-bool AddressSpace::hasAccumVarInShare(Executor &executor, ExecutionState &state) {
-  bool existAccum = false;
-
-  if (state.BINum > 1) {
-    if (readSet.size() > 0) {
-      for (unsigned i = 0; i < readSet.size(); i++) {
-        for (unsigned j = 0; j < accumWriteSets.size(); j++) {
-          bool accum = resolveReadAccessThreadParametric(executor, state, 
-                                                         readSet[i], accumWriteSets[j]);
-          if (accum) {
-            existAccum = true;
-            break;
-          } 
-        }
-        if (existAccum) break;
-      }
-    } 
-  }
-
-  // Insert the accumulative variable set... 
-  accumWriteSets.push_back(writeSet);
-  return existAccum;
-}
-
 bool AddressSpace::hasSymRaceInGlobalWithinBlock(Executor &executor, ExecutionState &state) {
   bool hasRace = false;
   ConstraintManager constr;     
@@ -1786,22 +1743,6 @@ bool HierAddressSpace::hasSymRaceInGlobal(Executor &executor, ExecutionState &st
   }
   
   return race;
-}
-
-void HierAddressSpace::checkMemoryAccessThreadParametric(Executor &executor, 
-                                                         ExecutionState &state) {
-  
-  // check shared memory include accumulative variables ...  
-  if (GPUConfig::check_level == 0)  // skip checking
-    return;
-  
-  std::vector<AddressSpace>::iterator ii = sharedMemories.begin();
-  if (GPUConfig::verbose > 0) 
-    ii->dump(true);
-    
-  if (ii->hasAccumVarInShare(executor, state)) {
-    GKLEE_INFO << "" << std::endl; 
-  } 
 }
 
 static bool determineTwoFlowInSameBlock(Executor &executor, ExecutionState &state, 

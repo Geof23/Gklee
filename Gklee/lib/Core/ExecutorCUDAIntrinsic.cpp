@@ -139,8 +139,6 @@ void Executor::encounterBarrier(ExecutionState &state,
       }
     } else {
       // Check if the memory access is thread parametric ...
-      state.addressSpace.checkMemoryAccessThreadParametric(*this, state);
-
       if (state.addressSpace.hasMismatchBarrierInParametricFlow(*this, state)) {
         std::cout << "Found a deadlock: #barriers at the flows:\n";
         for (unsigned i = 0; i < state.cTidSets.size(); i++) {
