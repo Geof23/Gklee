@@ -103,24 +103,21 @@ runTest( int argc, char** argv)
       
     // initialize the input data on the host to be integer values
     // between 0 and 1000
+
+#ifndef _SYM
     for( unsigned int i = 0; i < num_elements; ++i) 
     {
         h_data[i] = floorf(1000*(rand()/(float)RAND_MAX));
     }
-
-#ifndef _SYM
     // compute reference solution
     float* reference = (float*) malloc( mem_size);  
-    //computeGold( reference, h_data, num_elements);
+#else
+    klee_make_symbolic(h_data, mem_size, "h_data_input");
 #endif
 
     // allocate device memory input and output arrays
     float* d_idata;
     float* d_odata[3];
-    //cutilSafeCall( cudaMalloc( (void**) &d_idata, mem_size));
-    //cutilSafeCall( cudaMalloc( (void**) &(d_odata[0]), mem_size));
-    //cutilSafeCall( cudaMalloc( (void**) &(d_odata[1]), mem_size));
-    //cutilSafeCall( cudaMalloc( (void**) &(d_odata[2]), mem_size));
     cudaMalloc( (void**) &d_idata, mem_size);
     cudaMalloc( (void**) &(d_odata[0]), mem_size);
     cudaMalloc( (void**) &(d_odata[1]), mem_size);
