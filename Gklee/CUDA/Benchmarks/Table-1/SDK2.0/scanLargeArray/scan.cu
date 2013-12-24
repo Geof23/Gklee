@@ -12,7 +12,6 @@
 #define _PRESCAN_CU_
 
 // includes, kernels
-//#include <scanLargeArray_kernel.cu>
 #include "scanLargeArray_kernel.cu"
 #include <stdlib.h>
 #include <string.h>
@@ -81,14 +80,11 @@ void preallocBlockSums(unsigned int maxNumElements)
             max(1, (int)ceil((float)numElts / (2.f * blockSize)));
         if (numBlocks > 1) 
         {
-            //cutilSafeCall(cudaMalloc((void**) &g_scanBlockSums[level++],  
-            //                          numBlocks * sizeof(float)));
             cudaMalloc((void**) &g_scanBlockSums[level++], numBlocks * sizeof(float));
         }
         numElts = numBlocks;
     } while (numElts > 1);
 
-    //cutilCheckMsg("preallocBlockSums");
     printf("preallocBlockSums\n");
 }
 
@@ -167,7 +163,6 @@ void prescanArrayRecursive(float *outArray,
     dim3  threads(numThreads, 1, 1);
 
     // make sure there are no CUDA errors before we start
-    //cutilCheckMsg("prescanArrayRecursive before kernels");
     printf("prescanArrayRecursive before kernels\n");
 
     // execute the scan
@@ -280,38 +275,25 @@ void
 runTest( int argc, char** argv) 
 {
     // use command-line specified CUDA device, otherwise use device with highest Gflops/s
-    /*if( cutCheckCmdLineFlag(argc, (const char**)argv, "device") )
-        cutilDeviceInit(argc, argv);
-    else
-        cudaSetDevice( cutGetMaxGflopsDeviceId() );
-*/
 //#ifndef __DEVICE_EMULATION__
-//    unsigned int num_test_iterations = 100;
-//    unsigned int num_elements = 1000000; // can support large, non-power-of-2 arrays!
+//  unsigned int num_test_iterations = 100;
+//  unsigned int num_elements = 1000000; // can support large, non-power-of-2 arrays!
 //#else
     unsigned int num_test_iterations = 1;
     unsigned int num_elements = 10000; // can support large, non-power-of-2 arrays!
 //#endif
     
-    //cutGetCmdLineArgumenti( argc, (const char**) argv, "n", (int*)&num_elements);
-    //cutGetCmdLineArgumenti( argc, (const char**) argv, "i", (int*)&num_test_iterations);
-
     unsigned int mem_size = sizeof( float) * num_elements;
     
-    /*unsigned int timerGPU, timerCPU;
-    cutilCheckError(cutCreateTimer(&timerCPU));
-    cutilCheckError(cutCreateTimer(&timerGPU));*/
-
     // allocate host memory to store the input data
     float* h_data = (float*) malloc( mem_size);
       
+#ifndef _SYM
     // initialize the input data on the host
     for( unsigned int i = 0; i < num_elements; ++i) 
     {
         h_data[i] = 1.0f;//(int)(10 * rand()/32768.f);
     }
-
-#ifndef _SYM
     // compute reference solution
     float* reference = (float*) malloc( mem_size); 
     //cutStartTimer(timerCPU);
@@ -319,23 +301,20 @@ runTest( int argc, char** argv)
     {
         computeGold( reference, h_data, num_elements);
     }
-    //cutStopTimer(timerCPU);
+#else
+    klee_make_symbolic(h_data, mem_size, "h_data_input"); 
 #endif
 
     // allocate device memory input and output arrays
     float* d_idata = NULL;
     float* d_odata = NULL;
 
-    //cutilSafeCall( cudaMalloc( (void**) &d_idata, mem_size));
-    //cutilSafeCall( cudaMalloc( (void**) &d_odata, mem_size));
     cudaMalloc((void**) &d_idata, mem_size);
     cudaMalloc((void**) &d_odata, mem_size);
     
     // copy host memory to device input array
-    // cutilSafeCall( cudaMemcpy( d_idata, h_data, mem_size, cudaMemcpyHostToDevice) );
     cudaMemcpy( d_idata, h_data, mem_size, cudaMemcpyHostToDevice);
     // initialize all the other device arrays to be safe
-    // cutilSafeCall( cudaMemcpy( d_odata, h_data, mem_size, cudaMemcpyHostToDevice) );
     cudaMemcpy( d_odata, h_data, mem_size, cudaMemcpyHostToDevice);
 
     printf("Running parallel prefix sum (prescan) of %d elements\n", num_elements);
@@ -346,8 +325,6 @@ runTest( int argc, char** argv)
 
     // run once to remove startup overhead
     prescanArray(d_odata, d_idata, num_elements);
-
-    printf("before iteration!\n");
 
     // Run the prescan
     // cutStartTimer(timerGPU);
@@ -360,8 +337,6 @@ runTest( int argc, char** argv)
 
     deallocBlockSums();    
     // copy result from device to host
-    //cutilSafeCall(cudaMemcpy( h_data, d_odata, sizeof(float) * num_elements, 
-    //                           cudaMemcpyDeviceToHost));
     cudaMemcpy( h_data, d_odata, sizeof(float) * num_elements, 
                 cudaMemcpyDeviceToHost);
 
@@ -393,7 +368,6 @@ runTest( int argc, char** argv)
 #endif
     cudaFree( d_odata);
     cudaFree( d_idata);
-
     //cudaThreadExit();
 }
 
