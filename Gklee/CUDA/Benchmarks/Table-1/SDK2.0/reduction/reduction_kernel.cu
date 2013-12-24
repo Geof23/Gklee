@@ -268,7 +268,7 @@ __global__ void
 */
 
 __global__ void
-  FUNC(reduce6)(int *g_idata, int *g_odata, unsigned int n, unsigned int blockSize, bool nIsPow2)
+FUNC(reduce6)(int *g_idata, int *g_odata, unsigned int n, unsigned int blockSize, bool nIsPow2)
 {
   // SharedMemory<T> smem;
   //  T *sdata = smem.getPointer();

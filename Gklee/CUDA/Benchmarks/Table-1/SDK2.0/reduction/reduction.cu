@@ -16,21 +16,13 @@ int main() {
   cudaMalloc((void**)&doutput, sizeof(int));
   cudaMemcpy(dinput, input, sizeof(int)*NUM*2, cudaMemcpyHostToDevice);
 
-#if defined RED0
   FUNC(reduce0)<<<1, NUM>>>(dinput, doutput, NUM);
-#elif defined RED1 
   FUNC(reduce1)<<<1, NUM>>>(dinput, doutput, NUM);
-#elif defined RED2
   FUNC(reduce2)<<<1, NUM>>>(dinput, doutput, NUM);
-#elif defined RED3
   FUNC(reduce3)<<<1, NUM>>>(dinput, doutput, NUM);
-#elif defined RED4
   FUNC(reduce4)<<<1, NUM>>>(dinput, doutput, NUM, NUM);
-#elif defined RED5
   FUNC(reduce5)<<<1, NUM>>>(dinput, doutput, NUM, NUM);
-#else
   FUNC(reduce6)<<<1, NUM>>>(dinput, doutput, NUM, NUM, false);
-#endif
 
   cudaMemcpy(output, doutput, sizeof(int), cudaMemcpyDeviceToHost);
 
