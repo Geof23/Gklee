@@ -895,7 +895,8 @@ Executor::fork(ExecutionState &current, ref<Expr> condition, bool isInternal) {
 
     if (UseSymbolicConfig
          && current.tinfo.is_GPU_mode
-           && isSymCond) {
+           && !isInternal
+             && isSymCond) {
       // If the current node's cond type is non-TDC, and 
       // it's evaluated to be TRUE, then reset the condition
       // of this node to TRUE 
@@ -912,7 +913,8 @@ Executor::fork(ExecutionState &current, ref<Expr> condition, bool isInternal) {
 
     if (UseSymbolicConfig
          && current.tinfo.is_GPU_mode
-           && isSymCond) {
+           && !isInternal
+             && isSymCond) {
       // If the current node's cond type is non-TDC, and 
       // it's evaluated to be FALSE, then reset the condition
       // of this node to FALSE 
