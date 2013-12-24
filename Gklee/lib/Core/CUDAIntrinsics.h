@@ -89,4 +89,7 @@ static std::string CUDAAtomic[] = {
 
 static std::string CUDASync[] = {
   "__syncthreads",
+  "__syncthreads_count",
+  "__syncthreads_and",
+  "__syncthreads_or"
 };

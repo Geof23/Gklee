@@ -1540,23 +1540,24 @@ void Executor::executeCUDAIntrinsics(ExecutionState &state, KInstruction *target
 
   std::string fName = f->getName().str();
 
-  if (state.tinfo.is_GPU_mode) {
-    if (executeCUDAArithmetic(*this, state, target, f, arguments))
-      return;
+  // Some functions in host code are also able to reuse those functions
+  //if (state.tinfo.is_GPU_mode) {
+  if (executeCUDAArithmetic(*this, state, target, f, arguments))
+    return;
 
-    if (executeCUDAConversion(*this, state, target, f, arguments))
-      return;
+  if (executeCUDAConversion(*this, state, target, f, arguments))
+    return;
 
-    if (executeCUDAAtomic(state, target, fName, arguments, seqNum))
-      return;
+  if (executeCUDAAtomic(state, target, fName, arguments, seqNum))
+    return;
 
-    for (unsigned i = 0; i < NELEMS(CUDASync); i++) {
-      if (fName.find(CUDASync[i]) != std::string::npos) {
-        handleBarrier(state, target);
-        return; 
-      }
+  for (unsigned i = 0; i < NELEMS(CUDASync); i++) {
+    if (fName.find(CUDASync[i]) != std::string::npos) {
+      handleBarrier(state, target);
+      return; 
     }
   }
+  //}
 
   callExternalFunction(state, target, f, arguments);
 }
