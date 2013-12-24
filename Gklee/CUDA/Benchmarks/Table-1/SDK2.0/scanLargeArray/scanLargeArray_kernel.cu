@@ -200,7 +200,7 @@ __device__ void prescanBlock(float *data, int blockIndex, float *blockSums)
     scanRootToLeaves(data, stride);            // traverse down tree to build the scan 
 }
 
-    __extern__shared__ float s_data[];
+__extern__shared__ float s_data[];
 
 template <bool storeSum, bool isNP2>
 __global__ void prescan(float *g_odata, 
