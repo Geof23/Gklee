@@ -1,5 +1,3 @@
-1=small
-2=large
 PROG=matrixMul_kernel
 SRC=$(PROG).cu
 

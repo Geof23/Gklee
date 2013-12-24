@@ -16,6 +16,7 @@
 
 // #include "cuda_runtime_api.h"
 // #include "cudpp/cudpp.h"
+#include <stdio.h>
 
 extern "C" void checkCudaError(const char *msg);
 
@@ -152,12 +153,14 @@ public: // methods
     {
         if (values == 0)
         {
+            printf("radixSortKeysOnly \n");
             radixSortKeysOnly(keys, mTempKeys, 
                               mCounters, mCountersSum, mBlockOffsets,
                               mScanPlan, numElements, keyBits, false);
         }
         else
         {
+            printf("radixSort \n");
             radixSort(keys, values, mTempKeys, mTempValues, 
                       mCounters, mCountersSum, mBlockOffsets,
                       mScanPlan, numElements, keyBits, false); 
