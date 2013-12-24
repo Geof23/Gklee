@@ -368,7 +368,7 @@ __device__ void radixSortBlock(uint4 &key, uint4 &value)
 // for large sorts (and the threshold is higher on compute version 1.1 and earlier
 // GPUs than it is on compute version 1.2 GPUs.
 //----------------------------------------------------------------------------
-    __extern__shared__ uint4 sMem[];
+__extern__shared__ uint4 sMem[];
 template<uint nbits, uint startbit, bool fullBlocks, bool flip, bool loop>
 __global__ void radixSortBlocks(uint4* keysOut, uint4* valuesOut, 
                                 uint4* keysIn, uint4* valuesIn, 
@@ -1755,6 +1755,7 @@ void radixSortKeysOnly(uint *keys,
 {
     if(numElements <= RadixSort::WARP_SIZE)
     {
+        printf("numElements <= RadixSort::WARP_SIZE \n");
         if (flipBits)
             radixSortSingleWarpKeysOnly<true><<<1, numElements>>>(keys, numElements);
         else
@@ -1764,6 +1765,7 @@ void radixSortKeysOnly(uint *keys,
     }
     if(numElements <= RadixSort::CTA_SIZE * 4)
     {
+        printf("numElements <= RadixSort::CTA_SIZE * 4 \n");
         if (flipBits)
             radixSortSingleBlockKeysOnly<true>(keys, numElements);
         else
@@ -1774,12 +1776,14 @@ void radixSortKeysOnly(uint *keys,
     // flip float bits on the first pass, unflip on the last pass
     if (flipBits) 
     {
+            printf("flipBits true \n");
             radixSortStepKeysOnly<4,  0, true, false>(keys, tempKeys, 
                                                       counters, countersSum, blockOffsets, 
                                                       scanPlan, numElements);
     }
     else
     {
+            printf("flipBits false \n");
             radixSortStepKeysOnly<4,  0, false, false>(keys, tempKeys, 
                                                        counters, countersSum, blockOffsets, 
                                                        scanPlan, numElements);
@@ -1787,36 +1791,42 @@ void radixSortKeysOnly(uint *keys,
 
     if (keyBits > 4)
     {
+            printf("keyBits > 4 \n");
             radixSortStepKeysOnly<4,  4, false, false>(keys, tempKeys, 
                                                        counters, countersSum, blockOffsets, 
                                                        scanPlan, numElements);
     }
     if (keyBits > 8)
     {
+            printf("keyBits > 8 \n");
             radixSortStepKeysOnly<4,  8, false, false>(keys, tempKeys, 
                                                        counters, countersSum, blockOffsets, 
                                                        scanPlan, numElements);
     }
     if (keyBits > 12)
     {
+            printf("keyBits > 12 \n");
             radixSortStepKeysOnly<4, 12, false, false>(keys, tempKeys, 
                                                        counters, countersSum, blockOffsets, 
                                                        scanPlan, numElements);
     }
     if (keyBits > 16)
     {
+            printf("keyBits > 16 \n");
             radixSortStepKeysOnly<4, 16, false, false>(keys, tempKeys, 
                                                        counters, countersSum, blockOffsets, 
                                                        scanPlan, numElements);
     }
     if (keyBits > 20)
     {
+            printf("keyBits > 20 \n");
             radixSortStepKeysOnly<4, 20, false, false>(keys, tempKeys, 
                                                        counters, countersSum, blockOffsets, 
                                                        scanPlan, numElements);
     }
     if (keyBits > 24)
     {
+            printf("keyBits > 24 \n");
             radixSortStepKeysOnly<4, 24, false, false>(keys, tempKeys, 
                                                        counters, countersSum, blockOffsets, 
                                                        scanPlan, numElements);
