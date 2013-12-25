@@ -133,17 +133,11 @@ int main() {
   klee_make_symbolic(h_SrcVal, sizeof(uint) * SHARED_SIZE_LIMIT, "srcval_input");
 
   uint *d_DstKey, *d_DstVal, *d_SrcKey, *d_SrcVal;
-  //cutilSafeCall(cudaMalloc((void**)&d_DstKey, sizeof(uint) * SHARED_SIZE_LIMIT));
-  //cutilSafeCall(cudaMalloc((void**)&d_DstVal, sizeof(uint) * SHARED_SIZE_LIMIT));
-  //cutilSafeCall(cudaMalloc((void**)&d_SrcKey, sizeof(uint) * SHARED_SIZE_LIMIT));
-  //cutilSafeCall(cudaMalloc((void**)&d_SrcVal, sizeof(uint) * SHARED_SIZE_LIMIT));
   cudaMalloc((void**)&d_DstKey, sizeof(uint) * SHARED_SIZE_LIMIT);
   cudaMalloc((void**)&d_DstVal, sizeof(uint) * SHARED_SIZE_LIMIT);
   cudaMalloc((void**)&d_SrcKey, sizeof(uint) * SHARED_SIZE_LIMIT);
   cudaMalloc((void**)&d_SrcVal, sizeof(uint) * SHARED_SIZE_LIMIT);
 
-  //cutilSafeCall(cudaMemcpy(d_SrcKey, h_SrcKey, sizeof(uint) * SHARED_SIZE_LIMIT, cudaMemcpyHostToDevice));
-  //cutilSafeCall(cudaMemcpy(d_SrcVal, h_SrcVal, sizeof(uint) * SHARED_SIZE_LIMIT, cudaMemcpyHostToDevice));
   cudaMemcpy(d_SrcKey, h_SrcKey, sizeof(uint) * SHARED_SIZE_LIMIT, cudaMemcpyHostToDevice);
   cudaMemcpy(d_SrcVal, h_SrcVal, sizeof(uint) * SHARED_SIZE_LIMIT, cudaMemcpyHostToDevice);
 
