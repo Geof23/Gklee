@@ -6,8 +6,6 @@ P_FLAGS=--symbolic-config # Parametric
 
 all: compile run para-run
 
-all: compile run para-run
-
 compile:
 	gklee-nvcc $(NVCC_FLAGS) $(SRC)
 run:
