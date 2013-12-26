@@ -8,3 +8,8 @@ gklee-nvcc transpose_main.cu -Dtranpose4
 gklee-nvcc transpose_main.cu -Dtranpose5
 gklee-nvcc transpose_main.cu -Dtranpose6
 gklee-nvcc transpose_main.cu -Dtranpose7
+
+How to run:
+
+gklee transpose_main
+gklee --symbolic-config transpose_main
