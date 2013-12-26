@@ -67,7 +67,6 @@ int main(int argc, char **argv)
   size_t szWorkgroup;
   //const int iCycles = 100;
   const int iCycles = 5;
-#ifdef SCANSHORT
   printf("*** Running GPU scan for short arrays (%d identical iterations)...\n\n", iCycles);
   for(uint arrayLength = MIN_SHORT_ARRAY_SIZE; arrayLength <= MAX_SHORT_ARRAY_SIZE; arrayLength <<= 1){
      printf("Running scan for %u elements (%u arrays)...\n", arrayLength, N / arrayLength);
@@ -118,21 +117,14 @@ int main(int argc, char **argv)
         printf("\n");
      }
   }
-#else
   printf("***Running GPU scan for large arrays (%u identical iterations)...\n\n", iCycles);
   for(uint arrayLength = MIN_LARGE_ARRAY_SIZE; arrayLength <= MAX_LARGE_ARRAY_SIZE; arrayLength <<= 1){
      printf("Running scan for %u elements (%u arrays)...\n", arrayLength, N / arrayLength);
-     //cutilSafeCall( cudaDeviceSynchronize() );
-     //cutResetTimer(hTimer);
-     //cutStartTimer(hTimer);
      //for(int i = 0; i < iCycles; i++)
      //{
      printf("The arrayLength in scanExclusiveLarge: %d\n", arrayLength);
      szWorkgroup = scanExclusiveLarge(d_Output, d_Input, N / arrayLength, arrayLength);
      //}
-     //cutilSafeCall( cudaDeviceSynchronize() );
-     //cutStopTimer(hTimer);
-     //double timerValue = 1.0e-3 * cutGetTimerValue(hTimer) / iCycles;
 
      printf("Validating the results...\n");
      printf("...reading back GPU results\n");
@@ -154,7 +146,6 @@ int main(int argc, char **argv)
          }
      }
 #endif
-
      // Log message on individual test result, then accumulate to global flag
      printf(" ...Results %s\n\n", (localFlag == 1) ? "Match" : "DON'T Match !!!");
      globalFlag = globalFlag && localFlag;
@@ -168,17 +159,16 @@ int main(int argc, char **argv)
         printf("\n");
      }
   }
-#endif
-    // pass or fail (cumulative... all tests in the loop)
-    printf(globalFlag ? "PASSED\n\n" : "FAILED\n\n");
+  // pass or fail (cumulative... all tests in the loop)
+  printf(globalFlag ? "PASSED\n\n" : "FAILED\n\n");
 
-    printf("Shutting down...\n");
-    closeScan();
+  printf("Shutting down...\n");
+  closeScan();
 
-    cudaFree(d_Output);
-    cudaFree(d_Input);
+  cudaFree(d_Output);
+  cudaFree(d_Input);
 
-    free(h_Input);
-    free(h_OutputCPU);
-    free(h_OutputGPU);
+  free(h_Input);
+  free(h_OutputCPU);
+  free(h_OutputGPU);
 }

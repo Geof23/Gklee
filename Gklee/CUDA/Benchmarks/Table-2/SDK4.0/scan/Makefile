@@ -1,29 +1,20 @@
-P= #--symbolic-config # Parametric
+PROG=scan_kernel
+SRC=$(PROG).cu
 
-R=--check-level=2
-WD=--check-WD=1
-BC=--check-BC=1
-MC=--check-MC=1
+NVCC_FLAGS=-D_SYM
+P_FLAGS=--symbolic-config # Parametric
 
-FLAGS= $(R) $(WD) $(BC) $(MC) $(P)
+all: compile run para-run
 
-NVCC_FLAGS= #-D_SYM
+compile:
+	klee-l++ -o main.o main.cpp -D_SYM
+	gklee-nvcc $(NVCC_FLAGS) $(SRC)
+	llvm-link -o scan main.o $(PROG) 
+run:
+	gklee scan
+para-run:
+	gklee $(P_FLAGS)$ scan
 
-all:
-	$(info use make small, runsmall, large, runlarge)
-
-small:
-	gklee-nvcc scan_kernel.cu 
-	klee-l++ -c main.cpp -DSCANSHORT
-	llvm-link -o scan_short main.o scan_kernel 
-runsmall: small
-	gklee scan_short
-large:
-	gklee-nvcc scan_kernel.cu
-	klee-l++ -c main.cpp -DSCANLARGE
-	llvm-link -o scan_large main.o scan_kernel
-runlarge: large
-	gklee scan_large
 clean:
-	rm -fR klee* scan_short *.o
-	rm scan_kernel
+	rm -rf klee* scan scan_kernel main.o kernelSet.txt
+	rm scan_kernel scan_kernel.cpp
