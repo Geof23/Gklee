@@ -54,21 +54,12 @@ int main(int argc, char **argv){
     h_HistogramCPU = (uint  *)malloc(HISTOGRAM256_BIN_COUNT * sizeof(uint));
     h_HistogramGPU = (uint  *)malloc(HISTOGRAM256_BIN_COUNT * sizeof(uint));
 
-    uchar t_data[64*2];
-    klee_make_symbolic(t_data, sizeof(t_data), "input");
-    for (int i = 0; i < 64*2; i++)
-      h_Data[i] = t_data[i];
-  
-    for (int j = 64*2; j < byteCount; j++) {
-      h_Data[j] = 0;
-    }
+    klee_make_symbolic(h_Data, byteCount, "h_Data_input");
 
     printf("...allocating GPU memory and copying input data\n\n");
     cudaMalloc((void **)&d_Data, byteCount);
     cudaMalloc((void **)&d_Histogram, HISTOGRAM256_BIN_COUNT * sizeof(uint));
     cudaMemcpy(d_Data, h_Data, byteCount, cudaMemcpyHostToDevice);
-
-#ifdef HIST64
 
     {
        printf("Starting up 64-bin histogram...\n\n");
@@ -99,7 +90,6 @@ int main(int argc, char **argv){
        printf("Shutting down 64-bin histogram...\n\n\n");
        closeHistogram64();
     }
-#else
     {
        printf("Initializing 256-bin histogram...\n");
        initHistogram256();
@@ -129,9 +119,7 @@ int main(int argc, char **argv){
        printf("Shutting down 256-bin histogram...\n\n\n");
        closeHistogram256();
     }
-#endif
-      //printf("%s - Test Summary\n", sSDKsample);
-
+    //printf("%s - Test Summary\n", sSDKsample);
     // pass or fail (for both 64 bit and 256 bit histograms)
     // printf("%s\n\n", PassFailFlag ? "PASSED" : "FAILED");
     

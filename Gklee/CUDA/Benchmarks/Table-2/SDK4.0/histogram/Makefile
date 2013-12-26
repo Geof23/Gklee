@@ -1,33 +1,23 @@
-1=64
-2=256
-PROG=histogram$(2)_kernel
-SIZE=$(2)
+PROG64=histogram64_kernel
+PROG256=histogram256_kernel
 
-#argument in PROG and SIZE should be same (both 1 or both 2)
+SRC64=$(PROG64).cu
+SRC256=$(PROG256).cu
 
-SRC=$(PROG).cu
+NVCC_FLAGS=-D_SYM
+P_FLAGS=--symbolic-config # Parametric
 
-P= #--symbolic-config # Parametric
-
-R=--check-level=2
-WD=--check-WD=1
-BC=--check-BC=1
-MC=--check-MC=1
-
-FLAGS= $(R) $(WD) $(BC) $(MC) $(P)
-
-NVCC_FLAGS= #-D_SYM
-
-KLEE_LPP=-DHIST$(SIZE)
-
-all: compile run
+all: compile run para-run
 
 compile:
-	gklee-nvcc $(NVCC_FLAGS) $(SRC)
-	klee-l++ histogram_main.cpp $(KLEE_LPP)
-	llvm-link -o $(PROG).bin histogram_main.o $(PROG)
+	gklee-nvcc $(SRC64) -o $(PROG64).o
+	gklee-nvcc $(SRC256) -o $(PROG256).o
+	klee-l++ histogram_main.cpp -D_SYM -o histogram_main.o 
+	llvm-link -o histogram histogram_main.o $(PROG64).o $(PROG256).o
 run:
-	gklee $(FLAGS) $(PROG).bin
+	gklee histogram 
+para-run:
+	gklee $(P_FLAGS)$ histogram 
 clean:
-	rm -fR klee* $(PROG)
-	rm -f $(PROG).bin histogram_main.o histogram_main 
+	rm -rf klee* $(PROG64).o $(PROG256).o kernelSet.txt
+	rm -f histogram histogram_main.o $(PROG64).cpp $(PROG256).cpp 
