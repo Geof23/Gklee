@@ -8,13 +8,13 @@ all: compile run para-run
 
 compile:
 	klee-l++ -o main.o main.cpp -D_SYM
-	gklee-nvcc $(NVCC_FLAGS) $(SRC)
-	llvm-link -o scan main.o $(PROG) 
+	gklee-nvcc $(NVCC_FLAGS) $(SRC) -o $(PROG).o
+	llvm-link -o scan main.o $(PROG).o 
 run:
 	gklee scan
 para-run:
 	gklee $(P_FLAGS)$ scan
 
 clean:
-	rm -rf klee* scan scan_kernel main.o kernelSet.txt
-	rm scan_kernel scan_kernel.cpp
+	rm -rf klee* scan main.o kernelSet.txt
+	rm scan_kernel.o scan_kernel.cpp

@@ -47,12 +47,10 @@ __global__ void histogram64Kernel(uint *d_PartialHistograms, data_t *d_Data, uin
     //each group of SHARED_MEMORY_BANKS threads accesses consecutive shared memory banks
     //and the same bytes [0..3] within the banks
     //Because of this permutation block size should be a multiple of 4 * SHARED_MEMORY_BANKS
-    printf("threadPos before \n");
     const uint threadPos = 
         ( (threadIdx.x & ~(SHARED_MEMORY_BANKS * 4 - 1)) << 0 ) |
         ( (threadIdx.x &  (SHARED_MEMORY_BANKS     - 1)) << 2 ) |
         ( (threadIdx.x &  (SHARED_MEMORY_BANKS * 3    )) >> 4 );
-    printf("threadPos after \n");
 
     //Per-thread histogram storage
     __shared__ uchar s_Hist[HISTOGRAM64_THREADBLOCK_SIZE * HISTOGRAM64_BIN_COUNT];
@@ -183,6 +181,7 @@ extern "C" void histogram64(
         byteCount / sizeof(data_t)
     );
     //cutilCheckMsg("histogram64Kernel() execution failed\n");
+    printf("histogram64Kernel() execution finished \n");
 
     mergeHistogram64Kernel<<<HISTOGRAM64_BIN_COUNT, MERGE_THREADBLOCK_SIZE>>>(
         d_Histogram,
@@ -190,4 +189,5 @@ extern "C" void histogram64(
         histogramCount
     );
     //cutilCheckMsg("mergeHistogram64() execution failed\n");
+    printf("mergeHistogram64() execution finished \n");
 }
