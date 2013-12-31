@@ -1,4 +1,0 @@
-#!/bin/bash
-
-find "$PWD" \( -iname '*.cpp' -o -iname '*.hpp' -o -iname '*.c' -o \
-      -iname '*.h' \) > "$PWD"/cscope.files
