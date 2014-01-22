@@ -17,8 +17,11 @@
 #include "klee/Expr.h"
 
 #include "Memory.h"
-
+#if LLVM_VERSION_CODE >= LLVM_VERSION(3, 3)
+#include "llvm/IR/Function.h"
+#else
 #include "llvm/Function.h"
+#endif
 #include "llvm/Instructions.h"
 #include "llvm/Support/CommandLine.h"
 
@@ -320,165 +323,164 @@ std::ostream &klee::operator<<(std::ostream &os, const MemoryMap &mm) {
 }
 
 bool ExecutionState::merge(const ExecutionState &b) {
-  assert(false && "ExecutionState::merge is unimplemented!");
-  return false;
-  // if (DebugLogStateMerge)
-  //   std::cerr << "-- attempting merge of A:" 
-  //              << this << " with B:" << &b << "--\n";
-  // if (pc != b.pc)
-  //   return false;
+  /*if (DebugLogStateMerge)
+    std::cerr << "-- attempting merge of A:" 
+              << this << " with B:" << &b << "--\n";
+  if (pc != b.pc)
+    return false;
 
-  // // XXX is it even possible for these to differ? does it matter? probably
-  // // implies difference in object states?
-  // if (symbolics!=b.symbolics)
-  //   return false;
+  // XXX is it even possible for these to differ? does it matter? probably
+  // implies difference in object states?
+  if (symbolics!=b.symbolics)
+    return false;
 
-  // {
-  //   std::vector<StackFrame>::const_iterator itA = stack.begin();
-  //   std::vector<StackFrame>::const_iterator itB = b.stack.begin();
-  //   while (itA!=stack.end() && itB!=b.stack.end()) {
-  //     // XXX vaargs?
-  //     if (itA->caller!=itB->caller || itA->kf!=itB->kf)
-  //       return false;
-  //     ++itA;
-  //     ++itB;
-  //   }
-  //   if (itA!=stack.end() || itB!=b.stack.end())
-  //     return false;
-  // }
+  {
+    std::vector<StackFrame>::const_iterator itA = stack.begin();
+    std::vector<StackFrame>::const_iterator itB = b.stack.begin();
+    while (itA!=stack.end() && itB!=b.stack.end()) {
+      // XXX vaargs?
+      if (itA->caller!=itB->caller || itA->kf!=itB->kf)
+        return false;
+      ++itA;
+      ++itB;
+    }
+    if (itA!=stack.end() || itB!=b.stack.end())
+      return false;
+  }
 
-  // std::set< ref<Expr> > aConstraints(constraints.begin(), constraints.end());
-  // std::set< ref<Expr> > bConstraints(b.constraints.begin(), 
-  //                                    b.constraints.end());
-  // std::set< ref<Expr> > commonConstraints, aSuffix, bSuffix;
-  // std::set_intersection(aConstraints.begin(), aConstraints.end(),
-  //                       bConstraints.begin(), bConstraints.end(),
-  //                       std::inserter(commonConstraints, commonConstraints.begin()));
-  // std::set_difference(aConstraints.begin(), aConstraints.end(),
-  //                     commonConstraints.begin(), commonConstraints.end(),
-  //                     std::inserter(aSuffix, aSuffix.end()));
-  // std::set_difference(bConstraints.begin(), bConstraints.end(),
-  //                     commonConstraints.begin(), commonConstraints.end(),
-  //                     std::inserter(bSuffix, bSuffix.end()));
-  // if (DebugLogStateMerge) {
-  //   std::cerr << "\tconstraint prefix: [";
-  //   for (std::set< ref<Expr> >::iterator it = commonConstraints.begin(), 
-  //          ie = commonConstraints.end(); it != ie; ++it)
-  //     std::cerr << *it << ", ";
-  //   std::cerr << "]\n";
-  //   std::cerr << "\tA suffix: [";
-  //   for (std::set< ref<Expr> >::iterator it = aSuffix.begin(), 
-  //          ie = aSuffix.end(); it != ie; ++it)
-  //     std::cerr << *it << ", ";
-  //   std::cerr << "]\n";
-  //   std::cerr << "\tB suffix: [";
-  //   for (std::set< ref<Expr> >::iterator it = bSuffix.begin(), 
-  //          ie = bSuffix.end(); it != ie; ++it)
-  //     std::cerr << *it << ", ";
-  //   std::cerr << "]\n";
-  // }
+  std::set< ref<Expr> > aConstraints(constraints.begin(), constraints.end());
+  std::set< ref<Expr> > bConstraints(b.constraints.begin(), 
+                                     b.constraints.end());
+  std::set< ref<Expr> > commonConstraints, aSuffix, bSuffix;
+  std::set_intersection(aConstraints.begin(), aConstraints.end(),
+                        bConstraints.begin(), bConstraints.end(),
+                        std::inserter(commonConstraints, commonConstraints.begin()));
+  std::set_difference(aConstraints.begin(), aConstraints.end(),
+                      commonConstraints.begin(), commonConstraints.end(),
+                      std::inserter(aSuffix, aSuffix.end()));
+  std::set_difference(bConstraints.begin(), bConstraints.end(),
+                      commonConstraints.begin(), commonConstraints.end(),
+                      std::inserter(bSuffix, bSuffix.end()));
+  if (DebugLogStateMerge) {
+    std::cerr << "\tconstraint prefix: [";
+    for (std::set< ref<Expr> >::iterator it = commonConstraints.begin(), 
+           ie = commonConstraints.end(); it != ie; ++it)
+      std::cerr << *it << ", ";
+    std::cerr << "]\n";
+    std::cerr << "\tA suffix: [";
+    for (std::set< ref<Expr> >::iterator it = aSuffix.begin(), 
+           ie = aSuffix.end(); it != ie; ++it)
+      std::cerr << *it << ", ";
+    std::cerr << "]\n";
+    std::cerr << "\tB suffix: [";
+    for (std::set< ref<Expr> >::iterator it = bSuffix.begin(), 
+           ie = bSuffix.end(); it != ie; ++it)
+      std::cerr << *it << ", ";
+    std::cerr << "]\n";
+  }
 
-  // // We cannot merge if addresses would resolve differently in the
-  // // states. This means:
-  // // 
-  // // 1. Any objects created since the branch in either object must
-  // // have been free'd.
-  // //
-  // // 2. We cannot have free'd any pre-existing object in one state
-  // // and not the other
+  // We cannot merge if addresses would resolve differently in the
+  // states. This means:
+  // 
+  // 1. Any objects created since the branch in either object must
+  // have been free'd.
+  //
+  // 2. We cannot have free'd any pre-existing object in one state
+  // and not the other
 
-  // if (DebugLogStateMerge) {
-  //   std::cerr << "\tchecking object states\n";
-  //   std::cerr << "A: " << addressSpace.objects << "\n";
-  //   std::cerr << "B: " << b.addressSpace.objects << "\n";
-  // }
+  if (DebugLogStateMerge) {
+    std::cerr << "\tchecking object states\n";
+    std::cerr << "A: " << addressSpace.objects << "\n";
+    std::cerr << "B: " << b.addressSpace.objects << "\n";
+  }
     
-  // std::set<const MemoryObject*> mutated;
-  // MemoryMap::iterator ai = addressSpace.objects.begin();
-  // MemoryMap::iterator bi = b.addressSpace.objects.begin();
-  // MemoryMap::iterator ae = addressSpace.objects.end();
-  // MemoryMap::iterator be = b.addressSpace.objects.end();
-  // for (; ai!=ae && bi!=be; ++ai, ++bi) {
-  //   if (ai->first != bi->first) {
-  //     if (DebugLogStateMerge) {
-  //       if (ai->first < bi->first) {
-  //         std::cerr << "\t\tB misses binding for: " << ai->first->id << "\n";
-  //       } else {
-  //         std::cerr << "\t\tA misses binding for: " << bi->first->id << "\n";
-  //       }
-  //     }
-  //     return false;
-  //   }
-  //   if (ai->second != bi->second) {
-  //     if (DebugLogStateMerge)
-  //       std::cerr << "\t\tmutated: " << ai->first->id << "\n";
-  //     mutated.insert(ai->first);
-  //   }
-  // }
-  // if (ai!=ae || bi!=be) {
-  //   if (DebugLogStateMerge)
-  //     std::cerr << "\t\tmappings differ\n";
-  //   return false;
-  // }
+  std::set<const MemoryObject*> mutated;
+  MemoryMap::iterator ai = addressSpace.objects.begin();
+  MemoryMap::iterator bi = b.addressSpace.objects.begin();
+  MemoryMap::iterator ae = addressSpace.objects.end();
+  MemoryMap::iterator be = b.addressSpace.objects.end();
+  for (; ai!=ae && bi!=be; ++ai, ++bi) {
+    if (ai->first != bi->first) {
+      if (DebugLogStateMerge) {
+        if (ai->first < bi->first) {
+          std::cerr << "\t\tB misses binding for: " << ai->first->id << "\n";
+        } else {
+          std::cerr << "\t\tA misses binding for: " << bi->first->id << "\n";
+        }
+      }
+      return false;
+    }
+    if (ai->second != bi->second) {
+      if (DebugLogStateMerge)
+        std::cerr << "\t\tmutated: " << ai->first->id << "\n";
+      mutated.insert(ai->first);
+    }
+  }
+  if (ai!=ae || bi!=be) {
+    if (DebugLogStateMerge)
+      std::cerr << "\t\tmappings differ\n";
+    return false;
+  }
   
   // // merge stack
 
-  // ref<Expr> inA = ConstantExpr::alloc(1, Expr::Bool);
-  // ref<Expr> inB = ConstantExpr::alloc(1, Expr::Bool);
-  // for (std::set< ref<Expr> >::iterator it = aSuffix.begin(), 
-  //        ie = aSuffix.end(); it != ie; ++it)
-  //   inA = AndExpr::create(inA, *it);
-  // for (std::set< ref<Expr> >::iterator it = bSuffix.begin(), 
-  //        ie = bSuffix.end(); it != ie; ++it)
-  //   inB = AndExpr::create(inB, *it);
+  ref<Expr> inA = ConstantExpr::alloc(1, Expr::Bool);
+  ref<Expr> inB = ConstantExpr::alloc(1, Expr::Bool);
+  for (std::set< ref<Expr> >::iterator it = aSuffix.begin(), 
+         ie = aSuffix.end(); it != ie; ++it)
+    inA = AndExpr::create(inA, *it);
+  for (std::set< ref<Expr> >::iterator it = bSuffix.begin(), 
+         ie = bSuffix.end(); it != ie; ++it)
+    inB = AndExpr::create(inB, *it);
 
-  // // XXX should we have a preference as to which predicate to use?
-  // // it seems like it can make a difference, even though logically
-  // // they must contradict each other and so inA => !inB
+  // XXX should we have a preference as to which predicate to use?
+  // it seems like it can make a difference, even though logically
+  // they must contradict each other and so inA => !inB
 
-  // std::vector<StackFrame>::iterator itA = stack.begin();
-  // std::vector<StackFrame>::const_iterator itB = b.stack.begin();
-  // for (; itA!=stack.end(); ++itA, ++itB) {
-  //   StackFrame &af = *itA;
-  //   const StackFrame &bf = *itB;
-  //   for (unsigned i=0; i<af.kf->numRegisters; i++) {
-  //     ref<Expr> &av = af.locals[i].value;
-  //     const ref<Expr> &bv = bf.locals[i].value;
-  //     if (av.isNull() || bv.isNull()) {
-  //       // if one is null then by implication (we are at same pc)
-  //       // we cannot reuse this local, so just ignore
-  //     } else {
-  //       av = SelectExpr::create(inA, av, bv);
-  //     }
-  //   }
-  // }
+  std::vector<StackFrame>::iterator itA = stack.begin();
+  std::vector<StackFrame>::const_iterator itB = b.stack.begin();
+  for (; itA!=stack.end(); ++itA, ++itB) {
+    StackFrame &af = *itA;
+    const StackFrame &bf = *itB;
+    for (unsigned i=0; i<af.kf->numRegisters; i++) {
+      ref<Expr> &av = af.locals[i].value;
+      const ref<Expr> &bv = bf.locals[i].value;
+      if (av.isNull() || bv.isNull()) {
+        // if one is null then by implication (we are at same pc)
+        // we cannot reuse this local, so just ignore
+      } else {
+        av = SelectExpr::create(inA, av, bv);
+      }
+    }
+  }
 
-  // for (std::set<const MemoryObject*>::iterator it = mutated.begin(), 
-  //        ie = mutated.end(); it != ie; ++it) {
-  //   const MemoryObject *mo = *it;
-  //   const ObjectState *os = addressSpace.findObject(mo);
-  //   const ObjectState *otherOS = b.addressSpace.findObject(mo);
-  //   assert(os && !os->readOnly && 
-  //          "objects mutated but not writable in merging state");
-  //   assert(otherOS);
+  for (std::set<const MemoryObject*>::iterator it = mutated.begin(), 
+         ie = mutated.end(); it != ie; ++it) {
+    const MemoryObject *mo = *it;
+    const ObjectState *os = addressSpace.findObject(mo);
+    const ObjectState *otherOS = b.addressSpace.findObject(mo);
+    assert(os && !os->readOnly && 
+           "objects mutated but not writable in merging state");
+    assert(otherOS);
 
-  //   ObjectState *wos = addressSpace.getWriteable(mo, os);
-  //   for (unsigned i=0; i<mo->size; i++) {
-  //     ref<Expr> av = wos->read8(i);
-  //     ref<Expr> bv = otherOS->read8(i);
-  //     wos->write(i, SelectExpr::create(inA, av, bv));
-  //   }
-  // }
+    ObjectState *wos = addressSpace.getWriteable(mo, os);
+    for (unsigned i=0; i<mo->size; i++) {
+      ref<Expr> av = wos->read8(i);
+      ref<Expr> bv = otherOS->read8(i);
+      wos->write(i, SelectExpr::create(inA, av, bv));
+    }
+  }
 
-  // constraints = ConstraintManager();
-  // for (std::set< ref<Expr> >::iterator it = commonConstraints.begin(), 
-  //        ie = commonConstraints.end(); it != ie; ++it)
-  //   constraints.addConstraint(*it);
-  // constraints.addConstraint(OrExpr::create(inA, inB));
+  constraints = ConstraintManager();
+  for (std::set< ref<Expr> >::iterator it = commonConstraints.begin(), 
+         ie = commonConstraints.end(); it != ie; ++it)
+    constraints.addConstraint(*it);
+  constraints.addConstraint(OrExpr::create(inA, inB));
 
-  // return true;
+  return true;
+*/
+  return false;
 }
-
 void ExecutionState::dumpStack(std::ostream &out) const {
   for (unsigned i = 0; i < stacks.size(); i++) {
     unsigned idx = 0;
@@ -850,7 +852,8 @@ static bool checkLastBranchDivRegionSet(std::vector<BranchDivRegionSet> &branchD
   return findBr;
 }
 
-static bool existTidInNonSyncSet(std::vector< std::vector<unsigned> > &nonSyncSets, unsigned tid) {
+static bool existTidInNonSyncSet(std::vector< std::vector<unsigned> > &nonSyncSets, 
+                                 unsigned tid) {
   for (unsigned i = 0; i < nonSyncSets.size(); i++) {
     for (unsigned j = 0; j < nonSyncSets[i].size(); j++) {
       if (nonSyncSets[i][j] == tid) return true;  
