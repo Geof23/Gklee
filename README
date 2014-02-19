@@ -22,7 +22,7 @@ www.cs.utah.edu/fv/GKLEE
    -- Create an environment file including the following lines
 
    export FLA_KLEE_HOME_DIR=/Path/To/Gklee
-   export PATH=$FLA_KLEE_HOME_DIR/bin:$FLA_KLEE_HOME_DIR/Gklee/Release+Asserts/bin:$FLA_KLEE_HOME_DIR/llvm-inst/Release+Asserts/bin:$PATH
+   export PATH=$FLA_KLEE_HOME_DIR/bin:$FLA_KLEE_HOME_DIR/Gklee/Release+Asserts/bin:$FLA_KLEE_HOME_DIR/llvm/Release+Asserts/bin:$PATH
 
    NOTE: The above environment variables are present under the "Release" building mode, you should adjust "Release" to "Debug" accordingly
          if you build GKLEE under the "Debug" mode.
