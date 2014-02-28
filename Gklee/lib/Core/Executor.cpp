@@ -745,10 +745,12 @@ Executor::fork(ExecutionState &current, ref<Expr> condition, bool isInternal) {
           if (!isInternal
                && success 
                  && res == Solver::Unknown) {
-            if (current.brMeta == TF)
+            if (current.brMeta == TF) // true-false
               res = Solver::True;
-            else if (current.brMeta == FT)
+            else if (current.brMeta == FT) // false-true
               res = Solver::False;
+            else if (current.brMeta == FF) // false-false
+              res = Solver::True;
             else if (current.brMeta == TFI)
               res = Solver::False; 
             else if (current.brMeta == FTI)
@@ -1739,7 +1741,7 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
         if (bi->hasMetadata()) {
           if (bi->getMetadata("br-true-true"))
             state.brMeta = TT;
-          else if (bi->getMetadata("br-true-false")) 
+          else if (bi->getMetadata("br-true-false"))
             state.brMeta = TF;
           else if (bi->getMetadata("br-false-true"))
             state.brMeta = FT;
@@ -1747,6 +1749,10 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
             state.brMeta = TFI;
           else if (bi->getMetadata("br-false-true-ite"))
             state.brMeta = FTI;
+          else if (bi->getMetadata("br-false-false"))
+            std::cout << "br-false-false" << std::endl;
+          else  
+            std::cout << "other type of meta data" << std::endl;
         }
       }
       Executor::StatePair branches = fork(state, cond, false);
@@ -3197,7 +3203,7 @@ bool Executor::forkNewParametricFlow(ExecutionState &state, KInstruction *ki) {
   ref<Expr> cond = eval(ki, 0, state).value;
   //std::cout << "cond in forkNewSymbolicFlow: " << std::endl;
   //cond->dump();
-  
+
   bool relatedToSym = false;
   bool accum = false;
   bool relatedToBuiltIn = identifyConditionType(state, cond, relatedToSym, accum);
@@ -3219,7 +3225,8 @@ bool Executor::forkNewParametricFlow(ExecutionState &state, KInstruction *ki) {
     pTree.updateCurrentNodeOnNewConfig(config, SYM);
     builtInFork = true;
   } else {
-    if (relatedToBuiltIn) { // Pure TDC ...
+    if (relatedToBuiltIn) { 
+      // Pure TDC ...
       if (state.tinfo.sym_tdc_eval == 0) {
         ParaTree &pTree = state.getCurrentParaTree();
         bool isCondBr = determineBranchType(i);
@@ -3239,6 +3246,7 @@ bool Executor::forkNewParametricFlow(ExecutionState &state, KInstruction *ki) {
         bool result = false;
         bool success = solver->mustBeTrue(state, cond, result);
         ref<Expr> trueExpr = ConstantExpr::create(1, Expr::Bool);
+
         if (success) {
           if (result) { // Only 'True' flow 
             GKLEE_INFO << "'True' path flow feasible !" << std::endl;
@@ -3260,6 +3268,132 @@ bool Executor::forkNewParametricFlow(ExecutionState &state, KInstruction *ki) {
               GKLEE_INFO << "'Else' path flow feasible !" << std::endl;
               ref<Expr> negateExpr = Expr::createIsZero(cond);
               evaluateConstraintAsNewFlow(state, pTree, negateExpr, true);
+            } else { // Only 'False' flow
+              GKLEE_INFO << "'True' path flow infeasible !" << std::endl;
+              GKLEE_INFO << "'Else' path flow feasible !" << std::endl;
+              evaluateConstraintAsNewFlow(state, pTree, trueExpr, false);
+            }
+          }
+        }
+
+        // synchronize PCs when branch or switch instructions are encountered 
+        state.tinfo.synchronizeBranchPCs(curNode);
+        state.tinfo.synchronizeBarrierInfo(curNode);
+        state.synchronizeBranchStacks(curNode);
+        ExecutorUtil::copyBackConstraint(state);
+      } else {
+        state.tinfo.sym_tdc_eval++;
+      }
+      builtInFork = true;
+    } else if (accum) {
+      GKLEE_INFO << "Accumulative condition encountered!" << std::endl;
+      cond->dump();
+      bool isCondBr = determineBranchType(i);
+      llvm::BasicBlock *postDom = state.findNearestCommonPostDominator(postDominator, i, isCondBr); 
+      ParaTree &pTree = state.getCurrentParaTree();
+      ref<Expr> tdcCond = 0;
+      ref<Expr> inheritCond = constructInheritExpr(state, pTree, tdcCond);
+      ParaTreeNode *paraNode = new ParaTreeNode(i, postDom, ACCUM, isCondBr, 
+                                                false, inheritCond, tdcCond);
+      pTree.insertNodeIntoParaTree(paraNode);
+      ParaConfig config(state.tinfo.get_cur_bid(), 
+                        state.tinfo.get_cur_tid(), 
+                        cond, 0, 0);
+      pTree.updateCurrentNodeOnNewConfig(config, ACCUM);
+      builtInFork = true;
+    }
+  }
+
+  return builtInFork; 
+}
+
+bool Executor::forkNewParametricFlowUnderRacePrune(ExecutionState &state, 
+                                                   KInstruction *ki) {
+  Instruction *i = ki->inst;
+  ref<Expr> cond = eval(ki, 0, state).value;
+  //std::cout << "cond in forkNewSymbolicFlow: " << std::endl;
+  //cond->dump();
+
+  bool relatedToSym = false;
+  bool accum = false;
+  bool relatedToBuiltIn = identifyConditionType(state, cond, relatedToSym, accum);
+  bool builtInFork = false;
+ 
+  if (relatedToSym) {
+    // Insert to the Parametric tree
+    bool isCondBr = determineBranchType(i);
+    llvm::BasicBlock *postDom = state.findNearestCommonPostDominator(postDominator, i, isCondBr); 
+    ParaTree &pTree = state.getCurrentParaTree();
+    ref<Expr> tdcCond = 0;
+    ref<Expr> inheritCond = constructInheritExpr(state, pTree, tdcCond);
+    ParaTreeNode *paraNode = new ParaTreeNode(i, postDom, SYM, isCondBr, 
+                                              false, inheritCond, tdcCond);
+    pTree.insertNodeIntoParaTree(paraNode);
+    ParaConfig config(state.tinfo.get_cur_bid(), 
+                      state.tinfo.get_cur_tid(), 
+                      cond, 0, 0);
+    pTree.updateCurrentNodeOnNewConfig(config, SYM);
+    builtInFork = true;
+  } else {
+    if (relatedToBuiltIn) { 
+      // Pure TDC ...
+      if (state.tinfo.sym_tdc_eval == 0) {
+        ParaTree &pTree = state.getCurrentParaTree();
+        bool isCondBr = determineBranchType(i);
+        llvm::BasicBlock *postDom = state.findNearestCommonPostDominator(postDominator, i, isCondBr); 
+        ref<Expr> tdcCond = 0;
+        ref<Expr> inheritCond = constructInheritExpr(state, pTree, tdcCond);
+
+        ParaTreeNode *paraNode = new ParaTreeNode(i, postDom, TDC, isCondBr, 
+                                                  false, inheritCond, tdcCond);
+        pTree.insertNodeIntoParaTree(paraNode);
+        state.tinfo.warpInBranch = true;
+        // update two branches of BDC or TDC
+        ParaTreeNode *curNode = pTree.getCurrentNode();
+        state.paraConstraints = state.constraints;
+        ExecutorUtil::constructSymConfigEncodedConstraint(state);
+        ExecutorUtil::addConfigConstraint(state, tdcCond);
+        bool result = false;
+        bool success = solver->mustBeTrue(state, cond, result);
+        ref<Expr> trueExpr = ConstantExpr::create(1, Expr::Bool);
+
+        if (success) {
+          if (result) { // Only 'True' flow 
+            GKLEE_INFO << "'True' path flow feasible !" << std::endl;
+            state.tinfo.sym_tdc_eval = 1;
+            ParaConfig config(state.tinfo.get_cur_bid(), 
+                              state.tinfo.get_cur_tid(), 
+                              trueExpr, 0, 0);
+            pTree.updateCurrentNodeOnNewConfig(config, TDC);
+            GKLEE_INFO << "'Else' path flow infeasible !" << std::endl;
+          } else {
+            success = solver->mayBeTrue(state, cond, result);
+            if (result) { // Both 'True' and 'False' flows
+              BranchInst *bi = cast<BranchInst>(i);
+              if (bi->hasMetadata()) {
+                if (bi->getMetadata("br-true-false")
+                     || bi->getMetadata("br-false-false")) {
+                  GKLEE_INFO << "'True' path flow feasible in RacePrune mode !" << std::endl;
+                  state.tinfo.sym_tdc_eval = 1;
+                  ParaConfig config(state.tinfo.get_cur_bid(), 
+                                    state.tinfo.get_cur_tid(), 
+                                    trueExpr, 0, 0);
+                  pTree.updateCurrentNodeOnNewConfig(config, TDC);
+                } else if (bi->getMetadata("br-false-true")) {
+                  GKLEE_INFO << "'False' path flow feasible in RacePrune mode !" << std::endl;
+                  evaluateConstraintAsNewFlow(state, pTree, trueExpr, false);
+                } else {
+                  GKLEE_INFO << "'True' path flow feasible !" << std::endl;
+                  state.tinfo.sym_tdc_eval = 1;
+                  ParaConfig config(state.tinfo.get_cur_bid(), 
+                                    state.tinfo.get_cur_tid(), 
+                                    cond, 0, 0);
+                  pTree.updateCurrentNodeOnNewConfig(config, TDC);
+                  GKLEE_INFO << "'Else' path flow feasible !" << std::endl;
+                  ref<Expr> negateExpr = Expr::createIsZero(cond);
+                  evaluateConstraintAsNewFlow(state, pTree, negateExpr, true);
+                } 
+              }
             } else { // Only 'False' flow
               GKLEE_INFO << "'True' path flow infeasible !" << std::endl;
               GKLEE_INFO << "'Else' path flow feasible !" << std::endl;
@@ -3520,8 +3654,12 @@ void Executor::run(ExecutionState &initialState) {
 
     KInstruction *ki = state.getPC();
     if (UseSymbolicConfig && state.tinfo.is_GPU_mode) {
-      if (ExecutorUtil::isForkInstruction(ki->inst))
-        state.tinfo.builtInFork = forkNewParametricFlow(state, ki);
+      if (ExecutorUtil::isForkInstruction(ki->inst)) {
+        if (!RacePrune)
+          state.tinfo.builtInFork = forkNewParametricFlow(state, ki);
+        else 
+          state.tinfo.builtInFork = forkNewParametricFlowUnderRacePrune(state, ki); 
+      }
     }
     stepInstruction(state);
     executeInstruction(state, ki);

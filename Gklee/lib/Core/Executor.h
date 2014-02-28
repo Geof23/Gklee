@@ -546,6 +546,8 @@ private:
 
   bool forkNewParametricFlow(ExecutionState &state, KInstruction *ki);
 
+  bool forkNewParametricFlowUnderRacePrune(ExecutionState &state, KInstruction *ki);
+
   template <typename TypeIt>
   void computeOffsets(KGEPInstruction *kgepi, TypeIt ib, TypeIt ie);
 

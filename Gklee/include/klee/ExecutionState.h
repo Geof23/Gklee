@@ -79,6 +79,7 @@ enum BranchMeta {
   TT, // true-true
   TF, // true-false 
   FT, // false-true
+  FF, // false-false
   TFI, // true-false-ite
   FTI  // false-true-ite
 };
