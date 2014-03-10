@@ -1745,12 +1745,12 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
             state.brMeta = TF;
           else if (bi->getMetadata("br-false-true"))
             state.brMeta = FT;
+          else if (bi->getMetadata("br-false-false"))
+            state.brMeta = FF;
           else if (bi->getMetadata("br-true-false-ite"))
             state.brMeta = TFI;
           else if (bi->getMetadata("br-false-true-ite"))
             state.brMeta = FTI;
-          else if (bi->getMetadata("br-false-false"))
-            std::cout << "br-false-false" << std::endl;
           else  
             std::cout << "other type of meta data" << std::endl;
         }
