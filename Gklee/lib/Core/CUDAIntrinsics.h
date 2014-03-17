@@ -93,3 +93,9 @@ static std::string CUDASync[] = {
   "__syncthreads_and",
   "__syncthreads_or"
 };
+
+static std::string CUDAMemfence[] = {
+  "__thread_fence",
+  "__threadfence_block",
+  "__threadfence_system"
+};
