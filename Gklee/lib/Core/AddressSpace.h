@@ -536,14 +536,14 @@ namespace klee {
 			      unsigned b_t_index = 0);
 
     // add an element to the write set
-    void addWrite(bool is_GPU_mode, const MemoryObject *mo, ref<Expr> &offset, 
+    void addWrite(const MemoryObject *mo, ref<Expr> &offset, 
                   ref<Expr> &val, Expr::Width width, 
                   unsigned bid, unsigned tid, 
                   llvm::Instruction *instr, unsigned seqNum,
                   bool isAtomic, unsigned b_t_index = 0, 
                   ref<Expr> accessExpr = NULL);
     // add an element to the read set
-    void addRead(bool is_GPU_mode, const MemoryObject *mo, ref<Expr> &offset, 
+    void addRead(const MemoryObject *mo, ref<Expr> &offset, 
                  ref<Expr> &val, Expr::Width width, unsigned bid, unsigned tid, 
                  llvm::Instruction *instr, unsigned seqNum,
                  bool isAtomic, unsigned b_t_index = 0, 

@@ -2916,17 +2916,20 @@ void Executor::executeCall(ExecutionState &state,
         // make a function believe that all varargs are on stack.
         executeMemoryOperation(state, true, arguments[0],
                                ConstantExpr::create(48, 32), 0); // gp_offset
-        executeMemoryOperation(state, true,
-                               AddExpr::create(arguments[0], 
-                                               ConstantExpr::create(4, 64)),
+        ref<Expr> addr1 = AddExpr::create(arguments[0], 
+                                          ConstantExpr::create(4, 64));
+        addr1->ctype = arguments[0]->ctype; 
+        executeMemoryOperation(state, true, addr1,
                                ConstantExpr::create(304, 32), 0); // fp_offset
-        executeMemoryOperation(state, true,
-                               AddExpr::create(arguments[0], 
-                                               ConstantExpr::create(8, 64)),
+        ref<Expr> addr2 = AddExpr::create(arguments[0], 
+                                          ConstantExpr::create(8, 64));
+        addr2->ctype = arguments[0]->ctype; 
+        executeMemoryOperation(state, true, addr2,
                                sf.varargs->getBaseExpr(), 0); // overflow_arg_area
-        executeMemoryOperation(state, true,
-                               AddExpr::create(arguments[0],
-                                               ConstantExpr::create(16, 64)),
+        ref<Expr> addr3 = AddExpr::create(arguments[0], 
+                                          ConstantExpr::create(16, 64));
+        addr3->ctype = arguments[0]->ctype; 
+        executeMemoryOperation(state, true, addr3, 
                                ConstantExpr::create(0, 64), 0); // reg_save_area
       }
       break;
@@ -2951,7 +2954,6 @@ void Executor::executeCall(ExecutionState &state,
       // klee_error("unknown intrinsic: %s", f->getName().data());
     }
 
-    // By Guodong: the following will cause problems for multi-threaded programs
     if (!state.tinfo.is_GPU_mode) {
       if (InvokeInst *ii = dyn_cast<InvokeInst>(ki->inst))
         transferToBasicBlock(ii->getNormalDest(), ki->inst->getParent(), state);
@@ -3377,19 +3379,20 @@ bool Executor::forkNewParametricFlowUnderRacePrune(ExecutionState &state,
                   state.tinfo.sym_tdc_eval = 1;
                   ParaConfig config(state.tinfo.get_cur_bid(), 
                                     state.tinfo.get_cur_tid(), 
-                                    trueExpr, 0, 0);
+                                    cond, 0, 0);
                   pTree.updateCurrentNodeOnNewConfig(config, TDC);
                 } else if (bi->getMetadata("br-false-true")) {
                   GKLEE_INFO << "'False' path flow feasible in RacePrune mode !" << std::endl;
-                  evaluateConstraintAsNewFlow(state, pTree, trueExpr, false);
+                  ref<Expr> negateExpr = Expr::createIsZero(cond);
+                  evaluateConstraintAsNewFlow(state, pTree, negateExpr, false);
                 } else {
-                  GKLEE_INFO << "'True' path flow feasible !" << std::endl;
+                  GKLEE_INFO << "'True' path flow feasible in RacePrune mode!" << std::endl;
                   state.tinfo.sym_tdc_eval = 1;
                   ParaConfig config(state.tinfo.get_cur_bid(), 
                                     state.tinfo.get_cur_tid(), 
                                     cond, 0, 0);
                   pTree.updateCurrentNodeOnNewConfig(config, TDC);
-                  GKLEE_INFO << "'Else' path flow feasible !" << std::endl;
+                  GKLEE_INFO << "'Else' path flow feasible in RacePrune mode!" << std::endl;
                   ref<Expr> negateExpr = Expr::createIsZero(cond);
                   evaluateConstraintAsNewFlow(state, pTree, negateExpr, true);
                 } 

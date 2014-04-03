@@ -1966,14 +1966,13 @@ ObjectState* HierAddressSpace::getWriteable(const MemoryObject *mo,
   return getAddressSpace(mo->ctype, b_t_index).getWriteable(mo, os);
 }
 
-void HierAddressSpace::addWrite(bool is_GPU_mode, const MemoryObject *mo, 
+void HierAddressSpace::addWrite(const MemoryObject *mo, 
                                 ref<Expr> &offset, ref<Expr> &val, 
                                 Expr::Width width, 
                                 unsigned bid, unsigned tid, 
                                 llvm::Instruction *instr, unsigned seqNum, 
                                 bool isAtomic, unsigned b_t_index, 
                                 ref<Expr> accessExpr) {
-  if (!is_GPU_mode) return;
   if (mo->ctype != GPUConfig::LOCAL) {
     if (!mo->is_builtin) {
       getAddressSpace(mo->ctype, b_t_index).writeSet.
@@ -1984,12 +1983,11 @@ void HierAddressSpace::addWrite(bool is_GPU_mode, const MemoryObject *mo,
   }
 }
 
-void HierAddressSpace::addRead(bool is_GPU_mode, const MemoryObject* mo, 
+void HierAddressSpace::addRead(const MemoryObject* mo, 
                                ref<Expr> &offset, ref<Expr> &val, 
                                Expr::Width width, unsigned bid, unsigned tid, 
                                llvm::Instruction *instr, unsigned seqNum, 
                                bool isAtomic, unsigned b_t_index, ref<Expr> accessExpr) {
-  if (!is_GPU_mode) return;
   if (mo->ctype != GPUConfig::LOCAL) {
     if (!mo->is_builtin) {
       getAddressSpace(mo->ctype, b_t_index).readSet.

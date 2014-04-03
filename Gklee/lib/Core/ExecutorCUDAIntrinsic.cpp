@@ -430,6 +430,7 @@ static void handleSpecialFloatValue(Executor &executor, ExecutionState &state,
                                     KInstruction *target, std::string fName, 
                                     std::vector< ref<Expr> > &arguments, 
                                     bool &special) {
+  std::cout << "handleSpecialFloatValue" << std::endl;
   ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], 
                                                          "__{sin,cos,rcp,sqrt}_ floating point");
   if (!fpWidthToSemantics(va->getWidth()))
@@ -1539,23 +1540,30 @@ void Executor::executeCUDAIntrinsics(ExecutionState &state, KInstruction *target
   std::string fName = f->getName().str();
 
   // Some functions in host code are also able to reuse those functions
-  //if (state.tinfo.is_GPU_mode) {
-  if (executeCUDAArithmetic(*this, state, target, f, arguments))
-    return;
+  if (state.tinfo.is_GPU_mode) {
+    if (executeCUDAArithmetic(*this, state, target, f, arguments))
+      return;
 
-  if (executeCUDAConversion(*this, state, target, f, arguments))
-    return;
+    if (executeCUDAConversion(*this, state, target, f, arguments))
+      return;
 
-  if (executeCUDAAtomic(state, target, fName, arguments, seqNum))
-    return;
+    if (executeCUDAAtomic(state, target, fName, arguments, seqNum))
+      return;
 
-  for (unsigned i = 0; i < NELEMS(CUDASync); i++) {
-    if (fName.find(CUDASync[i]) != std::string::npos) {
-      handleBarrier(state, target);
-      return; 
+    for (unsigned i = 0; i < NELEMS(CUDAMemfence); i++) {
+      if (fName.find(CUDAMemfence[i]) != std::string::npos) {
+        // No need to write function body for thread_fence intrinsics
+        return; 
+      }
+    }
+   
+    for (unsigned i = 0; i < NELEMS(CUDASync); i++) {
+      if (fName.find(CUDASync[i]) != std::string::npos) {
+        handleBarrier(state, target);
+        return; 
+      }
     }
   }
-  //}
 
   callExternalFunction(state, target, f, arguments);
 }

@@ -201,8 +201,6 @@ void ExecutionState::setCorrespondTidSets() {
 
   constructMemoryAccessSets(addressSpace, true);
   unsigned num_threads = tinfo.get_num_threads();
-  if (UseSymbolicConfig)
-    num_threads *= 2; // ensure sufficient slots
 
   for (unsigned i = 0; i < num_threads; i++, rTid++) {
     unsigned bid = i/GPUConfig::block_size;
@@ -931,7 +929,8 @@ BasicBlock *ExecutionState::findNearestCommonPostDominator(llvm::PostDominatorTr
   return postDomBB;
 }
 
-static bool allThreadsExploreTheSameSide(BranchDivRegionSet &branchDivRegionSet, unsigned sTid, unsigned eTid) {
+static bool allThreadsExploreTheSameSide(BranchDivRegionSet &branchDivRegionSet, 
+                                         unsigned sTid, unsigned eTid) {
   std::vector< std::vector<unsigned> > &nonSyncSets = branchDivRegionSet.nonSyncSets;
   unsigned num = 0; 
   unsigned which = 0;

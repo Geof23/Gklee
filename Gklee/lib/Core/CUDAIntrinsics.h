@@ -95,7 +95,7 @@ static std::string CUDASync[] = {
 };
 
 static std::string CUDAMemfence[] = {
-  "__thread_fence",
+  "__threadfence",
   "__threadfence_block",
   "__threadfence_system"
 };
