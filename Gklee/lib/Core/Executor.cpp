@@ -1751,8 +1751,8 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
             state.brMeta = TFI;
           else if (bi->getMetadata("br-false-true-ite"))
             state.brMeta = FTI;
-          else  
-            std::cout << "other type of meta data" << std::endl;
+          //else  
+            //std::cout << "other type of meta data" << std::endl;
         }
       }
       Executor::StatePair branches = fork(state, cond, false);

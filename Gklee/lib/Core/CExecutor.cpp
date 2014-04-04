@@ -243,8 +243,6 @@ void Executor::handleBuiltInVariablesAsSymbolic(ExecutionState &state, MemoryObj
     state.tinfo.thread_id_mo = mo;
     builtInSet.insert(vname);
 
-    cout << "GPUConfig::sym_num_threads: " 
-         << GPUConfig::sym_num_threads << endl;
     for (unsigned i = 0; i < GPUConfig::sym_num_threads; i++) {
       std::string tidName = "tid_arr_k" + llvm::utostr(state.kernelNum) + "_" + llvm::utostr(i);
       const Array *threadArray = new Array(tidName, mo->size);
@@ -261,8 +259,6 @@ void Executor::handleBuiltInVariablesAsSymbolic(ExecutionState &state, MemoryObj
     state.tinfo.block_id_mo = mo;
     builtInSet.insert(vname);
 
-    cout << "GPUConfig::sym_num_blocks: " 
-         << GPUConfig::sym_num_blocks << endl;
     for (unsigned i = 0; i < GPUConfig::sym_num_blocks; i++) {
       std::string bidName = "bid_arr_k" + llvm::utostr(state.kernelNum) + "_" + llvm::utostr(i);
       const Array *blockArray = new Array(bidName, mo->size);
