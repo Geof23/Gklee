@@ -505,7 +505,8 @@ static bool checkWWRace(Executor &executor, ExecutionState &state,
           } else {
             // If the written values are same, 'benign' race conditions...
 	    GKLEE_INFO2 << "Within a warp, threads " << tid2 << " and " << tid1
-	  	        << " incur a Write-Write race with the same value (Benign) on " << std::endl;
+	  	        << " incur a Write-Write race with the same value (Benign) on " 
+                        << std::endl;
             benign = true;
           }
 	  ii->dump(executor, state, raceCond);
@@ -580,6 +581,30 @@ static bool checkRWRace(Executor &executor, ExecutionState &state,
   return false;
 }
 
+static bool fenceRelation(const MemoryAccess &access1, 
+                          const MemoryAccess &access2, 
+                          bool withinBlock) {
+  if (access1.fence == access2.fence) {
+    return true; 
+  } else {
+    if (access1.fence == "" || access2.fence == "") {
+      if (withinBlock) {
+        return false;
+      } else {
+        bool judge1 = access1.fence == "" 
+                       && access2.fence != "__threadfence_block";
+        bool judge2 = access2.fence == "" 
+                       && access1.fence != "__threadfence_block";
+        if (judge1 || judge2)
+          return false;
+        else 
+          return true; 
+      }
+    } else 
+      return true; 
+  }
+}
+
 static bool checkWWRacePureCS(Executor &executor, ExecutionState &state, 
                               MemoryAccessVec &vec1, MemoryAccessVec &vec2, 
                               bool withinBlock, ref<Expr> &raceCond, 
@@ -604,7 +629,8 @@ static bool checkWWRacePureCS(Executor &executor, ExecutionState &state,
                && accessSameMemoryRegion(executor, state, base1, base2)
                 && checkConflictExprs(executor, state, raceCond, queryNum, 
                                       offset1, width1, offset2, width2)
-                  && ii->val != jj->val) {
+                  && ii->val != jj->val
+                    && fenceRelation(*ii, *jj, withinBlock)) {
  	    if (Emacs) AddressSpace::dumpEmacsInfoVect(ii->bid, jj->bid, tid1, tid2, 
 	    			                       ii->instr, jj->instr, "ww");
             GKLEE_INFO2 << "Under the pure canonical schedule, within the same block, "
@@ -654,7 +680,7 @@ static bool checkWWRacePureCS(Executor &executor, ExecutionState &state,
 
 static bool checkRWRacePureCS(Executor &executor, ExecutionState &state, 
                               MemoryAccessVec &vec1, MemoryAccessVec &vec2, 
-                              ref<Expr> &raceCond, unsigned &queryNum) {
+                              bool withinBlock, ref<Expr> &raceCond, unsigned &queryNum) {
   // check the Read-Write conflict first 
   for (MemoryAccessVec::iterator ii = vec1.begin(); ii != vec1.end(); ii++) {
     ref<Expr> base1 = ii->mo->getBaseExpr();
@@ -672,7 +698,8 @@ static bool checkRWRacePureCS(Executor &executor, ExecutionState &state,
         if (!isBothAtomic(*ii, *jj)
              && accessSameMemoryRegion(executor, state, base1, base2) 
               && checkConflictExprs(executor, state, raceCond, queryNum, 
-                                    offset1, width1, offset2, width2)) {
+                                    offset1, width1, offset2, width2)
+                && fenceRelation(*ii, *jj, withinBlock)) {
           GKLEE_INFO2 << "Threads " << tid1 << " and " << tid2
                       << " incur a Write-Read race (Actual) on ";
           ii->dump(executor, state, raceCond);
@@ -964,7 +991,7 @@ bool AddressSpace::hasRaceInGlobalWithinSameBlockPureCS(Executor &executor, Exec
         break;
       }
       if (checkRWRacePureCS(executor, state, MemAccessSetsPureCS[i][size-1].readSet, 
-                            MemAccessSetsPureCS[i][size-1].writeSet, cond, queryNum)) {
+                            MemAccessSetsPureCS[i][size-1].writeSet, true, cond, queryNum)) {
         GKLEE_INFO << "Under pure canonical schedule, a read-write race is found from BI "
                    << BINum << " of the block " << i << std::endl; 
         hasRace = true;
@@ -996,14 +1023,14 @@ bool AddressSpace::hasRaceInGlobalAcrossBlocksPureCS(Executor &executor, Executi
             hasRace = true;
           }
           if (checkRWRacePureCS(executor, state, (*ii)[i].readSet,
-                                (*jj)[j].writeSet, cond, num)) {
+                                (*jj)[j].writeSet, false, cond, num)) {
             GKLEE_INFO << "One thread at BI " << (*ii)[i].biNum << " of Block "
                       << (*ii)[i].bid << " incurs a read-write race with the thread at BI "
                       << (*jj)[j].biNum << " of Block " << (*jj)[j].bid << std::endl;
             hasRace = true;
           }
           if (checkRWRacePureCS(executor, state, (*ii)[i].writeSet,
-                                (*jj)[j].readSet, cond, num)) {
+                                (*jj)[j].readSet, false, cond, num)) {
             GKLEE_INFO << "One thread at BI " << (*ii)[i].biNum << " of Block "
                       << (*ii)[i].bid << " incurs a write-read race with the thread at BI "
                       << (*jj)[j].biNum << " of Block " << (*jj)[j].bid << std::endl;
@@ -1323,7 +1350,7 @@ bool AddressSpace::hasRaceInSharePureCS(Executor &executor, ExecutionState &stat
   bool wwRace = false;
   bool rwRace = false;
   // check the Read-Write conflict first 
-  wwRace = checkRWRacePureCS(executor, state, writeSet, readSet, raceCond, queryNum);
+  wwRace = checkRWRacePureCS(executor, state, writeSet, readSet, true, raceCond, queryNum);
   // check the Write-Write conflict then
   rwRace = checkWWRacePureCS(executor, state, writeSet, writeSet, true, raceCond, queryNum);
 
@@ -1971,14 +1998,16 @@ void HierAddressSpace::addWrite(const MemoryObject *mo,
                                 Expr::Width width, 
                                 unsigned bid, unsigned tid, 
                                 llvm::Instruction *instr, unsigned seqNum, 
-                                bool isAtomic, unsigned b_t_index, 
+                                bool isAtomic, std::string fence, 
+                                unsigned b_t_index, 
                                 ref<Expr> accessExpr) {
   if (mo->ctype != GPUConfig::LOCAL) {
     if (!mo->is_builtin) {
       getAddressSpace(mo->ctype, b_t_index).writeSet.
         push_back(MemoryAccess(mo, offset, width, bid, tid, 
-                               instr, seqNum, isAtomic, 
-                               true, accessExpr, val));
+                               instr, seqNum, fence, 
+                               isAtomic, true, 
+                               accessExpr, val));
     }
   }
 }
@@ -1987,13 +2016,15 @@ void HierAddressSpace::addRead(const MemoryObject* mo,
                                ref<Expr> &offset, ref<Expr> &val, 
                                Expr::Width width, unsigned bid, unsigned tid, 
                                llvm::Instruction *instr, unsigned seqNum, 
-                               bool isAtomic, unsigned b_t_index, ref<Expr> accessExpr) {
+                               bool isAtomic, std::string fence, 
+                               unsigned b_t_index, ref<Expr> accessExpr) {
   if (mo->ctype != GPUConfig::LOCAL) {
     if (!mo->is_builtin) {
       getAddressSpace(mo->ctype, b_t_index).readSet.
         push_back(MemoryAccess(mo, offset, width, bid, tid, 
-                               instr, seqNum, isAtomic, 
-                               false, accessExpr, val));
+                               instr, seqNum, fence, 
+                               isAtomic, false, 
+                               accessExpr, val));
     }
   }
 }

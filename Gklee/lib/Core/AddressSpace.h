@@ -47,11 +47,12 @@ namespace klee {
     const MemoryObject* mo;
     ref<Expr> offset;
     Expr::Width width;
-    unsigned bid;          // block id
-    unsigned tid;          // thread id
+    unsigned bid;             // block id
+    unsigned tid;             // thread id
     llvm::Instruction *instr; // the location where this memory access occurs
     unsigned instSeqNum;
-    bool isAtomic;
+    std::string fence;        // memory operation after memory fence if true
+    bool isAtomic;            // atomic memory operation ?
     bool is_write;
     ref<Expr> accessCondExpr; // the path condition corresponding 
                               // to this memory access
@@ -60,12 +61,16 @@ namespace klee {
     explicit MemoryAccess(const MemoryObject* _mo, ref<Expr> _offset, 
 			  Expr::Width _width, unsigned _bid, unsigned _tid, 
 			  llvm::Instruction *_instr, unsigned _instSeqNum,
+                          std::string  _fence,
 			  bool _isAtomic = false, 
 			  bool _is_write = false, 
 			  ref<Expr> _accessCondExpr = NULL, 
 			  ref<Expr> _val = NULL) :
-      offset(_offset), width(_width), bid(_bid), tid(_tid), instr(_instr), 
-      instSeqNum(_instSeqNum), isAtomic(_isAtomic), 
+      offset(_offset), width(_width), 
+      bid(_bid), tid(_tid), instr(_instr), 
+      instSeqNum(_instSeqNum), 
+      fence(_fence), 
+      isAtomic(_isAtomic), 
       is_write(_is_write),
       accessCondExpr(_accessCondExpr), 
       val(_val) {
@@ -76,6 +81,7 @@ namespace klee {
                                            bid(ma.bid), tid(ma.tid), 
                                            instr(ma.instr),
                                            instSeqNum(ma.instSeqNum),
+                                           fence(ma.fence),
                                            isAtomic(ma.isAtomic),
                                            is_write(ma.is_write), 
                                            accessCondExpr(ma.accessCondExpr), 
@@ -540,13 +546,15 @@ namespace klee {
                   ref<Expr> &val, Expr::Width width, 
                   unsigned bid, unsigned tid, 
                   llvm::Instruction *instr, unsigned seqNum,
-                  bool isAtomic, unsigned b_t_index = 0, 
+                  bool isAtomic, std::string fence,
+                  unsigned b_t_index = 0, 
                   ref<Expr> accessExpr = NULL);
     // add an element to the read set
     void addRead(const MemoryObject *mo, ref<Expr> &offset, 
                  ref<Expr> &val, Expr::Width width, unsigned bid, unsigned tid, 
                  llvm::Instruction *instr, unsigned seqNum,
-                 bool isAtomic, unsigned b_t_index = 0, 
+                 bool isAtomic, std::string fence, 
+                 unsigned b_t_index = 0, 
                  ref<Expr> accessExpr = NULL);
 
     // insert instruction

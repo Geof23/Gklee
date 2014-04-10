@@ -90,6 +90,7 @@ StackFrame::~StackFrame() {
 ExecutionState::ExecutionState(KFunction *kf) 
   : deviceSet(0),
     fakeState(false),
+    fence(""),
     underConstrained(false),
     depth(0),
     brMeta(NA),
@@ -110,6 +111,7 @@ ExecutionState::ExecutionState(KFunction *kf)
 ExecutionState::ExecutionState(const std::vector<ref<Expr> > &assumptions) 
   : deviceSet(0),
     fakeState(true),
+    fence(""),
     underConstrained(false),
     constraints(assumptions),
     queryCost(0.),

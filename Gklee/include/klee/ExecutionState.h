@@ -99,6 +99,7 @@ public:
   bool textureSet;
   int deviceSet;
   bool fakeState;
+  std::string fence;
   // Are we currently underconstrained?  Hack: value is size to make fake
   // objects.
   unsigned underConstrained;

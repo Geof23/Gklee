@@ -600,6 +600,9 @@ public:
   void handleBarrier(ExecutionState &state, 
                      KInstruction *target); 
 
+  void handleMemfence(ExecutionState &state, 
+                      KInstruction *target); 
+
   void handleEndGPU(ExecutionState &state, 
                     KInstruction *target);
 

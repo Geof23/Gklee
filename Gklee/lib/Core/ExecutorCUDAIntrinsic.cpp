@@ -101,6 +101,7 @@ void Executor::encounterBarrier(ExecutionState &state,
   barrierVec.push_back(BarrierInfo(target->inst, target->info->file, target->info->line));
   state.tinfo.numBars[tid].second = is_end_GPU_barrier;
   state.encounterSyncthreadsBarrier(tid);
+  if (state.fence != "") state.fence = ""; 
 
   if (!UseSymbolicConfig)
     allThreadsBarrier = SimdSchedule ? state.allThreadsEncounterBarrier() : state.tinfo.at_last_tid();
@@ -108,11 +109,10 @@ void Executor::encounterBarrier(ExecutionState &state,
     allThreadsBarrier = state.allSymbolicThreadsEncounterBarrier();
 
   if (allThreadsBarrier) {
-    // All threads encounter the __syncthreads()
     unsigned BINum = state.tinfo.numBars[tid].first.size();
+
     // if all threads in the last warp encounter __syncthreads(),
     // then start checking races, bc, wd, mc... 
-
     if (!UseSymbolicConfig) {
       state.addressSpace.ensureThreadsDivergenceRegion(state.cTidSets);
       state.addressSpace.constructGlobalMemAccessSets(*this, state, state.cTidSets, BINum);
@@ -246,6 +246,17 @@ void Executor::handleBarrier(ExecutionState &state,
 	   		     KInstruction *target) {
   bool allThreadsBarrier = false;
   encounterBarrier(state, target, false, allThreadsBarrier);
+}
+
+void Executor::handleMemfence(ExecutionState &state, 
+                              KInstruction *target) {
+  std::string fName = target->inst->getName();
+  if (fName.find("__threadfence_block") != std::string::npos)
+    state.fence = "__threadfence_block";
+  else if (fName.find("__threadfence_system") != std::string::npos)
+    state.fence = "__threadfence_system";
+  else 
+    state.fence = "__threadfence";
 }
 
 void Executor::handleEndGPU(ExecutionState &state,
@@ -1553,6 +1564,7 @@ void Executor::executeCUDAIntrinsics(ExecutionState &state, KInstruction *target
     for (unsigned i = 0; i < NELEMS(CUDAMemfence); i++) {
       if (fName.find(CUDAMemfence[i]) != std::string::npos) {
         // No need to write function body for thread_fence intrinsics
+        handleMemfence(state, target);
         return; 
       }
     }

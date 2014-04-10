@@ -948,6 +948,30 @@ bool AddressSpace::hasSymVolatileMissing(Executor &executor, ExecutionState &sta
   return volatilemiss;
 }
 
+static bool fenceRelation(const MemoryAccess &access1, 
+                          const MemoryAccess &access2, 
+                          bool withinBlock) {
+  if (access1.fence == access2.fence) {
+    return true; 
+  } else {
+    if (access1.fence == "" || access2.fence == "") {
+      if (withinBlock) {
+        return false;
+      } else {
+        bool judge1 = access1.fence == "" 
+                       && access2.fence != "__threadfence_block";
+        bool judge2 = access2.fence == "" 
+                       && access1.fence != "__threadfence_block";
+        if (judge1 || judge2)
+          return false;
+        else 
+          return true; 
+      }
+    } else 
+      return true; 
+  }
+}
+
 static bool dumpSymRace(Executor &executor, ExecutionState &state, 
                         ref<Expr> &conflictExpr, bool benign, 
                         MemoryAccess &access1, MemoryAccess &access2, 
@@ -993,14 +1017,14 @@ static bool dumpSymRace(Executor &executor, ExecutionState &state,
     }
 
     GKLEE_INFO << "Thread 1 : { <" << symBlockIDs[0].x << ", " 
-              << symBlockIDs[0].y << ", " << symBlockIDs[0].z << ">" 
-              << ", <" << symThreadIDs[0].x << ", " << symThreadIDs[0].y 
-              << ", " << symThreadIDs[0].z
-              << "> }" << " and Thread 2 : { <" << symBlockIDs[1].x << ", " 
-              << symBlockIDs[1].y << ", " << symBlockIDs[1].z << ">" 
-              << ", <" << symThreadIDs[1].x
-              << ", " << symThreadIDs[1].y << ", " << symThreadIDs[1].z
-              << "> } " << tmp << std::endl;
+               << symBlockIDs[0].y << ", " << symBlockIDs[0].z << ">" 
+               << ", <" << symThreadIDs[0].x << ", " << symThreadIDs[0].y 
+               << ", " << symThreadIDs[0].z
+               << "> }" << " and Thread 2 : { <" << symBlockIDs[1].x << ", " 
+               << symBlockIDs[1].y << ", " << symBlockIDs[1].z << ">" 
+               << ", <" << symThreadIDs[1].x
+               << ", " << symThreadIDs[1].y << ", " << symThreadIDs[1].z
+               << "> } " << tmp << std::endl;
     if (UnboundConfig)
       GKLEE_INFO << " with BlockDim {" << symBlockDim.x << ", " << symBlockDim.y
                 << ", " << symBlockDim.z << "}" << std::endl;
@@ -1234,16 +1258,17 @@ static bool checkSymTwoAccessRacePureCS(Executor &executor, ExecutionState &stat
     ref<Expr> typeExpr;
     ref<Expr> sameBlockExpr = AddressSpaceUtil::constructSameBlockExpr(state, Expr::Int32);
     ref<Expr> sameTidExpr = AddressSpaceUtil::constructSameThreadExpr(state, Expr::Int32);
+    bool fence = false;
     if (type == 0) { // Same block ...
       typeExpr = AndExpr::create(sameBlockExpr, Expr::createIsZero(sameTidExpr));
+      fence = fenceRelation(access1, access2, true);
     } else { // Different block ...
       typeExpr = Expr::createIsZero(sameBlockExpr);
+      fence = fenceRelation(access1, access2, false);
     } 
-    //GKLEE_INFO << "threadExpr: " << std::endl;
-    //typeExpr->dump();
     bool configFulfilled = isCurrentConfigFulfilled(executor, state, configExpr, typeExpr); 
 
-    if (configFulfilled) {
+    if (configFulfilled && fence) {
       bool result = false;
       ExecutorUtil::addConfigConstraint(state, typeExpr);
 
@@ -1270,36 +1295,6 @@ static bool checkSymTwoAccessRacePureCS(Executor &executor, ExecutionState &stat
   return hasRace;
 }
 
-static bool checkSymTwoAccessIncurAccumVar(Executor &executor, ExecutionState &state, 
-                                           MemoryAccess &access1, MemoryAccess &access2) {
-  bool hasAccum = false;
-
-  ref<Expr> baseAddr1 = access1.mo->getBaseExpr();
-  ref<Expr> baseAddr2 = access2.mo->getBaseExpr();
-
-  if (accessSameMemoryRegion(executor, state, baseAddr1, baseAddr2)) {
-    ref<Expr> configExpr = AndExpr::create(access1.accessCondExpr, access2.accessCondExpr);
-    ref<Expr> sameBlockExpr = AddressSpaceUtil::constructSameBlockExpr(state, Expr::Int32);
-    ref<Expr> sameTidExpr = AddressSpaceUtil::constructSameThreadExpr(state, Expr::Int32);
-    ref<Expr> typeExpr = AndExpr::create(sameBlockExpr, Expr::createIsZero(sameTidExpr));
-    bool configFulfilled = isCurrentConfigFulfilled(executor, state, configExpr, typeExpr); 
-
-    if (configFulfilled) {
-      ExecutorUtil::addConfigConstraint(state, typeExpr);
-      ref<Expr> conflictExpr = symCheckConflictExprs(access1.offset, access1.width, 
-                                                     access2.offset, access2.width);
-      bool result = false;
-      bool success = executor.solver->mustBeFalse(state, conflictExpr, result); 
-      if (success) {
-        hasAccum = !result;
-      }
-    }
-  }
-
-  ExecutorUtil::copyBackConstraint(state);
-  return hasAccum;
-}
-                                           
 static bool checkRWRacePureCS(Executor &executor, ExecutionState &state, 
                               MemoryAccessVec &readSet, MemoryAccessVec &writeSet) {
   bool hasRace = false;

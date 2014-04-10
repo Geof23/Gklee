@@ -932,7 +932,7 @@ void Executor::executeMemoryOperation(ExecutionState &state,
 	  	    		          state.tinfo.get_cur_bid(), 
                                           state.tinfo.get_cur_tid(),
                                           target->inst, seqNum, isAtomic, 
-                                          b_t_index);
+                                          state.fence, b_t_index);
             }
           } else {
             if (state.tinfo.is_GPU_mode) {
@@ -941,6 +941,7 @@ void Executor::executeMemoryOperation(ExecutionState &state,
 	  	  		          state.tinfo.get_cur_bid(), 
                                           state.tinfo.get_cur_tid(),
                                           target->inst, seqNum, isAtomic, 
+                                          state.fence, 
                                           b_t_index, accessExpr);
             }
           }
@@ -954,7 +955,8 @@ void Executor::executeMemoryOperation(ExecutionState &state,
   	    state.addressSpace.addRead(mo, offset, result, type,
 	  			       state.tinfo.get_cur_bid(), 
                                        state.tinfo.get_cur_tid(), 
-                                       target->inst, seqNum, isAtomic, b_t_index);
+                                       target->inst, seqNum, isAtomic, 
+                                       state.fence, b_t_index);
           }
         } else {
           if (state.tinfo.is_GPU_mode) {
@@ -963,6 +965,7 @@ void Executor::executeMemoryOperation(ExecutionState &state,
 	    			       state.tinfo.get_cur_bid(), 
                                        state.tinfo.get_cur_tid(), 
                                        target->inst, seqNum, isAtomic, 
+                                       state.fence,
                                        b_t_index, accessExpr);
           }
         }
