@@ -21,26 +21,65 @@
 
 #include <thrust/fill.h>
 #include <thrust/iterator/iterator_traits.h>
-#include <thrust/detail/backend/fill.h>
+#include <thrust/system/detail/generic/select_system.h>
+#include <thrust/system/detail/generic/fill.h>
+#include <thrust/system/detail/adl/fill.h>
 
 namespace thrust
 {
+
+
+template<typename DerivedPolicy, typename ForwardIterator, typename T>
+  void fill(const thrust::detail::execution_policy_base<DerivedPolicy> &exec,
+            ForwardIterator first,
+            ForwardIterator last,
+            const T &value)
+{
+  using thrust::system::detail::generic::fill;
+  return fill(thrust::detail::derived_cast(thrust::detail::strip_const(exec)), first, last, value);
+} // end fill()
+
+
+template<typename DerivedPolicy, typename OutputIterator, typename Size, typename T>
+  OutputIterator fill_n(const thrust::detail::execution_policy_base<DerivedPolicy> &exec,
+                        OutputIterator first,
+                        Size n,
+                        const T &value)
+{
+  using thrust::system::detail::generic::fill_n;
+  return fill_n(thrust::detail::derived_cast(thrust::detail::strip_const(exec)), first, n, value);
+} // end fill_n()
+
 
 template<typename ForwardIterator, typename T>
   void fill(ForwardIterator first,
             ForwardIterator last,
             const T &value)
 {
-  thrust::detail::backend::fill(first, last, value);
+  using thrust::system::detail::generic::select_system;
+
+  typedef typename thrust::iterator_system<ForwardIterator>::type System;
+
+  System system;
+
+  thrust::fill(select_system(system), first, last, value);
 } // end fill()
+
 
 template<typename OutputIterator, typename Size, typename T>
   OutputIterator fill_n(OutputIterator first,
                         Size n,
                         const T &value)
 {
-  return thrust::detail::backend::fill_n(first, n, value);
+  using thrust::system::detail::generic::select_system;
+
+  typedef typename thrust::iterator_system<OutputIterator>::type System;
+
+  System system;
+
+  return thrust::fill_n(select_system(system), first, n, value);
 } // end fill()
+
 
 } // end namespace thrust
 

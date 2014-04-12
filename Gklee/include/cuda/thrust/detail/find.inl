@@ -19,19 +19,61 @@
  *  \brief Inline file for find.h
  */
 
-#include <thrust/detail/backend/find.h>
-#include <thrust/detail/internal_functional.h>
+#include <thrust/detail/config.h>
 #include <thrust/iterator/iterator_traits.h>
+#include <thrust/system/detail/generic/select_system.h>
+#include <thrust/system/detail/generic/find.h>
+#include <thrust/system/detail/adl/find.h>
 
 namespace thrust
 {
+
+
+template<typename DerivedPolicy, typename InputIterator, typename T>
+InputIterator find(const thrust::detail::execution_policy_base<DerivedPolicy> &exec,
+                   InputIterator first,
+                   InputIterator last,
+                   const T& value)
+{
+  using thrust::system::detail::generic::find;
+  return find(thrust::detail::derived_cast(thrust::detail::strip_const(exec)), first, last, value);
+} // end find()
+
+
+template<typename DerivedPolicy, typename InputIterator, typename Predicate>
+InputIterator find_if(const thrust::detail::execution_policy_base<DerivedPolicy> &exec,
+                      InputIterator first,
+                      InputIterator last,
+                      Predicate pred)
+{
+  using thrust::system::detail::generic::find_if;
+  return find_if(thrust::detail::derived_cast(thrust::detail::strip_const(exec)), first, last, pred);
+} // end find_if()
+
+
+template<typename DerivedPolicy, typename InputIterator, typename Predicate>
+InputIterator find_if_not(const thrust::detail::execution_policy_base<DerivedPolicy> &exec,
+                          InputIterator first,
+                          InputIterator last,
+                          Predicate pred)
+{
+  using thrust::system::detail::generic::find_if_not;
+  return find_if_not(thrust::detail::derived_cast(thrust::detail::strip_const(exec)), first, last, pred);
+} // end find_if_not()
+
 
 template <typename InputIterator, typename T>
 InputIterator find(InputIterator first,
                    InputIterator last,
                    const T& value)
 {
-    return thrust::find_if(first, last, thrust::detail::equal_to_value<T>(value));
+    using thrust::system::detail::generic::select_system;
+
+    typedef typename thrust::iterator_system<InputIterator>::type System;
+
+    System system;
+
+    return thrust::find(select_system(system), first, last, value);
 }
 
 template <typename InputIterator, typename Predicate>
@@ -39,7 +81,13 @@ InputIterator find_if(InputIterator first,
                       InputIterator last,
                       Predicate pred)
 {
-    return thrust::detail::backend::find_if(first, last, pred);
+    using thrust::system::detail::generic::select_system;
+
+    typedef typename thrust::iterator_system<InputIterator>::type System;
+
+    System system;
+
+    return thrust::find_if(select_system(system), first, last, pred);
 }
 
 template <typename InputIterator, typename Predicate>
@@ -47,8 +95,15 @@ InputIterator find_if_not(InputIterator first,
                           InputIterator last,
                           Predicate pred)
 {
-    return thrust::find_if(first, last, thrust::detail::not1(pred));
+    using thrust::system::detail::generic::select_system;
+
+    typedef typename thrust::iterator_system<InputIterator>::type System;
+
+    System system;
+
+    return thrust::find_if_not(select_system(system), first, last, pred);
 }
+
 
 } // end namespace thrust
 

@@ -51,12 +51,6 @@
 #define __MATH_FUNCTIONS_H__
 
 /**
- * \file
- * \name CUDA Mathematical Functions
- * \author NVIDIA Corporation
- */
-
-/**
  * \defgroup CUDA_MATH Mathematical Functions
  *
  * CUDA mathematical functions are always available in device code.
@@ -70,11 +64,7 @@
  * float log(float x);
  * float logf(float x);
  * \endcode
- *
- * @{
  */
-/** @} */ /** END CUDA_MATH Mathematical Functions */
-
 
 /*******************************************************************************
 *                                                                              *
@@ -108,58 +98,51 @@ extern "C"
 /**
  * \defgroup CUDA_MATH_SINGLE Single Precision Mathematical Functions
  * This section describes single precision mathematical functions.
- *
- * @{
  */
-/** @} */
 
 /**
  * \defgroup CUDA_MATH_DOUBLE Double Precision Mathematical Functions
  * This section describes double precision mathematical functions.
- *
- * @{
  */
-/** @} */
 
 /**
  * \defgroup CUDA_MATH_INTRINSIC_SINGLE Single Precision Intrinsics
  * This section describes single precision intrinsic functions that are
  * only supported in device code.
- *
- * @{
  */
-/** @} */
 
 /**
  * \defgroup CUDA_MATH_INTRINSIC_DOUBLE Double Precision Intrinsics
  * This section describes double precision intrinsic functions that are
  * only supported in device code.
- *
- * @{
  */
-/** @} */
 
 /**
  * \defgroup CUDA_MATH_INTRINSIC_INT Integer Intrinsics
  * This section describes integer intrinsic functions that are
  * only supported in device code.
- *
- * @{
  */
-/** @} */
 
 /**
  * \defgroup CUDA_MATH_INTRINSIC_CAST Type Casting Intrinsics
  * This section describes type casting intrinsic functions that are
  * only supported in device code.
- *
- * @{
  */
-/** @} */
 
-extern __host__ __device__ __device_builtin__ int            __cdecl abs(int) __THROW;
-extern __host__ __device__ __device_builtin__ long int       __cdecl labs(long int) __THROW;
-extern __host__ __device__ __device_builtin__ long long int          llabs(long long int) __THROW;
+/**
+ * @}
+ */
+
+#if defined(__ANDROID__)
+static __host__ __device__ __device_builtin__ __cudart_builtin__ int                    abs(int);
+static __host__ __device__ __device_builtin__ __cudart_builtin__ long int               labs(long int);
+static __host__ __device__ __device_builtin__ __cudart_builtin__ long long int          llabs(long long int);
+#else /* __ANDROID__ */
+extern __host__ __device__ __device_builtin__ __cudart_builtin__ int            __cdecl abs(int) __THROW;
+extern __host__ __device__ __device_builtin__ __cudart_builtin__ long int       __cdecl labs(long int) __THROW;
+extern __host__ __device__ __device_builtin__ __cudart_builtin__ long long int          llabs(long long int) __THROW;
+#endif /* __ANDROID__ */
+
 /**
  * \ingroup CUDA_MATH_DOUBLE
  * \brief Calculate the absolute value of the input argument.
@@ -168,8 +151,36 @@ extern __host__ __device__ __device_builtin__ long long int          llabs(long 
  *
  * \return
  * Returns the absolute value of the input argument.
- * - fabs(\f$\pm \infty\f$) returns \f$+\infty\f$.
- * - fabs(\f$\pm\f$ 0) returns 0.
+ * - fabs(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - fabs(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 0.
  * \note_accuracy_double
  */
 extern __host__ __device__ __device_builtin__ double         __cdecl fabs(double x) __THROW;
@@ -181,8 +192,36 @@ extern __host__ __device__ __device_builtin__ double         __cdecl fabs(double
  *
  * \return
  * Returns the absolute value of its argument.
- * - fabs(\f$\pm \infty\f$) returns \f$+\infty\f$.
- * - fabs(\f$\pm 0\f$) returns 0.
+ * - fabs(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - fabs(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 0.
  * \note_accuracy_single
  */
 extern __host__ __device__ __device_builtin__ float                  fabsf(float x) __THROW;
@@ -265,8 +304,36 @@ extern __host__ __device__ __device_builtin__ double                 fmax(double
  * Calculate the sine of the input argument \p x (measured in radians).
  *
  * \return 
- * - sin(\f$\pm 0\f$) returns \f$\pm 0\f$.
- * - sin(\f$\pm \infty\f$) returns NaN.
+ * - sin(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - sin(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns NaN.
  *
  * \note_accuracy_double
  */
@@ -278,8 +345,28 @@ extern __host__ __device__ __device_builtin__ double         __cdecl sin(double 
  * Calculate the cosine of the input argument \p x (measured in radians).
  *
  * \return 
- * - cos(\f$\pm 0\f$) returns 1.
- * - cos(\f$\pm \infty\f$) returns NaN.
+ * - cos(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 1.
+ * - cos(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns NaN.
  *
  * \note_accuracy_double
  */
@@ -322,8 +409,36 @@ extern __host__ __device__ __device_builtin__ void                   sincosf(flo
  * Calculate the tangent of the input argument \p x (measured in radians).
  *
  * \return 
- * - tan(\f$\pm 0\f$) returns \f$\pm 0\f$.
- * - tan(\f$\pm \infty\f$) returns NaN.
+ * - tan(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - tan(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns NaN.
  *
  * \note_accuracy_double
  */
@@ -332,12 +447,66 @@ extern __host__ __device__ __device_builtin__ double         __cdecl tan(double 
  * \ingroup CUDA_MATH_DOUBLE
  * \brief Calculate the square root of the input argument.
  *
- * Calculate the nonnegative square root of \p x, \f$\sqrt{x}\f$.
+ * Calculate the nonnegative square root of \p x, 
+ * \latexonly $\sqrt{x}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msqrt>
+ *     <m:mi>x</m:mi>
+ *   </m:msqrt>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \return 
- * Returns \f$\sqrt{x}\f$.
- * - sqrt(\f$\pm 0\f$) returns \f$\pm 0\f$.
- * - sqrt(\f$+\infty\f$) returns \f$+\infty\f$.
+ * Returns 
+ * \latexonly $\sqrt{x}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msqrt>
+ *     <m:mi>x</m:mi>
+ *   </m:msqrt>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - sqrt(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - sqrt(
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  * - sqrt(\p x) returns NaN if \p x is less than 0.
  *
  * \note_accuracy_double
@@ -347,12 +516,66 @@ extern __host__ __device__ __device_builtin__ double         __cdecl sqrt(double
  * \ingroup CUDA_MATH_DOUBLE
  * \brief Calculate the reciprocal of the square root of the input argument.
  *
- * Calculate the reciprocal of the nonnegative square root of \p x, \f$1/\sqrt{x}\f$.
+ * Calculate the reciprocal of the nonnegative square root of \p x, 
+ * \latexonly $1/\sqrt{x}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mn>1</m:mn>
+ *   <m:mrow class="MJX-TeXAtom-ORD">
+ *     <m:mo>/</m:mo>
+ *   </m:mrow>
+ *   <m:msqrt>
+ *     <m:mi>x</m:mi>
+ *   </m:msqrt>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \return 
- * Returns \f$1/\sqrt{x}\f$.
- * - rsqrt(\f$+\infty\f$) returns +0.
- * - rsqrt(\f$\pm 0\f$) returns \f$\pm \infty\f$.
+ * Returns 
+ * \latexonly $1/\sqrt{x}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mn>1</m:mn>
+ *   <m:mrow class="MJX-TeXAtom-ORD">
+ *     <m:mo>/</m:mo>
+ *   </m:mrow>
+ *   <m:msqrt>
+ *     <m:mi>x</m:mi>
+ *   </m:msqrt>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - rsqrt(
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns +0.
+ * - rsqrt(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  * - rsqrt(\p x) returns NaN if \p x is less than 0.
  *
  * \note_accuracy_double
@@ -362,12 +585,66 @@ extern __host__ __device__ __device_builtin__ double                 rsqrt(doubl
  * \ingroup CUDA_MATH_SINGLE
  * \brief Calculate the reciprocal of the square root of the input argument.
  *
- * Calculate the reciprocal of the nonnegative square root of \p x, \f$1/\sqrt{x}\f$.
+ * Calculate the reciprocal of the nonnegative square root of \p x, 
+ * \latexonly $1/\sqrt{x}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mn>1</m:mn>
+ *   <m:mrow class="MJX-TeXAtom-ORD">
+ *     <m:mo>/</m:mo>
+ *   </m:mrow>
+ *   <m:msqrt>
+ *     <m:mi>x</m:mi>
+ *   </m:msqrt>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \return 
- * Returns \f$1/\sqrt{x}\f$.
- * - rsqrtf(\f$+\infty\f$) returns +0.
- * - rsqrtf(\f$\pm 0\f$) returns \f$\pm \infty\f$.
+ * Returns 
+ * \latexonly $1/\sqrt{x}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mn>1</m:mn>
+ *   <m:mrow class="MJX-TeXAtom-ORD">
+ *     <m:mo>/</m:mo>
+ *   </m:mrow>
+ *   <m:msqrt>
+ *     <m:mi>x</m:mi>
+ *   </m:msqrt>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - rsqrtf(
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns +0.
+ * - rsqrtf(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  * - rsqrtf(\p x) returns NaN if \p x is less than 0.
  *
  * \note_accuracy_single
@@ -380,10 +657,46 @@ extern __host__ __device__ __device_builtin__ float                  rsqrtf(floa
  * Calculate the base 2 logarithm of the input argument \p x.
  *
  * \return 
- * - log2(\f$\pm 0\f$) returns \f$-\infty\f$.
+ * - log2(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  * - log2(1) returns +0.
  * - log2(\p x) returns NaN for \p x < 0.
- * - log2(\f$+\infty\f$) returns \f$+\infty\f$.
+ * - log2(
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_double
  */
@@ -394,7 +707,17 @@ extern __host__ __device__ __device_builtin__ double                 log2(double
  *
  * Calculate the base 2 exponential of the input argument \p x.
  *
- * \return Returns \f$2^x\f$.
+ * \return Returns 
+ * \latexonly $2^x$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msup>
+ *     <m:mn>2</m:mn>
+ *     <m:mi>x</m:mi>
+ *   </m:msup>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_double
  */
@@ -405,7 +728,17 @@ extern __host__ __device__ __device_builtin__ double                 exp2(double
  *
  * Calculate the base 2 exponential of the input argument \p x.
  *
- * \return Returns \f$2^x\f$.
+ * \return Returns 
+ * \latexonly $2^x$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msup>
+ *     <m:mn>2</m:mn>
+ *     <m:mi>x</m:mi>
+ *   </m:msup>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_single
  */
@@ -416,7 +749,17 @@ extern __host__ __device__ __device_builtin__ float                  exp2f(float
  *
  * Calculate the base 10 exponential of the input argument \p x.
  *
- * \return Returns \f$10^x\f$.
+ * \return Returns 
+ * \latexonly $10^x$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msup>
+ *     <m:mn>10</m:mn>
+ *     <m:mi>x</m:mi>
+ *   </m:msup>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_double
  */         
@@ -427,7 +770,17 @@ extern __host__ __device__ __device_builtin__ double                 exp10(doubl
  *
  * Calculate the base 10 exponential of the input argument \p x.
  *
- * \return Returns \f$10^x\f$.
+ * \return Returns 
+ * \latexonly $10^x$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msup>
+ *     <m:mn>10</m:mn>
+ *     <m:mi>x</m:mi>
+ *   </m:msup>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_single
  * \note_fastmath
@@ -435,22 +788,82 @@ extern __host__ __device__ __device_builtin__ double                 exp10(doubl
 extern __host__ __device__ __device_builtin__ float                  exp10f(float x) __THROW;
 /**
  * \ingroup CUDA_MATH_DOUBLE
- * \brief Calculate the base \f$e\f$ exponential of the input argument, minus 1.
+ * \brief Calculate the base 
+ * \latexonly $e$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>e</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  exponential of the input argument, minus 1.
  *
- * Calculate the base \f$e\f$ exponential of the input argument \p x, minus 1.
+ * Calculate the base 
+ * \latexonly $e$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>e</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  exponential of the input argument \p x, minus 1.
  *
- * \return Returns \f$e^x - 1\f$.
+ * \return Returns 
+ * \latexonly $e^x - 1$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msup>
+ *     <m:mi>e</m:mi>
+ *     <m:mi>x</m:mi>
+ *   </m:msup>
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mn>1</m:mn>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_double
  */
 extern __host__ __device__ __device_builtin__ double                 expm1(double x) __THROW;
 /**
  * \ingroup CUDA_MATH_SINGLE
- * \brief Calculate the base \f$e\f$ exponential of the input argument, minus 1.
+ * \brief Calculate the base 
+ * \latexonly $e$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>e</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  exponential of the input argument, minus 1.
  *
- * Calculate the base \f$e\f$ exponential of the input argument \p x, minus 1.
+ * Calculate the base 
+ * \latexonly $e$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>e</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  exponential of the input argument \p x, minus 1.
  *
- * \return  Returns \f$e^x - 1\f$.
+ * \return  Returns 
+ * \latexonly $e^x - 1$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msup>
+ *     <m:mi>e</m:mi>
+ *     <m:mi>x</m:mi>
+ *   </m:msup>
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mn>1</m:mn>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_single
  */
@@ -462,10 +875,46 @@ extern __host__ __device__ __device_builtin__ float                  expm1f(floa
  * Calculate the base 2 logarithm of the input argument \p x.
  *
  * \return
- * - log2f(\f$\pm 0\f$) returns \f$-\infty\f$.
+ * - log2f(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  * - log2f(1) returns +0.
  * - log2f(\p x) returns NaN for \p x < 0.
- * - log2f(\f$+\infty\f$) returns \f$+\infty\f$.
+ * - log2f(
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_single
  */
@@ -477,55 +926,303 @@ extern __host__ __device__ __device_builtin__ float                  log2f(float
  * Calculate the base 10 logarithm of the input argument \p x.
  *
  * \return 
- * - log10(\f$\pm 0\f$) returns \f$-\infty\f$.
+ * - log10(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  * - log10(1) returns +0.
  * - log10(\p x) returns NaN for \p x < 0.
- * - log10(\f$+\infty\f$) returns \f$+\infty\f$.
+ * - log10(
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_double
  */
 extern __host__ __device__ __device_builtin__ double         __cdecl log10(double x) __THROW;
 /**
  * \ingroup CUDA_MATH_DOUBLE
- * \brief Calculate the base \f$e\f$ logarithm of the input argument.
+ * \brief Calculate the base 
+ * \latexonly $e$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>e</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  logarithm of the input argument.
  *
- * Calculate the base \f$e\f$ logarithm of the input argument \p x.
+ * Calculate the base 
+ * \latexonly $e$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>e</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  logarithm of the input argument \p x.
  *
  * \return 
- * - log(\f$\pm 0\f$) returns \f$-\infty\f$.
+ * - log(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  * - log(1) returns +0.
  * - log(\p x) returns NaN for \p x < 0.
- * - log(\f$+\infty\f$) returns \f$+\infty\f$
+ * - log(
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+
  *
  * \note_accuracy_double
  */
 extern __host__ __device__ __device_builtin__ double         __cdecl log(double x) __THROW;
 /**
  * \ingroup CUDA_MATH_DOUBLE
- * \brief Calculate the value of \f$log_{e}(1+x)\f$.
+ * \brief Calculate the value of 
+ * \latexonly $log_{e}(1+x)$ \endlatexonly
+ * \latexonly $\lfloor x \rfloor$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>l</m:mi>
+ *   <m:mi>o</m:mi>
+ *   <m:msub>
+ *     <m:mi>g</m:mi>
+ *     <m:mrow class="MJX-TeXAtom-ORD">
+ *       <m:mi>e</m:mi>
+ *     </m:mrow>
+ *   </m:msub>
+ *   <m:mo stretchy="false">(</m:mo>
+ *   <m:mn>1</m:mn>
+ *   <m:mo>+</m:mo>
+ *   <m:mi>x</m:mi>
+ *   <m:mo stretchy="false">)</m:mo>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
- * Calculate the value of \f$log_{e}(1+x)\f$  of the input argument \p x.
+ * Calculate the value of 
+ * \latexonly $log_{e}(1+x)$ \endlatexonly
+ * \latexonly $\lfloor x \rfloor$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>l</m:mi>
+ *   <m:mi>o</m:mi>
+ *   <m:msub>
+ *     <m:mi>g</m:mi>
+ *     <m:mrow class="MJX-TeXAtom-ORD">
+ *       <m:mi>e</m:mi>
+ *     </m:mrow>
+ *   </m:msub>
+ *   <m:mo stretchy="false">(</m:mo>
+ *   <m:mn>1</m:mn>
+ *   <m:mo>+</m:mo>
+ *   <m:mi>x</m:mi>
+ *   <m:mo stretchy="false">)</m:mo>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *   of the input argument \p x.
  *
  * \return 
- * - log1p(\f$\pm 0\f$) returns \f$-\infty\f$.
+ * - log1p(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  * - log1p(-1) returns +0.
  * - log1p(\p x) returns NaN for \p x < -1.
- * - log1p(\f$+\infty\f$) returns \f$+\infty\f$.
+ * - log1p(
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_double
  */
 extern __host__ __device__ __device_builtin__ double                 log1p(double x) __THROW;
 /**
  * \ingroup CUDA_MATH_SINGLE
- * \brief Calculate the value of \f$log_{e}(1+x)\f$.
+ * \brief Calculate the value of 
+ * \latexonly $log_{e}(1+x)$ \endlatexonly
+ * \latexonly $\lfloor x \rfloor$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>l</m:mi>
+ *   <m:mi>o</m:mi>
+ *   <m:msub>
+ *     <m:mi>g</m:mi>
+ *     <m:mrow class="MJX-TeXAtom-ORD">
+ *       <m:mi>e</m:mi>
+ *     </m:mrow>
+ *   </m:msub>
+ *   <m:mo stretchy="false">(</m:mo>
+ *   <m:mn>1</m:mn>
+ *   <m:mo>+</m:mo>
+ *   <m:mi>x</m:mi>
+ *   <m:mo stretchy="false">)</m:mo>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
- * Calculate the value of \f$log_{e}(1+x)\f$  of the input argument \p x.
+ * Calculate the value of 
+ * \latexonly $log_{e}(1+x)$ \endlatexonly
+ * \latexonly $\lfloor x \rfloor$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>l</m:mi>
+ *   <m:mi>o</m:mi>
+ *   <m:msub>
+ *     <m:mi>g</m:mi>
+ *     <m:mrow class="MJX-TeXAtom-ORD">
+ *       <m:mi>e</m:mi>
+ *     </m:mrow>
+ *   </m:msub>
+ *   <m:mo stretchy="false">(</m:mo>
+ *   <m:mn>1</m:mn>
+ *   <m:mo>+</m:mo>
+ *   <m:mi>x</m:mi>
+ *   <m:mo stretchy="false">)</m:mo>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *   of the input argument \p x.
  *
  * \return 
- * - log1pf(\f$\pm 0\f$) returns \f$-\infty\f$.
+ * - log1pf(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  * - log1pf(-1) returns +0.
  * - log1pf(\p x) returns NaN for \p x < -1.
- * - log1pf(\f$+\infty\f$) returns \f$+\infty\f$.
+ * - log1pf(
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_single
  */
@@ -537,20 +1234,106 @@ extern __host__ __device__ __device_builtin__ float                  log1pf(floa
  * Calculates the largest integer value which is less than or equal to \p x.
  * 
  * \return
- * Returns \f$\lfloor x \rfloor\f$ expressed as a floating-point number.
- * - floor(\f$\pm \infty\f$) returns \f$\pm \infty\f$.
- * - floor(\f$\pm 0\f$) returns \f$\pm 0\f$.
+ * Returns 
+ * \latexonly $log_{e}(1+x)$ \endlatexonly
+ * \latexonly $\lfloor x \rfloor$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>l</m:mi>
+ *   <m:mi>o</m:mi>
+ *   <m:msub>
+ *     <m:mi>g</m:mi>
+ *     <m:mrow class="MJX-TeXAtom-ORD">
+ *       <m:mi>e</m:mi>
+ *     </m:mrow>
+ *   </m:msub>
+ *   <m:mo stretchy="false">(</m:mo>
+ *   <m:mn>1</m:mn>
+ *   <m:mo>+</m:mo>
+ *   <m:mi>x</m:mi>
+ *   <m:mo stretchy="false">)</m:mo>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  expressed as a floating-point number.
+ * - floor(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - floor(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_double
  */
 extern __host__ __device__ __device_builtin__ _CRTIMP double __cdecl floor(double x) __THROW;
 /**
  * \ingroup CUDA_MATH_DOUBLE
- * \brief Calculate the base \f$e\f$ exponential of the input argument.
+ * \brief Calculate the base 
+ * \latexonly $e$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>e</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  exponential of the input argument.
  *
- * Calculate the base \f$e\f$ exponential of the input argument \p x.
+ * Calculate the base 
+ * \latexonly $e$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>e</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  exponential of the input argument \p x.
  *
- * \return Returns \f$e^x\f$.
+ * \return Returns 
+ * \latexonly $e^x$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msup>
+ *     <m:mi>e</m:mi>
+ *     <m:mi>x</m:mi>
+ *   </m:msup>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_double
  */
@@ -559,11 +1342,29 @@ extern __host__ __device__ __device_builtin__ double         __cdecl exp(double 
  * \ingroup CUDA_MATH_DOUBLE
  * \brief Calculate the hyperbolic cosine of the input argument.
  *
- * Calculate the hyperbolic cosine of the input argument \p x (measured in radians).
+ * Calculate the hyperbolic cosine of the input argument \p x.
  *
  * \return 
  * - cosh(0) returns 1.
- * - cosh(\f$\pm \infty\f$) returns \f$+\infty\f$.
+ * - cosh(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_double
  */
@@ -572,10 +1373,28 @@ extern __host__ __device__ __device_builtin__ double         __cdecl cosh(double
  * \ingroup CUDA_MATH_DOUBLE
  * \brief Calculate the hyperbolic sine of the input argument.
  *
- * Calculate the hyperbolic sine of the input argument \p x (measured in radians).
+ * Calculate the hyperbolic sine of the input argument \p x.
  *
  * \return 
- * - sinh(\f$\pm 0\f$) returns \f$\pm 0\f$.
+ * - sinh(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_double
  */
@@ -584,10 +1403,28 @@ extern __host__ __device__ __device_builtin__ double         __cdecl sinh(double
  * \ingroup CUDA_MATH_DOUBLE
  * \brief Calculate the hyperbolic tangent of the input argument.
  *
- * Calculate the hyperbolic tangent of the input argument \p x (measured in radians).
+ * Calculate the hyperbolic tangent of the input argument \p x.
  *
  * \return 
- * - tanh(\f$\pm 0\f$) returns \f$\pm 0\f$.
+ * - tanh(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_double
  */
@@ -596,12 +1433,32 @@ extern __host__ __device__ __device_builtin__ double         __cdecl tanh(double
  * \ingroup CUDA_MATH_DOUBLE
  * \brief Calculate the nonnegative arc hyperbolic cosine of the input argument.
  *
- * Calculate the nonnegative arc hyperbolic cosine of the input argument \p x (measured in radians).
+ * Calculate the nonnegative arc hyperbolic cosine of the input argument \p x.
  *
  * \return 
- * Result will be in the interval [0, \f$+\infty\f$].
+ * Result will be in the interval [0, 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ].
  * - acosh(1) returns 0.
- * - acosh(\p x) returns NaN for \p x in the interval [\f$-\infty\f$, 1).
+ * - acosh(\p x) returns NaN for \p x in the interval [
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , 1).
  *
  * \note_accuracy_double
  */
@@ -610,12 +1467,32 @@ extern __host__ __device__ __device_builtin__ double                 acosh(doubl
  * \ingroup CUDA_MATH_SINGLE
  * \brief Calculate the nonnegative arc hyperbolic cosine of the input argument.
  *
- * Calculate the nonnegative arc hyperbolic cosine of the input argument \p x (measured in radians).
+ * Calculate the nonnegative arc hyperbolic cosine of the input argument \p x.
  *
  * \return 
- * Result will be in the interval [0, +\f$\infty\f$].
+ * Result will be in the interval [0, 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ].
  * - acoshf(1) returns 0.
- * - acoshf(\p x) returns NaN for \p x in the interval [\f$-\infty\f$, 1).
+ * - acoshf(\p x) returns NaN for \p x in the interval [
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , 1).
  *
  * \note_accuracy_single
  */
@@ -624,7 +1501,7 @@ extern __host__ __device__ __device_builtin__ float                  acoshf(floa
  * \ingroup CUDA_MATH_DOUBLE
  * \brief Calculate the arc hyperbolic sine of the input argument.
  *
- * Calculate the arc hyperbolic sine of the input argument \p x (measured in radians).
+ * Calculate the arc hyperbolic sine of the input argument \p x.
  *
  * \return 
  * - asinh(0) returns 1.
@@ -636,7 +1513,7 @@ extern __host__ __device__ __device_builtin__ double                 asinh(doubl
  * \ingroup CUDA_MATH_SINGLE
  * \brief Calculate the arc hyperbolic sine of the input argument.
  *
- * Calculate the arc hyperbolic sine of the input argument \p x (measured in radians).
+ * Calculate the arc hyperbolic sine of the input argument \p x.
  *
  * \return 
  * - asinhf(0) returns 1.
@@ -648,11 +1525,47 @@ extern __host__ __device__ __device_builtin__ float                  asinhf(floa
  * \ingroup CUDA_MATH_DOUBLE
  * \brief Calculate the arc hyperbolic tangent of the input argument.
  *
- * Calculate the arc hyperbolic tangent of the input argument \p x (measured in radians).
+ * Calculate the arc hyperbolic tangent of the input argument \p x.
  *
  * \return 
- * - atanh(\f$\pm 0\f$) returns \f$\pm 0\f$.
- * - atanh(\f$\pm 1\f$) returns \f$\pm \infty\f$.
+ * - atanh(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - atanh(
+ * \latexonly $\pm 1$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>1</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  * - atanh(\p x) returns NaN for \p x outside interval [-1, 1].
  *
  * \note_accuracy_double
@@ -662,11 +1575,47 @@ extern __host__ __device__ __device_builtin__ double                 atanh(doubl
  * \ingroup CUDA_MATH_SINGLE
  * \brief Calculate the arc hyperbolic tangent of the input argument.
  *
- * Calculate the arc hyperbolic tangent of the input argument \p x (measured in radians).
+ * Calculate the arc hyperbolic tangent of the input argument \p x.
  *
  * \return 
- * - atanhf(\f$\pm 0\f$) returns \f$\pm 0\f$.
- * - atanhf(\f$\pm 1 \f$) returns \f$\pm \infty\f$.
+ * - atanhf(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - atanhf(
+ * \latexonly $\pm 1$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>1</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  * - atanhf(\p x) returns NaN for \p x outside interval [-1, 1].
  *
  * \note_accuracy_single
@@ -674,24 +1623,112 @@ extern __host__ __device__ __device_builtin__ double                 atanh(doubl
 extern __host__ __device__ __device_builtin__ float                  atanhf(float x) __THROW;
 /**
  * \ingroup CUDA_MATH_DOUBLE
- * \brief Calculate the value of \f$x\cdot 2^{exp}\f$.
+ * \brief Calculate the value of 
+ * \latexonly $x\cdot 2^{exp}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x22C5;<!-- ⋅ --></m:mo>
+ *   <m:msup>
+ *     <m:mn>2</m:mn>
+ *     <m:mrow class="MJX-TeXAtom-ORD">
+ *       <m:mi>e</m:mi>
+ *       <m:mi>x</m:mi>
+ *       <m:mi>p</m:mi>
+ *     </m:mrow>
+ *   </m:msup>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
- * Calculate the value of \f$x\cdot 2^{exp}\f$ of the input arguments \p x and \p exp.
+ * Calculate the value of 
+ * \latexonly $x\cdot 2^{exp}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x22C5;<!-- ⋅ --></m:mo>
+ *   <m:msup>
+ *     <m:mn>2</m:mn>
+ *     <m:mrow class="MJX-TeXAtom-ORD">
+ *       <m:mi>e</m:mi>
+ *       <m:mi>x</m:mi>
+ *       <m:mi>p</m:mi>
+ *     </m:mrow>
+ *   </m:msup>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  of the input arguments \p x and \p exp.
  *
  * \return 
- * - ldexp(\p x) returns \f$\pm \infty\f$ if the correctly calculated value is outside the double floating point range.
+ * - ldexp(\p x) returns 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  if the correctly calculated value is outside the double floating point range.
  *
  * \note_accuracy_double
  */
 extern __host__ __device__ __device_builtin__ _CRTIMP double __cdecl ldexp(double x, int exp) __THROW;
 /**
  * \ingroup CUDA_MATH_SINGLE
- * \brief Calculate the value of \f$x\cdot 2^{exp}\f$.
+ * \brief Calculate the value of 
+ * \latexonly $x\cdot 2^{exp}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x22C5;<!-- ⋅ --></m:mo>
+ *   <m:msup>
+ *     <m:mn>2</m:mn>
+ *     <m:mrow class="MJX-TeXAtom-ORD">
+ *       <m:mi>e</m:mi>
+ *       <m:mi>x</m:mi>
+ *       <m:mi>p</m:mi>
+ *     </m:mrow>
+ *   </m:msup>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
- * Calculate the value of \f$x\cdot 2^{exp}\f$ of the input arguments \p x and \p exp.
+ * Calculate the value of 
+ * \latexonly $x\cdot 2^{exp}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x22C5;<!-- ⋅ --></m:mo>
+ *   <m:msup>
+ *     <m:mn>2</m:mn>
+ *     <m:mrow class="MJX-TeXAtom-ORD">
+ *       <m:mi>e</m:mi>
+ *       <m:mi>x</m:mi>
+ *       <m:mi>p</m:mi>
+ *     </m:mrow>
+ *   </m:msup>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  of the input arguments \p x and \p exp.
  *
  * \return 
- * - ldexpf(\p x) returns \f$\pm \infty\f$ if the correctly calculated value is outside the single floating point range.
+ * - ldexpf(\p x) returns 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  if the correctly calculated value is outside the single floating point range.
  *
  * \note_accuracy_single
  */
@@ -703,8 +1740,46 @@ extern __host__ __device__ __device_builtin__ float                  ldexpf(floa
  * Calculate the floating point representation of the exponent of the input argument \p x.
  *
  * \return 
- * - logb\f$(\pm 0)\f$ returns \f$-\infty\f$
- * - logb\f$(\pm \infty)\f$ returns \f$+\infty\f$
+ * - logb
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ returns 
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * - logb
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  returns 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
  *
  * \note_accuracy_double
  */
@@ -716,8 +1791,46 @@ extern __host__ __device__ __device_builtin__ double                 logb(double
  * Calculate the floating point representation of the exponent of the input argument \p x.
  *
  * \return 
- * - logbf\f$(\pm 0)\f$ returns \f$-\infty\f$
- * - logbf\f$(\pm \infty)\f$ returns \f$+\infty\f$
+ * - logbf
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  returns 
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * - logbf
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  returns 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
  *
  * \note_accuracy_single
  */
@@ -732,7 +1845,15 @@ extern __host__ __device__ __device_builtin__ float                  logbf(float
  * - If successful, returns the unbiased exponent of the argument.
  * - ilogb(0) returns <tt>INT_MIN</tt>.
  * - ilogb(NaN) returns NaN.
- * - ilogb(\p x) returns <tt>INT_MAX</tt> if \p x is \f$\infty\f$ 
+ * - ilogb(\p x) returns <tt>INT_MAX</tt> if \p x is 
+ * \latexonly $\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly 
  *     or the correct value is greater than <tt>INT_MAX</tt>.
  * - ilogb(\p x) return <tt>INT_MIN</tt> if the correct value is less 
  *     than <tt>INT_MIN</tt>.
@@ -750,7 +1871,15 @@ extern __host__ __device__ __device_builtin__ int                    ilogb(doubl
  * - If successful, returns the unbiased exponent of the argument.
  * - ilogbf(0) returns <tt>INT_MIN</tt>.
  * - ilogbf(NaN) returns NaN.
- * - ilogbf(\p x) returns <tt>INT_MAX</tt> if \p x is \f$\infty\f$ 
+ * - ilogbf(\p x) returns <tt>INT_MAX</tt> if \p x is 
+ * \latexonly $\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly 
  *     or the correct value is greater than <tt>INT_MAX</tt>.
  * - ilogbf(\p x) return <tt>INT_MIN</tt> if the correct value is less 
  *     than <tt>INT_MIN</tt>.
@@ -762,56 +1891,288 @@ extern __host__ __device__ __device_builtin__ int                    ilogbf(floa
  * \ingroup CUDA_MATH_DOUBLE
  * \brief Scale floating-point input by integer power of two.
  *
- * Scale \p x by \f$2^n\f$ by efficient manipulation of the floating-point
+ * Scale \p x by 
+ * \latexonly $2^n$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msup>
+ *     <m:mn>2</m:mn>
+ *     <m:mi>n</m:mi>
+ *   </m:msup>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  by efficient manipulation of the floating-point
  * exponent.
  *
  * \return 
- * Returns \p x * \f$2^n\f$.
- * - scalbn(\f$\pm 0\f$, \p n) returns \f$\pm 0\f$.
+ * Returns \p x * 
+ * \latexonly $2^n$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msup>
+ *     <m:mn>2</m:mn>
+ *     <m:mi>n</m:mi>
+ *   </m:msup>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - scalbn(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p n) returns 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  * - scalbn(\p x, 0) returns \p x.
- * - scalbn(\f$\pm \infty\f$, \p n) returns \f$\pm \infty\f$.
+ * - scalbn(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p n) returns 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  */
 extern __host__ __device__ __device_builtin__ double                 scalbn(double x, int n) __THROW;
 /**
  * \ingroup CUDA_MATH_SINGLE
  * \brief Scale floating-point input by integer power of two.
  *
- * Scale \p x by \f$2^n\f$ by efficient manipulation of the floating-point
+ * Scale \p x by 
+ * \latexonly $2^n$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msup>
+ *     <m:mn>2</m:mn>
+ *     <m:mi>n</m:mi>
+ *   </m:msup>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  by efficient manipulation of the floating-point
  * exponent.
  *
  * \return 
- * Returns \p x * \f$2^n\f$.
- * - scalbnf(\f$\pm 0\f$, \p n) returns \f$\pm 0\f$.
+ * Returns \p x * 
+ * \latexonly $2^n$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msup>
+ *     <m:mn>2</m:mn>
+ *     <m:mi>n</m:mi>
+ *   </m:msup>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - scalbnf(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p n) returns 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  * - scalbnf(\p x, 0) returns \p x.
- * - scalbnf(\f$\pm \infty\f$, \p n) returns \f$\pm \infty\f$.
+ * - scalbnf(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p n) returns 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  */
 extern __host__ __device__ __device_builtin__ float                  scalbnf(float x, int n) __THROW;
 /**
  * \ingroup CUDA_MATH_DOUBLE
  * \brief Scale floating-point input by integer power of two.
  *
- * Scale \p x by \f$2^n\f$ by efficient manipulation of the floating-point
+ * Scale \p x by 
+ * \latexonly $2^n$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msup>
+ *     <m:mn>2</m:mn>
+ *     <m:mi>n</m:mi>
+ *   </m:msup>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  by efficient manipulation of the floating-point
  * exponent.
  *
  * \return 
- * Returns \p x * \f$2^n\f$.
- * - scalbln(\f$\pm 0\f$, \p n) returns \f$\pm 0\f$.
+ * Returns \p x * 
+ * \latexonly $2^n$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msup>
+ *     <m:mn>2</m:mn>
+ *     <m:mi>n</m:mi>
+ *   </m:msup>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - scalbln(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p n) returns 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  * - scalbln(\p x, 0) returns \p x.
- * - scalbln(\f$\pm \infty\f$, \p n) returns \f$\pm \infty\f$.
+ * - scalbln(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p n) returns 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  */
 extern __host__ __device__ __device_builtin__ double                 scalbln(double x, long int n) __THROW;
 /**
  * \ingroup CUDA_MATH_SINGLE
  * \brief Scale floating-point input by integer power of two.
  *
- * Scale \p x by \f$2^n\f$ by efficient manipulation of the floating-point
+ * Scale \p x by 
+ * \latexonly $2^n$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msup>
+ *     <m:mn>2</m:mn>
+ *     <m:mi>n</m:mi>
+ *   </m:msup>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  by efficient manipulation of the floating-point
  * exponent.
  *
  * \return 
- * Returns \p x * \f$2^n\f$.
- * - scalblnf(\f$\pm 0\f$, \p n) returns \f$\pm 0\f$.
+ * Returns \p x * 
+ * \latexonly $2^n$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msup>
+ *     <m:mn>2</m:mn>
+ *     <m:mi>n</m:mi>
+ *   </m:msup>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - scalblnf(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p n) returns 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  * - scalblnf(\p x, 0) returns \p x.
- * - scalblnf(\f$\pm \infty\f$, \p n) returns \f$\pm \infty\f$.
+ * - scalblnf(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p n) returns 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  */
 extern __host__ __device__ __device_builtin__ float                  scalblnf(float x, long int n) __THROW;
 /**
@@ -821,14 +2182,68 @@ extern __host__ __device__ __device_builtin__ float                  scalblnf(fl
  * Decompose the floating-point value \p x into a component \p m for the 
  * normalized fraction element and another term \p n for the exponent.
  * The absolute value of \p m will be greater than or equal to  0.5 and 
- * less than 1.0 or it will be equal to 0; \f$x = m\cdot 2^n\f$.
+ * less than 1.0 or it will be equal to 0; 
+ * \latexonly $x = m\cdot 2^n$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>x</m:mi>
+ *   <m:mo>=</m:mo>
+ *   <m:mi>m</m:mi>
+ *   <m:mo>&#x22C5;<!-- ⋅ --></m:mo>
+ *   <m:msup>
+ *     <m:mn>2</m:mn>
+ *     <m:mi>n</m:mi>
+ *   </m:msup>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  * The integer exponent \p n will be stored in the location to which \p nptr points.
  *
  * \return
  * Returns the fractional component \p m.
  * - frexp(0, \p nptr) returns 0 for the fractional component and zero for the integer component.
- * - frexp(\f$\pm 0\f$, \p nptr) returns \f$\pm 0\f$ and stores zero in the location pointed to by \p nptr.
- * - frexp(\f$\pm \infty\f$, \p nptr) returns \f$\pm \infty\f$ and stores an unspecified value in the 
+ * - frexp(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p nptr) returns 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  and stores zero in the location pointed to by \p nptr.
+ * - frexp(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p nptr) returns 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  and stores an unspecified value in the 
  * location to which \p nptr points.
  * - frexp(NaN, \p y) returns a NaN and stores an unspecified value in the location to which \p nptr points.
  *
@@ -842,14 +2257,68 @@ extern __host__ __device__ __device_builtin__ _CRTIMP double __cdecl frexp(doubl
  * Decomposes the floating-point value \p x into a component \p m for the 
  * normalized fraction element and another term \p n for the exponent.
  * The absolute value of \p m will be greater than or equal to  0.5 and 
- * less than 1.0 or it will be equal to 0; \f$x = m\cdot 2^n\f$.
+ * less than 1.0 or it will be equal to 0; 
+ * \latexonly $x = m\cdot 2^n$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>x</m:mi>
+ *   <m:mo>=</m:mo>
+ *   <m:mi>m</m:mi>
+ *   <m:mo>&#x22C5;<!-- ⋅ --></m:mo>
+ *   <m:msup>
+ *     <m:mn>2</m:mn>
+ *     <m:mi>n</m:mi>
+ *   </m:msup>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  * The integer exponent \p n will be stored in the location to which \p nptr points.
  *
  * \return
  * Returns the fractional component \p m.
  * - frexp(0, \p nptr) returns 0 for the fractional component and zero for the integer component.
- * - frexp(\f$\pm 0\f$, \p nptr) returns \f$\pm 0\f$ and stores zero in the location pointed to by \p nptr.
- * - frexp(\f$\pm \infty\f$, \p nptr) returns \f$\pm \infty\f$ and stores an unspecified value in the 
+ * - frexp(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p nptr) returns 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  and stores zero in the location pointed to by \p nptr.
+ * - frexp(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p nptr) returns 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  and stores an unspecified value in the 
  * location to which \p nptr points.
  * - frexp(NaN, \p y) returns a NaN and stores an unspecified value in the location to which \p nptr points.
  *
@@ -943,7 +2412,7 @@ extern __host__ __device__ __device_builtin__ long long int          llroundf(fl
  * \brief Round to nearest integer value in floating-point.
  *
  * Round \p x to the nearest integer value in floating-point format,
- * with halfway cases rounded towards zero.
+ * with halfway cases rounded to the nearest even integer value.
  *
  * \return 
  * Returns rounded integer value.
@@ -1015,8 +2484,44 @@ extern __host__ __device__ __device_builtin__ long long int          llrintf(flo
  * Round argument \p x to an integer value in double precision floating-point format.
  *
  * \return 
- * - nearbyint(\f$\pm 0\f$) returns \f$\pm 0\f$.
- * - nearbyint(\f$\pm \infty\f$) returns \f$\pm \infty\f$.
+ * - nearbyint(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - nearbyint(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_double
  */
@@ -1028,8 +2533,44 @@ extern __host__ __device__ __device_builtin__ double                 nearbyint(d
  * Round argument \p x to an integer value in single precision floating-point format.
  *
  * \return 
- * - nearbyintf(\f$\pm 0\f$) returns \f$\pm 0\f$.
- * - nearbyintf(\f$\pm \infty\f$) returns \f$\pm \infty\f$.
+ * - nearbyintf(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - nearbyintf(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_single
  */
@@ -1041,9 +2582,56 @@ extern __host__ __device__ __device_builtin__ float                  nearbyintf(
  * Compute the smallest integer value not less than \p x.
  *
  * \return
- * Returns \f$\lceil x \rceil\f$ expressed as a floating-point number.
- * - ceil(\f$\pm 0\f$) returns \f$\pm 0\f$.
- * - ceil(\f$\pm \infty\f$) returns \f$\pm \infty\f$.
+ * Returns 
+ * \latexonly $\lceil x \rceil$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo fence="false" stretchy="false">&#x2308;<!-- ⌈ --></m:mo>
+ *   <m:mi>x</m:mi>
+ *   <m:mo fence="false" stretchy="false">&#x2309;<!-- ⌉ --></m:mo>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ expressed as a floating-point number.
+ * - ceil(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - ceil(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  */
 extern __host__ __device__ __device_builtin__ _CRTIMP double __cdecl ceil(double x) __THROW;
 /**
@@ -1078,7 +2666,15 @@ extern __host__ __device__ __device_builtin__ float                  truncf(floa
  * \return 
  * Returns the positive difference between \p x and \p y.
  * - fdim(\p x, \p y) returns \p x - \p y if \p x > \p y.
- * - fdim(\p x, \p y) returns +0 if \p x \f$\le\f$ \p y.
+ * - fdim(\p x, \p y) returns +0 if \p x 
+ * \latexonly $\leq$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2264;<!-- ≤ --></m:mo>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly \p y.
  * \note_accuracy_single
  */
 extern __host__ __device__ __device_builtin__ double                 fdim(double x, double y) __THROW;
@@ -1092,7 +2688,15 @@ extern __host__ __device__ __device_builtin__ double                 fdim(double
  * \return 
  * Returns the positive difference between \p x and \p y.
  * - fdimf(\p x, \p y) returns \p x - \p y if \p x > \p y.
- * - fdimf(\p x, \p y) returns +0 if \p x \f$\le\f$ \p y.
+ * - fdimf(\p x, \p y) returns +0 if \p x 
+ * \latexonly $\leq$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2264;<!-- ≤ --></m:mo>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly \p y.
  * \note_accuracy_single
  */
 extern __host__ __device__ __device_builtin__ float                  fdimf(float x, float y) __THROW;
@@ -1105,7 +2709,25 @@ extern __host__ __device__ __device_builtin__ float                  fdimf(float
  * determined by the signs of inputs \p x and \p y.
  *
  * \return 
- * Result will be in radians, in the interval [-\f$\pi\f$/, +\f$\pi\f$].
+ * Result will be in radians, in the interval [-
+ * \latexonly $\pi$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>&#x03C0;<!-- π --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * /, +
+ * \latexonly $\pi$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>&#x03C0;<!-- π --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ].
  * - atan2(0, 1) returns +0.
  *
  * \note_accuracy_double
@@ -1118,7 +2740,25 @@ extern __host__ __device__ __device_builtin__ double         __cdecl atan2(doubl
  * Calculate the principal value of the arc tangent of the input argument \p x.
  *
  * \return 
- * Result will be in radians, in the interval [-\f$\pi\f$/2, +\f$\pi\f$/2].
+ * Result will be in radians, in the interval [-
+ * \latexonly $\pi$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>&#x03C0;<!-- π --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * /2, +
+ * \latexonly $\pi$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>&#x03C0;<!-- π --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * /2].
  * - atan(0) returns +0.
  *
  * \note_accuracy_double
@@ -1131,7 +2771,16 @@ extern __host__ __device__ __device_builtin__ double         __cdecl atan(double
  * Calculate the principal value of the arc cosine of the input argument \p x.
  *
  * \return 
- * Result will be in the interval [0, \f$\pi\f$] for \p x inside [-1, +1].
+ * Result will be in radians, in the interval [0, 
+ * \latexonly $\pi$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>&#x03C0;<!-- π --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ] for \p x inside [-1, +1].
  * - acos(1) returns +0.
  * - acos(\p x) returns NaN for \p x outside [-1, +1].
  *
@@ -1145,7 +2794,25 @@ extern __host__ __device__ __device_builtin__ double         __cdecl acos(double
  * Calculate the principal value of the arc sine of the input argument \p x.
  *
  * \return 
- * Result will be in the interval [-\f$\pi\f$/2, +\f$\pi\f$/2] for \p x inside [-1, +1].
+ * Result will be in radians, in the interval [-
+ * \latexonly $\pi$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>&#x03C0;<!-- π --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * /2, +
+ * \latexonly $\pi$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>&#x03C0;<!-- π --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * /2] for \p x inside [-1, +1].
  * - asin(0) returns +0.
  * - asin(\p x) returns NaN for \p x outside [-1, +1].
  *
@@ -1159,8 +2826,33 @@ extern __host__ __device__ __device_builtin__ double         __cdecl asin(double
  * Calculate the length of the hypotenuse of a right triangle whose two sides have lengths 
  * \p x and \p y without undue overflow or underflow.
  *
- * \return Returns the length of the hypotenuse \f$\sqrt{x^2+y^2}\f$. 
- * If the correct value would overflow, returns \f$\infty\f$.
+ * \return Returns the length of the hypotenuse 
+ * \latexonly $\sqrt{x^2+y^2}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msqrt>
+ *     <m:msup>
+ *       <m:mi>x</m:mi>
+ *       <m:mn>2</m:mn>
+ *     </m:msup>
+ *     <m:mo>+</m:mo>
+ *     <m:msup>
+ *       <m:mi>y</m:mi>
+ *       <m:mn>2</m:mn>
+ *     </m:msup>
+ *   </m:msqrt>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly. 
+ * If the correct value would overflow, returns 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  * If the correct value would underflow, returns 0.
  *
  * \note_accuracy_double
@@ -1168,7 +2860,7 @@ extern __host__ __device__ __device_builtin__ double         __cdecl asin(double
 #if _MSC_VER < 1600
 extern __host__ __device__ __device_builtin__ _CRTIMP double __cdecl hypot(double x, double y) __THROW;
 #else
-extern __host__ __device__ __device_builtin__ double         __cdecl hypot(double x, double y) __THROW;
+static __host__ __device__ __device_builtin__ double       __CRTDECL hypot(double x, double y) __THROW;
 #endif /* _MSC_VER < 1600 */
 /**
  * \ingroup CUDA_MATH_SINGLE
@@ -1177,23 +2869,120 @@ extern __host__ __device__ __device_builtin__ double         __cdecl hypot(doubl
  * Calculates the length of the hypotenuse of a right triangle whose two sides have lengths 
  * \p x and \p y without undue overflow or underflow.
  *
- * \return Returns the length of the hypotenuse \f$\sqrt{x^2+y^2}\f$. 
- * If the correct value would overflow, returns \f$\infty\f$.
+ * \return Returns the length of the hypotenuse 
+ * \latexonly $\sqrt{x^2+y^2}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msqrt>
+ *     <m:msup>
+ *       <m:mi>x</m:mi>
+ *       <m:mn>2</m:mn>
+ *     </m:msup>
+ *     <m:mo>+</m:mo>
+ *     <m:msup>
+ *       <m:mi>y</m:mi>
+ *       <m:mn>2</m:mn>
+ *     </m:msup>
+ *   </m:msqrt>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly. 
+ * If the correct value would overflow, returns 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  * If the correct value would underflow, returns 0.
  *
  * \note_accuracy_single
  */
+#if _MSC_VER < 1600
 extern __host__ __device__ __device_builtin__ float                  hypotf(float x, float y) __THROW;
+#else
+static __host__ __device__ __device_builtin__ float        __CRTDECL hypotf(float x, float y) __THROW;
+#endif /* _MSC_VER < 1600 */
 /**
  * \ingroup CUDA_MATH_DOUBLE
  * \brief Calculate the cube root of the input argument.
  *
- * Calculate the cube root of \p x, \f$x^{1/3}\f$.
+ * Calculate the cube root of \p x, 
+ * \latexonly $x^{1/3}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msup>
+ *     <m:mi>x</m:mi>
+ *     <m:mrow class="MJX-TeXAtom-ORD">
+ *       <m:mn>1</m:mn>
+ *       <m:mrow class="MJX-TeXAtom-ORD">
+ *         <m:mo>/</m:mo>
+ *       </m:mrow>
+ *       <m:mn>3</m:mn>
+ *     </m:mrow>
+ *   </m:msup>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \return 
- * Returns \f$x^{1/3}\f$.
- * - cbrt(\f$\pm 0\f$) returns \f$\pm 0\f$.
- * - cbrt(\f$\pm \infty\f$) returns \f$\pm \infty\f$.
+ * Returns 
+ * \latexonly $x^{1/3}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msup>
+ *     <m:mi>x</m:mi>
+ *     <m:mrow class="MJX-TeXAtom-ORD">
+ *       <m:mn>1</m:mn>
+ *       <m:mrow class="MJX-TeXAtom-ORD">
+ *         <m:mo>/</m:mo>
+ *       </m:mrow>
+ *       <m:mn>3</m:mn>
+ *     </m:mrow>
+ *   </m:msup>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - cbrt(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - cbrt(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_double
  */
@@ -1202,12 +2991,80 @@ extern __host__ __device__ __device_builtin__ double                 cbrt(double
  * \ingroup CUDA_MATH_SINGLE
  * \brief Calculate the cube root of the input argument.
  *
- * Calculate the cube root of \p x, \f$x^{1/3}\f$.
+ * Calculate the cube root of \p x, 
+ * \latexonly $x^{1/3}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msup>
+ *     <m:mi>x</m:mi>
+ *     <m:mrow class="MJX-TeXAtom-ORD">
+ *       <m:mn>1</m:mn>
+ *       <m:mrow class="MJX-TeXAtom-ORD">
+ *         <m:mo>/</m:mo>
+ *       </m:mrow>
+ *       <m:mn>3</m:mn>
+ *     </m:mrow>
+ *   </m:msup>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \return 
- * Returns \f$x^{1/3}\f$.
- * - cbrtf(\f$\pm 0\f$) returns \f$\pm 0\f$.
- * - cbrtf(\f$\pm \infty\f$) returns \f$\pm \infty\f$.
+ * Returns 
+ * \latexonly $x^{1/3}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msup>
+ *     <m:mi>x</m:mi>
+ *     <m:mrow class="MJX-TeXAtom-ORD">
+ *       <m:mn>1</m:mn>
+ *       <m:mrow class="MJX-TeXAtom-ORD">
+ *         <m:mo>/</m:mo>
+ *       </m:mrow>
+ *       <m:mn>3</m:mn>
+ *     </m:mrow>
+ *   </m:msup>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - cbrtf(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - cbrtf(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_single
  */
@@ -1219,8 +3076,44 @@ extern __host__ __device__ __device_builtin__ float                  cbrtf(float
  * Calculate reciprocal cube root function of \p x
  *
  * \return 
- * - rcbrt(\f$\pm 0\f$) returns \f$\pm \infty\f$.
- * - rcbrt(\f$\pm \infty\f$) returns \f$\pm 0\f$.
+ * - rcbrt(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - rcbrt(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_double
  */
@@ -1232,68 +3125,332 @@ extern __host__ __device__ __device_builtin__ double                 rcbrt(doubl
  * Calculate reciprocal cube root function of \p x
  *
  * \return 
- * - rcbrt(\f$\pm 0\f$) returns \f$\pm \infty\f$.
- * - rcbrt(\f$\pm \infty\f$) returns \f$\pm 0\f$.
+ * - rcbrt(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - rcbrt(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_single
  */
 extern __host__ __device__ __device_builtin__ float                  rcbrtf(float x);
 /**
  * \ingroup CUDA_MATH_DOUBLE
- * \brief Calculate the sine of the input argument \f$\times \pi\f$.
+ * \brief Calculate the sine of the input argument 
+ * \latexonly $\times \pi$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00D7;<!-- × --></m:mo>
+ *   <m:mi>&#x03C0;<!-- π --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
- * Calculate the sine of \p x\f$\times \pi\f$ (measured in radians), 
+ * Calculate the sine of \p x
+ * \latexonly $\times \pi$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00D7;<!-- × --></m:mo>
+ *   <m:mi>&#x03C0;<!-- π --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  (measured in radians), 
  * where \p x is the input argument.
  *
  * \return 
- * - sinpi(\f$\pm 0\f$) returns \f$\pm 0\f$.
- * - sinpi(\f$\pm \infty\f$) returns NaN.
+ * - sinpi(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - sinpi(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns NaN.
  *
  * \note_accuracy_double
  */
 extern __host__ __device__ __device_builtin__ double                 sinpi(double x);
 /**
  * \ingroup CUDA_MATH_SINGLE
- * \brief Calculate the sine of the input argument \f$\times \pi\f$.
+ * \brief Calculate the sine of the input argument 
+ * \latexonly $\times \pi$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00D7;<!-- × --></m:mo>
+ *   <m:mi>&#x03C0;<!-- π --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
- * Calculate the sine of \p x\f$\times \pi\f$ (measured in radians), 
+ * Calculate the sine of \p x
+ * \latexonly $\times \pi$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00D7;<!-- × --></m:mo>
+ *   <m:mi>&#x03C0;<!-- π --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  (measured in radians), 
  * where \p x is the input argument.
  *
  * \return 
- * - sinpif(\f$\pm 0\f$) returns \f$\pm 0\f$.
- * - sinpif(\f$\pm \infty\f$) returns NaN.
+ * - sinpif(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - sinpif(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns NaN.
  *
  * \note_accuracy_single
  */
 extern __host__ __device__ __device_builtin__ float                  sinpif(float x);
 /**
  * \ingroup CUDA_MATH_DOUBLE
- * \brief Calculate the cosine of the input argument \f$ \times \pi\f$.
+ * \brief Calculate the cosine of the input argument 
+ * \latexonly $\times \pi$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00D7;<!-- × --></m:mo>
+ *   <m:mi>&#x03C0;<!-- π --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
- * Calculate the cosine of \p x\f$\times \pi\f$ (measured in radians), 
+ * Calculate the cosine of \p x
+ * \latexonly $\times \pi$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00D7;<!-- × --></m:mo>
+ *   <m:mi>&#x03C0;<!-- π --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  (measured in radians), 
  * where \p x is the input argument.
  *
  * \return 
- * - cospif(\f$\pm 0\f$) returns 1.
- * - cospif(\f$\pm \infty\f$) returns NaN.
+ * - cospi(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 1.
+ * - cospi(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns NaN.
  *
  * \note_accuracy_double
  */
 extern __host__ __device__ __device_builtin__ double                 cospi(double x);
 /**
  * \ingroup CUDA_MATH_SINGLE
- * \brief Calculate the cosine of the input argument \f$ \times \pi\f$.
+ * \brief Calculate the cosine of the input argument 
+ * \latexonly $\times \pi$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00D7;<!-- × --></m:mo>
+ *   <m:mi>&#x03C0;<!-- π --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
- * Calculate the cosine of \p x\f$\times \pi\f$ (measured in radians),
+ * Calculate the cosine of \p x
+ * \latexonly $\times \pi$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00D7;<!-- × --></m:mo>
+ *   <m:mi>&#x03C0;<!-- π --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  (measured in radians),
  * where \p x is the input argument.
  *
  * \return 
- * - cospif(\f$\pm 0\f$) returns 1.
- * - cospif(\f$\pm \infty\f$) returns NaN.
+ * - cospif(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 1.
+ * - cospif(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns NaN.
  *
  * \note_accuracy_single
  */
 extern __host__ __device__ __device_builtin__ float                  cospif(float x);
+/**
+ * \ingroup CUDA_MATH_DOUBLE
+ * \brief  Calculate the sine and cosine of the first input argument 
+ * \latexonly $\times \pi$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00D7;<!-- × --></m:mo>
+ *   <m:mi>&#x03C0;<!-- π --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ *
+ * Calculate the sine and cosine of the first input argument, \p x (measured in radians), 
+ * \latexonly $\times \pi$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00D7;<!-- × --></m:mo>
+ *   <m:mi>&#x03C0;<!-- π --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.  The results for sine and cosine are written into the
+ * second argument, \p sptr, and, respectively, third argument, \p cptr.
+ *
+ * \return 
+ * - none
+ *
+ * \see ::sinpi() and ::cospi().
+ * \note_accuracy_double
+ */
+extern __host__ __device__ __device_builtin__ void                   sincospi(double x, double *sptr, double *cptr);
+/**
+ * \ingroup CUDA_MATH_SINGLE
+ * \brief  Calculate the sine and cosine of the first input argument 
+ * \latexonly $\times \pi$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00D7;<!-- × --></m:mo>
+ *   <m:mi>&#x03C0;<!-- π --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ *
+ * Calculate the sine and cosine of the first input argument, \p x (measured in radians), 
+ * \latexonly $\times \pi$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00D7;<!-- × --></m:mo>
+ *   <m:mi>&#x03C0;<!-- π --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.  The results for sine and cosine are written into the
+ * second argument, \p sptr, and, respectively, third argument, \p cptr.
+ *
+ * \return 
+ * - none
+ *
+ * \see ::sinpif() and ::cospif().
+ * \note_accuracy_single
+ */
+extern __host__ __device__ __device_builtin__ void                   sincospif(float x, float *sptr, float *cptr);
 /**
  * \ingroup CUDA_MATH_DOUBLE
  * \brief Calculate the value of first argument to the power of second argument.
@@ -1301,23 +3458,303 @@ extern __host__ __device__ __device_builtin__ float                  cospif(floa
  * Calculate the value of \p x to the power of \p y
  *
  * \return 
- * - pow(\f$\pm 0\f$, \p y) returns \f$\pm \infty\f$ for \p y an integer less than 0.
- * - pow(\f$\pm 0\f$, \p y) returns \f$\pm 0\f$ for \p y an odd integer greater than 0.
- * - pow(\f$\pm 0\f$, \p y) returns +0 for \p y > 0 and not and odd integer.
- * - pow(-1, \f$\pm \infty\f$) returns 1.
+ * - pow(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p y) returns 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  for \p y an integer less than 0.
+ * - pow(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p y) returns 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  for \p y an odd integer greater than 0.
+ * - pow(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p y) returns +0 for \p y > 0 and not and odd integer.
+ * - pow(-1, 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 1.
  * - pow(+1, \p y) returns 1 for any \p y, even a NaN.
- * - pow(\p x, \f$\pm 0\f$) returns 1 for any \p x, even a NaN.
+ * - pow(\p x, 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 1 for any \p x, even a NaN.
  * - pow(\p x, \p y) returns a NaN for finite \p x < 0 and finite non-integer \p y.
- * - pow(\p x, \f$-\infty\f$) returns \f$+\infty\f$ for \f$| x | < 1\f$.
- * - pow(\p x, \f$-\infty\f$) returns +0 for \f$| x | > 1\f$.
- * - pow(\p x, \f$+\infty\f$) returns +0 for \f$| x | < 1\f$.
- * - pow(\p x, \f$+\infty\f$) returns \f$+\infty\f$ for \f$| x | > 1\f$.
- * - pow(\f$-\infty\f$, \p y) returns -0 for \p y an odd integer less than 0.
- * - pow(\f$-\infty\f$, \p y) returns +0 for \p y < 0 and not an odd integer.
- * - pow(\f$-\infty\f$, \p y) returns \f$-\infty\f$ for \p y an odd integer greater than 0.
- * - pow(\f$-\infty\f$, \p y) returns \f$+\infty\f$ for \p y > 0 and not an odd integer.
- * - pow(\f$+\infty\f$, \p y) returns +0 for \p y < 0.
- * - pow(\f$+\infty\f$, \p y) returns \f$+\infty\f$ for \p y > 0.
+ * - pow(\p x, 
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  for 
+ * \latexonly $| x | < 1$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mrow class="MJX-TeXAtom-ORD">
+ *     <m:mo stretchy="false">|</m:mo>
+ *   </m:mrow>
+ *   <m:mi>x</m:mi>
+ *   <m:mrow class="MJX-TeXAtom-ORD">
+ *     <m:mo stretchy="false">|</m:mo>
+ *   </m:mrow>
+ *   <m:mo>&lt;</m:mo>
+ *   <m:mn>1</m:mn>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - pow(\p x, 
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns +0 for 
+ * \latexonly $| x | > 1$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mrow class="MJX-TeXAtom-ORD">
+ *     <m:mo stretchy="false">|</m:mo>
+ *   </m:mrow>
+ *   <m:mi>x</m:mi>
+ *   <m:mrow class="MJX-TeXAtom-ORD">
+ *     <m:mo stretchy="false">|</m:mo>
+ *   </m:mrow>
+ *   <m:mo>&gt;</m:mo>
+ *   <m:mn>1</m:mn>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - pow(\p x, 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns +0 for 
+ * \latexonly $| x | < 1$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mrow class="MJX-TeXAtom-ORD">
+ *     <m:mo stretchy="false">|</m:mo>
+ *   </m:mrow>
+ *   <m:mi>x</m:mi>
+ *   <m:mrow class="MJX-TeXAtom-ORD">
+ *     <m:mo stretchy="false">|</m:mo>
+ *   </m:mrow>
+ *   <m:mo>&lt;</m:mo>
+ *   <m:mn>1</m:mn>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - pow(\p x, 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  for 
+ * \latexonly $| x | > 1$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mrow class="MJX-TeXAtom-ORD">
+ *     <m:mo stretchy="false">|</m:mo>
+ *   </m:mrow>
+ *   <m:mi>x</m:mi>
+ *   <m:mrow class="MJX-TeXAtom-ORD">
+ *     <m:mo stretchy="false">|</m:mo>
+ *   </m:mrow>
+ *   <m:mo>&gt;</m:mo>
+ *   <m:mn>1</m:mn>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - pow(
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p y) returns -0 for \p y an odd integer less than 0.
+ * - pow(
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p y) returns +0 for \p y < 0 and not an odd integer.
+ * - pow(
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p y) returns 
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  for \p y an odd integer greater than 0.
+ * - pow(
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p y) returns 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  for \p y > 0 and not an odd integer.
+ * - pow(
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p y) returns +0 for \p y < 0.
+ * - pow(
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p y) returns 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  for \p y > 0.
  *
  * \note_accuracy_double
  */
@@ -1331,8 +3768,47 @@ extern __host__ __device__ __device_builtin__ double         __cdecl pow(double 
  * Fractional and integral parts are given the same sign as the argument \p x.
  *
  * \return 
- * - modf(\f$\pm x\f$, \p iptr) returns a result with the same sign as \p x.
- * - modf(\f$\pm \infty\f$, \p iptr) returns \f$\pm 0\f$ and stores \f$\pm \infty\f$
+ * - modf(
+ * \latexonly $\pm x$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *  <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi>x</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p iptr) returns a result with the same sign as \p x.
+ * - modf(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p iptr) returns 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  and stores 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
  *   in the object pointed to by \p iptr.
  * - modf(NaN, \p iptr) stores a NaN in the object pointed to by \p iptr and returns a NaN.
  *
@@ -1349,11 +3825,50 @@ extern __host__ __device__ __device_builtin__ _CRTIMP double __cdecl modf(double
  *
  * \return
  * - Returns the floating point remainder of \p x / \p y.
- * - fmod(\f$\pm 0\f$, \p y) returns \f$\pm 0\f$ if \p y is not zero.
+ * - fmod(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p y) returns 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  if \p y is not zero.
  * - fmod(\p x, \p y) returns NaN and raised an invalid floating point exception if \p x is 
- * \f$\infty\f$ or \p y is zero.
+ * \latexonly $\pm\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  or \p y is zero.
  * - fmod(\p x, \p y) returns zero if \p y is zero or the result would overflow.
- * - fmod(\p x, \f$\pm \infty\f$) returns \p x if \p x is finite.
+ * - fmod(\p x, 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns \p x if \p x is finite.
  * - fmod(\p x, 0) returns NaN.
  *
  * \note_accuracy_double
@@ -1364,15 +3879,82 @@ extern __host__ __device__ __device_builtin__ double         __cdecl fmod(double
  * \brief Compute double-precision floating-point remainder.
  *
  * Compute double-precision floating-point remainder \p r of dividing 
- * \p x by \p y for nonzero \p y. Thus \f$ r = x - n y\f$.
- * The value \p n is the integer value nearest \f$ \frac{x}{y} \f$. 
- * In the case when \f$ | n -\frac{x}{y} | = \frac{1}{2} \f$, the
+ * \p x by \p y for nonzero \p y. Thus 
+ * \latexonly $ r = x - n y$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>r</m:mi>
+ *   <m:mo>=</m:mo>
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi>n</m:mi>
+ *   <m:mi>y</m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * The value \p n is the integer value nearest 
+ * \latexonly $ \frac{x}{y} $ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mfrac>
+ *     <m:mi>x</m:mi>
+ *     <m:mi>y</m:mi>
+ *   </m:mfrac>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly. 
+ * In the case when 
+ * \latexonly $ | n -\frac{x}{y} | = \frac{1}{2} $ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mrow class="MJX-TeXAtom-ORD">
+ *     <m:mo stretchy="false">|</m:mo>
+ *   </m:mrow>
+ *   <m:mi>n</m:mi>
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mfrac>
+ *     <m:mi>x</m:mi>
+ *     <m:mi>y</m:mi>
+ *   </m:mfrac>
+ *   <m:mrow class="MJX-TeXAtom-ORD">
+ *     <m:mo stretchy="false">|</m:mo>
+ *   </m:mrow>
+ *   <m:mo>=</m:mo>
+ *   <m:mfrac>
+ *     <m:mn>1</m:mn>
+ *     <m:mn>2</m:mn>
+ *   </m:mfrac>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , the
  * even \p n value is chosen.
  *
  * \return 
  * - remainder(\p x, 0) returns NaN.
- * - remainder(\f$\pm \infty\f$, \p y) returns NaN.
- * - remainder(\p x, \f$\pm \infty\f$) returns \p x for finite \p x.
+ * - remainder(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p y) returns NaN.
+ * - remainder(\p x, 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns \p x for finite \p x.
  *
  * \note_accuracy_double
  */
@@ -1382,16 +3964,83 @@ extern __host__ __device__ __device_builtin__ double                 remainder(d
  * \brief Compute single-precision floating-point remainder.
  *
  * Compute single-precision floating-point remainder \p r of dividing 
- * \p x by \p y for nonzero \p y. Thus \f$ r = x - ny\f$.
- * The value \p n is the integer value nearest \f$ \frac{x}{y} \f$. 
- * In the case when \f$ | n -\frac{x}{y} | = \frac{1}{2} \f$, the
+ * \p x by \p y for nonzero \p y. Thus 
+ * \latexonly $ r = x - n y$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>r</m:mi>
+ *   <m:mo>=</m:mo>
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi>n</m:mi>
+ *   <m:mi>y</m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * The value \p n is the integer value nearest 
+ * \latexonly $ \frac{x}{y} $ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mfrac>
+ *     <m:mi>x</m:mi>
+ *     <m:mi>y</m:mi>
+ *   </m:mfrac>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly. 
+ * In the case when 
+ * \latexonly $ | n -\frac{x}{y} | = \frac{1}{2} $ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mrow class="MJX-TeXAtom-ORD">
+ *     <m:mo stretchy="false">|</m:mo>
+ *   </m:mrow>
+ *   <m:mi>n</m:mi>
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mfrac>
+ *     <m:mi>x</m:mi>
+ *     <m:mi>y</m:mi>
+ *   </m:mfrac>
+ *   <m:mrow class="MJX-TeXAtom-ORD">
+ *     <m:mo stretchy="false">|</m:mo>
+ *   </m:mrow>
+ *   <m:mo>=</m:mo>
+ *   <m:mfrac>
+ *     <m:mn>1</m:mn>
+ *     <m:mn>2</m:mn>
+ *   </m:mfrac>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , the
  * even \p n value is chosen.
  *
  * \return 
  * \return 
  * - remainderf(\p x, 0) returns NaN.
- * - remainderf(\f$\pm \infty\f$, \p y) returns NaN.
- * - remainderf(\p x, \f$\pm \infty\f$) returns \p x for finite \p x.
+ * - remainderf(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p y) returns NaN.
+ * - remainderf(\p x, 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns \p x for finite \p x.
  *
  * \note_accuracy_single
  */
@@ -1402,15 +4051,46 @@ extern __host__ __device__ __device_builtin__ float                  remainderf(
  *
  * Compute a double-precision floating-point remainder in the same way as the
  * ::remainder() function. Argument \p quo returns part of quotient upon 
- * division of \p x by \p y. Value \p quo has the same sign as \f$ \frac{x}{y} \f$
+ * division of \p x by \p y. Value \p quo has the same sign as 
+ * \latexonly $ \frac{x}{y} $ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mfrac>
+ *     <m:mi>x</m:mi>
+ *     <m:mi>y</m:mi>
+ *   </m:mfrac>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
  * and may not be the exact quotient but agrees with the exact quotient
  * in the low order 3 bits.
  *
  * \return 
  * Returns the remainder.
  * - remquo(\p x, 0, \p quo) returns NaN.
- * - remquo(\f$\pm \infty\f$, \p y, \p quo) returns NaN.
- * - remquo(\p x, \f$\pm \infty\f$, \p quo) returns \p x.
+ * - remquo(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p y, \p quo) returns NaN.
+ * - remquo(\p x, 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p quo) returns \p x.
  *
  * \note_accuracy_double
  */
@@ -1421,15 +4101,46 @@ extern __host__ __device__ __device_builtin__ double                 remquo(doub
  *
  * Compute a double-precision floating-point remainder in the same way as the 
  * ::remainderf() function. Argument \p quo returns part of quotient upon 
- * division of \p x by \p y. Value \p quo has the same sign as \f$ \frac{x}{y} \f$
+ * division of \p x by \p y. Value \p quo has the same sign as 
+ * \latexonly $ \frac{x}{y} $ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mfrac>
+ *     <m:mi>x</m:mi>
+ *     <m:mi>y</m:mi>
+ *   </m:mfrac>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
  * and may not be the exact quotient but agrees with the exact quotient
  * in the low order 3 bits.
  *
  * \return 
  * Returns the remainder.
  * - remquof(\p x, 0, \p quo) returns NaN.
- * - remquof(\f$\pm \infty\f$, \p y, \p quo) returns NaN.
- * - remquof(\p x, \f$\pm \infty\f$, \p quo) returns \p x.
+ * - remquof(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p y, \p quo) returns NaN.
+ * - remquof(\p x, 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p quo) returns \p x.
  *
  * \note_accuracy_single
  */
@@ -1439,11 +4150,34 @@ extern __host__ __device__ __device_builtin__ float                  remquof(flo
  * \brief Calculate the value of the Bessel function of the first kind of order 0 for the input argument.
  *
  * Calculate the value of the Bessel function of the first kind of order 0 for
- * the input argument \p x, \f$J_0(x)\f$.
+ * the input argument \p x, 
+ * \latexonly $J_0(x)$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msub>
+ *     <m:mi>J</m:mi>
+ *     <m:mn>0</m:mn>
+ *   </m:msub>
+ *   <m:mo stretchy="false">(</m:mo>
+ *   <m:mi>x</m:mi>
+ *   <m:mo stretchy="false">)</m:mo>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \return
  * Returns the value of the Bessel function of the first kind of order 0.
- * - j0(\f$\pm \infty\f$) returns +0.
+ * - j0(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns +0.
  * - j0(NaN) returns NaN.
  *
  * \note_accuracy_double
@@ -1454,11 +4188,34 @@ extern __host__ __device__ __device_builtin__ _CRTIMP double __cdecl j0(double x
  * \brief Calculate the value of the Bessel function of the first kind of order 0 for the input argument.
  *
  * Calculate the value of the Bessel function of the first kind of order 0 for
- * the input argument \p x, \f$J_0(x)\f$.
+ * the input argument \p x, 
+ * \latexonly $J_0(x)$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msub>
+ *     <m:mi>J</m:mi>
+ *     <m:mn>0</m:mn>
+ *   </m:msub>
+ *   <m:mo stretchy="false">(</m:mo>
+ *   <m:mi>x</m:mi>
+ *   <m:mo stretchy="false">)</m:mo>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \return
  * Returns the value of the Bessel function of the first kind of order 0.
- * - j0f(\f$\pm \infty\f$) returns +0.
+ * - j0f(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns +0.
  * - j0f(NaN) returns NaN.
  *
  * \note_accuracy_single
@@ -1469,12 +4226,53 @@ extern __host__ __device__ __device_builtin__ float                  j0f(float x
  * \brief Calculate the value of the Bessel function of the first kind of order 1 for the input argument.
  *
  * Calculate the value of the Bessel function of the first kind of order 1 for
- * the input argument \p x, \f$J_1(x)\f$.
+ * the input argument \p x, 
+ * \latexonly $J_1(x)$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msub>
+ *     <m:mi>J</m:mi>
+ *     <m:mn>1</m:mn>
+ *   </m:msub>
+ *   <m:mo stretchy="false">(</m:mo>
+ *   <m:mi>x</m:mi>
+ *   <m:mo stretchy="false">)</m:mo>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \return
  * Returns the value of the Bessel function of the first kind of order 1.
- * - j1(\f$\pm 0\f$) returns \f$\pm 0\f$.
- * - j1(\f$\pm \infty\f$) returns +0.
+ * - j1(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - j1(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns +0.
  * - j1(NaN) returns NaN.
  *
  * \note_accuracy_double
@@ -1485,12 +4283,53 @@ extern __host__ __device__ __device_builtin__ _CRTIMP double __cdecl j1(double x
  * \brief Calculate the value of the Bessel function of the first kind of order 1 for the input argument.
  *
  * Calculate the value of the Bessel function of the first kind of order 1 for
- * the input argument \p x, \f$J_1(x)\f$.
+ * the input argument \p x, 
+ * \latexonly $J_1(x)$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msub>
+ *     <m:mi>J</m:mi>
+ *     <m:mn>1</m:mn>
+ *   </m:msub>
+ *   <m:mo stretchy="false">(</m:mo>
+ *   <m:mi>x</m:mi>
+ *   <m:mo stretchy="false">)</m:mo>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \return
  * Returns the value of the Bessel function of the first kind of order 1.
- * - j1f(\f$\pm 0\f$) returns \f$\pm 0\f$.
- * - j1f(\f$\pm \infty\f$) returns +0.
+ * - j1f(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - j1f(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns +0.
  * - j1f(NaN) returns NaN.
  *
  * \note_accuracy_single
@@ -1501,13 +4340,36 @@ extern __host__ __device__ __device_builtin__ float                  j1f(float x
  * \brief Calculate the value of the Bessel function of the first kind of order n for the input argument.
  *
  * Calculate the value of the Bessel function of the first kind of order \p n for
- * the input argument \p x, \f$J_n(x)\f$.
+ * the input argument \p x, 
+ * \latexonly $J_n(x)$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msub>
+ *     <m:mi>J</m:mi>
+ *     <m:mi>n</m:mi>
+ *   </m:msub>
+ *   <m:mo stretchy="false">(</m:mo>
+ *   <m:mi>x</m:mi>
+ *   <m:mo stretchy="false">)</m:mo>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \return
  * Returns the value of the Bessel function of the first kind of order \p n.
  * - jn(\p n, NaN) returns NaN.
  * - jn(\p n, \p x) returns NaN for \p n < 0.
- * - jn(\p n, \f$+\infty\f$) returns +0.
+ * - jn(\p n, 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns +0.
  *
  * \note_accuracy_double
  */
@@ -1517,13 +4379,36 @@ extern __host__ __device__ __device_builtin__ _CRTIMP double __cdecl jn(int n, d
  * \brief Calculate the value of the Bessel function of the first kind of order n for the input argument.
  *
  * Calculate the value of the Bessel function of the first kind of order \p n for
- * the input argument \p x, \f$J_n(x)\f$.
+ * the input argument \p x, 
+ * \latexonly $J_n(x)$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msub>
+ *     <m:mi>J</m:mi>
+ *     <m:mi>n</m:mi>
+ *   </m:msub>
+ *   <m:mo stretchy="false">(</m:mo>
+ *   <m:mi>x</m:mi>
+ *   <m:mo stretchy="false">)</m:mo>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \return
  * Returns the value of the Bessel function of the first kind of order \p n.
  * - jnf(\p n, NaN) returns NaN.
  * - jnf(\p n, \p x) returns NaN for \p n < 0.
- * - jnf(\p n, \f$+\infty\f$) returns +0.
+ * - jnf(\p n, 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns +0.
  *
  * \note_accuracy_single
  */
@@ -1533,13 +4418,44 @@ extern __host__ __device__ __device_builtin__ float                  jnf(int n, 
  * \brief Calculate the value of the Bessel function of the second kind of order 0 for the input argument.
  *
  * Calculate the value of the Bessel function of the second kind of order 0 for
- * the input argument \p x, \f$Y_0(x)\f$.
+ * the input argument \p x, 
+ * \latexonly $Y_0(x)$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msub>
+ *     <m:mi>Y</m:mi>
+ *     <m:mn>0</m:mn>
+ *   </m:msub>
+ *   <m:mo stretchy="false">(</m:mo>
+ *   <m:mi>x</m:mi>
+ *   <m:mo stretchy="false">)</m:mo>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \return
  * Returns the value of the Bessel function of the second kind of order 0.
- * - y0(0) returns \f$-\infty\f$.
+ * - y0(0) returns 
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  * - y0(\p x) returns NaN for \p x < 0.
- * - y0(\f$+\infty\f$) returns +0.
+ * - y0(
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns +0.
  * - y0(NaN) returns NaN.
  *
  * \note_accuracy_double
@@ -1550,13 +4466,44 @@ extern __host__ __device__ __device_builtin__ _CRTIMP double __cdecl y0(double x
  * \brief Calculate the value of the Bessel function of the second kind of order 0 for the input argument.
  *
  * Calculate the value of the Bessel function of the second kind of order 0 for
- * the input argument \p x, \f$Y_0(x)\f$.
+ * the input argument \p x, 
+ * \latexonly $Y_0(x)$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msub>
+ *     <m:mi>Y</m:mi>
+ *     <m:mn>0</m:mn>
+ *   </m:msub>
+ *   <m:mo stretchy="false">(</m:mo>
+ *   <m:mi>x</m:mi>
+ *   <m:mo stretchy="false">)</m:mo>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \return
  * Returns the value of the Bessel function of the second kind of order 0.
- * - y0f(0) returns \f$-\infty\f$.
+ * - y0f(0) returns 
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  * - y0f(\p x) returns NaN for \p x < 0.
- * - y0f(\f$+\infty\f$) returns +0.
+ * - y0f(
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns +0.
  * - y0f(NaN) returns NaN.
  *
  * \note_accuracy_single
@@ -1567,13 +4514,44 @@ extern __host__ __device__ __device_builtin__ float                  y0f(float x
  * \brief Calculate the value of the Bessel function of the second kind of order 1 for the input argument.
  *
  * Calculate the value of the Bessel function of the second kind of order 1 for
- * the input argument \p x, \f$Y_1(x)\f$.
+ * the input argument \p x, 
+ * \latexonly $Y_1(x)$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msub>
+ *     <m:mi>Y</m:mi>
+ *     <m:mn>1</m:mn>
+ *   </m:msub>
+ *   <m:mo stretchy="false">(</m:mo>
+ *   <m:mi>x</m:mi>
+ *   <m:mo stretchy="false">)</m:mo>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \return
  * Returns the value of the Bessel function of the second kind of order 1.
- * - y1(0) returns \f$-\infty\f$.
+ * - y1(0) returns 
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  * - y1(\p x) returns NaN for \p x < 0.
- * - y1(\f$+\infty\f$) returns +0.
+ * - y1(
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns +0.
  * - y1(NaN) returns NaN.
  *
  * \note_accuracy_double
@@ -1584,13 +4562,44 @@ extern __host__ __device__ __device_builtin__ _CRTIMP double __cdecl y1(double x
  * \brief Calculate the value of the Bessel function of the second kind of order 1 for the input argument.
  *
  * Calculate the value of the Bessel function of the second kind of order 1 for
- * the input argument \p x, \f$Y_1(x)\f$.
+ * the input argument \p x, 
+ * \latexonly $Y_1(x)$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msub>
+ *     <m:mi>Y</m:mi>
+ *     <m:mn>1</m:mn>
+ *   </m:msub>
+ *   <m:mo stretchy="false">(</m:mo>
+ *   <m:mi>x</m:mi>
+ *   <m:mo stretchy="false">)</m:mo>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \return
  * Returns the value of the Bessel function of the second kind of order 1.
- * - y1f(0) returns \f$-\infty\f$.
+ * - y1f(0) returns 
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  * - y1f(\p x) returns NaN for \p x < 0.
- * - y1f(\f$+\infty\f$) returns +0.
+ * - y1f(
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns +0.
  * - y1f(NaN) returns NaN.
  *
  * \note_accuracy_single
@@ -1601,14 +4610,45 @@ extern __host__ __device__ __device_builtin__ float                  y1f(float x
  * \brief Calculate the value of the Bessel function of the second kind of order n for the input argument.
  *
  * Calculate the value of the Bessel function of the second kind of order \p n for
- * the input argument \p x, \f$Y_n(x)\f$.
+ * the input argument \p x, 
+ * \latexonly $Y_n(x)$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msub>
+ *     <m:mi>Y</m:mi>
+ *     <m:mi>n</m:mi>
+ *   </m:msub>
+ *   <m:mo stretchy="false">(</m:mo>
+ *   <m:mi>x</m:mi>
+ *   <m:mo stretchy="false">)</m:mo>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \return
  * Returns the value of the Bessel function of the second kind of order \p n.
  * - yn(\p n, \p x) returns NaN for \p n < 0.
- * - yn(\p n, 0) returns \f$-\infty\f$.
+ * - yn(\p n, 0) returns 
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  * - yn(\p n, \p x) returns NaN for \p x < 0.
- * - yn(\p n, \f$+\infty\f$) returns +0.
+ * - yn(\p n, 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns +0.
  * - yn(\p n, NaN) returns NaN.
  *
  * \note_accuracy_double
@@ -1619,14 +4659,45 @@ extern __host__ __device__ __device_builtin__ _CRTIMP double __cdecl yn(int n, d
  * \brief Calculate the value of the Bessel function of the second kind of order n for the input argument.
  *
  * Calculate the value of the Bessel function of the second kind of order \p n for
- * the input argument \p x, \f$Y_n(x)\f$.
+ * the input argument \p x, 
+ * \latexonly $Y_n(x)$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msub>
+ *     <m:mi>Y</m:mi>
+ *     <m:mi>n</m:mi>
+ *   </m:msub>
+ *   <m:mo stretchy="false">(</m:mo>
+ *   <m:mi>x</m:mi>
+ *   <m:mo stretchy="false">)</m:mo>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \return
  * Returns the value of the Bessel function of the second kind of order \p n.
  * - ynf(\p n, \p x) returns NaN for \p n < 0.
- * - ynf(\p n, 0) returns \f$-\infty\f$.
+ * - ynf(\p n, 0) returns 
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  * - ynf(\p n, \p x) returns NaN for \p x < 0.
- * - ynf(\p n, \f$+\infty\f$) returns +0.
+ * - ynf(\p n, 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns +0.
  * - ynf(\p n, NaN) returns NaN.
  *
  * \note_accuracy_single
@@ -1637,11 +4708,75 @@ extern __host__ __device__ __device_builtin__ float                  ynf(int n, 
  * \brief Calculate the error function of the input argument.
  *
  * Calculate the value of the error function for the input argument \p x,
- * \f$\frac{2}{\sqrt \pi} \int_0^x e^{-t^2} dt\f$.
+ * \latexonly $\frac{2}{\sqrt \pi} \int_0^x e^{-t^2} dt$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mfrac>
+ *     <m:mn>2</m:mn>
+ *     <m:msqrt>
+ *       <m:mi>&#x03C0;<!-- π --></m:mi>
+ *     </m:msqrt>
+ *   </m:mfrac>
+ *   <m:msubsup>
+ *     <m:mo>&#x222B;<!-- ∫ --></m:mo>
+ *     <m:mn>0</m:mn>
+ *     <m:mi>x</m:mi>
+ *   </m:msubsup>
+ *   <m:msup>
+ *     <m:mi>e</m:mi>
+ *     <m:mrow class="MJX-TeXAtom-ORD">
+ *       <m:mo>&#x2212;<!-- − --></m:mo>
+ *       <m:msup>
+ *         <m:mi>t</m:mi>
+ *         <m:mn>2</m:mn>
+ *       </m:msup>
+ *     </m:mrow>
+ *   </m:msup>
+ *   <m:mi>d</m:mi>
+ *   <m:mi>t</m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \return 
- * - erf(\f$\pm 0\f$) returns \f$\pm 0\f$.
- * - erf(\f$\pm \infty\f$) returns \f$\pm 1\f$.
+ * - erf(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - erf(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $\pm 1$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>1</m:mn>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_double
  */
@@ -1651,11 +4786,75 @@ extern __host__ __device__ __device_builtin__ double                 erf(double 
  * \brief Calculate the error function of the input argument.
  *
  * Calculate the value of the error function for the input argument \p x,
- * \f$\frac{2}{\sqrt \pi} \int_0^x e^{-t^2} dt\f$.
+ * \latexonly $\frac{2}{\sqrt \pi} \int_0^x e^{-t^2} dt$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mfrac>
+ *     <m:mn>2</m:mn>
+ *     <m:msqrt>
+ *       <m:mi>&#x03C0;<!-- π --></m:mi>
+ *     </m:msqrt>
+ *   </m:mfrac>
+ *   <m:msubsup>
+ *     <m:mo>&#x222B;<!-- ∫ --></m:mo>
+ *     <m:mn>0</m:mn>
+ *     <m:mi>x</m:mi>
+ *   </m:msubsup>
+ *   <m:msup>
+ *     <m:mi>e</m:mi>
+ *     <m:mrow class="MJX-TeXAtom-ORD">
+ *       <m:mo>&#x2212;<!-- − --></m:mo>
+ *       <m:msup>
+ *         <m:mi>t</m:mi>
+ *         <m:mn>2</m:mn>
+ *       </m:msup>
+ *     </m:mrow>
+ *   </m:msup>
+ *   <m:mi>d</m:mi>
+ *   <m:mi>t</m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
- * \return 
- * - erff(\f$\pm 0\f$) returns \f$\pm 0\f$.
- * - erff(\f$\pm \infty\f$) returns \f$\pm 1\f$.
+ * \return  
+ * - erff(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - erff(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $\pm 1$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>1</m:mn>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_single
  */
@@ -1666,11 +4865,53 @@ extern __host__ __device__ __device_builtin__ float                  erff(float 
  *
  * Calculate the inverse error function of the input argument \p y, for \p y in the interval [-1, 1].
  * The inverse error function finds the value \p x that satisfies the equation \p y = erf(\p x),
- * for \f$-1 \le y \le 1\f$, and \f$-\infty \le x \le \infty\f$.
+ * for 
+ * \latexonly $-1 \le y \le 1$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mn>1</m:mn>
+ *   <m:mo>&#x2264;<!-- ≤ --></m:mo>
+ *   <m:mi>y</m:mi>
+ *   <m:mo>&#x2264;<!-- ≤ --></m:mo>
+ *   <m:mn>1</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , and 
+ * \latexonly $-\infty \le x \le \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ *   <m:mo>&#x2264;<!-- ≤ --></m:mo>
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x2264;<!-- ≤ --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \return 
- * - erfinv(1) returns \f$\infty\f$.
- * - erfinv(-1) returns \f$-\infty\f$.
+ * - erfinv(1) returns 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - erfinv(-1) returns 
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_double
  */
@@ -1681,11 +4922,53 @@ extern __host__ __device__ __device_builtin__ double                 erfinv(doub
  *
  * Calculate the inverse error function of the input argument \p y, for \p y in the interval [-1, 1].
  * The inverse error function finds the value \p x that satisfies the equation \p y = erf(\p x),
- * for \f$-1 \le y \le 1\f$, and \f$-\infty \le x \le \infty\f$.
+ * for 
+ * \latexonly $-1 \le y \le 1$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mn>1</m:mn>
+ *   <m:mo>&#x2264;<!-- ≤ --></m:mo>
+ *   <m:mi>y</m:mi>
+ *   <m:mo>&#x2264;<!-- ≤ --></m:mo>
+ *   <m:mn>1</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , and 
+ * \latexonly $-\infty \le x \le \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ *   <m:mo>&#x2264;<!-- ≤ --></m:mo>
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x2264;<!-- ≤ --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \return 
- * - erfinvf(1) returns \f$\infty\f$.
- * - erfinvf(-1) returns \f$-\infty\f$.
+ * - erfinvf(1) returns 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - erfinvf(-1) returns 
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_single
  */
@@ -1698,8 +4981,28 @@ extern __host__ __device__ __device_builtin__ float                  erfinvf(flo
  * 1 - erf(\p x).
  *
  * \return 
- * - erfc(\f$-\infty\f$) returns 2.
- * - erfc(\f$+\infty\f$) returns +0.
+ * - erfc(
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 2.
+ * - erfc(
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns +0.
  *
  * \note_accuracy_double
  */
@@ -1712,26 +5015,152 @@ extern __host__ __device__ __device_builtin__ double                 erfc(double
  * 1 - erf(\p x).
  *
  * \return 
- * - erfcf(\f$-\infty\f$) returns 2.
- * - erfcf(\f$+\infty\f$) returns +0.
+ * - erfcf(
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 2.
+ * - erfcf(
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns +0.
  *
  * \note_accuracy_single
  */
 extern __host__ __device__ __device_builtin__ float                  erfcf(float x) __THROW;
 /**
  * \ingroup CUDA_MATH_DOUBLE
- * \brief Calculate the natural logarithm of the gamma function of the input argument.
+ * \brief Calculate the natural logarithm of the absolute value of the gamma function of the input argument.
  *
- * Calculate the natural logarithm of the gamma function of the input argument \p x, namely the value of
- * \f$\log_{e}\left|\int_{0}^{\infty} e^{-t}t^{x-1}dt\right|\f$
+ * Calculate the natural logarithm of the absolute value of the gamma function of the input argument \p x, namely the value of
+ * \latexonly $\log_{e}\left|\int_{0}^{\infty} e^{-t}t^{x-1}dt\right|$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msub>
+ *     <m:mi>log</m:mi>
+ *     <m:mrow class="MJX-TeXAtom-ORD">
+ *       <m:mi>e</m:mi>
+ *     </m:mrow>
+ *   </m:msub>
+ *   <m:mfenced open="|" close="|">
+ *     <m:mrow>
+ *       <m:msubsup>
+ *         <m:mo>&#x222B;<!-- ∫ --></m:mo>
+ *         <m:mrow class="MJX-TeXAtom-ORD">
+ *           <m:mn>0</m:mn>
+ *         </m:mrow>
+ *         <m:mrow class="MJX-TeXAtom-ORD">
+ *           <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ *         </m:mrow>
+ *       </m:msubsup>
+ *       <m:msup>
+ *         <m:mi>e</m:mi>
+ *         <m:mrow class="MJX-TeXAtom-ORD">
+ *           <m:mo>&#x2212;<!-- − --></m:mo>
+ *           <m:mi>t</m:mi>
+ *         </m:mrow>
+ *       </m:msup>
+ *       <m:msup>
+ *         <m:mi>t</m:mi>
+ *         <m:mrow class="MJX-TeXAtom-ORD">
+ *           <m:mi>x</m:mi>
+ *           <m:mo>&#x2212;<!-- − --></m:mo>
+ *           <m:mn>1</m:mn>
+ *         </m:mrow>
+ *       </m:msup>
+ *       <m:mi>d</m:mi>
+ *       <m:mi>t</m:mi>
+ *     </m:mrow>
+ *   </m:mfenced>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
  *
  * \return 
  * - lgamma(1) returns +0.
  * - lgamma(2) returns +0.
- * - lgamma(\p x) returns \f$\pm \infty\f$ if the correctly calculated value is outside the double floating point range.
- * - lgamma(\p x) returns \f$+\infty\f$ if \p x \f$\le\f$ 0.
- * - lgamma(\f$-\infty\f$) returns \f$-\infty\f$.
- * - lgamma(\f$(+\infty\f$) returns \f$+\infty\f$.
+ * - lgamma(\p x) returns 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  if the correctly calculated value is outside the double floating point range.
+ * - lgamma(\p x) returns 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  if \p x 
+ * \latexonly $\leq$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2264;<!-- ≤ --></m:mo>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly 0.
+ * - lgamma(
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - lgamma(
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_double
  */
@@ -1742,11 +5171,52 @@ extern __host__ __device__ __device_builtin__ double                 lgamma(doub
  *
  * Calculate the inverse complementary error function of the input argument \p y, for \p y in the interval [0, 2].
  * The inverse complementary error function find the value \p x that satisfies the equation \p y = erfc(\p x),
- * for \f$0 \le y \le 2\f$, and \f$-\infty \le x \le \infty\f$.
+ * for 
+ * \latexonly $0 \le y \le 2$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mn>0</m:mn>
+ *   <m:mo>&#x2264;<!-- ≤ --></m:mo>
+ *   <m:mi>y</m:mi>
+ *   <m:mo>&#x2264;<!-- ≤ --></m:mo>
+ *   <m:mn>2</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , and 
+ * \latexonly $-\infty \le x \le \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ *   <m:mo>&#x2264;<!-- ≤ --></m:mo>
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x2264;<!-- ≤ --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \return 
- * - erfcinv(0) returns \f$\infty\f$.
- * - erfcinv(2) returns \f$-\infty\f$.
+ * - erfcinv(0) returns 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - erfcinv(2) returns 
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_double
  */
@@ -1757,21 +5227,329 @@ extern __host__ __device__ __device_builtin__ double                 erfcinv(dou
  *
  * Calculate the inverse complementary error function of the input argument \p y, for \p y in the interval [0, 2].
  * The inverse complementary error function find the value \p x that satisfies the equation \p y = erfc(\p x),
- * for \f$0 \le y \le 2\f$, and \f$-\infty \le x \le \infty\f$.
+ * for 
+ * \latexonly $0 \le y \le 2$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mn>0</m:mn>
+ *   <m:mo>&#x2264;<!-- ≤ --></m:mo>
+ *   <m:mi>y</m:mi>
+ *   <m:mo>&#x2264;<!-- ≤ --></m:mo>
+ *   <m:mn>2</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , and 
+ * \latexonly $-\infty \le x \le \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ *   <m:mo>&#x2264;<!-- ≤ --></m:mo>
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x2264;<!-- ≤ --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \return 
- * - erfcinvf(0) returns \f$\infty\f$.
- * - erfcinvf(2) returns \f$-\infty\f$.
+ * - erfcinvf(0) returns 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - erfcinvf(2) returns 
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_single
  */
 extern __host__ __device__ __device_builtin__ float                  erfcinvf(float y);
 /**
  * \ingroup CUDA_MATH_DOUBLE
+ * \brief Calculate the inverse of the standard normal cumulative distribution function.
+ *
+ * Calculate the inverse of the standard normal cumulative distribution function for input argument \p y,
+ * \latexonly $\Phi^{-1}(y)$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msup>
+ *     <m:mi mathvariant="normal">&#x03A6;<!-- Φ --></m:mi>
+ *     <m:mrow class="MJX-TeXAtom-ORD">
+ *       <m:mo>&#x2212;<!-- − --></m:mo>
+ *       <m:mn>1</m:mn>
+ *     </m:mrow>
+ *   </m:msup>
+ *   <m:mo stretchy="false">(</m:mo>
+ *   <m:mi>y</m:mi>
+ *   <m:mo stretchy="false">)</m:mo>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly. The function is defined for input values in the interval 
+ * \latexonly $(0, 1)$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo stretchy="false">(</m:mo>
+ *   <m:mn>0</m:mn>
+ *   <m:mo>,</m:mo>
+ *   <m:mn>1</m:mn>
+ *   <m:mo stretchy="false">)</m:mo>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ *
+ * \return 
+ * - normcdfinv(0) returns
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - normcdfinv(1) returns 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - normcdfinv(\p x) returns NaN
+ *  if \p x is not in the interval [0,1].
+ *
+ * \note_accuracy_double
+ */
+extern __host__ __device__ __device_builtin__ double                 normcdfinv(double y);
+/**
+ * \ingroup CUDA_MATH_SINGLE
+ * \brief Calculate the inverse of the standard normal cumulative distribution function.
+ *
+ * Calculate the inverse of the standard normal cumulative distribution function for input argument \p y,
+ * \latexonly $\Phi^{-1}(y)$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msup>
+ *     <m:mi mathvariant="normal">&#x03A6;<!-- Φ --></m:mi>
+ *     <m:mrow class="MJX-TeXAtom-ORD">
+ *       <m:mo>&#x2212;<!-- − --></m:mo>
+ *       <m:mn>1</m:mn>
+ *     </m:mrow>
+ *   </m:msup>
+ *   <m:mo stretchy="false">(</m:mo>
+ *   <m:mi>y</m:mi>
+ *   <m:mo stretchy="false">)</m:mo>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly. The function is defined for input values in the interval 
+ * \latexonly $(0, 1)$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo stretchy="false">(</m:mo>
+ *   <m:mn>0</m:mn>
+ *   <m:mo>,</m:mo>
+ *   <m:mn>1</m:mn>
+ *   <m:mo stretchy="false">)</m:mo>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ *
+ * \return 
+ * - normcdfinvf(0) returns
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - normcdfinvf(1) returns 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - normcdfinvf(\p x) returns NaN
+ *  if \p x is not in the interval [0,1].
+ *
+ * \note_accuracy_single
+ */
+extern __host__ __device__ __device_builtin__ float                  normcdfinvf(float y);
+/**
+ * \ingroup CUDA_MATH_DOUBLE
+ * \brief Calculate the standard normal cumulative distribution function.
+ *
+ * Calculate the cumulative distribution function of the standard normal distribution for input argument \p y,
+ * \latexonly $\Phi(y)$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi mathvariant="normal">&#x03A6;<!-- Φ --></m:mi>
+ *   <m:mo stretchy="false">(</m:mo>
+ *   <m:mi>y</m:mi>
+ *   <m:mo stretchy="false">)</m:mo>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ *
+ * \return 
+ * - normcdf(
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 1
+ * - normcdf(
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML"> 
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns +0
+ *
+ * \note_accuracy_double
+ */
+extern __host__ __device__ __device_builtin__ double                 normcdf(double y);
+/**
+ * \ingroup CUDA_MATH_SINGLE
+ * \brief Calculate the standard normal cumulative distribution function.
+ *
+ * Calculate the cumulative distribution function of the standard normal distribution for input argument \p y,
+ * \latexonly $\Phi(y)$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi mathvariant="normal">&#x03A6;<!-- Φ --></m:mi>
+ *   <m:mo stretchy="false">(</m:mo>
+ *   <m:mi>y</m:mi>
+ *   <m:mo stretchy="false">)</m:mo>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ *
+ * \return 
+ * - normcdff(
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 1
+ * - normcdff(
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML"> 
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns +0
+
+ * \note_accuracy_single
+ */
+extern __host__ __device__ __device_builtin__ float                  normcdff(float y);
+/**
+ * \ingroup CUDA_MATH_DOUBLE
  * \brief Calculate the scaled complementary error function of the input argument.
  *
  * Calculate the scaled complementary error function of the input argument \p x,
- * \f$e^{x^2}\cdot \textrm{erfc}(x)\f$.
+ * \latexonly $e^{x^2}\cdot \textrm{erfc}(x)$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msup>
+ *     <m:mi>e</m:mi>
+ *     <m:mrow class="MJX-TeXAtom-ORD">
+ *       <m:msup>
+ *         <m:mi>x</m:mi>
+ *         <m:mn>2</m:mn>
+ *       </m:msup>
+ *     </m:mrow>
+ *   </m:msup>
+ *   <m:mo>&#x22C5;<!-- ⋅ --></m:mo>
+ *   <m:mrow class="MJX-TeXAtom-ORD">
+ *     <m:mtext>erfc</m:mtext>
+ *   </m:mrow>
+ *   <m:mo stretchy="false">(</m:mo>
+ *   <m:mi>x</m:mi>
+ *   <m:mo stretchy="false">)</m:mo>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ *
+ * \return 
+ * - erfcx(
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>-</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * - erfcx(
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML"> 
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns +0
+ * - erfcx(\p x) returns 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  if the correctly calculated value is outside the double floating point range.
  *
  * \note_accuracy_double
  */
@@ -1781,25 +5559,201 @@ extern __host__ __device__ __device_builtin__ double                 erfcx(doubl
  * \brief Calculate the scaled complementary error function of the input argument.
  *
  * Calculate the scaled complementary error function of the input argument \p x,
- * \f$e^{x^2}\cdot \textrm{erfc}(x)\f$.
+ * \latexonly $e^{x^2}\cdot \textrm{erfc}(x)$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msup>
+ *     <m:mi>e</m:mi>
+ *     <m:mrow class="MJX-TeXAtom-ORD">
+ *       <m:msup>
+ *         <m:mi>x</m:mi>
+ *         <m:mn>2</m:mn>
+ *       </m:msup>
+ *     </m:mrow>
+ *   </m:msup>
+ *   <m:mo>&#x22C5;<!-- ⋅ --></m:mo>
+ *   <m:mrow class="MJX-TeXAtom-ORD">
+ *     <m:mtext>erfc</m:mtext>
+ *   </m:mrow>
+ *   <m:mo stretchy="false">(</m:mo>
+ *   <m:mi>x</m:mi>
+ *   <m:mo stretchy="false">)</m:mo>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
+ * \return 
+ * - erfcxf(
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>-</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * - erfcxf(
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML"> 
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns +0
+ * - erfcxf(\p x) returns 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  if the correctly calculated value is outside the single floating point range.
+
  * \note_accuracy_single
  */
 extern __host__ __device__ __device_builtin__ float                  erfcxf(float x);
 /**
  * \ingroup CUDA_MATH_SINGLE
- * \brief Calculate the natural logarithm of the gamma function of the input argument.
+ * \brief Calculate the natural logarithm of the absolute value of the gamma function of the input argument.
  *
- * Calculate the natural logarithm of the gamma function of the input argument \p x, namely the value of
- * \f$log_{e}|\ \int_{0}^{\infty} e^{-t}t^{x-1}dt|\f$.
+ * Calculate the natural logarithm of the absolute value of the gamma function of the input argument \p x, namely the value of
+ * \latexonly $log_{e}|\ \int_{0}^{\infty} e^{-t}t^{x-1}dt|$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>l</m:mi>
+ *   <m:mi>o</m:mi>
+ *   <m:msub>
+ *     <m:mi>g</m:mi>
+ *     <m:mrow class="MJX-TeXAtom-ORD">
+ *       <m:mi>e</m:mi>
+ *     </m:mrow>
+ *   </m:msub>
+ *   <m:mrow class="MJX-TeXAtom-ORD">
+ *     <m:mo stretchy="false">|</m:mo>
+ *   </m:mrow>
+ *   <m:mtext>&#xA0;</m:mtext>
+ *   <m:msubsup>
+ *     <m:mo>&#x222B;<!-- ∫ --></m:mo>
+ *     <m:mrow class="MJX-TeXAtom-ORD">
+ *       <m:mn>0</m:mn>
+ *     </m:mrow>
+ *     <m:mrow class="MJX-TeXAtom-ORD">
+ *       <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ *     </m:mrow>
+ *   </m:msubsup>
+ *   <m:msup>
+ *     <m:mi>e</m:mi>
+ *     <m:mrow class="MJX-TeXAtom-ORD">
+ *       <m:mo>&#x2212;<!-- − --></m:mo>
+ *       <m:mi>t</m:mi>
+ *     </m:mrow>
+ *   </m:msup>
+ *   <m:msup>
+ *     <m:mi>t</m:mi>
+ *     <m:mrow class="MJX-TeXAtom-ORD">
+ *       <m:mi>x</m:mi>
+ *       <m:mo>&#x2212;<!-- − --></m:mo>
+ *       <m:mn>1</m:mn>
+ *     </m:mrow>
+ *   </m:msup>
+ *   <m:mi>d</m:mi>
+ *   <m:mi>t</m:mi>
+ *   <m:mrow class="MJX-TeXAtom-ORD">
+ *     <m:mo stretchy="false">|</m:mo>
+ *   </m:mrow>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \return 
  * - lgammaf(1) returns +0.
  * - lgammaf(2) returns +0.
- * - lgammaf(\p x) returns \f$\pm \infty\f$ if the correctly calculated value is outside the single floating point range.
- * - lgammaf(\p x) returns \f$+\infty\f$ if \p x\f$\leq\f$ 0.
- * - lgammaf(\f$-\infty\f$) returns \f$-\infty\f$.
- * - lgammaf(\f$+\infty\f$) returns \f$+\infty\f$.
+ * - lgammaf(\p x) returns 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  if the correctly calculated value is outside the single floating point range.
+ * - lgammaf(\p x) returns 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  if \p x
+ * \latexonly $\leq$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2264;<!-- ≤ --></m:mo>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  0.
+ * - lgammaf(
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - lgammaf(
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_single
  */
@@ -1809,15 +5763,102 @@ extern __host__ __device__ __device_builtin__ float                  lgammaf(flo
  * \brief Calculate the gamma function of the input argument.
  *
  * Calculate the gamma function of the input argument \p x, namely the value of
- * \f$\int_{0}^{\infty} e^{-t}t^{x-1}dt\f$.
+ * \latexonly $\int_{0}^{\infty} e^{-t}t^{x-1}dt$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msubsup>
+ *     <m:mo>&#x222B;<!-- ∫ --></m:mo>
+ *     <m:mrow class="MJX-TeXAtom-ORD">
+ *       <m:mn>0</m:mn>
+ *     </m:mrow>
+ *     <m:mrow class="MJX-TeXAtom-ORD">
+ *       <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ *     </m:mrow>
+ *   </m:msubsup>
+ *   <m:msup>
+ *     <m:mi>e</m:mi>
+ *     <m:mrow class="MJX-TeXAtom-ORD">
+ *       <m:mo>&#x2212;<!-- − --></m:mo>
+ *       <m:mi>t</m:mi>
+ *     </m:mrow>
+ *   </m:msup>
+ *   <m:msup>
+ *     <m:mi>t</m:mi>
+ *     <m:mrow class="MJX-TeXAtom-ORD">
+ *       <m:mi>x</m:mi>
+ *       <m:mo>&#x2212;<!-- − --></m:mo>
+ *       <m:mn>1</m:mn>
+ *     </m:mrow>
+ *   </m:msup>
+ *   <m:mi>d</m:mi>
+ *   <m:mi>t</m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \return 
- * - tgamma(\f$\pm 0\f$) returns \f$\pm \infty\f$.
+ * - tgamma(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  * - tgamma(2) returns +0.
- * - tgamma(\p x) returns \f$\pm \infty\f$ if the correctly calculated value is outside the double floating point range.
+ * - tgamma(\p x) returns 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  if the correctly calculated value is outside the double floating point range.
  * - tgamma(\p x) returns NaN if \p x < 0.
- * - tgamma(\f$-\infty\f$) returns NaN.
- * - tgamma(\f$+\infty\f$) returns \f$+\infty\f$.
+ * - tgamma(
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns NaN.
+ * - tgamma(
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_double
  */
@@ -1827,15 +5868,102 @@ extern __host__ __device__ __device_builtin__ double                 tgamma(doub
  * \brief Calculate the gamma function of the input argument.
  *
  * Calculate the gamma function of the input argument \p x, namely the value of
- * \f$\int_{0}^{\infty} e^{-t}t^{x-1}dt\f$.
+ * \latexonly $\int_{0}^{\infty} e^{-t}t^{x-1}dt$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msubsup>
+ *     <m:mo>&#x222B;<!-- ∫ --></m:mo>
+ *     <m:mrow class="MJX-TeXAtom-ORD">
+ *       <m:mn>0</m:mn>
+ *     </m:mrow>
+ *     <m:mrow class="MJX-TeXAtom-ORD">
+ *       <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ *     </m:mrow>
+ *   </m:msubsup>
+ *   <m:msup>
+ *     <m:mi>e</m:mi>
+ *     <m:mrow class="MJX-TeXAtom-ORD">
+ *       <m:mo>&#x2212;<!-- − --></m:mo>
+ *       <m:mi>t</m:mi>
+ *     </m:mrow>
+ *   </m:msup>
+ *   <m:msup>
+ *     <m:mi>t</m:mi>
+ *     <m:mrow class="MJX-TeXAtom-ORD">
+ *       <m:mi>x</m:mi>
+ *       <m:mo>&#x2212;<!-- − --></m:mo>
+ *       <m:mn>1</m:mn>
+ *     </m:mrow>
+ *   </m:msup>
+ *   <m:mi>d</m:mi>
+ *   <m:mi>t</m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \return 
- * - tgammaf(\f$\pm 0\f$) returns \f$\pm \infty\f$.
+ * - tgammaf(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  * - tgammaf(2) returns +0.
- * - tgammaf(\p x) returns \f$\pm \infty\f$ if the correctly calculated value is outside the single floating point range.
+ * - tgammaf(\p x) returns 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  if the correctly calculated value is outside the single floating point range.
  * - tgammaf(\p x) returns NaN if \p x < 0.
- * - tgammaf(\f$-\infty\f$) returns NaN.
- * - tgammaf(\f$+\infty\f$) returns \f$+\infty\f$.
+ * - tgammaf(
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns NaN.
+ * - tgammaf(
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_single
  */
@@ -1868,7 +5996,25 @@ extern __host__ __device__ __device_builtin__ float                  copysignf(f
  * returns the smallest representable number greater than \p x
  *
  * \return 
- * - nextafter(\f$\pm \infty\f$, \p y) returns \f$\pm \infty\f$.
+ * - nextafter(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p y) returns 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_double
  */
@@ -1883,7 +6029,25 @@ extern __host__ __device__ __device_builtin__ double                 nextafter(d
  * returns the smallest representable number greater than \p x
  *
  * \return 
- * - nextafterf(\f$\pm \infty\f$, \p y) returns \f$\pm \infty\f$.
+ * - nextafterf(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p y) returns 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_single
  */
@@ -1932,34 +6096,308 @@ extern __host__ __device__ __device_builtin__ int                    __isinf(dou
 extern __host__ __device__ __device_builtin__ int                    __signbitf(float) __THROW;
 /**
  * \ingroup CUDA_MATH_DOUBLE
- * \brief Compute \f$x \times y + z\f$ as a single operation.
+ * \brief Compute 
+ * \latexonly $x \times y + z$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x00D7;<!-- × --></m:mo>
+ *   <m:mi>y</m:mi>
+ *   <m:mo>+</m:mo>
+ *   <m:mi>z</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  as a single operation.
  *
- * Compute the value of \f$x \times y + z\f$ as a single ternary operation. After computing the value
+ * Compute the value of 
+ * \latexonly $x \times y + z$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x00D7;<!-- × --></m:mo>
+ *   <m:mi>y</m:mi>
+ *   <m:mo>+</m:mo>
+ *   <m:mi>z</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  as a single ternary operation. After computing the value
  * to infinite precision, the value is rounded once.
  *
  * \return
- * Returns the rounded value of \f$x \times y + z\f$ as a single operation.
- * - fma(\f$\pm \infty\f$, \f$\pm 0\f$, \p z) returns NaN.
- * - fma(\f$\pm 0\f$, \f$\pm \infty\f$, \p z) returns NaN.
- * - fma(\p x, \p y, \f$-\infty\f$) returns NaN if \f$x \times y\f$ is an exact \f$+\infty\f$.
- * - fma(\p x, \p y, \f$+\infty\f$) returns NaN if \f$x \times y\f$ is an exact \f$-\infty\f$.
+ * Returns the rounded value of 
+ * \latexonly $x \times y + z$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x00D7;<!-- × --></m:mo>
+ *   <m:mi>y</m:mi>
+ *   <m:mo>+</m:mo>
+ *   <m:mi>z</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  as a single operation.
+ * - fma(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p z) returns NaN.
+ * - fma(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p z) returns NaN.
+ * - fma(\p x, \p y, 
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns NaN if 
+ * \latexonly $x \times y$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x00D7;<!-- × --></m:mo>
+ *   <m:mi>y</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  is an exact 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - fma(\p x, \p y, 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns NaN if 
+ * \latexonly $x \times y$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x00D7;<!-- × --></m:mo>
+ *   <m:mi>y</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  is an exact 
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_double
  */
 extern __host__ __device__ __device_builtin__ double                 fma(double x, double y, double z) __THROW;
 /**
  * \ingroup CUDA_MATH_SINGLE
- * \brief Compute \f$x \times y + z\f$ as a single operation.
+ * \brief Compute 
+ * \latexonly $x \times y + z$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x00D7;<!-- × --></m:mo>
+ *   <m:mi>y</m:mi>
+ *   <m:mo>+</m:mo>
+ *   <m:mi>z</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  as a single operation.
  *
- * Compute the value of \f$x \times y + z\f$ as a single ternary operation. After computing the value
+ * Compute the value of 
+ * \latexonly $x \times y + z$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x00D7;<!-- × --></m:mo>
+ *   <m:mi>y</m:mi>
+ *   <m:mo>+</m:mo>
+ *   <m:mi>z</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  as a single ternary operation. After computing the value
  * to infinite precision, the value is rounded once.
  *
  * \return
- * Returns the rounded value of \f$x \times y + z\f$ as a single operation.
- * - fmaf(\f$\pm \infty\f$, \f$\pm 0\f$, \p z) returns NaN.
- * - fmaf(\f$\pm 0\f$, \f$\pm \infty\f$, \p z) returns NaN.
- * - fmaf(\p x, \p y, \f$-\infty\f$) returns NaN if \f$x \times y\f$ is an exact \f$+\infty\f$.
- * - fmaf(\p x, \p y, \f$+\infty\f$) returns NaN if \f$x \times y\f$ is an exact \f$-\infty\f$.
+ * Returns the rounded value of 
+ * \latexonly $x \times y + z$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x00D7;<!-- × --></m:mo>
+ *   <m:mi>y</m:mi>
+ *   <m:mo>+</m:mo>
+ *   <m:mi>z</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  as a single operation.
+ * - fmaf(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p z) returns NaN.
+ * - fmaf(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p z) returns NaN.
+ * - fmaf(\p x, \p y, 
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns NaN if 
+ * \latexonly $x \times y$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x00D7;<!-- × --></m:mo>
+ *   <m:mi>y</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  is an exact 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - fmaf(\p x, \p y, 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns NaN if 
+ * \latexonly $x \times y$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x00D7;<!-- × --></m:mo>
+ *   <m:mi>y</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  is an exact 
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_single
  */
@@ -2008,7 +6446,16 @@ extern _CRTIMP __host__ __device__ __device_builtin__ float __cdecl fmodf(float,
  * Calculate the principal value of the arc cosine of the input argument \p x.
  *
  * \return 
- * Result will be in the interval [0, \f$\pi\f$] for \p x inside [-1, +1].
+ * Result will be in radians, in the interval [0, 
+ * \latexonly $\pi$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>&#x03C0;<!-- π --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ] for \p x inside [-1, +1].
  * - acosf(1) returns +0.
  * - acosf(\p x) returns NaN for \p x outside [-1, +1].
  *
@@ -2022,7 +6469,33 @@ extern __host__ __device__ __device_builtin__ float                  acosf(float
  * Calculate the principal value of the arc sine of the input argument \p x.
  *
  * \return 
- * Result will be in the interval [-\f$\pi/2\f$, +\f$\pi/2\f$] for \p x inside [-1, +1].
+ * Result will be in radians, in the interval [-
+ * \latexonly $\pi/2$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>&#x03C0;<!-- π --></m:mi>
+ *   <m:mrow class="MJX-TeXAtom-ORD">
+ *     <m:mo>/</m:mo>
+ *   </m:mrow>
+ *   <m:mn>2</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , +
+ * \latexonly $\pi/2$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>&#x03C0;<!-- π --></m:mi>
+ *   <m:mrow class="MJX-TeXAtom-ORD">
+ *     <m:mo>/</m:mo>
+ *   </m:mrow>
+ *   <m:mn>2</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ] for \p x inside [-1, +1].
  * - asinf(0) returns +0.
  * - asinf(\p x) returns NaN for \p x outside [-1, +1].
  *
@@ -2037,7 +6510,33 @@ extern __host__ __device__ __device_builtin__ float                  asinf(float
  * Calculate the principal value of the arc tangent of the input argument \p x.
  *
  * \return 
- * Result will be in radians, in the interval [-\f$\pi/2\f$, +\f$\pi/2\f$].
+ * Result will be in radians, in the interval [-
+ * \latexonly $\pi/2$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>&#x03C0;<!-- π --></m:mi>
+ *   <m:mrow class="MJX-TeXAtom-ORD">
+ *     <m:mo>/</m:mo>
+ *   </m:mrow>
+ *   <m:mn>2</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , +
+ * \latexonly $\pi/2$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>&#x03C0;<!-- π --></m:mi>
+ *   <m:mrow class="MJX-TeXAtom-ORD">
+ *     <m:mo>/</m:mo>
+ *   </m:mrow>
+ *   <m:mn>2</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ].
  * - atanf(0) returns +0.
  *
  * \note_accuracy_single
@@ -2052,7 +6551,25 @@ extern __host__ __device__ __device_builtin__ float                  atanf(float
  * determined by the signs of inputs \p x and \p y.
  *
  * \return 
- * Result will be in radians, in the interval [-\f$\pi\f$, +\f$\pi\f$].
+ * Result will be in radians, in the interval [-
+ * \latexonly $\pi$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>&#x03C0;<!-- π --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , +
+ * \latexonly $\pi$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>&#x03C0;<!-- π --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ].
  * - atan2f(0, 1) returns +0.
  *
  * \note_accuracy_single
@@ -2066,7 +6583,17 @@ extern __host__ __device__ __device_builtin__ float                  atan2f(floa
  *
  * \return 
  * - cosf(0) returns 1.
- * - cosf(\f$\pm \infty\f$) returns NaN.
+ * - cosf(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns NaN.
  *
  * \note_accuracy_single
  * \note_fastmath
@@ -2079,8 +6606,36 @@ extern __host__ __device__ __device_builtin__ float                  cosf(float 
  * Calculate the sine of the input argument \p x (measured in radians).
  *
  * \return 
- * - sinf(\f$\pm 0\f$) returns \f$\pm 0\f$.
- * - sinf(\f$\pm \infty\f$) returns NaN.
+ * - sinf(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - sinf(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns NaN.
  *
  * \note_accuracy_single
  * \note_fastmath
@@ -2093,8 +6648,36 @@ extern __host__ __device__ __device_builtin__ float                  sinf(float 
  * Calculate the tangent of the input argument \p x (measured in radians).
  *
  * \return 
- * - tanf(\f$\pm 0\f$) returns \f$\pm 0\f$.
- * - tanf(\f$\pm \infty\f$) returns NaN.
+ * - tanf(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - tanf(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns NaN.
  *
  * \note_accuracy_single
  * \note_fastmath
@@ -2105,11 +6688,21 @@ extern __host__ __device__ __device_builtin__ float                  tanf(float 
  * \ingroup CUDA_MATH_SINGLE
  * \brief Calculate the hyperbolic cosine of the input argument.
  *
- * Calculate the hyperbolic cosine of the input argument \p x (measured in radians).
+ * Calculate the hyperbolic cosine of the input argument \p x.
  *
  * \return 
  * - coshf(0) returns 1.
- * - coshf(\f$\pm \infty\f$) returns NaN.
+ * - coshf(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns NaN.
  *
  * \note_accuracy_single
  */
@@ -2118,11 +6711,39 @@ extern __host__ __device__ __device_builtin__ float                  coshf(float
  * \ingroup CUDA_MATH_SINGLE
  * \brief Calculate the hyperbolic sine of the input argument.
  *
- * Calculate the hyperbolic sine of the input argument \p x (measured in radians).
+ * Calculate the hyperbolic sine of the input argument \p x.
  *
  * \return 
- * - sinhf(\f$\pm 0\f$) returns \f$\pm 0\f$.
- * - sinhf(\f$\pm \infty\f$) returns NaN.
+ * - sinhf(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - sinhf(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns NaN.
  *
  * \note_accuracy_single
  */
@@ -2131,10 +6752,28 @@ extern __host__ __device__ __device_builtin__ float                  sinhf(float
  * \ingroup CUDA_MATH_SINGLE
  * \brief Calculate the hyperbolic tangent of the input argument.
  *
- * Calculate the hyperbolic tangent of the input argument \p x (measured in radians).
+ * Calculate the hyperbolic tangent of the input argument \p x.
  *
  * \return 
- * - tanhf(\f$\pm 0\f$) returns \f$\pm 0\f$.
+ * - tanhf(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_single
  */
@@ -2146,21 +6785,95 @@ extern __host__ __device__ __device_builtin__ float                  tanhf(float
  * Calculate the natural logarithm of the input argument \p x.
  *
  * \return 
- * - logf(\f$\pm 0\f$) returns \f$-\infty\f$.
+ * - logf(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  * - logf(1) returns +0.
  * - logf(\p x) returns NaN for \p x < 0.
- * - logf(\f$+\infty\f$) returns \f$+\infty\f$.
+ * - logf(
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_single
  */
 extern __host__ __device__ __device_builtin__ float                  logf(float x) __THROW;
 /**
  * \ingroup CUDA_MATH_SINGLE
- * \brief Calculate the base \f$e\f$ exponential of the input argument.
+ * \brief Calculate the base 
+ * \latexonly $e$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>e</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  exponential of the input argument.
  *
- * Calculate the base \f$e\f$ exponential of the input argument \p x, \f$e^x\f$.
+ * Calculate the base 
+ * \latexonly $e$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>e</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  exponential of the input argument \p x, 
+ * \latexonly $e^x$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msup>
+ *     <m:mi>e</m:mi>
+ *     <m:mi>x</m:mi>
+ *   </m:msup>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
- * \return Returns \f$e^x\f$.
+ * \return Returns 
+ * \latexonly $e^x$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msup>
+ *     <m:mi>e</m:mi>
+ *     <m:mi>x</m:mi>
+ *   </m:msup>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_single
  * \note_fastmath
@@ -2173,10 +6886,46 @@ extern __host__ __device__ __device_builtin__ float                  expf(float 
  * Calculate the base 10 logarithm of the input argument \p x.
  *
  * \return 
- * - log10f(\f$\pm 0\f$) returns \f$-\infty\f$.
+ * - log10f(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  * - log10f(1) returns +0.
  * - log10f(\p x) returns NaN for \p x < 0.
- * - log10f(\f$+\infty\f$) returns \f$+\infty\f$.
+ * - log10f(
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_single
  */
@@ -2189,8 +6938,47 @@ extern __host__ __device__ __device_builtin__ float                  log10f(floa
  * Fractional and integral parts are given the same sign as the argument \p x.
  *
  * \return 
- * - modff(\f$\pm x\f$, \p iptr) returns a result with the same sign as \p x.
- * - modff(\f$\pm \infty\f$, \p iptr) returns \f$\pm 0\f$ and stores \f$\pm \infty\f$
+ * - modff(
+ * \latexonly $\pm x$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *  <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi>x</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p iptr) returns a result with the same sign as \p x.
+ * - modff(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p iptr) returns 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  and stores 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
  *   in the object pointed to by \p iptr.
  * - modff(NaN, \p iptr) stores a NaN in the object pointed to by \p iptr and returns a NaN.
  *
@@ -2204,23 +6992,303 @@ extern __host__ __device__ __device_builtin__ float                  modff(float
  * Calculate the value of \p x to the power of \p y.
  *
  * \return 
- * - powf(\f$\pm 0\f$, \p y) returns \f$\pm \infty\f$ for \p y an integer less than 0.
- * - powf(\f$\pm 0\f$, \p y) returns \f$\pm 0\f$ for \p y an odd integer greater than 0.
- * - powf(\f$\pm 0\f$, \p y) returns +0 for \p y > 0 and not and odd integer.
- * - powf(-1, \f$\pm \infty\f$) returns 1.
+ * - powf(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p y) returns 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  for \p y an integer less than 0.
+ * - powf(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p y) returns 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  for \p y an odd integer greater than 0.
+ * - powf(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p y) returns +0 for \p y > 0 and not and odd integer.
+ * - powf(-1, 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 1.
  * - powf(+1, \p y) returns 1 for any \p y, even a NaN.
- * - powf(\p x, \f$\pm 0\f$) returns 1 for any \p x, even a NaN.
+ * - powf(\p x, 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 1 for any \p x, even a NaN.
  * - powf(\p x, \p y) returns a NaN for finite \p x < 0 and finite non-integer \p y.
- * - powf(\p x, \f$-\infty\f$) returns \f$+\infty\f$ for \f$| x | < 1\f$.
- * - powf(\p x, \f$-\infty\f$) returns +0 for \f$| x | > 1\f$.
- * - powf(\p x, \f$+\infty\f$) returns +0 for \f$| x | < 1\f$.
- * - powf(\p x, \f$+\infty\f$) returns \f$+\infty\f$ for \f$| x | > 1\f$.
- * - powf(\f$-\infty\f$, \p y) returns -0 for \p y an odd integer less than 0.
- * - powf(\f$-\infty\f$, \p y) returns +0 for \p y < 0 and not an odd integer.
- * - powf(\f$-\infty\f$, \p y) returns \f$-\infty\f$ for \p y an odd integer greater than 0.
- * - powf(\f$-\infty\f$, \p y) returns \f$+\infty\f$ for \p y > 0 and not an odd integer.
- * - powf(\f$+\infty\f$, \p y) returns +0 for \p y < 0.
- * - powf(\f$+\infty\f$, \p y) returns \f$+\infty\f$ for \p y > 0.
+ * - powf(\p x, 
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  for 
+ * \latexonly $| x | < 1$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mrow class="MJX-TeXAtom-ORD">
+ *     <m:mo stretchy="false">|</m:mo>
+ *   </m:mrow>
+ *   <m:mi>x</m:mi>
+ *   <m:mrow class="MJX-TeXAtom-ORD">
+ *     <m:mo stretchy="false">|</m:mo>
+ *   </m:mrow>
+ *   <m:mo>&lt;</m:mo>
+ *   <m:mn>1</m:mn>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - powf(\p x, 
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns +0 for 
+ * \latexonly $| x | > 1$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mrow class="MJX-TeXAtom-ORD">
+ *     <m:mo stretchy="false">|</m:mo>
+ *   </m:mrow>
+ *   <m:mi>x</m:mi>
+ *   <m:mrow class="MJX-TeXAtom-ORD">
+ *     <m:mo stretchy="false">|</m:mo>
+ *   </m:mrow>
+ *   <m:mo>&gt;</m:mo>
+ *   <m:mn>1</m:mn>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - powf(\p x, 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns +0 for 
+ * \latexonly $| x | < 1$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mrow class="MJX-TeXAtom-ORD">
+ *     <m:mo stretchy="false">|</m:mo>
+ *   </m:mrow>
+ *   <m:mi>x</m:mi>
+ *   <m:mrow class="MJX-TeXAtom-ORD">
+ *     <m:mo stretchy="false">|</m:mo>
+ *   </m:mrow>
+ *   <m:mo>&lt;</m:mo>
+ *   <m:mn>1</m:mn>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - powf(\p x, 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  for 
+ * \latexonly $| x | > 1$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mrow class="MJX-TeXAtom-ORD">
+ *     <m:mo stretchy="false">|</m:mo>
+ *   </m:mrow>
+ *   <m:mi>x</m:mi>
+ *   <m:mrow class="MJX-TeXAtom-ORD">
+ *     <m:mo stretchy="false">|</m:mo>
+ *   </m:mrow>
+ *   <m:mo>&gt;</m:mo>
+ *   <m:mn>1</m:mn>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - powf(
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p y) returns -0 for \p y an odd integer less than 0.
+ * - powf(
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p y) returns +0 for \p y < 0 and not an odd integer.
+ * - powf(
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p y) returns 
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  for \p y an odd integer greater than 0.
+ * - powf(
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p y) returns 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  for \p y > 0 and not an odd integer.
+ * - powf(
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p y) returns +0 for \p y < 0.
+ * - powf(
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p y) returns 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  for \p y > 0.
  *
  * \note_accuracy_single
  */
@@ -2229,12 +7297,66 @@ extern __host__ __device__ __device_builtin__ float                  powf(float 
  * \ingroup CUDA_MATH_SINGLE
  * \brief Calculate the square root of the input argument.
  *
- * Calculate the nonnegative square root of \p x, \f$\sqrt{x}\f$.
+ * Calculate the nonnegative square root of \p x, 
+ * \latexonly $\sqrt{x}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msqrt>
+ *     <m:mi>x</m:mi>
+ *   </m:msqrt>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \return 
- * Returns \f$\sqrt{x}\f$.
- * - sqrtf(\f$\pm 0\f$) returns \f$\pm 0\f$.
- * - sqrtf(\f$+\infty\f$) returns \f$+\infty\f$.
+ * Returns 
+ * \latexonly $\sqrt{x}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msqrt>
+ *     <m:mi>x</m:mi>
+ *   </m:msqrt>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - sqrtf(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - sqrtf(
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  * - sqrtf(\p x) returns NaN if \p x is less than 0.
  *
  * \note_accuracy_single
@@ -2247,9 +7369,56 @@ extern __host__ __device__ __device_builtin__ float                  sqrtf(float
  * Compute the smallest integer value not less than \p x.
  *
  * \return
- * Returns \f$\lceil x \rceil\f$ expressed as a floating-point number.
- * - ceilf(\f$\pm 0\f$) returns \f$\pm 0\f$.
- * - ceilf(\f$\pm \infty\f$) returns \f$\pm \infty\f$.
+ * Returns 
+ * \latexonly $\lceil x \rceil$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo fence="false" stretchy="false">&#x2308;<!-- ⌈ --></m:mo>
+ *   <m:mi>x</m:mi>
+ *   <m:mo fence="false" stretchy="false">&#x2309;<!-- ⌉ --></m:mo>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  expressed as a floating-point number.
+ * - ceilf(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - ceilf(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  */
 extern __host__ __device__ __device_builtin__ float                  ceilf(float x) __THROW;
 /**
@@ -2259,9 +7428,67 @@ extern __host__ __device__ __device_builtin__ float                  ceilf(float
  * Calculate the largest integer value which is less than or equal to \p x.
  * 
  * \return
- * Returns \f$\lfloor x \rfloor\f$ expressed as a floating-point number.
- * - floorf(\f$\pm \infty\f$) returns \f$\pm \infty\f$.
- * - floorf(\f$\pm 0\f$) returns \f$\pm 0\f$.
+ * Returns 
+ * \latexonly $log_{e}(1+x)$ \endlatexonly
+ * \latexonly $\lfloor x \rfloor$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>l</m:mi>
+ *   <m:mi>o</m:mi>
+ *   <m:msub>
+ *     <m:mi>g</m:mi>
+ *     <m:mrow class="MJX-TeXAtom-ORD">
+ *       <m:mi>e</m:mi>
+ *     </m:mrow>
+ *   </m:msub>
+ *   <m:mo stretchy="false">(</m:mo>
+ *   <m:mn>1</m:mn>
+ *   <m:mo>+</m:mo>
+ *   <m:mi>x</m:mi>
+ *   <m:mo stretchy="false">)</m:mo>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  expressed as a floating-point number.
+ * - floorf(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - floorf(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_single
  */
@@ -2276,11 +7503,50 @@ extern __host__ __device__ __device_builtin__ float                  floorf(floa
  *
  * \return
  * - Returns the floating point remainder of \p x / \p y.
- * - fmodf(\f$\pm 0\f$, \p y) returns \f$\pm 0\f$ if \p y is not zero.
+ * - fmodf(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p y) returns 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  if \p y is not zero.
  * - fmodf(\p x, \p y) returns NaN and raised an invalid floating point exception if \p x is 
- * \f$\infty\f$ or \p y is zero.
+ * \latexonly $\pm\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  or \p y is zero.
  * - fmodf(\p x, \p y) returns zero if \p y is zero or the result would overflow.
- * - fmodf(\p x, \f$\pm \infty\f$) returns \p x if \p x is finite.
+ * - fmodf(\p x, 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns \p x if \p x is finite.
  * - fmodf(\p x, 0) returns NaN.
  *
  * \note_accuracy_single
@@ -2292,8 +7558,11 @@ extern __host__ __device__ __device_builtin__ float                  fmodf(float
 
 #include <math.h>
 #include <stdlib.h>
+
+#ifndef __CUDA_INTERNAL_SKIP_CPP_HEADERS__
 #include <cmath>
 #include <cstdlib>
+#endif
 
 /*******************************************************************************
 *                                                                              *
@@ -2332,15 +7601,26 @@ extern __host__ __device__ __device_builtin__ float                  fmodf(float
 
 #endif /* __APPLE__ */
 
+#if defined(__arm__) && !_GLIBCXX_USE_C99
+
+static __inline__ __host__ __device__ __cudart_builtin__ long long int abs(long long int a)
+{
+  return llabs(a);
+}
+
+#endif /* __arm__ && !_GLIBCXX_USE_C99 */
+
+#if __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 8)
 namespace __gnu_cxx
 {
-  //extern __host__ __device__ long long int abs(long long int);
+  extern __host__ __device__ __cudart_builtin__ long long int abs(long long int);
 }
+#endif /* __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 8) */
 
 namespace std
 {
-  //template<typename T> extern __host__ __device__ T __pow_helper(T, int);
-  //template<typename T> extern __host__ __device__ T __cmath_power(T, unsigned int);
+  template<typename T> extern __host__ __device__ __cudart_builtin__ T __pow_helper(T, int);
+  template<typename T> extern __host__ __device__ __cudart_builtin__ T __cmath_power(T, unsigned int);
 }
 
 using std::abs;
@@ -2370,10 +7650,17 @@ using std::tanh;
 #elif defined(_WIN32)
 
 #if _MSC_VER < 1600
+
 static __inline__ __host__ __device__ long long int abs(long long int a)
 {
   return llabs(a);
 }
+
+#else /* _MSC_VER < 1600 */
+
+extern __host__ __device__ __cudart_builtin__ _CRTIMP double __cdecl _hypot(double x, double y);
+extern __host__ __device__ __cudart_builtin__ _CRTIMP float  __cdecl _hypotf(float x, float y);
+
 #endif /* _MSC_VER < 1600 */
 
 static __inline__ __host__ __device__ int signbit(long double a)
@@ -2522,8 +7809,8 @@ static __inline__ __host__ __device__ int isfinite(float a)
   return __finitef(a);
 }
 
-template<class T> extern __host__ __device__ T _Pow_int(T, int);
-extern __host__ __device__ long long int abs(long long int);
+template<class T> extern __host__ __device__ __cudart_builtin__ T _Pow_int(T, int);
+extern __host__ __device__ __cudart_builtin__ long long int abs(long long int);
 
 #endif /* __GNUC__ */
 
@@ -2531,33 +7818,40 @@ extern __host__ __device__ long long int abs(long long int);
 namespace std {
 #endif /* __GNUC__ */
 
-//extern __host__ __device__ long int __cdecl abs(long int);
-//extern __host__ __device__ float    __cdecl abs(float);
-//extern __host__ __device__ double   __cdecl abs(double);
-//extern __host__ __device__ float    __cdecl fabs(float);
-//extern __host__ __device__ float    __cdecl ceil(float);
-//extern __host__ __device__ float    __cdecl floor(float);
-//extern __host__ __device__ float    __cdecl sqrt(float);
-//extern __host__ __device__ float    __cdecl pow(float, float);
-//extern __host__ __device__ float    __cdecl pow(float, int);
-//extern __host__ __device__ double   __cdecl pow(double, int);
-//extern __host__ __device__ float    __cdecl log(float);
-//extern __host__ __device__ float    __cdecl log10(float);
-//extern __host__ __device__ float    __cdecl fmod(float, float);
-//extern __host__ __device__ float    __cdecl modf(float, float*);
-//extern __host__ __device__ float    __cdecl exp(float);
-//extern __host__ __device__ float    __cdecl frexp(float, int*);
-//extern __host__ __device__ float    __cdecl ldexp(float, int);
-//extern __host__ __device__ float    __cdecl asin(float);
-//extern __host__ __device__ float    __cdecl sin(float);
-//extern __host__ __device__ float    __cdecl sinh(float);
-//extern __host__ __device__ float    __cdecl acos(float);
-//extern __host__ __device__ float    __cdecl cos(float);
-//extern __host__ __device__ float    __cdecl cosh(float);
-//extern __host__ __device__ float    __cdecl atan(float);
-//extern __host__ __device__ float    __cdecl atan2(float, float);
-//extern __host__ __device__ float    __cdecl tan(float);
-//extern __host__ __device__ float    __cdecl tanh(float);
+#if defined(__GNUC__)
+
+#if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 8)
+extern __host__ __device__ __cudart_builtin__ long long int abs(long long int);
+#endif /* __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 8) */
+
+#endif /* __GNUC__ */
+extern __host__ __device__ __cudart_builtin__ long int __cdecl abs(long int);
+extern __host__ __device__ __cudart_builtin__ float    __cdecl abs(float);
+extern __host__ __device__ __cudart_builtin__ double   __cdecl abs(double);
+extern __host__ __device__ __cudart_builtin__ float    __cdecl fabs(float);
+extern __host__ __device__ __cudart_builtin__ float    __cdecl ceil(float);
+extern __host__ __device__ __cudart_builtin__ float    __cdecl floor(float);
+extern __host__ __device__ __cudart_builtin__ float    __cdecl sqrt(float);
+extern __host__ __device__ __cudart_builtin__ float    __cdecl pow(float, float);
+extern __host__ __device__ __cudart_builtin__ float    __cdecl pow(float, int);
+extern __host__ __device__ __cudart_builtin__ double   __cdecl pow(double, int);
+extern __host__ __device__ __cudart_builtin__ float    __cdecl log(float);
+extern __host__ __device__ __cudart_builtin__ float    __cdecl log10(float);
+extern __host__ __device__ __cudart_builtin__ float    __cdecl fmod(float, float);
+extern __host__ __device__ __cudart_builtin__ float    __cdecl modf(float, float*);
+extern __host__ __device__ __cudart_builtin__ float    __cdecl exp(float);
+extern __host__ __device__ __cudart_builtin__ float    __cdecl frexp(float, int*);
+extern __host__ __device__ __cudart_builtin__ float    __cdecl ldexp(float, int);
+extern __host__ __device__ __cudart_builtin__ float    __cdecl asin(float);
+extern __host__ __device__ __cudart_builtin__ float    __cdecl sin(float);
+extern __host__ __device__ __cudart_builtin__ float    __cdecl sinh(float);
+extern __host__ __device__ __cudart_builtin__ float    __cdecl acos(float);
+extern __host__ __device__ __cudart_builtin__ float    __cdecl cos(float);
+extern __host__ __device__ __cudart_builtin__ float    __cdecl cosh(float);
+extern __host__ __device__ __cudart_builtin__ float    __cdecl atan(float);
+extern __host__ __device__ __cudart_builtin__ float    __cdecl atan2(float, float);
+extern __host__ __device__ __cudart_builtin__ float    __cdecl tan(float);
+extern __host__ __device__ __cudart_builtin__ float    __cdecl tanh(float);
 
 #if defined(__GNUC__)
 }
@@ -2653,6 +7947,11 @@ static __inline__ __host__ __device__ float cospi(float a)
   return cospif(a);
 }
 
+static __inline__ __host__ __device__ void sincospi(float a, float *sptr, float *cptr)
+{
+  sincospif(a, sptr, cptr);
+}
+
 static __inline__ __host__ __device__ void sincos(float a, float *sptr, float *cptr)
 {
   sincosf(a, sptr, cptr);
@@ -2706,6 +8005,16 @@ static __inline__ __host__ __device__ float erfc(float a)
 static __inline__ __host__ __device__ float erfcinv(float a)
 {
   return erfcinvf(a);
+}
+
+static __inline__ __host__ __device__ float normcdfinv(float a)
+{
+  return normcdfinvf(a);
+}
+
+static __inline__ __host__ __device__ float normcdf(float a)
+{
+  return normcdff(a);
 }
 
 static __inline__ __host__ __device__ float erfcx(float a)
@@ -2939,7 +8248,488 @@ static __inline__ __host__ __device__ double max(double a, float b)
 
 #if defined(__CUDABE__)
 
+#if defined(__CUDANVVM__)
+#include "device_functions_decls.h"
+#endif /* __CUDANVVM__ */
+
 #include "device_functions.h"
+
+#if defined(__CUDANVVM__)
+
+/*******************************************************************************
+*                                                                              *
+* DEVICE                                                                       *
+*                                                                              *
+*******************************************************************************/
+
+/*******************************************************************************
+*                                                                              *
+* DEVICE IMPLEMENTATIONS FOR FUNCTIONS WITH BUILTIN NVOPENCC OPERATIONS        *
+*                                                                              *
+*******************************************************************************/
+
+static __forceinline__ float rintf(float a)
+{
+  return __nv_rintf(a);
+}
+
+static __forceinline__ long int lrintf(float a)
+{
+#if defined(__LP64__)
+  return (long int)__float2ll_rn(a);
+#else /* __LP64__ */
+  return (long int)__float2int_rn(a);
+#endif /* __LP64__ */
+}
+
+static __forceinline__ long long int llrintf(float a)
+{
+  return __nv_llrintf(a);
+}
+
+static __forceinline__ float nearbyintf(float a)
+{
+  return __nv_nearbyintf(a);
+}
+
+/*******************************************************************************
+*                                                                              *
+* DEVICE IMPLEMENTATIONS FOR FUNCTIONS WITHOUT BUILTIN NVOPENCC OPERATIONS     *
+*                                                                              *
+*******************************************************************************/
+
+static __forceinline__ int __signbitf(float a)
+{
+  return __nv_signbitf(a);
+}
+
+/* The copysign() function returns a with its sign changed to 
+ * match the sign of b.
+ */
+static __forceinline__ float copysignf(float a, float b)
+{
+  return __nv_copysignf(a, b);
+}
+
+static __forceinline__ int __finitef(float a)
+{
+  return __nv_finitef(a);
+}
+
+#if defined(__APPLE__)
+
+static __forceinline__ int __isfinitef(float a)
+{
+  return __finitef(a);
+}
+
+#endif /* __APPLE__ */
+
+static __forceinline__ int __isinff(float a)
+{
+  return __nv_isinff(a);
+}
+
+static __forceinline__ int __isnanf(float a)
+{
+  return __nv_isnanf(a);
+}
+
+static __forceinline__ float nextafterf(float a, float b)
+{
+  return __nv_nextafterf(a, b);
+}
+
+static __forceinline__ float nanf(const char *tagp)
+{
+  return __nv_nanf((const signed char *) tagp);
+}
+
+/*******************************************************************************
+*                                                                              *
+*                                                                              *
+*                                                                              *
+*******************************************************************************/
+
+static __forceinline__ float sinf(float a)
+{
+#if defined(__USE_FAST_MATH__)
+  return __nv_fast_sinf(a);
+#else /* __USE_FAST_MATH__ */
+  return __nv_sinf(a);
+#endif /* __USE_FAST_MATH__ */
+}
+
+static __forceinline__ float cosf(float a)
+{
+#if defined(__USE_FAST_MATH__)
+  return __nv_fast_cosf(a);
+#else /* __USE_FAST_MATH__ */
+  return __nv_cosf(a);
+#endif /* __USE_FAST_MATH__ */
+}
+
+static __forceinline__ void sincosf(float a, float *sptr, float *cptr)
+{
+#if defined(__USE_FAST_MATH__)
+  __nv_fast_sincosf(a, sptr, cptr);
+#else /* __USE_FAST_MATH__ */
+  __nv_sincosf(a, sptr, cptr);
+#endif /* __USE_FAST_MATH__ */
+}
+
+static __forceinline__ float sinpif(float a)
+{
+  return __nv_sinpif(a);
+}
+
+static __forceinline__ float cospif(float a)
+{
+  return __nv_cospif(a);
+}
+
+static __forceinline__ void sincospif(float a, float *sptr, float *cptr)
+{
+  __nv_sincospif(a, sptr, cptr);
+}
+
+static __forceinline__ float tanf(float a)
+{
+#if defined(__USE_FAST_MATH__)
+  return __nv_fast_tanf(a);
+#else /* __USE_FAST_MATH__ */
+  return __nv_tanf(a);
+#endif /* __USE_FAST_MATH__ */
+}
+
+static __forceinline__ float log2f(float a)
+{
+#if defined(__USE_FAST_MATH__)
+  return __nv_fast_log2f(a);
+#else /* __USE_FAST_MATH__ */
+  return __nv_log2f(a);
+#endif /* __USE_FAST_MATH__ */
+}
+
+static __forceinline__ float expf(float a)
+{
+#if defined(__USE_FAST_MATH__)
+  return __nv_fast_expf(a);
+#else /* __USE_FAST_MATH__ */
+  return __nv_expf(a);
+#endif /* __USE_FAST_MATH__ */
+}
+
+static __forceinline__ float exp10f(float a)
+{
+#if defined(__USE_FAST_MATH__)
+  return __nv_fast_exp10f(a);
+#else /* __USE_FAST_MATH__ */
+  return __nv_exp10f(a);
+#endif /* __USE_FAST_MATH__ */
+}
+
+static __forceinline__ float coshf(float a)
+{
+  return __nv_coshf(a);
+}
+
+static __forceinline__ float sinhf(float a)
+{
+  return __nv_sinhf(a);
+}
+
+static __forceinline__ float tanhf(float a)
+{
+  return __nv_tanhf(a);
+}
+
+static __forceinline__ float atan2f(float a, float b)
+{
+  return __nv_atan2f(a, b);
+}
+
+static __forceinline__ float atanf(float a)
+{
+  return __nv_atanf(a);
+}
+
+static __forceinline__ float asinf(float a)
+{
+  return __nv_asinf(a);
+}
+
+static __forceinline__ float acosf(float a)
+{
+  return __nv_acosf(a);
+}
+
+static __forceinline__ float logf(float a)
+{
+#if defined(__USE_FAST_MATH__)
+  return __nv_fast_logf(a);
+#else /* __USE_FAST_MATH__ */
+  return __nv_logf(a);
+#endif /* __USE_FAST_MATH__ */
+}
+
+static __forceinline__ float log10f(float a)
+{
+#if defined(__USE_FAST_MATH__)
+  return __nv_fast_log10f(a);
+#else /* __USE_FAST_MATH__ */
+  return __nv_log10f(a);
+#endif /* __USE_FAST_MATH__ */
+}
+
+static __forceinline__ float log1pf(float a)
+{
+  return __nv_log1pf(a);
+}
+
+static __forceinline__ float acoshf(float a)
+{
+  return __nv_acoshf(a);
+}
+
+static __forceinline__ float asinhf(float a)
+{
+  return __nv_asinhf(a);
+}
+
+static __forceinline__ float atanhf(float a)
+{
+  return __nv_atanhf(a);
+}
+
+static __forceinline__ float expm1f(float a)
+{
+  return __nv_expm1f(a);
+}
+
+static __forceinline__ float hypotf(float a, float b)
+{
+  return __nv_hypotf(a, b);
+}
+
+static __forceinline__ float cbrtf(float a)
+{
+  return __nv_cbrtf(a);
+}
+
+static __forceinline__ float rcbrtf(float a)
+{
+  return __nv_rcbrtf(a);
+}
+
+static __forceinline__ float j0f(float a)
+{
+  return __nv_j0f(a);
+}
+
+static __forceinline__ float j1f(float a)
+{
+  return __nv_j1f(a);
+}
+
+static __forceinline__ float y0f(float a)
+{
+  return __nv_y0f(a);
+}
+
+static __forceinline__ float y1f(float a)
+{
+  return __nv_y1f(a);
+}
+
+static __forceinline__ float ynf(int n, float a)
+{
+  return __nv_ynf(n, a);
+}
+
+static __forceinline__ float jnf(int n, float a)
+{
+  return __nv_jnf(n, a);
+}
+
+static __forceinline__ float erff(float a)
+{
+  return __nv_erff(a);
+}
+
+/* 
+ * This implementation of erfinvf() adopts algorithmic techniques from a 
+ * variety of sources. The transformation of the argument into log space 
+ * follows Strecok [1], the transformation of the argument into reciprocal 
+ * square root space for arguments near unity follows Blair et. al. [2], 
+ * and the aggressive widening of the primary approximation interval around 
+ * zero to minimize divergence as well as the use of a CUDA device function 
+ * for the computation of the logarithm follows work by professor Mike Giles 
+ * (Oxford University, UK). 
+ * 
+ * [1] Anthony J. Strecok, On the Calculation of the Inverse of the Error 
+ * Function. Mathematics of Computation, Vol. 22, No. 101 (Jan. 1968), 
+ * pp. 144-158 
+ * [2] J. M. Blair, C. A. Edwards and J. H. Johnson, Rational Chebyshev 
+ * Approximations for the Inverse of the Error Function. Mathematics 
+ * of Computation, Vol. 30, No. 136 (Oct. 1976), pp. 827-830 
+ */ 
+static __forceinline__ float erfinvf(float a)
+{
+  return __nv_erfinvf(a);
+}
+
+static __forceinline__ float erfcf(float a)
+{
+  return __nv_erfcf(a);
+}
+
+static __forceinline__ float erfcxf(float a)
+{
+  return __nv_erfcxf(a);
+}
+
+static __forceinline__ float erfcinvf(float a)
+{
+  return __nv_erfcinvf(a);
+}
+
+static __forceinline__ float normcdfinvf(float a)
+{
+  return __nv_normcdfinvf(a);
+}
+
+/* normcdf(x) = 0.5 * erfc (-sqrt(0.5) * x). When x < -1.0, the numerical error
+   incurred when scaling the argument of normcdf() is amplified, so we need to
+   compensate this to guarantee accurate results.
+*/
+static __forceinline__ float normcdff(float a)
+{
+  return __nv_normcdff(a);
+}
+
+static __forceinline__ float lgammaf(float a)
+{
+  return __nv_lgammaf(a);
+}
+
+static __forceinline__ float ldexpf(float a, int b)
+{
+  return __nv_ldexpf(a, b);
+}
+
+static __forceinline__ float scalbnf(float a, int b)
+{
+  return __nv_scalbnf(a, b);
+}
+
+static __forceinline__ float scalblnf(float a, long int b)
+{
+  int t;
+  if (b > 2147483647L) {
+    t = 2147483647;
+  } else if (b < (-2147483647 - 1)) {
+    t = (-2147483647 - 1);
+  } else {
+    t = (int)b;
+  }
+  return scalbnf(a, t);
+}
+
+static __forceinline__ float frexpf(float a, int *b)
+{
+  return __nv_frexpf(a, b);
+}
+
+static __forceinline__ float modff(float a, float *b)
+{
+  return __nv_modff(a, b);
+}
+
+static __forceinline__ float fmodf(float a, float b)
+{
+  return __nv_fmodf(a, b);
+}
+
+static __forceinline__ float remainderf(float a, float b)
+{
+  return __nv_remainderf(a, b);
+}
+
+static __forceinline__ float remquof(float a, float b, int* quo)
+{
+  return __nv_remquof(a, b, quo);
+}
+
+static __forceinline__ float fmaf(float a, float b, float c)
+{
+  return __nv_fmaf(a, b, c);
+}
+
+static __forceinline__ float powif(float a, int b)
+{
+  return __nv_powif(a, b);
+}
+
+static __forceinline__ double powi(double a, int b)
+{
+  return __nv_powi(a, b);
+}
+
+static __forceinline__ float powf(float a, float b)
+{
+#if defined(__USE_FAST_MATH__)
+  return __nv_fast_powf(a, b);
+#else /* __USE_FAST_MATH__ */
+  return __nv_powf(a, b);
+#endif /* __USE_FAST_MATH__ */
+}
+
+/* Based on: Kraemer, W.: "Berechnung der Gammafunktion G(x) fuer reelle Punkt-
+   und Intervallargumente". Zeitschrift fuer angewandte Mathematik und 
+   Mechanik, Vol. 70 (1990), No. 6, pp. 581-584
+*/
+static __forceinline__ float tgammaf(float a)
+{
+  return __nv_tgammaf(a);
+}
+
+static __forceinline__ float roundf(float a)
+{
+  return __nv_roundf(a);
+}
+
+static __forceinline__ long long int llroundf(float a)
+{
+  return __nv_llroundf(a);
+}
+
+static __forceinline__ long int lroundf(float a)
+{
+#if defined(__LP64__)
+  return (long int)llroundf(a);
+#else /* __LP64__ */
+  return (long int)(roundf(a));
+#endif /* __LP64__ */
+}
+
+static __forceinline__ float fdimf(float a, float b)
+{
+  return __nv_fdimf(a, b);
+}
+
+static __forceinline__ int ilogbf(float a)
+{
+  return __nv_ilogbf(a);
+}
+
+static __forceinline__ float logbf(float a)
+{
+  return __nv_logbf(a);
+}
+
+#else /* __CUDANVVM__ */
+
 
 /*******************************************************************************
 *                                                                              *
@@ -3021,6 +8811,14 @@ static __forceinline__ int __isnanf(float a)
   return !(fabsf(a) <= CUDART_INF_F);
 }
 
+/* like copysign, but requires that argument a is positive */
+static __forceinline__ float __internal_copysignf_pos(float a, float b)
+{
+  int ia = __float_as_int (a);
+  int ib = __float_as_int (b);
+  return __int_as_float (ia | (ib & 0x80000000));
+}
+
 static __forceinline__ float nextafterf(float a, float b)
 {
   unsigned int ia;
@@ -3031,15 +8829,15 @@ static __forceinline__ float nextafterf(float a, float b)
   if ((ia << 1) < 0x01000000) ia &= 0x80000000; /* DAZ */
   if ((ib << 1) < 0x01000000) ib &= 0x80000000; /* DAZ */
 #endif
-  if (__isnanf(a) || __isnanf(b)) return a + b; /*NaN*/
+  if (__isnanf(a) || __isnanf(b)) return a + b; /* NaN */
   if (__int_as_float (ia | ib) == 0.0f) return __int_as_float(ib);
 #if defined(__CUDA_FTZ)
   if (__int_as_float(ia) == 0.0f) {
-    return __int_as_float (0x00800000 | (__float_as_int(b) & 0x80000000));
+    return __internal_copysignf_pos (CUDART_TWO_TO_M126_F, b);
   }
 #else
   if (__int_as_float(ia) == 0.0f) {
-    return __int_as_float (0x00000001 | (__float_as_int(b) & 0x80000000));
+    return __internal_copysignf_pos (CUDART_MIN_DENORM_F, b);
   }
 #endif
   if ((a < b) && (a < 0.0f)) ia--;
@@ -3147,6 +8945,27 @@ static __forceinline__ float __internal_fast_rcpf(float a)
   return r;
 }
 
+static __forceinline__ float __internal_fast_rsqrtf(float a)
+{
+  float r; 
+  asm ("rsqrt.approx.ftz.f32 %0,%1;" : "=f"(r) : "f"(a));
+  return r;
+}
+
+static __forceinline__ float __internal_fast_log2f(float a)
+{
+  float r; 
+  asm ("lg2.approx.ftz.f32 %0,%1;" : "=f"(r) : "f"(a));
+  return r;
+}
+
+static __forceinline__ float __internal_fast_exp2f(float a)
+{
+  float r; 
+  asm ("ex2.approx.ftz.f32 %0,%1;" : "=f"(r) : "f"(a));
+  return r;
+}
+
 /* approximate 2*atanh(a/2) for |a| < 0.245 */
 static __forceinline__ float __internal_atanhf_kernel(float a_1, float a_2)
 {
@@ -3204,63 +9023,64 @@ static __forceinline__ float __internal_accurate_logf(float a)
   float t;
   float z;
   float m;
-  int ia;
-  ia = __float_as_int(a);
 
   if ((a > CUDART_ZERO_F) && (a < CUDART_INF_F)) {
-    int e = -127;
+    float e = -127.0f;
+    int ia;
 #if !defined(__CUDA_FTZ)
     /* normalize denormals */
-    if ((unsigned)ia < (unsigned)0x00800000) {
+    if (a < CUDART_TWO_TO_M126_F) {
       a = a * CUDART_TWO_TO_24_F;
-      e -= 24;
-      ia = __float_as_int(a);
+      e -= 24.0f;
     }
 #endif
     /* log(a) = 2 * atanh((a-1)/(a+1)) */
-    m = __int_as_float((ia & 0x807fffff) | 0x3f800000);
-    e += ((unsigned)ia >> 23);
+    ia = __float_as_int(a);
+    m = __int_as_float((ia & 0x007fffff) | 0x3f800000);
+    e += (float)((unsigned)ia >> 23);
     if (m > CUDART_SQRT_TWO_F) {
       m = m * 0.5f;
-      e = e + 1;
+      e = e + 1.0f;
     }      
     t = m - 1.0f;
     z = m + 1.0f;
-    z = __fdividef (t, z);
-    z = __fmul_rn (-t, z);
+    z = __internal_fast_rcpf (z);
+    z = __fmul_rn (z, -t * t);
     z = __internal_atanhf_kernel(t, z);
-    z = __internal_fmad ((float)e, CUDART_LN2_F, z);
-    return z;
+    z = __internal_fmad (e, CUDART_LN2_F, z);
   } else {
     /* handle special cases */
-    return __logf(a);
+    z = __log2f(a);
   }
+  return z;
 }  
 
 static __forceinline__ float2 __internal_log_ep(float a)
 {
   float2 res;
-  int expo;
+  float expo;
   float m;
   float log_hi, log_lo;
   float t_hi, t_lo;
-  float f, g, u, v, q;
+  float f, g, u, ulo, v, q;
   float r, s, e;
-  expo = (__float_as_int(a) >> 23) & 0xff;
+  int ia;
+
+  expo = -127.0f;
 #if !defined(__CUDA_FTZ)
-  /* convert denormals to normals for computation of log(a) */
-  if (expo == 0) {
-    a *= CUDART_TWO_TO_24_F;
-    expo = (__float_as_int(a) >> 23) & 0xff;
-    expo -= 24;
-  }  
+  /* normalize denormals */
+  if (a < CUDART_TWO_TO_M126_F) {
+    a = a * CUDART_TWO_TO_24_F;
+    expo -= 24.0f;
+  }
 #endif
-  expo -= 127;
-  m = __int_as_float((__float_as_int(a) & 0x807fffff) | 0x3f800000);
+  ia = __float_as_int(a);
+  m = __int_as_float((ia & 0x007fffff) | 0x3f800000);
+  expo += (float)((unsigned)ia >> 23);
   if (m > CUDART_SQRT_TWO_F) {
     m = m * 0.5f;
-    expo = expo + 1;
-  }
+    expo = expo + 1.0f;
+  }      
 
   /* compute log(m) with extended precision using an algorithm from P.T.P.
    * Tang, "Table Driven Implementation of the Logarithm Function", TOMS, 
@@ -3269,35 +9089,40 @@ static __forceinline__ float2 __internal_log_ep(float a)
    */
   f = m - 1.0f;
   g = m + 1.0f;
-  g = 1.0f / g;
+  g = __internal_fast_rcpf (g);
   u = 2.0f * f * g;
   v = u * u;
-  q = 1.49356810919559350E-001f/64.0f;
+  q =                        1.49356810919559350E-001f/64.0f;
   q = __internal_fmad (q, v, 1.99887797540072460E-001f/16.0f);
-  q = __internal_fmad (q, v, 3.33333880955515580E-001f/4.0f);
+  q = __internal_fmad (q, v, 3.33333880955515580E-001f/ 4.0f);
   q = __fmul_rn (q, v);
   q = __fmul_rn (q, u);
-  log_hi = __int_as_float(__float_as_int(u) & 0xfffff000);
-  v = __int_as_float(__float_as_int(f) & 0xfffff000);
-  u = 2.0f * (f - log_hi);
-  f = f - v;
-  u = __internal_fmad (-log_hi, v, u);
-  u = __internal_fmad (-log_hi, f, u);
-  u = __fmul_rn (g, u);
-  /* compute log(m) = log_hi + u + q in double-single format*/
 
-  /* log += u; |log| > |u| */
-  r = log_hi + u;
-  s = u - (r - log_hi);
-  log_hi = r;
-  log_lo = s;
-  /* log += q; |log| > |q| */
-  r = log_hi + q;
-  s = ((log_hi - r) + q) + log_lo;
+  /* compute u + ulo = 2.0*(m-1.0)/(m+1.0) to more than single precision */
+#if __CUDA_ARCH__ >= 200
+  r = 2.0f * (f - u);
+  r = __fmaf_rn (-u, f, r);
+  ulo = __fmul_rn (g, r);
+#else /* __CUDA_ARCH__ >= 200 */
+  s = __int_as_float(__float_as_int(u) & 0xfffff000);
+  v = __int_as_float(__float_as_int(f) & 0xfffff000);
+  r = 2.0f * (f - s);
+  f = f - v;
+  r = __internal_fmad (-s, v, r);        /* multiplication is exact */
+  r = __internal_fmad (-s, f, r);
+  ulo = __fmul_rn (g, r);
+  /* normalize result so u:ulo is a normalized double-single number */
+  u = e = s + ulo;
+  ulo = (s - e) + ulo;
+#endif /* __CUDA_ARCH__ >= 200 */
+
+  /* compute log(m) as double-single number log_hi:log_lo = u:ulo + q:0 */
+  r = u + q;
+  s = ((u - r) + q) + ulo;
   log_hi = e = r + s;
   log_lo = (r - e) + s;
 
-  /* log(2)*expo in double-single format */
+  /* compute log(2)*expo as a double-single number t_hi:t_lo */
   t_hi = __fmul_rn (expo, 0.6931457519f);    /* multiplication is exact */
   t_lo = __fmul_rn (expo, 1.4286067653e-6f);
 
@@ -3314,34 +9139,34 @@ static __forceinline__ float __internal_accurate_log2f(float a)
   return CUDART_L2E_F * __internal_accurate_logf(a);
 }
 
-/* Based on: Guillaume Da Graa, David Defour. Implementation of Float-Float 
+/* Based on: Guillaume Da Graca, David Defour. Implementation of Float-Float 
  * Operators on Graphics Hardware. RNC'7, pp. 23-32, 2006.
  */
 static __forceinline__ float2 __internal_dsmul (float2 x, float2 y)
 {
-    float2 z;
+  float2 z;
 #if __CUDA_ARCH__ < 200
-    float u1, u2, v1, v2, mh, ml, up;
-    u1 = __internal_fmad (x.y, 4097.0f, __internal_fmad (-x.y, 4097.0f, x.y));
-    v1 = __internal_fmad (y.y, 4097.0f, __internal_fmad (-y.y, 4097.0f, y.y));
-    u2 = x.y - u1;
-    v2 = y.y - v1;
-    mh = __fmul_rn (x.y, y.y);
-    ml = __internal_fmad (u1, v2, __internal_fmad (u1, v1, -mh));
-    ml = __internal_fmad (u2, v2, __internal_fmad (v1, u2, ml));
-    ml = __fmul_rn (x.y, y.x) + __fmul_rn (x.x, y.y) + ml;
-    z.y = up = __fadd_rn (mh, ml);
-    z.x = __fadd_rn (mh - up, ml);
+  float u1, u2, v1, v2, mh, ml, up;
+  u1 = __internal_fmad (x.y, 4097.0f, __internal_fmad (-x.y, 4097.0f, x.y));
+  v1 = __internal_fmad (y.y, 4097.0f, __internal_fmad (-y.y, 4097.0f, y.y));
+  u2 = x.y - u1;
+  v2 = y.y - v1;
+  mh = __fmul_rn (x.y, y.y);
+  ml = __internal_fmad (u1, v2, __internal_fmad (u1, v1, -mh));
+  ml = __internal_fmad (u2, v2, __internal_fmad (v1, u2, ml));
+  ml = __fmul_rn (x.y, y.x) + __fmul_rn (x.x, y.y) + ml;
+  z.y = up = __fadd_rn (mh, ml);
+  z.x = __fadd_rn (mh - up, ml);
 #else /* __CUDA_ARCH__ < 200 */
-    float up, mh, ml;
-    ml = __fmul_rn (x.y, y.y);
-    mh = __fmaf_rn (x.y, y.y, -ml);
-    mh = __fmaf_rn (x.y, y.x, mh);
-    mh = __fmaf_rn (x.x, y.y, mh);
-    z.y = up = __fadd_rn (ml, mh);
-    z.x = __fadd_rn(__fadd_rn(ml, -up), mh);
+  float up, mh, ml;
+  ml = __fmul_rn (x.y, y.y);
+  mh = __fmaf_rn (x.y, y.y, -ml);
+  mh = __fmaf_rn (x.y, y.x, mh);
+  mh = __fmaf_rn (x.x, y.y, mh);
+  z.y = up = __fadd_rn (ml, mh);
+  z.x = __fadd_rn (__fadd_rn (ml, -up), mh);
 #endif /* __CUDA_ARCH__ < 200 */
-    return z;
+  return z;
 }
 
 /* 160 bits of 2/PI for Payne-Hanek style argument reduction. */
@@ -3354,6 +9179,28 @@ static __constant__ unsigned int __cudart_i2opi_f [] = {
   0xa2f9836e,
 };
 
+static __forceinline__ uint2 __internal_umad32wide (unsigned int a, 
+                                                    unsigned int b, 
+                                                    unsigned int c)
+{
+  uint2 res;
+  asm ("{\n\t"
+#if __CUDA_ARCH__ >= 200 && defined(__CUDANVVM__)
+       "mad.lo.cc.u32   %0, %2, %3, %4;\n\t"
+       "madc.hi.u32     %1, %2, %3,  0;\n\t"
+#else  /* __CUDA_ARCH__ >= 200 && defined(__CUDANVVM__) */
+       ".reg .u64 tmp;\n\t"
+       "mul.wide.u32 tmp, %2, %3;\n\t"
+       "mov.b64         {%0,%1}, tmp;\n\t"
+       "add.cc.u32      %0, %0, %4;\n\t"
+       "addc.u32        %1, %1, 0;\n\t"
+#endif /* __CUDA_ARCH__ >= 200 && defined(__CUDANVVM__) */
+       "}"
+       : "=r"(res.x), "=r"(res.y)
+       : "r"(a), "r"(b), "r"(c));
+  return res;
+}
+
 /* Payne-Hanek style argument reduction. */
 static
 #if __CUDA_ARCH__ >= 200
@@ -3363,10 +9210,10 @@ __forceinline__
 #endif
 float __internal_trig_reduction_slowpath(float a, int *quadrant)
 {
+  uint2 p;
   unsigned int ia = __float_as_int(a);
   unsigned int s = ia & 0x80000000;
   unsigned int result[7];
-  unsigned int phi, plo;
   unsigned int hi, lo;
   unsigned int e;
   int idx;
@@ -3378,10 +9225,9 @@ float __internal_trig_reduction_slowpath(float a, int *quadrant)
   hi = 0;
 #pragma unroll 1
   for (q = 0; q < 6; q++) {
-    plo = __cudart_i2opi_f[q] * ia;
-    phi = __umulhi (__cudart_i2opi_f[q], ia);
-    lo = hi + plo;
-    hi = phi + (lo < plo);
+    p = __internal_umad32wide (__cudart_i2opi_f[q], ia, hi);
+    lo = p.x;
+    hi = p.y;
     result[q] = lo;
   }
   result[q] = hi;
@@ -3469,7 +9315,7 @@ static __forceinline__ float __internal_expf_kernel(float a, float scale)
   float j, z;
 
   z = __internal_expf_arg_reduction (a, &j);
-  z = exp2f(z) * exp2f(j + scale);
+  z = __internal_fast_exp2f(z) * exp2f(j + scale);
   return z;
 }
 
@@ -3478,7 +9324,7 @@ static __forceinline__ float __internal_expf_add_kernel(float a, float addend)
   float j, z;
 
   z = __internal_expf_arg_reduction (a, &j);
-  z = __internal_fmad (exp2f(z), exp2f(j), addend);
+  z = __internal_fmad (__internal_fast_exp2f(z), exp2f(j), addend);
   return z;
 }
 
@@ -3500,7 +9346,7 @@ static __forceinline__ float __internal_accurate_exp10f(float a)
   z = __internal_fmad (j, -3.0102920532226563e-001f, a);
   z = __internal_fmad (j, -7.9034171557301747e-007f, z);
   z = z * CUDART_L2T_F;
-  z = exp2f(z) * exp2f(j);
+  z = __internal_fast_exp2f(z) * exp2f(j);
   if (a < -46.0f) z = 0.0f;
   if (a >  46.0f) z = CUDART_INF_F;
   return z;
@@ -3511,9 +9357,6 @@ static __forceinline__ float __internal_lgammaf_pos(float a)
   float sum;
   float s, t;
 
-  if (a == CUDART_INF_F) {
-    return a;
-  }
   if (a >= 3.0f) {
     if (a >= 7.8f) {
       /* Stirling approximation for a >= 8; coefficients from Hart et al, 
@@ -3531,7 +9374,9 @@ static __forceinline__ float __internal_lgammaf_pos(float a)
       t = s - a;
       s = __fadd_rn(s, sum); /* prevent FMAD merging */
       t = t + s;
-      return t;
+      if (a == CUDART_INF_F) {
+        t = a;
+      }
     } else {
       a = a - 3.0f;
       s =                        -7.488903254816711E+002f;
@@ -3544,7 +9389,6 @@ static __forceinline__ float __internal_lgammaf_pos(float a)
       t = __internal_fmad (t, a, -9.268505031444956E+004f);
       t = __internal_fmad (t, a, -2.063535768623558E+005f);
       t = __internal_fmad (s, __internal_fast_rcpf (t), a);
-      return t;
     }
   } else if (a >= 1.5f) {
     a = a - 2.0f;
@@ -3559,7 +9403,6 @@ static __forceinline__ float __internal_lgammaf_pos(float a)
     t = __internal_fmad (t, a,  3.224670187176319E-001f);
     t = __internal_fmad (t, a,  4.227843368636472E-001f);
     t = t * a;
-    return t;
   } else if (a >= 0.7f) {
     a = 1.0f - a;
     t =                        4.588266515364258E-002f;
@@ -3574,7 +9417,6 @@ static __forceinline__ float __internal_lgammaf_pos(float a)
     t = __internal_fmad (t, a, 8.224669796332661E-001f);
     t = __internal_fmad (t, a, 5.772156651487230E-001f);
     t = t * a;
-    return t;
   } else {
     t =                         3.587515669447039E-003f;
     t = __internal_fmad (t, a, -5.471285428060787E-003f);
@@ -3585,8 +9427,9 @@ static __forceinline__ float __internal_lgammaf_pos(float a)
     t = __internal_fmad (t, a,  5.772153712885004E-001f);
     t = t * a;
     t = __internal_fmad (t, a, a);
-    return -__internal_accurate_logf(t);
+    t = -__internal_accurate_logf(t);
   }
+  return t;
 }
 
 /* approximate sine on -pi/4...+pi/4 */
@@ -3598,7 +9441,11 @@ static __forceinline__ float __internal_sin_kernel(float x)
   z  =                         -1.95152959e-4f;
   z  = __internal_fmad (z, x2,  8.33216087e-3f);
   z  = __internal_fmad (z, x2, -1.66666546e-1f);
+#if __CUDA_ARCH__ >= 200
+  z  = __internal_fmad (z, x2,  0.0f);
+#else  /* __CUDA_ARCH__ >= 200 */
   z  = z * x2;
+#endif /* __CUDA_ARCH__ >= 200 */ 
   z  = __internal_fmad (z, x, x);
   return z;
 }
@@ -3617,57 +9464,121 @@ static __forceinline__ float __internal_cos_kernel(float x)
   return z;
 }
 
-static __forceinline__ float __internal_accurate_sinf(float a)
+static __forceinline__ float __internal_sin_cos_kernel(float x, int i)
 {
-  float z;
-  int   i;
-  
+#if __CUDA_ARCH__ >= 200
+  float x2, z;
+  x2 = __fmul_rn (x, x);
+  if (i & 1) {
+    z  =                          2.44331571e-5f;
+    z  = __internal_fmad (z, x2, -1.38873163e-3f);
+  } else {
+    z  =                         -1.95152959e-4f;
+    z  = __internal_fmad (z, x2,  8.33216087e-3f);
+  }
+  if (i & 1) {
+    z  = __internal_fmad (z, x2,  4.16666457e-2f);
+    z  = __internal_fmad (z, x2, -5.00000000e-1f);
+  } else {
+    z  = __internal_fmad (z, x2, -1.66666546e-1f);
+    z  = __internal_fmad (z, x2,  0.0f);
+  }
+  x = __internal_fmad (z, x, x);
+  if (i & 1) x = __internal_fmad (z, x2, 1.0f);
+  if (i & 2) x = __internal_fmad (x, -1.0f, CUDART_ZERO_F);
+#else /* __CUDA_ARCH__ >= 200 */
+  if (i & 1) {
+    x = __internal_cos_kernel(x);
+  } else {
+    x = __internal_sin_kernel(x);
+  }
+  if (i & 2) {
+    x = __internal_fmad (x, -1.0f, CUDART_ZERO_F);
+  }
+#endif /* __CUDA_ARCH__ >= 200 */
+  return x;
+}
+
+static __forceinline__ void __internal_accurate_sincosf(float a, float *sptr, float *cptr)
+{
+#if !defined(__CUDANVVM__)
+  volatile
+#endif /* !defined(__CUDANVVM__) */
+  float s, c;
+  float t;
+  int quadrant;
+
   if (__isinff(a)) {
     a = __fmul_rn (a, CUDART_ZERO_F); /* return NaN */
   }
-  a = __internal_trig_reduction_kernel(a, &i);
-  /* here, abs(z) <= pi/4, and i has the quadrant */
-  if (i & 1) {
-    z = __internal_cos_kernel(a);
-  } else {
-    z = __internal_sin_kernel(a);
+  a = __internal_trig_reduction_kernel(a, &quadrant);
+  c = __internal_cos_kernel(a);
+  s = __internal_sin_kernel(a);
+  t = s;
+  if (quadrant & 1) {
+    s = c;
+    c = t;
   }
-  if (i & 2) {
-    z = -z;
+  if (quadrant & 2) {
+    s = -s;
   }
+  quadrant++;
+  if (quadrant & 2) {
+    c = -c;
+  }
+#if __CUDA_ARCH__ < 200
   if (a == CUDART_ZERO_F) {
-    z = __fmul_rn (a, CUDART_ZERO_F);
+    s = __fmul_rn (a, CUDART_ZERO_F);
   }
-  return z;
+#endif /* __CUDA_ARCH__ < 200 */
+  *sptr = s;
+  *cptr = c;
 }
 
-static __forceinline__ float __internal_accurate_cosf(float a)
+static __forceinline__ float __internal_accurate_sinf(float a)
 {
+#if __CUDA_ARCH__ < 200
+  float s, c;
+  __internal_accurate_sincosf (a, &s, &c);
+  return s;
+#else /* __CUDA_ARCH__ < 200 */
   float z;
   int i;
 
   if (__isinff(a)) {
-    a = __fmul_rn (a, CUDART_ZERO_F); /* return NaN */
+    a = __fmul_rn (a, CUDART_ZERO_F);
+  }
+  a = __internal_trig_reduction_kernel(a, &i);
+  z = __internal_sin_cos_kernel(a, i);
+  return z;
+#endif
+}
+
+static __forceinline__ float __internal_accurate_cosf(float a)
+{
+#if __CUDA_ARCH__ < 200
+  float s, c;
+  __internal_accurate_sincosf (a, &s, &c);
+  return c;
+#else /* __CUDA_ARCH__ < 200 */
+  float z;
+  int i;
+
+  if (__isinff(a)) {
+    a = __fmul_rn (a, CUDART_ZERO_F);
   }
   z = __internal_trig_reduction_kernel(a, &i);
-  /* here, abs(z) <= pi/4, and i has the quadrant */
   i++;
-  if (i & 1) {
-    z = __internal_cos_kernel(z);
-  } else {
-    z = __internal_sin_kernel(z);
-  }
-  if (i & 2) {
-    z = -z;
-  }
+  z = __internal_sin_cos_kernel(z, i);
   return z;
+#endif /* __CUDA_ARCH__ < 200 */
 }
 
 /* Compute cos(x + offset) with phase offset computed after argument
    reduction for higher accuracy.  Needed for Bessel approximation 
    functions.
 */
-static __forceinline__ float __cos_offset_f(float a, float offset)
+static __forceinline__ float __internal_cos_offset_f(float a, float offset)
 {
   float z;
   int i;
@@ -3701,38 +9612,30 @@ static __forceinline__ float cosf(float a)
 #endif /* __USE_FAST_MATH__ */
 }
 
+static __forceinline__ void sincosf(float a, float *sptr, float *cptr)
+{
+#if defined(__USE_FAST_MATH__)
+  __sincosf(a, sptr, cptr);
+#else /* __USE_FAST_MATH__ */
+  __internal_accurate_sincosf(a, sptr, cptr);
+#endif /* __USE_FAST_MATH__ */
+}
+
 static __forceinline__ float sinpif(float a)
 {
-#if defined(__CUDANVVM__)
   float z;
-#else /* __CUDANVVM__ */
-  volatile float z;  /* #588812 */
-#endif /* __CUDANVVM__ */
   int i;
 
-  if (__isinff(a)) {
-    a = __fmul_rn (a, CUDART_ZERO_F); /* return NaN */
-  }
-  if (a == truncf(a)) {
-    a = __int_as_float(__float_as_int(a) & 0x80000000);
-  }
-  i = __float2int_rn (a * 2.0f);
-  z = (float)i;
+  z = rintf (a + a);
+  i = (int)z;
   z = __internal_fmad (-z, 0.5f, a);
 #if __CUDA_ARCH__ >= 200
   z = __fmaf_rn (z, 3.141592503e+00f, z * 1.509958025e-07f);
-#else /* __CUDA_ARCH__ >= 200 */
+#else  /* __CUDA_ARCH__ >= 200 */
   z = z * CUDART_PI_F;
 #endif /* __CUDA_ARCH__ >= 200 */
-  if (i & 1) {
-    z = __internal_cos_kernel(z);
-  } else {
-    z = __internal_sin_kernel(z);
-  }
-  if (i & 2) {
-    z = -z;
-  }
-  if (a == CUDART_ZERO_F) {
+  z = __internal_sin_cos_kernel (z, i);
+  if (a == truncf(a)) {
     z = __fmul_rn (a, CUDART_ZERO_F);
   }
   return z;
@@ -3740,37 +9643,64 @@ static __forceinline__ float sinpif(float a)
 
 static __forceinline__ float cospif(float a)
 {
-#if defined(__CUDANVVM__)
   float z;
-#else /* __CUDANVVM__ */
-  volatile float z;
-#endif /* __CUDANVVM__ */
   int i;
 
   if (fabsf(a) > CUDART_TWO_TO_24_F) {
     a = __fmul_rn (a, CUDART_ZERO_F);
   }
-  i = __float2int_rn (a * 2.0f);
-  z = (float)i;
+  z = rintf (a + a);
+  i = (int)z;
   z = __internal_fmad (-z, 0.5f, a);
 #if __CUDA_ARCH__ >= 200
   z = __fmaf_rn (z, 3.141592503e+00f, z * 1.509958025e-07f);
-#else /* __CUDA_ARCH__ >= 200 */
+#else  /* __CUDA_ARCH__ >= 200 */
   z = z * CUDART_PI_F;
 #endif /* __CUDA_ARCH__ >= 200 */
   i++;
+  z = __internal_sin_cos_kernel (z, i);
+  return z;
+}
+
+static __forceinline__ void sincospif(float a, float *sptr, float *cptr)
+{
+#if !defined(__CUDANVVM__)
+  volatile
+#endif
+  float s, c;
+  float t;
+  int i;
+
+  t = rintf (a + a);
+  i = (int)t;
+  t = __internal_fmad (-t, 0.5f, a);
+#if __CUDA_ARCH__ >= 200
+  t = __fmaf_rn (t, 3.141592503e+00f, t * 1.509958025e-07f);
+#else /* __CUDA_ARCH__ >= 200 */
+  t = t * CUDART_PI_F;
+#endif /* __CUDA_ARCH__ >= 200 */
+  c = __internal_cos_kernel(t);
+  s = __internal_sin_kernel(t);
+  t = s;
   if (i & 1) {
-    z = __internal_cos_kernel(z);
-  } else {
-    z = __internal_sin_kernel(z);
+    s = c;
+    c = t;
   }
   if (i & 2) {
-    z = -z;
+    s = -s;
   }
-  if (z == CUDART_ZERO_F) {
-    z = fabsf (z);
+  i++;
+  if (i & 2) {
+    c = __internal_fmad (c, -1.0f, CUDART_ZERO_F);
   }
-  return z;
+  if (a == truncf(a)) {
+    s = __fmul_rn (a, CUDART_ZERO_F);
+  }
+  if (fabsf(a) > CUDART_TWO_TO_24_F) {
+    c = __fadd_rn (s, 1.0f);
+  }
+  *sptr = s;
+  *cptr = c;
 }
 
 static __forceinline__ float tanf(float a)
@@ -3846,7 +9776,7 @@ static __forceinline__ float sinhf(float a)
     if (a >= 90.0f) {
       z = CUDART_INF_F;     /* overflow -> infinity */
     }
-    z =  __int_as_float(__float_as_int(z) | (__float_as_int(s) & 0x80000000));
+    z =  __internal_copysignf_pos (z, s);
   } else {
     float a2 = s * s;
     /* approximate sinh(x) on [0,1] with a polynomial */
@@ -3871,7 +9801,7 @@ static __forceinline__ float tanhf(float a)
     if (t >= 88.0f) {
       s = 1.0f;
     }
-    s = __int_as_float(__float_as_int(s) | (__float_as_int(a) & 0x80000000));
+    s = __internal_copysignf_pos (s, a);
   } else {
     float z2;
     z2 = a * a;
@@ -3890,32 +9820,27 @@ static __forceinline__ float tanhf(float a)
 
 static __forceinline__ float atan2f(float a, float b)
 {
-  float t0, t1, fa, fb;
+  float t0, t1, t2, t3, t4;
 
-  fb = fabsf(b);
-  fa = fabsf(a);
-  if ((fa == 0.0f) && (fb == 0.0f)) {
+  t1 = fabsf(b);
+  t2 = fabsf(a);
+  if (t1 == 0.0f && t2 == 0.0f) {
     t0 = (__float_as_int(b) < 0) ? CUDART_PI_F : CUDART_ZERO_F;
-    t0 = __int_as_float(__float_as_int(t0) | (__float_as_int(a) & 0x80000000));
-  } else if ((fa == CUDART_INF_F) && (fb == CUDART_INF_F)) {
+    t0 = __internal_copysignf_pos(t0, a);
+  } else if ((t1 == CUDART_INF_F) && (t2 == CUDART_INF_F)) {
     t0 = (__float_as_int(b) < 0) ? CUDART_3PIO4_F : CUDART_PIO4_F;
-    t0 = __int_as_float(__float_as_int(t0) | (__float_as_int(a) & 0x80000000));
+    t0 = __internal_copysignf_pos(t0, a);
   } else {
-    /* reduce arguments to first octant */
-    /* t0 = (|a| < |b|) ? (|a| / |b|) : (|a| / |b|) */
-    t0 = fminf(fa, fb);
-    t1 = fmaxf(fa, fb);
-    t0 = t0 / t1;
+    t3 = fmaxf(t2, t1);
+    t4 = fminf(t2, t1);
+    t0 = t4 / t3;
     t0 = __internal_atanf_kernel(t0);
     /* Map result according to octant. */
-    if (fa > fb) t0 = CUDART_PIO2_F - t0;
-    if (b < 0.0f) t0 = CUDART_PI_F - t0;
-    t0 = __int_as_float(__float_as_int(t0) | (__float_as_int(a) & 0x80000000));
-    t1 = a + b;
-    if (!(t1 <= CUDART_INF_F)) {
-      /* fixup result in case of NaN inputs */
-        t0 = t1;
-    }
+    if (t2 > t1) t0 = CUDART_PIO2_F - t0;
+    if (__float_as_int(b) < 0) t0 = CUDART_PI_F - t0;
+    t0 = __internal_copysignf_pos(t0, a);
+    t1 = t1 + t2;
+    if (!(t1 <= CUDART_INF_F)) t0 = t1;  /* handle NaN inputs */
   }
   return t0;
 }
@@ -3937,7 +9862,7 @@ static __forceinline__ float atanf(float a)
     t1 = CUDART_PIO2_F - t1;
   }
   if (t0 <= CUDART_INF_F) {
-    t1 = __int_as_float(__float_as_int(t1) | (__float_as_int(a) & 0x80000000));
+    t1 = __internal_copysignf_pos (t1, a);
   }
   return t1;
 }
@@ -3972,7 +9897,7 @@ static __forceinline__ float asinf(float a)
     t1 = t2;
   }
   if (t1 <= CUDART_INF_F) {
-    t1 = __int_as_float(__float_as_int(t1) | (__float_as_int(a) & 0x80000000));
+    t1 = __internal_copysignf_pos (t1, a);
   }
   return t1;
 }
@@ -3988,7 +9913,7 @@ static __forceinline__ float acosf(float a)
   t1 = t0 > 0.57f ? t2 : t0;
   t1 = __internal_asinf_kernel(t1);
   t1 = t0 > 0.57f ? 2.0f * t1 : CUDART_PIO2_F - t1;
-  if (__float_as_int(a) < 0) {
+  if (a < 0.0f) {
     t1 = CUDART_PI_F - t1;
   }
   return t1;
@@ -4034,11 +9959,12 @@ static __forceinline__ float acoshf(float a)
   t = a - 1.0f;
   if (fabsf(t) > CUDART_TWO_TO_23_F) {
     /* for large a, acosh = log(2*a) */
-    return CUDART_LN2_F + __internal_accurate_logf(a);
+    t = CUDART_LN2_F + __internal_accurate_logf(a);
   } else {
     t = t + sqrtf(__fadd_rn(__fmul_rz(a, t), t));
-    return log1pf(t);
+    t = log1pf(t);
   }
+  return t;
 }
 
 static __forceinline__ float asinhf(float a)
@@ -4055,7 +9981,7 @@ static __forceinline__ float asinhf(float a)
     t = log1pf(t);
   }
   if (fa <= CUDART_INF_F) {
-    t = __int_as_float(__float_as_int(t) | (__float_as_int(a) & 0x80000000));
+    t = __internal_copysignf_pos (t, a);
   }
   return t;
 }
@@ -4068,7 +9994,7 @@ static __forceinline__ float atanhf(float a)
   t = __fdividef ((2.0f * fa), (1.0f - fa));
   t = 0.5f * log1pf(t);
   if (fabsf(t) <= CUDART_INF_F) {
-    t = __int_as_float(__float_as_int(t) | (__float_as_int(a) & 0x80000000));
+    t = __internal_copysignf_pos (t, a);
   }
   return t;
 }
@@ -4104,7 +10030,7 @@ static __forceinline__ float expm1f(float a)
   if (j < -25.0f) u = -1.0f;
   /* take care of denormal and zero inputs */
   if (a == 0.0f) {
-    u = __int_as_float(__float_as_int(a) & 0x80000000);
+    u = a + a;
   }
   return u;
 }
@@ -4140,11 +10066,11 @@ static __forceinline__ float cbrtf(float a)
 {
   float s, t;
 
-  s = fabsf(a);
-  t = exp2f(CUDART_THIRD_F * __log2f(s));           /* initial approx */
+  s = fabsf (a);
+  t = __internal_fast_exp2f (CUDART_THIRD_F * __log2f(s)); /* initial approx */
   s = __internal_fmad (__internal_fast_rcpf (t * t), -s, t);
   t = __internal_fmad (s, -CUDART_THIRD_F, t);
-  if (__float_as_int(a) < 0) {
+  if (__float_as_int (a) < 0) {
     t = -t;
   }
   s = a + a;
@@ -4156,14 +10082,14 @@ static __forceinline__ float rcbrtf(float a)
 {
   float s, t;
 
-  s = fabsf(a);
-  t = exp2f(-CUDART_THIRD_F * __log2f(s));          /* initial approx */
-  t = __internal_fmad(__internal_fmad(t*t, -s*t, 1.0f), CUDART_THIRD_F*t, t);
-  if (__float_as_int(a) < 0) {
+  s = fabsf (a);
+  t = __internal_fast_exp2f (-CUDART_THIRD_F * __log2f(s));/* initial approx */
+  t = __internal_fmad (__internal_fmad (t*t, -s*t, 1.0f), CUDART_THIRD_F*t, t);
+  if (__float_as_int (a) < 0) {
     t = -t;
   }
   s = a + a;
-  if (s == a) t = __internal_fast_rcpf(a); /* handle special cases */
+  if (s == a) t = __internal_fast_rcpf (a); /* handle special cases */
   return t;
 }
 
@@ -4214,7 +10140,8 @@ static __forceinline__ float j0f(float a)
     arg = __internal_fmad(arg, y2, 6.5091736614704e-2f);
     arg = __internal_fmad(arg, y2, -1.2499999254942e-1f);
     arg = __internal_fmad(arg, y, t);
-    r = rsqrtf(t) * CUDART_SQRT_2_OVER_PI_F * f * __cos_offset_f(arg, -7.8539816e-1f);
+    r = rsqrtf(t) * CUDART_SQRT_2_OVER_PI_F * f * 
+        __internal_cos_offset_f(arg, -7.8539816e-1f);
   } else {
     /* Input is infinite. */
     r = 0.0f;
@@ -4264,15 +10191,16 @@ static __forceinline__ float j1f(float a)
     arg = __internal_fmad(arg, y2, -1.6401261e-1f);
     arg = __internal_fmad(arg, y2, 3.7499991e-1f);
     arg = __internal_fmad(arg, y, t);
-    r = rsqrtf(t) * CUDART_SQRT_2_OVER_PI_F * f * __cos_offset_f(arg, -2.3561945e0f);
+    r = rsqrtf(t) * CUDART_SQRT_2_OVER_PI_F * f * 
+        __internal_cos_offset_f(arg, -2.3561945e0f);
   } else {
     r = 0.0f;
   }
   if (a < 0.0f) {
-      r = -r;
+    r = -r;
   }
   if (t < 1e-30f) {
-      r = copysignf(r, a);
+    r = copysignf(r, a);
   }
   return r;
 }
@@ -4296,7 +10224,7 @@ static __forceinline__ float y0f(float a)
     r = __internal_fmad(r, x, -1.6073968e-2f);
     r = __internal_fmad(r, x, 1.7760602e-1f);
     r = __internal_fmad(r, x, -7.3804297e-2f);
-    r += CUDART_2_OVER_PI_F * logf(t) * j0f(t);
+    r += CUDART_2_OVER_PI_F * __internal_accurate_logf(t) * j0f(t);
   } else if (t <= 1.9256277e0f) {
     /* For .45 < |a| < 8.6 we use polynomials around the
        zeros to get good relative accuracy near the zeros.
@@ -4354,13 +10282,14 @@ static __forceinline__ float y0f(float a)
     arg = __internal_fmad(arg, y2, 6.5077804e-2f);
     arg = __internal_fmad(arg, y2, -1.2499996e-1f);
     arg = __internal_fmad(arg, y, t);
-    r = rsqrtf(t) * CUDART_SQRT_2_OVER_PI_F * f * __cos_offset_f(arg, -2.3561945e0f);
+    r = rsqrtf(t) * CUDART_SQRT_2_OVER_PI_F * f * 
+        __internal_cos_offset_f(arg, -2.3561945e0f);
   } else {
     /* Input is infinite. */
     r = 0.0f;
   }
   if (a < 0.0f) {
-      r = sqrtf(-1.0f);
+    r = sqrtf(-1.0f);
   }
   return r;
 }
@@ -4388,7 +10317,7 @@ static __forceinline__ float y1f(float a)
     r = __internal_fmad(r, x, 5.4348689e-2f);
     r = __internal_fmad(r, x, -1.9605710e-1f);
     r *= t;
-    r += CUDART_2_OVER_PI_F * (logf(t) * j1f(t) - 1.0f / t);
+    r += CUDART_2_OVER_PI_F * (__internal_accurate_logf(t) * j1f(t) - 1.0f /t);
   } else if (t <= 3.8134112e0f) {
     /* For 1.7 < |a| < 10.2 we use polynomials around the
        zeros to get good relative accuracy near the zeros.
@@ -4443,13 +10372,14 @@ static __forceinline__ float y1f(float a)
     arg = __internal_fmad(arg, y2, -1.6404507e-1f);
     arg = __internal_fmad(arg, y2, 3.7499997e-1f);
     arg = __internal_fmad(arg, y, t);
-    r = rsqrtf(t) * CUDART_SQRT_2_OVER_PI_F * f * __cos_offset_f(arg, -3.9269908e0f);
+    r = rsqrtf(t) * CUDART_SQRT_2_OVER_PI_F * f * 
+        __internal_cos_offset_f(arg, -3.9269908e0f);
   } else {
-  /* Input is infinite. */
+    /* Input is infinite. */
     r = 0.0f;
   }
   if (a < 0.0f) {
-      r = sqrtf(-1.0f);
+    r = sqrtf(-1.0f);
   }
   return r;
 }
@@ -4549,27 +10479,23 @@ static __forceinline__ float jnf(int n, float a)
 
 static __forceinline__ float erff(float a)
 {
-  float t, r, q;
+  float t, r;
 
   t = fabsf(a);
   if (t >= 1.0f) { 
-    /* coefficients from Hastings, "Approximations for Digital Computers",
-     * Princeton University Press 1955. Sheet 45.
-     */
-    q = __internal_fmad (t, 0.3275911f, 1.0f);
-    q = 1.0f / q;
-    r =                         1.061405429f;
-    r = __internal_fmad (r, q, -1.453152027f);
-    r = __internal_fmad (r, q,  1.421413741f);
-    r = __internal_fmad (r, q, -0.284496736f);
-    r = __internal_fmad (r, q,  0.254829592f);
-    r = r * q;
-    q = __internal_expf_kernel(-a * a, 0.0f);
-    r = __internal_fmad (-q, r, 1.0f);
-    if (t >= 5.5f) {
+    r =                        -2.1838108096813042E-005f;
+    r = __internal_fmad (r, t,  5.0251842396186700E-004f);
+    r = __internal_fmad (r, t, -5.2685376878506664E-003f);
+    r = __internal_fmad (r, t,  3.3802289909563604E-002f);
+    r = __internal_fmad (r, t, -1.5159399705325438E-001f);
+    r = __internal_fmad (r, t, -9.1882860913602138E-001f);
+    r = __internal_fmad (r, t, -1.6265084770219975E+000f);
+    r = __internal_fmad (r, t, -5.0015456083261922E-004f);
+    r = 1.0f - __internal_fast_exp2f (r);
+    if (t >= 3.919205904f) {
       r = 1.0f;
     }
-    a = __int_as_float (__float_as_int(r) | (__float_as_int(a) & 0x80000000));
+    a = __internal_copysignf_pos (r, a);
   } else {
     t = a * a;
     r =                        -5.58510127926029810E-004f;
@@ -4581,6 +10507,23 @@ static __forceinline__ float erff(float a)
     a = a * r;
   }
   return a;
+}
+
+static __forceinline__ float __internal_erfinv_poly(float a)
+{
+  float r;
+
+  r =                        -2.5172707606685652E-010f; 
+  r = __internal_fmad (r, a,  9.4274289432374619E-009f); 
+  r = __internal_fmad (r, a, -1.2054753059594516E-007f); 
+  r = __internal_fmad (r, a,  2.1697004698667657E-007f); 
+  r = __internal_fmad (r, a,  8.0621488510822390E-006f); 
+  r = __internal_fmad (r, a, -3.1675491789646913E-005f); 
+  r = __internal_fmad (r, a, -7.7436312951712784E-004f); 
+  r = __internal_fmad (r, a,  5.5465877941375773E-003f); 
+  r = __internal_fmad (r, a,  1.6082022430967846E-001f); 
+  r = __internal_fmad (r, a,  8.8622690039402130E-001f); 
+  return r;
 }
 
 /* 
@@ -4611,9 +10554,9 @@ static __forceinline__ float erfinvf(float a)
   t = 1.0f - a;
   s = s * t;
 #endif
-  t = - __log2f (s);
+  t = - __internal_fast_log2f (s);
   if (t > 8.2f) {
-    t = rsqrtf (t);
+    t = __internal_fast_rsqrtf (t);
     r =                        -5.8991436871681446E-001f;
     r = __internal_fmad (r, t, -6.6300422537735360E-001f);
     r = __internal_fmad (r, t,  1.5970110948817704E+000f);
@@ -4623,20 +10566,10 @@ static __forceinline__ float erfinvf(float a)
     t = 1.0f / t;
     t = r * t;
     if (a < 0.0f) t = -t;
-    return t;
   } else {
-    r =                        -2.5172707606685652E-010f; 
-    r = __internal_fmad (r, t,  9.4274289432374619E-009f); 
-    r = __internal_fmad (r, t, -1.2054753059594516E-007f); 
-    r = __internal_fmad (r, t,  2.1697004698667657E-007f); 
-    r = __internal_fmad (r, t,  8.0621488510822390E-006f); 
-    r = __internal_fmad (r, t, -3.1675491789646913E-005f); 
-    r = __internal_fmad (r, t, -7.7436312951712784E-004f); 
-    r = __internal_fmad (r, t,  5.5465877941375773E-003f); 
-    r = __internal_fmad (r, t,  1.6082022430967846E-001f); 
-    r = __internal_fmad (r, t,  8.8622690039402130E-001f); 
-    return r * a;
+    t = a * __internal_erfinv_poly (t);
   }
+  return t;
 }
 
 static __forceinline__ float __internal_erfcxf_kernel (float a)
@@ -4722,10 +10655,10 @@ static __forceinline__ float erfcf(float a)
   if (x > 10.055f) t1 = 0.0f;  
   return (a < 0.0f) ? (2.0f - t1) : t1; 
 #else /* __CUDA_ARCH__ >= 200 */
+  float p, q, h, l, t;
   if (a <= 0.813f) {
-    return 1.0f - erff(a);
+    p = 1.0f - erff(a);
   } else {
-    float p, q, h, l, t;
     t = __internal_fast_rcpf (a);
     p = __internal_erfcxf_kernel (t);
     h = __int_as_float (__float_as_int (a) & 0xfffff000);
@@ -4742,8 +10675,8 @@ static __forceinline__ float erfcf(float a)
     if (a > 10.055f) {
       p = 0.0f;
     }
-    return p;
   }
+  return p;
 #endif /* __CUDA_ARCH__ >= 200 */
 }
 
@@ -4829,32 +10762,72 @@ static __forceinline__ float erfcxf(float a)
 
 static __forceinline__ float erfcinvf(float a)
 {
-  float t;
-  if (a <= 0.0f) {
-    t = rsqrtf (__int_as_float (0xffc00000));  /* NaN */
-    if (a == 0.0f) {
-      t = (1.0f - a) * CUDART_INF_F;
-    }
-  } 
-  else if (a >= 0.0625f) {
-    t = erfinvf (1.0f - a);
-  }
-  else {
-    float p, q;
-    t = __internal_accurate_logf(a);
-    t = rsqrtf(-t);
-    p =                        -1.64441567910e-1f;
-    p = __internal_fmad (p, t,  6.80544246825e-1f);
-    p = __internal_fmad (p, t, -1.12808139162e+0f);
-    p = __internal_fmad (p, t,  6.90969348887e-1f);
-    p = __internal_fmad (p, t,  1.38271964963e+0f);
-    p = __internal_fmad (p, t,  1.55047000312e-1f);
-    q =                     t + 1.38522814199e+0f;
-    q = __internal_fmad (q, t,  1.55024849822e-1f);
-    q = q * t;
-    t = __fdividef (p, q);
+  float t = __fadd_rn (2.0f, -a);
+  if ((a >= 0.0034f) && (a <= 1.9966f)) {
+    t = __fmul_rn (t, a);
+    t = __internal_fast_log2f (t);
+    t = __internal_erfinv_poly (-t);
+#if __CUDA_ARCH__ >= 200
+    t = __fmaf_rn (t, -a, t);
+#else
+    t = __fmul_rn (__fadd_rn (1.0f, -a), t);
+#endif
+  } else {
+    float p = a;
+    if (a > 1.0f) p = t;   
+    t = __log2f (p);
+    t = __internal_fast_rsqrtf (-t);  
+    p =                        -6.3113223322530750E+1f;
+    p = __internal_fmad (p, t,  1.2748468750377106E+2f);
+    p = __internal_fmad (p, t, -1.1410568387522068E+2f);
+    p = __internal_fmad (p, t,  6.0325788262642078E+1f);
+    p = __internal_fmad (p, t, -2.1789891427552199E+1f);
+    p = __internal_fmad (p, t,  6.4674089804347199E+0f);
+    p = __internal_fmad (p, t, -1.8329473786019568E+0f);
+    p = __internal_fmad (p, t, -3.0327774474001094E-2f);
+    p = __internal_fmad (p, t,  8.3287745746760911E-1f);
+    t = __fmul_rn (p, __internal_fast_rcpf (t));
+    if (a > 1.0f) t = -t;
   }
   return t;
+}
+
+static __forceinline__ float normcdfinvf(float a)
+{
+  return -CUDART_SQRT_TWO_F * erfcinvf (a + a);
+}
+
+/* normcdf(x) = 0.5 * erfc (-sqrt(0.5) * x). When x < -1.0, the numerical error
+   incurred when scaling the argument of normcdf() is amplified, so we need to
+   compensate this to guarantee accurate results.
+*/
+static __forceinline__ float normcdff(float a)
+{
+  float ah, al, t1, t2, z;
+  if (fabsf (a) > 14.5f) a = copysignf (14.5f, a);
+#if __CUDA_ARCH__ >= 200
+  t1 = __fmul_rn (a, -CUDART_SQRT_HALF_HI_F);
+  t2 = __fmaf_rn (a, -CUDART_SQRT_HALF_HI_F, -t1);
+  t2 = __fmaf_rn (a, -CUDART_SQRT_HALF_LO_F, t2);
+#else /* __CUDA_ARCH__ >= 200 */
+  float t3, t4, t5, t6;
+  t3 = __internal_fmad (a, 4097.0f, __internal_fmad (-a, 4097.0f, a));
+  t4 = a - t3;
+  t5 = -0.70703125f;
+  t6 = -7.551908493e-5f;
+  t1 = __fmul_rn (a, -CUDART_SQRT_HALF_HI_F);
+  t2 = __internal_fmad (t3, t6, __internal_fmad (t3, t5, -t1));
+  t2 = __internal_fmad (t4, t6, __internal_fmad (t5, t4, t2));
+  t2 = __fadd_rn (__fmul_rn (a, -CUDART_SQRT_HALF_LO_F), t2);
+#endif /* __CUDA_ARCH__ >= 200 */
+  ah = __fadd_rn (t1, t2);
+  z = erfcf (ah);
+  if (a < -1.0f) {
+    al = __fadd_rn (t1 - ah, t2);
+    t1 = -2.0f * ah * z;      // crude approximation of slope of erfc() at 'ah'
+    z = __internal_fmad (t1, al, z);
+  }
+  return 0.5f * z;
 }
 
 static __forceinline__ float lgammaf(float a)
@@ -4872,11 +10845,7 @@ static __forceinline__ float lgammaf(float a)
   quot = (int)i;
   i = __internal_fmad (-i, 0.5f, a);
   i = i * CUDART_PI_F;
-  if (quot & 1) {
-    i = __internal_cos_kernel(i);
-  } else {
-    i = __internal_sin_kernel(i);
-  }
+  i = __internal_sin_cos_kernel(i, quot);
   i = fabsf(i);
   t = CUDART_LNPI_F - __internal_accurate_logf(i * a) - t;
   return t;
@@ -4888,17 +10857,18 @@ static __forceinline__ float ldexpf(float a, int b)
 
   if ((fa == CUDART_ZERO_F) || (fa == CUDART_INF_F) || (b == 0)) {
     if (!(fa > CUDART_ZERO_F)) a = a + a;
-    return a;
   } else if (abs(b) < 126) {
-    return a * exp2f((float)b);
+    a = a * __internal_fast_exp2f((float)b);
   } else if (abs(b) < 252) {
     int bhalf = b / 2;
-    return a * exp2f((float)bhalf) * exp2f((float)(b - bhalf));
+    a = a * __internal_fast_exp2f((float)bhalf) * 
+        __internal_fast_exp2f((float)(b - bhalf));
   } else {
     int bquarter = b / 4;
-    float t = exp2f((float)bquarter);
-    return a * t * t * t * exp2f((float)(b - 3 * bquarter));
+    float t = __internal_fast_exp2f((float)bquarter);
+    a = a * t * t * t * __internal_fast_exp2f((float)(b - 3 * bquarter));
   }
+  return a;
 }
 
 static __forceinline__ float scalbnf(float a, int b)
@@ -4932,7 +10902,7 @@ static __forceinline__ float frexpf(float a, int *b)
   } else {
     denorm = 0;
   }
-  expo = ((__float_as_int(a) >> 23) & 0xff);
+  expo = ((unsigned int)__float_as_int(a) >> 23) & 0xff;
   if ((fa == 0.0f) || (expo == 0xff)) {
     expo = 0;
     a = a + a;
@@ -4951,59 +10921,56 @@ static __forceinline__ float modff(float a, float *b)
     t = truncf(a);
     *b = t;
     t = a - t;
-    t = __int_as_float(__float_as_int(t) | (__float_as_int(a) & 0x80000000));
-    return t;
+    t = __internal_copysignf_pos (t, a);
   } else if (__isinff(a)) {
     *b = a;
-    return __int_as_float(__float_as_int(a) & 0x80000000);
+    t = __internal_copysignf_pos (CUDART_ZERO_F, a);
   } else {
     *b = a + a; 
-    return a + a;
+    t = a + a;
   }
+  return t;
 }
 
 static __forceinline__ float fmodf(float a, float b)
 {
   float orig_a = a;
   float orig_b = b;
+  float res;
   a = fabsf(a);
   b = fabsf(b);
-  if (!((a <= CUDART_INF_F) && (b <= CUDART_INF_F))) {
-    return orig_a + orig_b;
-  }
   if ((a == CUDART_INF_F) || (b == CUDART_ZERO_F)) {
-    return rsqrtf (__int_as_float (0xffc00000));
+    res = CUDART_NAN_F;
   } else if (a >= b) {
-#if !defined(__CUDA_FTZ)
-    /* Need to be able to handle denormals correctly */
-    int expoa = (a < CUDART_TWO_TO_M126_F) ? 
-        ((int)__log2f(a)) : (((__float_as_int(a) >> 23) & 0xff) - 127);
-    int expob = (b < CUDART_TWO_TO_M126_F) ? 
-        ((int)__log2f(b)) : (((__float_as_int(b) >> 23) & 0xff) - 127);
-    int scale = expoa - expob;
-    float scaled_b = ldexpf(b, scale);
-    if (scaled_b <= 0.5f * a) {
-      scaled_b *= 2.0f;
-    }
-#else /* !defined(__CUDA_FTZ) */
+#if defined(__CUDA_FTZ)
     float scaled_b = __int_as_float ((__float_as_int(b) & 0x007fffff) | 
                                      (__float_as_int(a) & 0x7f800000));
     if (scaled_b > a) {
       scaled_b *= 0.5f;
     }
-#endif /* !defined(__CUDA_FTZ) */
+#else /* defined(__CUDA_FTZ) */
+    /* Need to be able to handle denormals correctly */
+    int expoa = (int)__log2f(a);
+    int expob = (int)__log2f(b);
+    int scale = expoa - expob;
+    float scaled_b = ldexpf(b, scale);
+    if (scaled_b <= 0.5f * a) {
+      scaled_b *= 2.0f;
+    }
+#endif /* defined(__CUDA_FTZ) */
     while (scaled_b >= b) {
       if (a >= scaled_b) {
         a -= scaled_b;
       }
       scaled_b *= 0.5f;
     }
-    return __int_as_float (__float_as_int(a) | 
-                           (__float_as_int(orig_a) & 0x80000000));
+    res = __internal_copysignf_pos (a, orig_a);
   } else {
-    if (!(a > CUDART_ZERO_F)) orig_a = orig_a + orig_a;
-    return orig_a;
+    res = orig_a;
+    if (!(b <= CUDART_INF_F)) res += orig_b;
+    if (!(a > CUDART_ZERO_F)) res += orig_a;
   }
+  return res;
 }
 
 static __forceinline__ float remainderf(float a, float b)
@@ -5020,13 +10987,11 @@ static __forceinline__ float remainderf(float a, float b)
     return orig_a + orig_b;
   }
   if ((a == CUDART_INF_F) || (b == CUDART_ZERO_F)) {
-    return rsqrtf (__int_as_float (0xffc00000));
+    return CUDART_NAN_F;
   } else if (a >= b) {
 #if !defined(__CUDA_FTZ)
-    int expoa = (a < CUDART_TWO_TO_M126_F) ? 
-        ((int)__log2f(a)) : (((__float_as_int(a) >> 23) & 0xff) - 127);
-    int expob = (b < CUDART_TWO_TO_M126_F) ? 
-        ((int)__log2f(b)) : (((__float_as_int(b) >> 23) & 0xff) - 127);
+    int expoa = (int)__log2f(a);
+    int expob = (int)__log2f(b);
     int scale = expoa - expob;
     float scaled_b = ldexpf(b, scale);
     if (scaled_b <= 0.5f * a) {
@@ -5038,15 +11003,15 @@ static __forceinline__ float remainderf(float a, float b)
     if (scaled_b > a) {
       scaled_b *= 0.5f;
     }
-    /* check wether divisor is a power of two */
+    /* check whether divisor is a power of two */
     if (a == scaled_b) {
-      return __int_as_float(__float_as_int(orig_a) & 0x80000000);
+      return __internal_copysignf_pos (CUDART_ZERO_F, orig_a);
     }    
 #endif /* !__CUDA_FTZ */
     while (scaled_b >= b) {
       quot0 = 0;
       if (a >= scaled_b) {
-        twoa = __internal_fmad (a, 2.0f, -scaled_b) - scaled_b;
+        twoa = __internal_fmad(2.0f, a, -2.0f*scaled_b);
         a = a - scaled_b;
         quot0 = 1;
       }
@@ -5058,7 +11023,6 @@ static __forceinline__ float remainderf(float a, float b)
   twoa = 2.0f * a;
   if ((twoa > b) || ((twoa == b) && quot0)) {
     a -= b;
-    a = __int_as_float(__float_as_int(a) | 0x80000000);
   }
 #else
   if (a >= CUDART_TWO_TO_M126_F) {
@@ -5075,7 +11039,7 @@ static __forceinline__ float remainderf(float a, float b)
     }
   }
 #endif /* !__CUDA_FTZ */
-  a = __int_as_float((__float_as_int(orig_a) & 0x80000000)^
+  a = __int_as_float((__float_as_int(orig_a) & 0x80000000) ^
                      __float_as_int(a));
   return a;
 }
@@ -5098,14 +11062,12 @@ static __forceinline__ float remquof(float a, float b, int* quo)
   }
   if ((a == CUDART_INF_F) || (b == CUDART_ZERO_F)) {
     *quo = quot;
-    return rsqrtf (__int_as_float (0xffc00000));
+    return CUDART_NAN_F;
   } else if (a >= b) {
 #if !defined(__CUDA_FTZ)
     /* Need to be able to handle denormals correctly */
-    int expoa = (a < CUDART_TWO_TO_M126_F) ? 
-        ((int)__log2f(a)) : (((__float_as_int(a) >> 23) & 0xff) - 127);
-    int expob = (b < CUDART_TWO_TO_M126_F) ? 
-        ((int)__log2f(b)) : (((__float_as_int(b) >> 23) & 0xff) - 127);
+    int expoa = (int)__log2f(a);
+    int expob = (int)__log2f(b);
     int scale = expoa - expob;
     float scaled_b = ldexpf(b, scale);
     if (scaled_b <= 0.5f * a) {
@@ -5117,7 +11079,7 @@ static __forceinline__ float remquof(float a, float b, int* quo)
     if (scaled_b > a) {
       scaled_b *= 0.5f;
     }
-    /* check wether divisor is a power of two */
+    /* check whether divisor is a power of two */
     if (a == scaled_b) {
       if (__float_as_int(b) > 0x7e800000) {
           a *= 0.25f;
@@ -5128,13 +11090,13 @@ static __forceinline__ float remquof(float a, float b, int* quo)
       quot = quot ^ sign;
       quot = quot - sign;
       *quo = quot;
-      return __int_as_float(__float_as_int(orig_a) & 0x80000000);
+      return __internal_copysignf_pos (CUDART_ZERO_F, orig_a);
     }    
 #endif /* !__CUDA_FTZ */
     while (scaled_b >= b) {
-      quot <<= 1;
+      quot += quot;
       if (a >= scaled_b) {
-        twoa = (2.0f * a - scaled_b) - scaled_b;
+        twoa = __internal_fmad(2.0f, a, -2.0f*scaled_b);
         a -= scaled_b;
         quot += 1;
       }
@@ -5166,7 +11128,7 @@ static __forceinline__ float remquof(float a, float b, int* quo)
     }
   }
 #endif /* !__CUDA_FTZ */
-  a = __int_as_float((__float_as_int(orig_a) & 0x80000000)^
+  a = __int_as_float((__float_as_int(orig_a) & 0x80000000) ^
                      __float_as_int(a));
   quot = quot & CUDART_REMQUO_MASK_F;
   quot = quot ^ sign;
@@ -5252,49 +11214,37 @@ static __forceinline__ float powf(float a, float b)
 #if defined(__USE_FAST_MATH__)
   return __powf(a, b);
 #else /* __USE_FAST_MATH__ */
-  int bIsOddInteger;
   float t;
-  if (a == 1.0f || b == 0.0f) {
-    return 1.0f;
-  } 
-  if (__isnanf(a) || __isnanf(b)) {
-    return a + b;
-  }
-  if (a == CUDART_INF_F) {
-    return (__float_as_int(b) < 0) ? CUDART_ZERO_F : CUDART_INF_F;
-  }
-  if (__isinff(b)) {
-    if (a == -1.0f) {
-      return 1.0f;
-    }
-    t = (fabsf(a) > 1.0f) ? CUDART_INF_F : CUDART_ZERO_F;
-    if (b < CUDART_ZERO_F) {
-      t = 1.0f / t;
-    }
-    return t + t;
-  }  
+  int ti, bIsOddInteger;
+
   bIsOddInteger = fabsf(b - (2.0f * truncf(0.5f * b))) == 1.0f;
-  if (a == CUDART_ZERO_F) {
-    t = bIsOddInteger ? a : CUDART_ZERO_F;
-    if (b < CUDART_ZERO_F) {
-      t = 1.0f / t;
-    }
-    return t + t;
-  } 
-  if (a == -CUDART_INF_F) {
-    t = - ((b < CUDART_ZERO_F) ? (1.0f / a) : a);
-    if (bIsOddInteger) {
+  if (a == 1.0f || b == 0.0f) {
+    t = 1.0f;
+  } else if (__isnanf(a) || __isnanf(b)) {
+    t = a + b;
+  } else if (__isinff(b)) {
+    ti = 0;
+    if (fabsf(a) > 1.0f) ti = 0x7f800000;
+    if (b < 0.0f) ti = ti ^ 0x7f800000;
+    if (a == -1.0f) ti = 0x3f800000;
+    t = __int_as_float (ti);
+   } else if (__isinff(a)) {
+    ti = 0;
+    if (b >= 0.0f) ti = 0x7f800000;
+    if ((a < 0.0f) && bIsOddInteger) ti = ti ^ 0x80000000;
+    t = __int_as_float (ti);
+  } else if (a == 0.0f) {
+    ti = 0;
+    if (bIsOddInteger) ti = __float_as_int(a+a);
+    if (b < 0.0f) ti = ti | 0x7f800000;
+    t = __int_as_float (ti);
+  } else if ((a < 0.0f) && (b != truncf (b))) {
+    t = CUDART_NAN_F;
+  } else {
+    t = __internal_accurate_powf(fabsf(a), b);
+    if ((a < 0.0f) && bIsOddInteger) {
       t = __int_as_float(__float_as_int(t) ^ 0x80000000);
     }
-    return t;
-  } 
-  if ((a < CUDART_ZERO_F) && (b != truncf(b))) {
-    return rsqrtf(__int_as_float(0xffc00000));
-  }
-  t = fabsf(a);
-  t = __internal_accurate_powf(t, b);
-  if ((a < CUDART_ZERO_F) && bIsOddInteger) {
-    t = __int_as_float(__float_as_int(t) ^ 0x80000000);
   }
   return t;
 #endif /* __USE_FAST_MATH__ */
@@ -5350,7 +11300,7 @@ static __forceinline__ float tgammaf(float a)
     return s;
   } else {
     if (x == floorf(x)) {  /* x is negative integer */
-      x = rsqrtf (__int_as_float (0xffc00000));  /* NaN */
+      x = CUDART_NAN_F;
     } 
     if (x < -41.1f) x = -41.1f; /* clamp */
     xx = x;
@@ -5385,7 +11335,7 @@ static __forceinline__ float tgammaf(float a)
 static __forceinline__ float roundf(float a)
 {
   float fa = fabsf(a);
-  float u = __int_as_float (0x3f000000 | (__float_as_int(a) & 0x80000000));
+  float u = __internal_copysignf_pos (0.5f, a);
   u = truncf (a + u);
   if (fa > CUDART_TWO_TO_23_F) u = a;
   if (fa < 0.5f) u = truncf (a);
@@ -5491,53 +11441,7 @@ static __forceinline__ float logbf(float a)
   return res;
 }
 
-static __forceinline__ void sincosf(float a, float *sptr, float *cptr)
-{
-#if defined(__USE_FAST_MATH__)
-  __sincosf(a, sptr, cptr);
-#else /* __USE_FAST_MATH__ */
-#if defined(__CUDANVVM__)
-  float s, c;
-#else /* __CUDANVVM__ */
-  volatile float s, c;  /* #588812 */
 #endif /* __CUDANVVM__ */
-  float t;
-  int quadrant;
-
-  if (__isinff(a)) {
-    a = __fmul_rn (a, CUDART_ZERO_F); /* return NaN */
-  }
-  a = __internal_trig_reduction_kernel(a, &quadrant);
-  c = __internal_cos_kernel(a);
-  s = __internal_sin_kernel(a);
-  t = s;
-  if (quadrant & 1) {
-     s = c;
-     c = t;
-  }
-  if (quadrant & 2) {
-    s = -s;
-  }
-  quadrant++;
-  if (quadrant & 2) {
-    c = -c;
-  }
-  if (a == CUDART_ZERO_F) {
-    s = __fmul_rn (a, CUDART_ZERO_F);
-  }
-  *sptr = s;
-  *cptr = c;
-#endif /* __USE_FAST_MATH__ */
-}
-
-#if defined(_WIN32)
-#if _MSC_VER >= 1600
-static __forceinline__ float _hypotf(float a, float b)
-{
-  return hypotf(a, b);
-} 
-#endif /* _MSC_VER >= 1600 */
-#endif /* defined(_WIN32) */
 
 #else /* __CUDABE__ */
 
@@ -5549,7 +11453,7 @@ static __forceinline__ float _hypotf(float a, float b)
 
 #include <crt/func_macro.h>
 
-#if defined(_WIN32) || defined(__APPLE__)
+#if defined(_WIN32) || defined(__APPLE__) || defined (__ANDROID__)
 
 __func__(int __isnan(double a))
 {
@@ -5563,7 +11467,7 @@ __func__(int __isnan(double a))
   return cvt.l << 1 > 0xffe0000000000000ull;
 }
 
-#endif /* _WIN32 || __APPLE__ */
+#endif /* _WIN32 || __APPLE__ || __ANDROID__ */
 
 #if defined(_WIN32) || defined(__APPLE__)
 
@@ -5612,14 +11516,14 @@ __func__(int __isinf(double a))
 
 #endif /* _WIN32 || __APPLE__ */
 
-#if defined(_WIN32)
+#if defined(_WIN32) || defined (__ANDROID__)
 
 __func__(double log2(double a))
 {
   return log(a) * 1.44269504088896340;
 }
 
-#endif /* _WIN32 */
+#endif /* _WIN32 || __ANDROID__ */
 
 #if defined(_WIN32)
 
@@ -7021,6 +12925,15 @@ __func__(double tgamma(double a))
   }
 }
 
+#if _MSC_VER < 1600
+
+__func__(double hypot(double a, double b))
+{
+  return _hypot(a, b);
+}
+
+#endif /* _MSC_VER < 1600 */
+
 /*******************************************************************************
 *                                                                              *
 * HOST IMPLEMENTATION FOR FLOAT AND LONG DOUBLE ROUTINES FOR WINDOWS PLATFORM  *
@@ -7168,13 +13081,6 @@ __func__(float fdimf(float a, float b))
   return (float)fdim((double)a, (double)b);
 }
 
-#if _MSC_VER < 1600
-__func__(float hypotf(float a, float b))
-{
-  return (float)hypot((double)a, (double)b);
-}
-#endif /* _MSC_VER < 1600 */
-
 __func__(float log1pf(float a))
 {
   return (float)log1p((double)a);
@@ -7230,6 +13136,15 @@ __func__(float remainderf(float a, float b))
 * HOST IMPLEMENTATION FOR FLOAT ROUTINES FOR WINDOWS PLATFORM                  *
 *                                                                              *
 *******************************************************************************/
+
+#if _MSC_VER < 1600
+
+__func__(float hypotf(float a, float b))
+{
+  return _hypotf(a, b);
+}
+
+#endif /* _MSC_VER < 1600 */
 
 __func__(float copysignf(float a, float b))
 {
@@ -7372,6 +13287,12 @@ __func__(double cospi(double a))
     a = fabs(a);
   }
   return a;
+}
+
+__func__(void sincospi(double a, double *sptr, double *cptr))
+{
+  *sptr = sinpi(a);
+  *cptr = cospi(a);
 }
 
 __func__(double erfinv(double a))
@@ -7553,6 +13474,33 @@ __func__(double erfcinv(double a))
   return t;
 }
 
+__func__(double normcdfinv(double a))
+{
+  return -1.4142135623730951 * erfcinv(a + a);
+}
+
+__func__(double normcdf(double a))
+{
+  double ah, al, t1, t2, u1, u2, v1, v2, z;
+  if (fabs (a) > 38.5) a = copysign (38.5, a);
+  ah = a * 134217729.0;
+  u1 = (a - ah) + ah;
+  u2 = a - u1;
+  v1 = -7.0710678398609161e-01;
+  v2 =  2.7995440410322203e-09;
+  t1 = a * -CUDART_SQRT_HALF_HI;
+  t2 = (((u1 * v1 - t1) + u1 * v2) + u2 * v1) + u2 * v2;
+  t2 = (a * -CUDART_SQRT_HALF_LO) + t2;
+  ah = t1 + t2;
+  z = erfc (ah);
+  if (a < -1.0) {
+    al = (t1 - ah) + t2;
+    t1 = -2.0 * ah * z;
+    z = t1 * al + z;
+  }
+  return 0.5 * z;
+}
+
 __func__(double erfcx(double a))
 {
   double x, t1, t2, t3;
@@ -7648,6 +13596,15 @@ __func__(float cospif(float a))
   return (float)cospi((double)a);
 }
 
+__func__(void sincospif(float a, float *sptr, float *cptr))
+{
+  double s, c;
+
+  sincospi((double)a, &s, &c);
+  *sptr = (float)s;
+  *cptr = (float)c;
+}
+
 __func__(float erfinvf(float a))
 {
   return (float)erfinv((double)a);
@@ -7656,6 +13613,16 @@ __func__(float erfinvf(float a))
 __func__(float erfcinvf(float a))
 {
   return (float)erfcinv((double)a);
+}
+
+__func__(float normcdfinvf(float a))
+{
+  return (float)normcdfinv((double)a);
+}
+
+__func__(float normcdff(float a))
+{
+  return (float)normcdf((double)a);
 }
 
 __func__(float erfcxf(float a))

@@ -20,16 +20,50 @@
  */
 
 #include <thrust/scan.h>
-
-#include <thrust/iterator/transform_iterator.h>
-
-#include <thrust/detail/type_traits.h>
-#include <thrust/detail/type_traits/function_traits.h>
-#include <thrust/detail/type_traits/iterator/is_output_iterator.h>
-
+#include <thrust/iterator/iterator_traits.h>
+#include <thrust/system/detail/generic/select_system.h>
+#include <thrust/system/detail/generic/transform_scan.h>
+#include <thrust/system/detail/adl/transform_scan.h>
 
 namespace thrust
 {
+
+
+template<typename DerivedPolicy,
+         typename InputIterator,
+         typename OutputIterator,
+         typename UnaryFunction,
+         typename AssociativeOperator>
+  OutputIterator transform_inclusive_scan(const thrust::detail::execution_policy_base<DerivedPolicy> &exec,
+                                          InputIterator first,
+                                          InputIterator last,
+                                          OutputIterator result,
+                                          UnaryFunction unary_op,
+                                          AssociativeOperator binary_op)
+{
+  using thrust::system::detail::generic::transform_inclusive_scan;
+  return transform_inclusive_scan(thrust::detail::derived_cast(thrust::detail::strip_const(exec)), first, last, result, unary_op, binary_op);
+} // end transform_inclusive_scan()
+
+
+template<typename DerivedPolicy,
+         typename InputIterator,
+         typename OutputIterator,
+         typename UnaryFunction,
+         typename T,
+         typename AssociativeOperator>
+  OutputIterator transform_exclusive_scan(const thrust::detail::execution_policy_base<DerivedPolicy> &exec,
+                                          InputIterator first,
+                                          InputIterator last,
+                                          OutputIterator result,
+                                          UnaryFunction unary_op,
+                                          T init,
+                                          AssociativeOperator binary_op)
+{
+  using thrust::system::detail::generic::transform_exclusive_scan;
+  return transform_exclusive_scan(thrust::detail::derived_cast(thrust::detail::strip_const(exec)), first, last, result, unary_op, init, binary_op);
+} // end transform_exclusive_scan()
+
 
 template<typename InputIterator,
          typename OutputIterator,
@@ -41,33 +75,16 @@ template<typename InputIterator,
                                           UnaryFunction unary_op,
                                           BinaryFunction binary_op)
 {
-  // the pseudocode for deducing the type of the temporary used below:
-  // 
-  // if UnaryFunction is AdaptableUnaryFunction
-  //   TemporaryType = AdaptableUnaryFunction::result_type
-  // else if OutputIterator is a "pure" output iterator
-  //   TemporaryType = InputIterator::value_type
-  // else
-  //   TemporaryType = OutputIterator::value_type
-  //
-  // XXX upon c++0x, TemporaryType needs to be:
-  // result_of<UnaryFunction>::type
+  using thrust::system::detail::generic::select_system;
 
-  typedef typename thrust::detail::eval_if<
-    thrust::detail::has_result_type<UnaryFunction>::value,
-    thrust::detail::result_type<UnaryFunction>,
-    thrust::detail::eval_if<
-      thrust::detail::is_output_iterator<OutputIterator>::value,
-      thrust::iterator_value<InputIterator>,
-      thrust::iterator_value<OutputIterator>
-    >
-  >::type ValueType;
+  typedef typename thrust::iterator_system<InputIterator>::type  System1;
+  typedef typename thrust::iterator_system<OutputIterator>::type System2;
 
-  thrust::transform_iterator<UnaryFunction, InputIterator, ValueType> _first(first, unary_op);
-  thrust::transform_iterator<UnaryFunction, InputIterator, ValueType> _last(last, unary_op);
+  System1 system1;
+  System2 system2;
 
-  return thrust::inclusive_scan(_first, _last, result, binary_op);
-}
+  return thrust::transform_inclusive_scan(select_system(system1,system2), first, last, result, unary_op, binary_op);
+} // end transform_inclusive_scan()
 
 
 template<typename InputIterator,
@@ -82,33 +99,17 @@ template<typename InputIterator,
                                           T init,
                                           AssociativeOperator binary_op)
 {
-  // the pseudocode for deducing the type of the temporary used below:
-  // 
-  // if UnaryFunction is AdaptableUnaryFunction
-  //   TemporaryType = AdaptableUnaryFunction::result_type
-  // else if OutputIterator is a "pure" output iterator
-  //   TemporaryType = InputIterator::value_type
-  // else
-  //   TemporaryType = OutputIterator::value_type
-  //
-  // XXX upon c++0x, TemporaryType needs to be:
-  // result_of<UnaryFunction>::type
+  using thrust::system::detail::generic::select_system;
 
-  typedef typename thrust::detail::eval_if<
-    thrust::detail::has_result_type<UnaryFunction>::value,
-    thrust::detail::result_type<UnaryFunction>,
-    thrust::detail::eval_if<
-      thrust::detail::is_output_iterator<OutputIterator>::value,
-      thrust::iterator_value<InputIterator>,
-      thrust::iterator_value<OutputIterator>
-    >
-  >::type ValueType;
+  typedef typename thrust::iterator_system<InputIterator>::type  System1;
+  typedef typename thrust::iterator_system<OutputIterator>::type System2;
 
-  thrust::transform_iterator<UnaryFunction, InputIterator, ValueType> _first(first, unary_op);
-  thrust::transform_iterator<UnaryFunction, InputIterator, ValueType> _last(last, unary_op);
+  System1 system1;
+  System2 system2;
 
-  return thrust::exclusive_scan(_first, _last, result, init, binary_op);
-}
+  return thrust::transform_exclusive_scan(select_system(system1,system2), first, last, result, unary_op, init, binary_op);
+} // end transform_exclusive_scan()
+
 
 } // end namespace thrust
 

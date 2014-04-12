@@ -162,37 +162,78 @@ CUresult CUDAAPI cuVDPAUCtxCreate(CUcontext *pCtx, unsigned int flags, CUdevice 
  * The exact number of valid \p arrayIndex values depends on the VDPAU surface
  * format. The mapping is shown in the table below. \p mipLevel must be 0.
  *
- * \htmlonly
- * <table>
- * <tr><th>VdpChromaType                               </th><th>arrayIndex</th><th>Size     </th><th>Format</th><th>Content            </th></tr>
- * <tr><td rowspan="4" valign="top">VDP_CHROMA_TYPE_420</td><td>0         </td><td>w   x h/2</td><td>R8    </td><td>Top-field luma     </td></tr>
- * <tr>                                                     <td>1         </td><td>w   x h/2</td><td>R8    </td><td>Bottom-field luma  </td></tr>
- * <tr>                                                     <td>2         </td><td>w/2 x h/4</td><td>R8G8  </td><td>Top-field chroma   </td></tr>
- * <tr>                                                     <td>3         </td><td>w/2 x h/4</td><td>R8G8  </td><td>Bottom-field chroma</td></tr>
- * <tr><td rowspan="4" valign="top">VDP_CHROMA_TYPE_422</td><td>0         </td><td>w   x h/2</td><td>R8    </td><td>Top-field luma     </td></tr>
- * <tr>                                                     <td>1         </td><td>w   x h/2</td><td>R8    </td><td>Bottom-field luma  </td></tr>
- * <tr>                                                     <td>2         </td><td>w/2 x h/2</td><td>R8G8  </td><td>Top-field chroma   </td></tr>
- * <tr>                                                     <td>3         </td><td>w/2 x h/2</td><td>R8G8  </td><td>Bottom-field chroma</td></tr>
+ * \xmlonly
+ * <table outputclass="xmlonly">
+ *   <tgroup cols="5" colsep="1" rowsep="1">
+ *     <colspec colname="c1" colwidth="1.5*"/>
+ *     <colspec colname="c2" colwidth="1.0*"/>
+ *     <colspec colname="c3" colwidth="1.0*"/>
+ *     <colspec colname="c4" colwidth="1.0*"/>
+ *     <colspec colname="c5" colwidth="1.5*"/>
+ *     <thead>
+ *       <row>
+ *         <entry>VdpChromaType</entry>
+ *         <entry>arrayIndex</entry>
+ *         <entry>Size</entry>
+ *         <entry>Format</entry>
+ *         <entry>Content</entry>
+ *       </row>
+ *     </thead>
+ *     <tbody>
+ *       <row>
+ *         <entry morerows="3">VDP_CHROMA_TYPE_420</entry>
+ *         <entry>0</entry>
+ *         <entry>w x h/2</entry>
+ *         <entry>R8</entry>
+ *         <entry>Top-field luma</entry>
+ *       </row>
+ *       <row>
+ *         <entry>1</entry>
+ *         <entry>w x h/2</entry>
+ *         <entry>R8</entry>
+ *         <entry>Bottom-field luma</entry>
+ *       </row>
+ *       <row>
+ *         <entry>2</entry>
+ *         <entry>w/2 x h/4</entry>
+ *         <entry>R8G8</entry>
+ *         <entry>Top-field chroma</entry>
+ *       </row>
+ *       <row>
+ *         <entry>3</entry>
+ *         <entry>w/2 x h/4</entry>
+ *         <entry>R8G8</entry>
+ *         <entry>Bottom-field chroma</entry>
+ *       </row>
+ *       <row>
+ *         <entry morerows="3">VDP_CHROMA_TYPE_422</entry>
+ *         <entry>0</entry>
+ *         <entry>w x h/2</entry>
+ *         <entry>R8</entry>
+ *         <entry>Top-field luma</entry>
+ *       </row>
+ *       <row>
+ *         <entry>1</entry>
+ *         <entry>w x h/2</entry>
+ *         <entry>R8</entry>
+ *         <entry>Bottom-field luma</entry>
+ *       </row>
+ *       <row>
+ *         <entry>2</entry>
+ *         <entry>w/2 x h/2</entry>
+ *         <entry>R8G8</entry>
+ *         <entry>Top-field chroma</entry>
+ *       </row>
+ *       <row>
+ *         <entry>3</entry>
+ *         <entry>w/2 x h/2</entry>
+ *         <entry>R8G8</entry>
+ *         <entry>Bottom-field chroma</entry>
+ *       </row>
+ *     </tbody>
+ *   </tgroup>
  * </table>
- * \endhtmlonly
- *
- * \latexonly
- * \begin{tabular}{|l|l|l|l|l|}
- * \hline
- * VdpChromaType          & arrayIndex & Size      & Format & Content             \\
- * \hline
- * VDP\_CHROMA\_TYPE\_420 & 0          & w x h/2   & R8     & Top-field luma      \\
- *                        & 1          & w x h/2   & R8     & Bottom-field luma   \\
- *                        & 2          & w/2 x h/4 & R8G8   & Top-field chroma    \\
- *                        & 3          & w/2 x h/4 & R8G8   & Bottom-field chroma \\
- * \hline
- * VDP\_CHROMA\_TYPE\_422 & 0          & w x h/2   & R8     & Top-field luma      \\
- *                        & 1          & w x h/2   & R8     & Bottom-field luma   \\
- *                        & 2          & w/2 x h/2 & R8G8   & Top-field chroma    \\
- *                        & 3          & w/2 x h/2 & R8G8   & Bottom-field chroma \\
- * \hline
- * \end{tabular}
- * \endlatexonly
+ * \endxmlonly
  *
  * \param pCudaResource - Pointer to the returned object handle
  * \param vdpSurface    - The VdpVideoSurface to be registered
@@ -235,24 +276,42 @@ CUresult CUDAAPI cuGraphicsVDPAURegisterVideoSurface(CUgraphicsResource *pCudaRe
  * The exact number of valid \p arrayIndex values depends on the VDPAU surface
  * format. The mapping is shown in the table below. \p mipLevel must be 0.
  *
- * \htmlonly
- * <table>
- * <tr><th>VdpRGBAFormat              </th><th>arrayIndex</th><th>Size </th><th>Format </th><th>Content       </th></tr>
- * <tr><td>VDP_RGBA_FORMAT_B8G8R8A8   </td><td>0         </td><td>w x h</td><td>ARGB8  </td><td>Entire surface</td></tr>
- * <tr><td>VDP_RGBA_FORMAT_R10G10B10A2</td><td>0         </td><td>w x h</td><td>A2BGR10</td><td>Entire surface</td></tr>
+ * \xmlonly
+ * <table outputclass="xmlonly">
+ *   <tgroup cols="5" colsep="1" rowsep="1">
+ *     <colspec colname="c1" colwidth="2.5*"/>
+ *     <colspec colname="c2" colwidth="1.0*"/>
+ *     <colspec colname="c3" colwidth="1.0*"/>
+ *     <colspec colname="c4" colwidth="1.0*"/>
+ *     <colspec colname="c5" colwidth="1.0*"/>
+ *     <thead>
+ *       <row>
+ *         <entry>VdpRGBAFormat</entry>
+ *         <entry>arrayIndex</entry>
+ *         <entry>Size</entry>
+ *         <entry>Format</entry>
+ *         <entry>Content</entry>
+ *       </row>
+ *     </thead>
+ *     <tbody>
+ *       <row>
+ *         <entry>VDP_RGBA_FORMAT_B8G8R8A8</entry>
+ *         <entry>0</entry>
+ *         <entry>w x h</entry>
+ *         <entry>ARGB8</entry>
+ *         <entry>Entire surface</entry>
+ *       </row>
+ *       <row>
+ *         <entry>VDP_RGBA_FORMAT_R10G10B10A2</entry>
+ *         <entry>0</entry>
+ *         <entry>w x h</entry>
+ *         <entry>A2BGR10</entry>
+ *         <entry>Entire surface</entry>
+ *       </row>
+ *     </tbody>
+ *   </tgroup>
  * </table>
- * \endhtmlonly
- *
- * \latexonly
- * \begin{tabular}{|l|l|l|l|l|}
- * \hline
- * VdpRGBAFormat                  & arrayIndex & Size  & Format  & Content        \\
- * \hline
- * VDP\_RGBA\_FORMAT\_B8G8R8A8    & 0          & w x h & ARGB8   & Entire surface \\
- * VDP\_RGBA\_FORMAT\_R10G10B10A2 & 0          & w x h & A2BGR10 & Entire surface \\
- * \hline
- * \end{tabular}
- * \endlatexonly
+ * \endxmlonly
  *
  * \param pCudaResource - Pointer to the returned object handle
  * \param vdpSurface    - The VdpOutputSurface to be registered

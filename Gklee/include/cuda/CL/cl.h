@@ -21,7 +21,7 @@
  * MATERIALS OR THE USE OR OTHER DEALINGS IN THE MATERIALS.
  ******************************************************************************/
 
-/* $Revision: 11985 $ on $Date: 2010-07-15 23:46:06 +0530 (Thu, 15 Jul 2010) $ */
+/* $Revision: 11985 $ on $Date: 2010-07-15 11:16:06 -0700 (Thu, 15 Jul 2010) $ */
 
 #ifndef __OPENCL_CL_H
 #define __OPENCL_CL_H
@@ -959,7 +959,7 @@ clEnqueueTask(cl_command_queue  /* command_queue */,
 
 extern CL_API_ENTRY cl_int CL_API_CALL
 clEnqueueNativeKernel(cl_command_queue  /* command_queue */,
-					  void (*user_func)(void *), 
+					  void (CL_CALLBACK *user_func)(void *), 
                       void *            /* args */,
                       size_t            /* cb_args */, 
                       cl_uint           /* num_mem_objects */,

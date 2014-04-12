@@ -41,14 +41,6 @@ template<typename T>
   return ptr;
 } // end device_pointer_cast()
 
-template<typename Pointer>
-  typename thrust::detail::pointer_traits<Pointer>::raw_pointer
-    raw_pointer_cast(const Pointer &ptr)
-{
-  return thrust::detail::pointer_traits<Pointer>::get(ptr);
-} // end raw_pointer_cast()
-
-
 // output to ostream
 template<class E, class T, class Y>
   std::basic_ostream<E, T> &operator<<(std::basic_ostream<E, T> &os, const device_ptr<Y> &p)
@@ -66,49 +58,17 @@ template<typename T>
 {
 }; // end is_device_ptr
 
-
-namespace backend
-{
-
-
-// forward declaration of dereference_result
-template<typename T> struct dereference_result;
-
-
+#if (THRUST_HOST_COMPILER == THRUST_HOST_COMPILER_MSVC) && (_MSC_VER <= 1400)
+// XXX WAR MSVC 2005 problem with correctly implementing
+//     pointer_raw_pointer for device_ptr by specializing it here
 template<typename T>
-  struct dereference_result< device_ptr<T> >
+  struct pointer_raw_pointer< thrust::device_ptr<T> >
 {
-  typedef T& type;
-}; // end device_traits
+  typedef typename device_ptr<T>::raw_pointer type;
+}; // end pointer_raw_pointer
+#endif
 
-
-template<typename T>
-  struct dereference_result< device_ptr<const T> >
-{
-  typedef const T& type;
-}; // end device_traits
-
-
-template<typename T>
-  inline __host__ __device__
-    typename dereference_result< device_ptr<T> >::type
-      dereference(device_ptr<T> ptr)
-{
-  return *thrust::raw_pointer_cast(ptr);
-} // dereference
-
-
-template<typename T, typename IndexType>
-  inline __host__ __device__
-    typename dereference_result< device_ptr<T> >::type
-      dereference(thrust::device_ptr<T> ptr, IndexType n)
-{
-  return thrust::raw_pointer_cast(ptr)[n];
-} // dereference
-
-} // end backend
 
 } // end namespace detail
-
 } // end namespace thrust
 

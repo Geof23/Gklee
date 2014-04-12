@@ -50,7 +50,7 @@
 #if !defined(__HOST_DEFINES_H__)
 #define __HOST_DEFINES_H__
 
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__CUDA_LIBDEVICE__)
 
 #define __no_return__ \
         __attribute__((noreturn))
@@ -83,7 +83,7 @@
         __annotate__(a)
 #define CUDARTAPI
 
-#elif defined(_WIN32)
+#elif defined(_MSC_VER)
 
 #if _MSC_VER >= 1400
 
@@ -119,7 +119,7 @@
 #define CUDARTAPI \
         __stdcall
 
-#else /* __GNUC__ */
+#else /* __GNUC__ || __CUDA_LIBDEVICE__ */
 
 #define __inline__
 
@@ -137,7 +137,7 @@
 
 #endif /* !__GNUC__ */
 
-#if !defined(__GNUC__) || __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 3)
+#if !defined(__GNUC__) || __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 3 && !defined(__clang__) )
 
 #define __specialization_static \
         static
@@ -187,6 +187,7 @@
 #define __device_builtin__
 #define __device_builtin_texture_type__
 #define __device_builtin_surface_type__
+#define __cudart_builtin__
 #else /* __CUDABE__  || !__CUDACC__ */
 #define __device_builtin__ \
         __location__(device_builtin)
@@ -194,6 +195,8 @@
         __location__(device_builtin_texture_type)
 #define __device_builtin_surface_type__ \
         __location__(device_builtin_surface_type)
+#define __cudart_builtin__ \
+        __location__(cudart_builtin)
 #endif /* __CUDABE__ || !__CUDACC__ */
 
 

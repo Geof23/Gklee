@@ -49,7 +49,7 @@
 
 #ifndef CURAND_MTGP32_H
 #define CURAND_MTGP32_H
-/**
+/*
  * @file curand_mtgp32.h
  *
  * @brief Mersenne Twister for Graphic Processors (mtgp32), which
@@ -110,17 +110,10 @@
 #define TBL_SIZE 16
 
 /**
- * \file
- * \name CURAND Device API
- * \author NVIDIA Corporation
- */
-
-/**
- * \defgroup DEVICE Device API
+ * \addtogroup DEVICE Device API
  *
  * @{
  */
-/** @} */
 
 /*
  * \struct MTGP32_PARAMS_FAST_T
@@ -142,25 +135,30 @@
  * \b mask This is a mask to make the dimension of state space have
  * just Mersenne Prime. This is redundant.
  */
-typedef struct mtgp32_params_fast mtgp32_params_fast_t;
+
+struct mtgp32_params_fast;
 
 struct mtgp32_params_fast {
-    int mexp;			/**< Mersenne exponent. This is redundant. */
-    int pos;			/**< pick up position. */
-    int sh1;			/**< shift value 1. 0 < sh1 < 32. */
-    int sh2;			/**< shift value 2. 0 < sh2 < 32. */
-    unsigned int tbl[16];		/**< a small matrix. */
-    unsigned int tmp_tbl[16];	/**< a small matrix for tempering. */
-    unsigned int flt_tmp_tbl[16];	/**< a small matrix for tempering and
+    int mexp;			/*< Mersenne exponent. This is redundant. */
+    int pos;			/*< pick up position. */
+    int sh1;			/*< shift value 1. 0 < sh1 < 32. */
+    int sh2;			/*< shift value 2. 0 < sh2 < 32. */
+    unsigned int tbl[16];		/*< a small matrix. */
+    unsigned int tmp_tbl[16];	/*< a small matrix for tempering. */
+    unsigned int flt_tmp_tbl[16];	/*< a small matrix for tempering and
                  converting to float. */
-    unsigned int mask;		/**< This is a mask for state space */
-    unsigned char poly_sha1[21]; /**< SHA1 digest */
+    unsigned int mask;		/*< This is a mask for state space */
+    unsigned char poly_sha1[21]; /*< SHA1 digest */
 };
+
+/** \cond UNHIDE_TYPEDEFS */
+typedef struct mtgp32_params_fast mtgp32_params_fast_t;
+/** \endcond */
+
 /*
  * Generator Parameters.
  */
 struct mtgp32_kernel_params;
-typedef struct mtgp32_kernel_params mtgp32_kernel_params_t;
 struct mtgp32_kernel_params {
     unsigned int pos_tbl[CURAND_NUM_MTGP32_PARAMS];
     unsigned int param_tbl[CURAND_NUM_MTGP32_PARAMS][TBL_SIZE];
@@ -170,6 +168,11 @@ struct mtgp32_kernel_params {
     unsigned int sh2_tbl[CURAND_NUM_MTGP32_PARAMS];
     unsigned int mask[1];
 };
+
+/** \cond UNHIDE_TYPEDEFS */
+typedef struct mtgp32_kernel_params mtgp32_kernel_params_t;
+/** \endcond */
+
 
 
 /*
@@ -188,11 +191,6 @@ struct mtgp32_kernel_params {
  */
 struct curandStateMtgp32;
 
-/**
- * CURAND MTGP32 state 
- */
-typedef struct curandStateMtgp32 curandStateMtgp32_t;
-
 struct curandStateMtgp32 {
     unsigned int s[MTGP32_STATE_SIZE];
     int offset;
@@ -201,6 +199,14 @@ struct curandStateMtgp32 {
     int precise_double_flag;
 };
 
+/*
+ * CURAND MTGP32 state 
+ */
+/** \cond UNHIDE_TYPEDEFS */
+typedef struct curandStateMtgp32 curandStateMtgp32_t;
+/** \endcond */
+
+/** @} */
 
 #endif
 

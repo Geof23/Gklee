@@ -143,7 +143,7 @@ extern __host__ cudaError_t CUDARTAPI cudaVDPAUSetVDPAUDevice(int device, VdpDev
  * \notefnerr
  *
  * \sa
- * ::cudaVDPAUSetVDPAUDevice
+ * ::cudaVDPAUSetVDPAUDevice,
  * ::cudaGraphicsUnregisterResource,
  * ::cudaGraphicsSubResourceGetMappedArray
  */
@@ -179,7 +179,7 @@ extern __host__ cudaError_t CUDARTAPI cudaGraphicsVDPAURegisterVideoSurface(stru
  * \notefnerr
  *
  * \sa
- * ::cudaVDPAUSetVDPAUDevice
+ * ::cudaVDPAUSetVDPAUDevice,
  * ::cudaGraphicsUnregisterResource,
  * ::cudaGraphicsSubResourceGetMappedArray
  */

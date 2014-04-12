@@ -19,55 +19,62 @@
  *  \brief Inline file for count.h.
  */
 
+#include <thrust/detail/config.h>
 #include <thrust/count.h>
-#include <thrust/transform_reduce.h>
-#include <thrust/detail/internal_functional.h>
+#include <thrust/iterator/iterator_traits.h>
+#include <thrust/system/detail/generic/select_system.h>
+#include <thrust/system/detail/generic/count.h>
+#include <thrust/system/detail/adl/count.h>
 
 namespace thrust
 {
-namespace detail
+
+
+template<typename DerivedPolicy, typename InputIterator, typename EqualityComparable>
+  typename thrust::iterator_traits<InputIterator>::difference_type
+    count(const thrust::detail::execution_policy_base<DerivedPolicy> &exec, InputIterator first, InputIterator last, const EqualityComparable& value)
 {
+  using thrust::system::detail::generic::count;
+  return count(thrust::detail::derived_cast(thrust::detail::strip_const(exec)), first, last, value);
+} // end count()
 
-template <typename InputType, typename Predicate, typename CountType>
-struct count_if_transform
+
+template<typename DerivedPolicy, typename InputIterator, typename Predicate>
+  typename thrust::iterator_traits<InputIterator>::difference_type
+    count_if(const thrust::detail::execution_policy_base<DerivedPolicy> &exec, InputIterator first, InputIterator last, Predicate pred)
 {
-  __host__ __device__ 
-  count_if_transform(Predicate _pred) : pred(_pred){}
+  using thrust::system::detail::generic::count_if;
+  return count_if(thrust::detail::derived_cast(thrust::detail::strip_const(exec)), first, last, pred);
+} // end count_if()
 
-  __host__ __device__
-  CountType operator()(const InputType& val)
-  {
-    if(pred(val))
-      return 1;
-    else
-      return 0;
-  } // end operator()
-
-  Predicate pred;
-}; // end count_if_transform
-
-} // end namespace detail
 
 template <typename InputIterator, typename EqualityComparable>
 typename thrust::iterator_traits<InputIterator>::difference_type
 count(InputIterator first, InputIterator last, const EqualityComparable& value)
 {
-  typedef typename thrust::iterator_traits<InputIterator>::value_type InputType;
-  
-  return thrust::count_if(first, last, thrust::detail::equal_to_value<EqualityComparable>(value));
+  using thrust::system::detail::generic::select_system;
+
+  typedef typename thrust::iterator_system<InputIterator>::type System;
+
+  System system;
+
+  return thrust::count(select_system(system), first, last, value);
 } // end count()
+
 
 template <typename InputIterator, typename Predicate>
 typename thrust::iterator_traits<InputIterator>::difference_type
 count_if(InputIterator first, InputIterator last, Predicate pred)
 {
-  typedef typename thrust::iterator_traits<InputIterator>::value_type InputType;
-  typedef typename thrust::iterator_traits<InputIterator>::difference_type CountType;
-  
-  thrust::detail::count_if_transform<InputType, Predicate, CountType> unary_op(pred);
-  thrust::plus<CountType> binary_op;
-  return thrust::transform_reduce(first, last, unary_op, CountType(0), binary_op);
+  using thrust::system::detail::generic::select_system;
+
+  typedef typename thrust::iterator_system<InputIterator>::type System;
+
+  System system;
+
+  return thrust::count_if(select_system(system), first, last, pred);
 } // end count_if()
+
 
 } // end namespace thrust
 

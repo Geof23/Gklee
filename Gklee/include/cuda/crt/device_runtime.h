@@ -40,8 +40,13 @@
 #define __no_sc__
 
 
+#if defined(__CUDANVVM__)
+typedef __device_builtin_texture_type__ unsigned long long __texture_type__;
+typedef __device_builtin_surface_type__ unsigned long long __surface_type__;
+#else /* __CUDANVVM__ */
 typedef __device_builtin_texture_type__ const void *__texture_type__;
 typedef __device_builtin_surface_type__ const void *__surface_type__;
+#endif /* __CUDANVVM__ */
 
 #if defined(__CUDABE__) /* cudabe compiler */
 
@@ -70,26 +75,34 @@ typedef __device_builtin_surface_type__ const void *__surface_type__;
 #define __storage_extern_unsized__shared__ \
         extern
 #define __cxa_vec_ctor(n, num, size, c, d) \
-        ({ int i; for (i = 0; i < num; i++) c((void*)n + i*size); (void)0; })
+        ({ int i; for (i = 0; i < num; i++) c((void*)((unsigned char *)n + i*size)); (void)0; })
 #define __cxa_vec_cctor(dest, src, num, size, c, d) \
         ({ int i; for (i = 0; i < num; i++) \
-          c((void*)dest + i*size, (void*)src + i*size); (void)0; })
+          c((void*)((unsigned char *)dest + i*size), (void*)((unsigned char *)src + i*size)); (void)0; })
 #define __cxa_vec_dtor(n, num, size, d) \
-        { int i; for (i = num-1; i >= 0; i--) d((void*)n + i*size); }
+        { int i; for (i = num-1; i >= 0; i--) d((void*)((unsigned char *)n + i*size)); }
 #define __cxa_vec_new2(num, size, pad, c, d, m, f) \
-        ({void *t = m(num*size + pad); *(size_t*)t = num; \
-          (void)__cxa_vec_ctor(t+pad, num, size, c, d); t+pad;})
+        ({unsigned char *t = m(num*size + pad); *(size_t*)t = num; \
+          (void)__cxa_vec_ctor((void *)(t+pad), num, size, c, d); (void *)(t+pad);})
 #define __cxa_vec_new3(num, size, pad, c, d, m, f) \
         __cxa_vec_new2(num, size, pad, c, d, m, f)
 #define __cxa_vec_delete2(n, size, pad, d, f) \
-        { void *t = (void*)n - pad; size_t num = *(size_t*)t; \
-          __cxa_vec_dtor(n, num, size, d); f(t); }
+        { unsigned char *ptr = (unsigned char *)(n); \
+          if (ptr) { \
+            unsigned char *t = ptr - pad; size_t num = *(size_t*)t; \
+            __cxa_vec_dtor(ptr, num, size, d); f((void *)t); \
+          } \
+        }
 #define __cxa_vec_delete(n, size, pad, d) \
         __cxa_vec_delete2(n, size, pad, d, free)
 #define __cxa_vec_delete3(n, size, pad, d, f) \
-        { void *t = (void*)n - pad; size_t num = *(size_t*)t; \
-          size_t tsize = num*size+pad; \
-          __cxa_vec_dtor(n, num, size, d); f(t, tsize); }
+        { unsigned char *ptr = (unsigned char *)(n); \
+          if (ptr) { \
+            unsigned char *t = ptr - pad; size_t num = *(size_t*)t; \
+            size_t tsize = num*size+pad; \
+            __cxa_vec_dtor(ptr, num, size, d); f((void *)t, tsize); \
+          } \
+        }
 
 #undef __cdecl
 #define __cdecl
@@ -142,6 +155,20 @@ static __device__ void __assert_rtn(
   const char  *__file,
   int          __line,
   const char  *__assertion)
+{
+  __assertfail(
+    (const void *)__assertion,
+    (const void *)__file,
+    (unsigned int)__line,
+    (const void *)__function,
+    sizeof(char));
+}
+#elif defined(__ANDROID__)
+static __device__ void __assert2(
+  const char *__file,
+  int         __line,
+  const char *__function,
+  const char *__assertion)
 {
   __assertfail(
     (const void *)__assertion,

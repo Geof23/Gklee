@@ -19,12 +19,32 @@
  *  \brief Inline file for transform_reduce.h.
  */
 
-#include <thrust/reduce.h>
-
-#include <thrust/iterator/transform_iterator.h>
+#include <thrust/detail/config.h>
+#include <thrust/iterator/iterator_traits.h>
+#include <thrust/system/detail/generic/select_system.h>
+#include <thrust/system/detail/generic/transform_reduce.h>
+#include <thrust/system/detail/adl/transform_reduce.h>
 
 namespace thrust
 {
+
+
+template<typename DerivedPolicy,
+         typename InputIterator, 
+         typename UnaryFunction, 
+         typename OutputType,
+         typename BinaryFunction>
+  OutputType transform_reduce(const thrust::detail::execution_policy_base<DerivedPolicy> &exec,
+                              InputIterator first,
+                              InputIterator last,
+                              UnaryFunction unary_op,
+                              OutputType init,
+                              BinaryFunction binary_op)
+{
+  using thrust::system::detail::generic::transform_reduce;
+  return transform_reduce(thrust::detail::derived_cast(thrust::detail::strip_const(exec)), first, last, unary_op, init, binary_op);
+} // end transform_reduce()
+
 
 template<typename InputIterator, 
          typename UnaryFunction, 
@@ -36,11 +56,15 @@ template<typename InputIterator,
                               OutputType init,
                               BinaryFunction binary_op)
 {
-    thrust::transform_iterator<UnaryFunction, InputIterator, OutputType> _first(first, unary_op);
-    thrust::transform_iterator<UnaryFunction, InputIterator, OutputType> _last(last, unary_op);
+  using thrust::system::detail::generic::select_system;
 
-    return thrust::reduce(_first, _last, init, binary_op);
-}
+  typedef typename thrust::iterator_system<InputIterator>::type System;
+
+  System system;
+
+  return thrust::transform_reduce(select_system(system), first, last, unary_op, init, binary_op);
+} // end transform_reduce()
+
 
 } // end namespace thrust
 

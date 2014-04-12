@@ -16,15 +16,13 @@
 
 
 /*! \file device_ptr.h
- *  \brief A pointer to a variable which resides in the "device" memory space
+ *  \brief A pointer to a variable which resides in the "device" system's memory space
  */
 
 #pragma once
 
 #include <thrust/detail/config.h>
-#include <thrust/detail/pointer_base.h>
-#include <thrust/detail/type_traits.h>
-#include <thrust/detail/type_traits/pointer_traits.h>
+#include <thrust/memory.h>
 #include <ostream>
 
 namespace thrust
@@ -62,19 +60,19 @@ template<typename T> class device_reference;
  */
 template<typename T>
   class device_ptr
-    : public thrust::detail::pointer_base<
-               thrust::device_ptr<T>,
+    : public thrust::pointer<
                T,
+               thrust::device_system_tag,
                thrust::device_reference<T>,
-               thrust::detail::default_device_space_tag
+               thrust::device_ptr<T>
              >
 {
   private:
-    typedef thrust::detail::pointer_base<
-      thrust::device_ptr<T>,
+    typedef thrust::pointer<
       T,
+      thrust::device_system_tag,
       thrust::device_reference<T>,
-      thrust::detail::default_device_space_tag
+      thrust::device_ptr<T>
     > super_t;
 
   public:
@@ -162,21 +160,11 @@ template<typename T>
 __host__ __device__
 inline device_ptr<T> device_pointer_cast(const device_ptr<T> &ptr);
 
-/*! \p raw_pointer_cast creates a "raw" pointer from a pointer-like type,
- *  simply returning the wrapped pointer, should it exist.
- *
- *  \param ptr The pointer of interest.
- *  \return <tt>ptr.get()</tt>, if the expression is well formed; <tt>ptr</tt>, otherwise.
- */
-template<typename Pointer>
-__host__ __device__
-inline typename thrust::detail::pointer_traits<Pointer>::raw_pointer
-  raw_pointer_cast(const Pointer &ptr);
-
 /*! \}
  */
 
 } // end thrust
 
 #include <thrust/detail/device_ptr.inl>
+#include <thrust/detail/raw_pointer_cast.h>
 

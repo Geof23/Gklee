@@ -110,17 +110,10 @@
 #include "curand_mtgp32.h"
 
 /**
- * \file
- * \name CURAND Device API
- * \author NVIDIA Corporation
- */
-
-/**
- * \defgroup DEVICE Device API
+ * \addtogroup DEVICE Device API
  *
  * @{
  */
-/** @} */
 
 #ifndef __CUDA_ARCH__
 // define blockDim and threadIdx for host compatibility call
@@ -324,6 +317,9 @@ QUALIFIERS float curand_mtgp32_single(curandStateMtgp32_t *state)
     {
         state->offset = (state->offset + d) & MTGP32_STATE_MASK;
     }
+#if __CUDA_ARCH__ != 0
+    __syncthreads();
+#endif
     return o.f;
 }
 
@@ -351,10 +347,9 @@ QUALIFIERS float curand_mtgp32_single(curandStateMtgp32_t *state)
  * 
  * \return uniformly distributed float between \p 0.0f and \p 1.0f
  */
-QUALIFIERS float curand_mtgp32_single_specific(curandStateMtgp32_t *state)
+QUALIFIERS float curand_mtgp32_single_specific(curandStateMtgp32_t *state, unsigned char index, unsigned char n)
 {
     unsigned int t;
-    unsigned int d;
     int pos = state->k->pos_tbl[state->pIdx];
     unsigned int r;
     union mtgp32_u_to_f {
@@ -363,10 +358,7 @@ QUALIFIERS float curand_mtgp32_single_specific(curandStateMtgp32_t *state)
     }o;
 
 
-    t = blockDim.z * blockDim.y;
-    d = t * blockDim.x;
-    //assert( d <= 256 );
-    t += threadIdx.x;
+    t = index;
     r = para_rec(state->k, state->s[(t + state->offset) & MTGP32_STATE_MASK],
              state->s[(t + state->offset + 1) & MTGP32_STATE_MASK],
              state->s[(t + state->offset + pos) & MTGP32_STATE_MASK],
@@ -381,11 +373,15 @@ QUALIFIERS float curand_mtgp32_single_specific(curandStateMtgp32_t *state)
 #endif
     if (threadIdx.x == 0)
     {
-        state->offset = (state->offset + d) & MTGP32_STATE_MASK;
+        state->offset = (state->offset + n) & MTGP32_STATE_MASK;
     }
+#if __CUDA_ARCH__ != 0
+    __syncthreads();
+#endif
     return o.f;
 }
 
+/** @} */
 
 #endif
 

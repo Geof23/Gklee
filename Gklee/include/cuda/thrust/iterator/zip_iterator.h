@@ -15,7 +15,7 @@
  */
 
 
-/*! \file zip_iterator.h
+/*! \file thrust/iterator/zip_iterator.h
  *  \brief An iterator which returns a tuple of the result of dereferencing
  *         a tuple of iterators when dereferenced
  */
@@ -33,6 +33,7 @@
 
 #include <thrust/detail/config.h>
 #include <thrust/iterator/detail/zip_iterator_base.h>
+#include <thrust/iterator/iterator_facade.h>
 #include <thrust/detail/type_traits.h>
 
 namespace thrust
@@ -181,10 +182,11 @@ template <typename IteratorTuple>
     typedef typename
     detail::zip_iterator_base<IteratorTuple>::type super_t;
 
-    friend class experimental::iterator_core_access;
+    friend class thrust::iterator_core_access;
 
     // Dereferencing returns a tuple built from the dereferenced
     // iterators in the iterator tuple.
+    __host__ __device__
     typename super_t::reference dereference() const;
 
     // Two zip_iterators are equal if the two first iterators of the

@@ -14,14 +14,11 @@
  *  limitations under the License.
  */
 
-
-
 #include <thrust/iterator/transform_iterator.h>
 #include <thrust/iterator/iterator_adaptor.h>
 #include <thrust/iterator/iterator_traits.h>
 #include <thrust/detail/type_traits.h>
 #include <thrust/detail/type_traits/result_of.h>
-#include <thrust/detail/backend/dereference.h>
 
 namespace thrust
 {
@@ -38,7 +35,7 @@ struct transform_iterator_base
 {
  private:
     // By default, dereferencing the iterator yields the same as the function.
-    typedef typename thrust::experimental::detail::ia_dflt_help<
+    typedef typename thrust::detail::ia_dflt_help<
       Reference,
       thrust::detail::result_of<UnaryFunc(typename thrust::iterator_value<Iterator>::type)>
     >::type reference;
@@ -48,23 +45,20 @@ struct transform_iterator_base
     // non-writability.  Note that if we adopt Thomas' suggestion
     // to key non-writability *only* on the Reference argument,
     // we'd need to strip constness here as well.
-    typedef typename thrust::experimental::detail::ia_dflt_help<
+    typedef typename thrust::detail::ia_dflt_help<
       Value,
       thrust::detail::remove_reference<reference>
     >::type cv_value_type;
 
-    typedef typename thrust::iterator_traits<Iterator>::pointer pointer_;
-
  public:
-    typedef thrust::experimental::iterator_adaptor
+    typedef thrust::iterator_adaptor
     <
         transform_iterator<UnaryFunc, Iterator, Reference, Value>
       , Iterator
-      , pointer_
       , cv_value_type
-      , thrust::use_default   // Leave the space alone
+      , thrust::use_default   // Leave the system alone
         //, thrust::use_default   // Leave the traversal alone
-        // use the Iterator's category to let any space iterators remain random access even though
+        // use the Iterator's category to let any system iterators remain random access even though
         // transform_iterator's reference type may not be a reference
         // XXX figure out why only iterators whose reference types are true references are random access
         , typename thrust::iterator_traits<Iterator>::iterator_category
@@ -73,38 +67,6 @@ struct transform_iterator_base
 };
 
 
-namespace backend
-{
-
-
-// specialize dereference_result for transform_iterator
-// transform_iterator returns the same reference on the device as on the host
-template<typename UnaryFunc, typename Iterator, typename Reference, typename Value>
-  struct dereference_result< thrust::transform_iterator<UnaryFunc, Iterator, Reference, Value> >
-{
-  typedef typename thrust::iterator_traits< thrust::transform_iterator<UnaryFunc,Iterator,Reference,Value> >::reference type;
-}; // end dereference_result
-
-
-template<typename UnaryFunc, typename Iterator, typename Reference, typename Value>
-  inline __host__ __device__
-    typename dereference_result< thrust::transform_iterator<UnaryFunc,Iterator,Reference,Value> >::type
-      dereference(const thrust::transform_iterator<UnaryFunc,Iterator,Reference,Value> &iter)
-{
-  return iter.functor()( dereference(iter.base()) );
-} // end dereference()
-
-template<typename UnaryFunc, typename Iterator, typename Reference, typename Value, typename IndexType>
-  inline __host__ __device__
-    typename dereference_result< thrust::transform_iterator<UnaryFunc,Iterator,Reference,Value> >::type
-      dereference(const thrust::transform_iterator<UnaryFunc,Iterator,Reference,Value> &iter, IndexType n)
-{
-  return iter.functor()( dereference(iter.base(), n) );
-} // end dereference()
-
-} // end backend
-
 } // end detail
-
 } // end thrust
 

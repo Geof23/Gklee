@@ -20,25 +20,56 @@
  */
 
 
-#include <thrust/find.h>
-#include <thrust/pair.h>
-#include <thrust/tuple.h>
+#include <thrust/detail/config.h>
+#include <thrust/mismatch.h>
 #include <thrust/iterator/iterator_traits.h>
-#include <thrust/iterator/zip_iterator.h>
-#include <thrust/detail/internal_functional.h>
+#include <thrust/system/detail/generic/select_system.h>
+#include <thrust/system/detail/generic/mismatch.h>
+#include <thrust/system/detail/adl/mismatch.h>
 
 namespace thrust
 {
+
+
+template<typename DerivedPolicy, typename InputIterator1, typename InputIterator2>
+thrust::pair<InputIterator1, InputIterator2> mismatch(const thrust::detail::execution_policy_base<DerivedPolicy> &exec,
+                                                      InputIterator1 first1,
+                                                      InputIterator1 last1,
+                                                      InputIterator2 first2)
+{
+  using thrust::system::detail::generic::mismatch;
+  return mismatch(thrust::detail::derived_cast(thrust::detail::strip_const(exec)), first1, last1, first2);
+} // end mismatch()
+
+
+template<typename DerivedPolicy, typename InputIterator1, typename InputIterator2, typename BinaryPredicate>
+thrust::pair<InputIterator1, InputIterator2> mismatch(const thrust::detail::execution_policy_base<DerivedPolicy> &exec,
+                                                      InputIterator1 first1,
+                                                      InputIterator1 last1,
+                                                      InputIterator2 first2,
+                                                      BinaryPredicate pred)
+{
+  using thrust::system::detail::generic::mismatch;
+  return mismatch(thrust::detail::derived_cast(thrust::detail::strip_const(exec)), first1, last1, first2, pred);
+} // end mismatch()
+
 
 template <typename InputIterator1, typename InputIterator2>
 thrust::pair<InputIterator1, InputIterator2> mismatch(InputIterator1 first1,
                                                       InputIterator1 last1,
                                                       InputIterator2 first2)
 {
-    typedef typename thrust::iterator_value<InputIterator1>::type InputType1;
+  using thrust::system::detail::generic::select_system;
 
-    return thrust::mismatch(first1, last1, first2, thrust::detail::equal_to<InputType1>());
-}
+  typedef typename thrust::iterator_system<InputIterator1>::type System1;
+  typedef typename thrust::iterator_system<InputIterator2>::type System2;
+
+  System1 system1;
+  System2 system2;
+
+  return thrust::mismatch(select_system(system1,system2), first1, last1, first2);
+} // end mismatch()
+
 
 template <typename InputIterator1, typename InputIterator2, typename BinaryPredicate>
 thrust::pair<InputIterator1, InputIterator2> mismatch(InputIterator1 first1,
@@ -46,18 +77,17 @@ thrust::pair<InputIterator1, InputIterator2> mismatch(InputIterator1 first1,
                                                       InputIterator2 first2,
                                                       BinaryPredicate pred)
 {
-    // Contributed by Erich Elsen
-    typedef thrust::tuple<InputIterator1,InputIterator2> IteratorTuple;
-    typedef thrust::zip_iterator<IteratorTuple>          ZipIterator;
+  using thrust::system::detail::generic::select_system;
 
-    ZipIterator zipped_first = thrust::make_zip_iterator(thrust::make_tuple(first1,first2));
-    ZipIterator zipped_last  = thrust::make_zip_iterator(thrust::make_tuple(last1, first2));
+  typedef typename thrust::iterator_system<InputIterator1>::type System1;
+  typedef typename thrust::iterator_system<InputIterator2>::type System2;
 
-    ZipIterator result = thrust::find_if_not(zipped_first, zipped_last, thrust::detail::tuple_binary_predicate<BinaryPredicate>(pred));
+  System1 system1;
+  System2 system2;
 
-    return thrust::make_pair(thrust::get<0>(result.get_iterator_tuple()),
-                             thrust::get<1>(result.get_iterator_tuple()));
-}
+  return thrust::mismatch(select_system(system1,system2), first1, last1, first2, pred);
+} // end mismatch()
+
 
 } // end namespace thrust
 

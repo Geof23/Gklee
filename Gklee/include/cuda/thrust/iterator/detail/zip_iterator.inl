@@ -66,10 +66,11 @@ template <typename IteratorTuple>
 {
   using namespace detail::tuple_impl_specific;
 
-  return thrust::detail::tuple_host_transform<detail::dereference_iterator::template apply>(get_iterator_tuple(), detail::dereference_iterator());
+  return thrust::detail::tuple_host_device_transform<detail::dereference_iterator::template apply>(get_iterator_tuple(), detail::dereference_iterator());
 } // end zip_iterator::dereference()
 
 
+__thrust_hd_warning_disable__
 template <typename IteratorTuple>
   template <typename OtherIteratorTuple>
     bool zip_iterator<IteratorTuple>
@@ -85,10 +86,14 @@ template <typename IteratorTuple>
 {
   using namespace detail::tuple_impl_specific;
 
-  // dispatch on space
+  // XXX note that we use a pointer to System to dispatch to avoid
+  //     default construction of a System
+  typename thrust::iterator_system<zip_iterator>::type *use_me_to_dispatch = 0;
+
+  // dispatch on system
   tuple_for_each(m_iterator_tuple,
                  detail::advance_iterator<typename super_t::difference_type>(n),
-                 typename thrust::iterator_space<zip_iterator>::type());
+                 use_me_to_dispatch);
 } // end zip_iterator::advance()
 
 
@@ -98,9 +103,13 @@ template <typename IteratorTuple>
 {
   using namespace detail::tuple_impl_specific;
 
-  // dispatch on space
+  // XXX note that we use a pointer to System to dispatch to avoid
+  //     default construction of a System
+  typename thrust::iterator_system<zip_iterator>::type *use_me_to_dispatch = 0;
+
+  // dispatch on system
   tuple_for_each(m_iterator_tuple, detail::increment_iterator(),
-                 typename thrust::iterator_space<zip_iterator>::type());
+                 use_me_to_dispatch);
 } // end zip_iterator::increment()
 
 
@@ -110,12 +119,17 @@ template <typename IteratorTuple>
 {
   using namespace detail::tuple_impl_specific;
 
-  // dispatch on space
+  // XXX note that we use a pointer to System to dispatch to avoid
+  //     default construction of a System
+  typename thrust::iterator_system<zip_iterator>::type *use_me_to_dispatch = 0;
+
+  // dispatch on system
   tuple_for_each(m_iterator_tuple, detail::decrement_iterator(),
-                 typename thrust::iterator_space<zip_iterator>::type());
+                 use_me_to_dispatch);
 } // end zip_iterator::decrement()
 
 
+__thrust_hd_warning_disable__
 template <typename IteratorTuple>
   template <typename OtherIteratorTuple>
     typename zip_iterator<IteratorTuple>::super_t::difference_type
@@ -132,53 +146,6 @@ template <typename IteratorTuple>
   return zip_iterator<IteratorTuple>(t);
 } // end make_zip_iterator()
 
-
-namespace detail
-{
-
-namespace backend
-{
-
-
-template<typename DeviceIteratorTuple>
-  struct dereference_result< thrust::zip_iterator<DeviceIteratorTuple> >
-{
-  // device_reference type is the type of the tuple obtained from the
-  // iterators' device_reference types.
-  typedef typename
-  thrust::detail::tuple_of_dereference_result<DeviceIteratorTuple>::type type;
-}; // end dereference_result
-
-
-template<typename IteratorTuple>
-  inline __host__ __device__
-    typename dereference_result< thrust::zip_iterator<IteratorTuple> >::type
-      dereference(const thrust::zip_iterator<IteratorTuple> &iter)
-{
-  using namespace thrust::detail::tuple_impl_specific;
-
-  return thrust::detail::tuple_host_device_transform<thrust::detail::device_dereference_iterator::template apply>(iter.get_iterator_tuple(), thrust::detail::device_dereference_iterator());
-}; // end dereference()
-
-
-template<typename IteratorTuple, typename IndexType>
-  inline __host__ __device__
-    typename dereference_result< thrust::zip_iterator<IteratorTuple> >::type
-      dereference(const thrust::zip_iterator<IteratorTuple> &iter,
-                  IndexType n)
-{
-  using namespace thrust::detail::tuple_impl_specific;
-
-  thrust::detail::device_dereference_iterator_with_index<IndexType> f;
-  f.n = n;
-
-  return thrust::detail::tuple_host_device_transform<thrust::detail::device_dereference_iterator_with_index<IndexType>::template apply>(iter.get_iterator_tuple(), f);
-}; // end dereference()
-
-
-} // end backend
-
-} // end detail
 
 } // end thrust
 

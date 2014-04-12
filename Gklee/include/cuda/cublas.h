@@ -59,16 +59,20 @@
 
 #include <cuda_runtime.h>
 
-#ifndef CUBLASAPI
+#ifndef CUBLASWINAPI
 #ifdef _WIN32
-#define CUBLASAPI __stdcall
+#define CUBLASWINAPI __stdcall
 #else
-#define CUBLASAPI 
+#define CUBLASWINAPI 
 #endif
 #endif
 
-#include "driver_types.h"
-#include "cuComplex.h"   /* import complex data type */
+#undef CUBLASAPI
+#ifdef __CUDACC__
+#define CUBLASAPI __host__
+#else
+#define CUBLASAPI
+#endif
 
 #include "cublas_api.h"
 
@@ -79,482 +83,481 @@ extern "C" {
 /* CUBLAS data types */
 #define cublasStatus cublasStatus_t
 
-cublasStatus CUBLASAPI cublasInit (void);
-cublasStatus CUBLASAPI cublasShutdown (void);
-cublasStatus CUBLASAPI cublasGetError (void);
+cublasStatus CUBLASWINAPI cublasInit (void);
+cublasStatus CUBLASWINAPI cublasShutdown (void);
+cublasStatus CUBLASWINAPI cublasGetError (void);
 
-cublasStatus CUBLASAPI cublasGetVersion(int *version);
-cublasStatus CUBLASAPI cublasAlloc (int n, int elemSize, void **devicePtr);
+cublasStatus CUBLASWINAPI cublasGetVersion(int *version);
+cublasStatus CUBLASWINAPI cublasAlloc (int n, int elemSize, void **devicePtr);
 
-cublasStatus CUBLASAPI cublasFree (void *devicePtr);
+cublasStatus CUBLASWINAPI cublasFree (void *devicePtr);
 
 
-cublasStatus CUBLASAPI cublasSetKernelStream (cudaStream_t stream);
+cublasStatus CUBLASWINAPI cublasSetKernelStream (cudaStream_t stream);
 
 
 
 /* ---------------- CUBLAS BLAS1 functions ---------------- */
 /* NRM2 */
-float CUBLASAPI cublasSnrm2 (int n, const float *x, int incx);
-double CUBLASAPI cublasDnrm2 (int n, const double *x, int incx);
-float CUBLASAPI cublasScnrm2 (int n, const cuComplex *x, int incx);
-double CUBLASAPI cublasDznrm2 (int n, const cuDoubleComplex *x, int incx);
+float CUBLASWINAPI cublasSnrm2 (int n, const float *x, int incx);
+double CUBLASWINAPI cublasDnrm2 (int n, const double *x, int incx);
+float CUBLASWINAPI cublasScnrm2 (int n, const cuComplex *x, int incx);
+double CUBLASWINAPI cublasDznrm2 (int n, const cuDoubleComplex *x, int incx);
 /*------------------------------------------------------------------------*/
 /* DOT */
-float CUBLASAPI cublasSdot (int n, const float *x, int incx, const float *y, 
-                            int incy);
-double CUBLASAPI cublasDdot (int n, const double *x, int incx, const double *y, 
-                            int incy);
-cuComplex CUBLASAPI cublasCdotu (int n, const cuComplex *x, int incx, const cuComplex *y, 
-                            int incy);
-cuComplex CUBLASAPI cublasCdotc (int n, const cuComplex *x, int incx, const cuComplex *y, 
-                            int incy);
-cuDoubleComplex CUBLASAPI cublasZdotu (int n, const cuDoubleComplex *x, int incx, const cuDoubleComplex *y, 
-                            int incy);
-cuDoubleComplex CUBLASAPI cublasZdotc (int n, const cuDoubleComplex *x, int incx, const cuDoubleComplex *y, 
-                            int incy);
+float CUBLASWINAPI cublasSdot (int n, const float *x, int incx, const float *y, 
+                               int incy);
+double CUBLASWINAPI cublasDdot (int n, const double *x, int incx, const double *y, 
+                               int incy);
+cuComplex CUBLASWINAPI cublasCdotu (int n, const cuComplex *x, int incx, const cuComplex *y, 
+                               int incy);
+cuComplex CUBLASWINAPI cublasCdotc (int n, const cuComplex *x, int incx, const cuComplex *y, 
+                               int incy);
+cuDoubleComplex CUBLASWINAPI cublasZdotu (int n, const cuDoubleComplex *x, int incx, const cuDoubleComplex *y, 
+                               int incy);
+cuDoubleComplex CUBLASWINAPI cublasZdotc (int n, const cuDoubleComplex *x, int incx, const cuDoubleComplex *y, 
+                               int incy);
 /*------------------------------------------------------------------------*/
 /* SCAL */
-void CUBLASAPI cublasSscal (int n, float alpha, float *x, int incx);
-void CUBLASAPI cublasDscal (int n, double alpha, double *x, int incx);
-void CUBLASAPI cublasCscal (int n, cuComplex alpha, cuComplex *x, int incx);
-void CUBLASAPI cublasZscal (int n, cuDoubleComplex alpha, cuDoubleComplex *x, int incx);
+void CUBLASWINAPI cublasSscal (int n, float alpha, float *x, int incx);
+void CUBLASWINAPI cublasDscal (int n, double alpha, double *x, int incx);
+void CUBLASWINAPI cublasCscal (int n, cuComplex alpha, cuComplex *x, int incx);
+void CUBLASWINAPI cublasZscal (int n, cuDoubleComplex alpha, cuDoubleComplex *x, int incx);
 
-void CUBLASAPI cublasCsscal (int n, float alpha, cuComplex *x, int incx);
-void CUBLASAPI cublasZdscal (int n, double alpha, cuDoubleComplex *x, int incx);
+void CUBLASWINAPI cublasCsscal (int n, float alpha, cuComplex *x, int incx);
+void CUBLASWINAPI cublasZdscal (int n, double alpha, cuDoubleComplex *x, int incx);
 /*------------------------------------------------------------------------*/
 /* AXPY */
-void CUBLASAPI cublasSaxpy (int n, float alpha, const float *x, int incx, 
-                            float *y, int incy);
-void CUBLASAPI cublasDaxpy (int n, double alpha, const double *x, 
-                            int incx, double *y, int incy);
-void CUBLASAPI cublasCaxpy (int n, cuComplex alpha, const cuComplex *x, 
-                            int incx, cuComplex *y, int incy);
-void CUBLASAPI cublasZaxpy (int n, cuDoubleComplex alpha, const cuDoubleComplex *x, 
-                            int incx, cuDoubleComplex *y, int incy);
+void CUBLASWINAPI cublasSaxpy (int n, float alpha, const float *x, int incx, 
+                               float *y, int incy);
+void CUBLASWINAPI cublasDaxpy (int n, double alpha, const double *x, 
+                               int incx, double *y, int incy);
+void CUBLASWINAPI cublasCaxpy (int n, cuComplex alpha, const cuComplex *x, 
+                               int incx, cuComplex *y, int incy);
+void CUBLASWINAPI cublasZaxpy (int n, cuDoubleComplex alpha, const cuDoubleComplex *x, 
+                               int incx, cuDoubleComplex *y, int incy);
 /*------------------------------------------------------------------------*/
 /* COPY */
-void CUBLASAPI cublasScopy (int n, const float *x, int incx, float *y, 
-                            int incy);
-void CUBLASAPI cublasDcopy (int n, const double *x, int incx, double *y, 
-                            int incy);
-void CUBLASAPI cublasCcopy (int n, const cuComplex *x, int incx, cuComplex *y,
-                            int incy);
-void CUBLASAPI cublasZcopy (int n, const cuDoubleComplex *x, int incx, cuDoubleComplex *y,
-                            int incy);
+void CUBLASWINAPI cublasScopy (int n, const float *x, int incx, float *y, 
+                               int incy);
+void CUBLASWINAPI cublasDcopy (int n, const double *x, int incx, double *y, 
+                               int incy);
+void CUBLASWINAPI cublasCcopy (int n, const cuComplex *x, int incx, cuComplex *y,
+                               int incy);
+void CUBLASWINAPI cublasZcopy (int n, const cuDoubleComplex *x, int incx, cuDoubleComplex *y,
+                               int incy);
 /*------------------------------------------------------------------------*/
 /* SWAP */
-void CUBLASAPI cublasSswap (int n, float *x, int incx, float *y, int incy);
-void CUBLASAPI cublasDswap (int n, double *x, int incx, double *y, int incy);
-void CUBLASAPI cublasCswap (int n, cuComplex *x, int incx, cuComplex *y, int incy);
-void CUBLASAPI cublasZswap (int n, cuDoubleComplex *x, int incx, cuDoubleComplex *y, int incy);           
+void CUBLASWINAPI cublasSswap (int n, float *x, int incx, float *y, int incy);
+void CUBLASWINAPI cublasDswap (int n, double *x, int incx, double *y, int incy);
+void CUBLASWINAPI cublasCswap (int n, cuComplex *x, int incx, cuComplex *y, int incy);
+void CUBLASWINAPI cublasZswap (int n, cuDoubleComplex *x, int incx, cuDoubleComplex *y, int incy);           
 /*------------------------------------------------------------------------*/
 /* AMAX */
-int CUBLASAPI cublasIsamax (int n, const float *x, int incx);
-int CUBLASAPI cublasIdamax (int n, const double *x, int incx);
-int CUBLASAPI cublasIcamax (int n, const cuComplex *x, int incx);
-int CUBLASAPI cublasIzamax (int n, const cuDoubleComplex *x, int incx);
+int CUBLASWINAPI cublasIsamax (int n, const float *x, int incx);
+int CUBLASWINAPI cublasIdamax (int n, const double *x, int incx);
+int CUBLASWINAPI cublasIcamax (int n, const cuComplex *x, int incx);
+int CUBLASWINAPI cublasIzamax (int n, const cuDoubleComplex *x, int incx);
 /*------------------------------------------------------------------------*/
 /* AMIN */
-int CUBLASAPI cublasIsamin (int n, const float *x, int incx);
-int CUBLASAPI cublasIdamin (int n, const double *x, int incx);
+int CUBLASWINAPI cublasIsamin (int n, const float *x, int incx);
+int CUBLASWINAPI cublasIdamin (int n, const double *x, int incx);
 
-int CUBLASAPI cublasIcamin (int n, const cuComplex *x, int incx);
-int CUBLASAPI cublasIzamin (int n, const cuDoubleComplex *x, int incx);
+int CUBLASWINAPI cublasIcamin (int n, const cuComplex *x, int incx);
+int CUBLASWINAPI cublasIzamin (int n, const cuDoubleComplex *x, int incx);
 /*------------------------------------------------------------------------*/
 /* ASUM */
-float CUBLASAPI cublasSasum (int n, const float *x, int incx);
-double CUBLASAPI cublasDasum (int n, const double *x, int incx);
-float CUBLASAPI cublasScasum (int n, const cuComplex *x, int incx);
-double CUBLASAPI cublasDzasum (int n, const cuDoubleComplex *x, int incx);
+float CUBLASWINAPI cublasSasum (int n, const float *x, int incx);
+double CUBLASWINAPI cublasDasum (int n, const double *x, int incx);
+float CUBLASWINAPI cublasScasum (int n, const cuComplex *x, int incx);
+double CUBLASWINAPI cublasDzasum (int n, const cuDoubleComplex *x, int incx);
 /*------------------------------------------------------------------------*/
 /* ROT */
-void CUBLASAPI cublasSrot (int n, float *x, int incx, float *y, int incy, 
-                           float sc, float ss);
-void CUBLASAPI cublasDrot (int n, double *x, int incx, double *y, int incy, 
-                           double sc, double ss);
-void CUBLASAPI cublasCrot (int n, cuComplex *x, int incx, cuComplex *y, 
-                           int incy, float c, cuComplex s);
-void CUBLASAPI cublasZrot (int n, cuDoubleComplex *x, int incx, 
-                           cuDoubleComplex *y, int incy, double sc, 
-                           cuDoubleComplex cs);
-void CUBLASAPI cublasCsrot (int n, cuComplex *x, int incx, cuComplex *y,
-                            int incy, float c, float s);
-void CUBLASAPI cublasZdrot (int n, cuDoubleComplex *x, int incx, 
-                            cuDoubleComplex *y, int incy, double c, double s);
+void CUBLASWINAPI cublasSrot (int n, float *x, int incx, float *y, int incy, 
+                              float sc, float ss);
+void CUBLASWINAPI cublasDrot (int n, double *x, int incx, double *y, int incy, 
+                              double sc, double ss);
+void CUBLASWINAPI cublasCrot (int n, cuComplex *x, int incx, cuComplex *y, 
+                              int incy, float c, cuComplex s);
+void CUBLASWINAPI cublasZrot (int n, cuDoubleComplex *x, int incx, 
+                              cuDoubleComplex *y, int incy, double sc, 
+                              cuDoubleComplex cs);
+void CUBLASWINAPI cublasCsrot (int n, cuComplex *x, int incx, cuComplex *y,
+                               int incy, float c, float s);
+void CUBLASWINAPI cublasZdrot (int n, cuDoubleComplex *x, int incx, 
+                               cuDoubleComplex *y, int incy, double c, double s);
 /*------------------------------------------------------------------------*/
 /* ROTG */
-void CUBLASAPI cublasSrotg (float *sa, float *sb, float *sc, float *ss);
-void CUBLASAPI cublasDrotg (double *sa, double *sb, double *sc, double *ss);
-void CUBLASAPI cublasCrotg (cuComplex *ca, cuComplex cb, float *sc,
-                                     cuComplex *cs);                                     
-void CUBLASAPI cublasZrotg (cuDoubleComplex *ca, cuDoubleComplex cb, double *sc,
-                            cuDoubleComplex *cs);                                                               
+void CUBLASWINAPI cublasSrotg (float *sa, float *sb, float *sc, float *ss);
+void CUBLASWINAPI cublasDrotg (double *sa, double *sb, double *sc, double *ss);
+void CUBLASWINAPI cublasCrotg (cuComplex *ca, cuComplex cb, float *sc,
+                               cuComplex *cs);                                     
+void CUBLASWINAPI cublasZrotg (cuDoubleComplex *ca, cuDoubleComplex cb, double *sc,
+                               cuDoubleComplex *cs);                                                               
 /*------------------------------------------------------------------------*/
 /* ROTM */
-void CUBLASAPI cublasSrotm(int n, float *x, int incx, float *y, int incy, 
-                           const float* sparam);
-void CUBLASAPI cublasDrotm(int n, double *x, int incx, double *y, int incy, 
-                           const double* sparam);
+void CUBLASWINAPI cublasSrotm(int n, float *x, int incx, float *y, int incy, 
+                              const float* sparam);
+void CUBLASWINAPI cublasDrotm(int n, double *x, int incx, double *y, int incy, 
+                              const double* sparam);
 /*------------------------------------------------------------------------*/
 /* ROTMG */
-void CUBLASAPI cublasSrotmg (float *sd1, float *sd2, float *sx1, 
-                             const float *sy1, float* sparam);
-void CUBLASAPI cublasDrotmg (double *sd1, double *sd2, double *sx1, 
-                             const double *sy1, double* sparam);
+void CUBLASWINAPI cublasSrotmg (float *sd1, float *sd2, float *sx1, 
+                                const float *sy1, float* sparam);
+void CUBLASWINAPI cublasDrotmg (double *sd1, double *sd2, double *sx1, 
+                                const double *sy1, double* sparam);
                            
 /* --------------- CUBLAS BLAS2 functions  ---------------- */
 /* GEMV */
-void CUBLASAPI cublasSgemv (char trans, int m, int n, float alpha,
-                            const float *A, int lda, const float *x, int incx,
-                            float beta, float *y, int incy);
-void CUBLASAPI cublasDgemv (char trans, int m, int n, double alpha,
-                            const double *A, int lda, const double *x, int incx,
-                            double beta, double *y, int incy);
-void CUBLASAPI cublasCgemv (char trans, int m, int n, cuComplex alpha,
-                            const cuComplex *A, int lda, const cuComplex *x, int incx,
-                            cuComplex beta, cuComplex *y, int incy);
-void CUBLASAPI cublasZgemv (char trans, int m, int n, cuDoubleComplex alpha,
-                            const cuDoubleComplex *A, int lda, const cuDoubleComplex *x, int incx,
-                            cuDoubleComplex beta, cuDoubleComplex *y, int incy);
+void CUBLASWINAPI cublasSgemv (char trans, int m, int n, float alpha,
+                               const float *A, int lda, const float *x, int incx,
+                               float beta, float *y, int incy);
+void CUBLASWINAPI cublasDgemv (char trans, int m, int n, double alpha,
+                               const double *A, int lda, const double *x, int incx,
+                               double beta, double *y, int incy);
+void CUBLASWINAPI cublasCgemv (char trans, int m, int n, cuComplex alpha,
+                               const cuComplex *A, int lda, const cuComplex *x, int incx,
+                               cuComplex beta, cuComplex *y, int incy);
+void CUBLASWINAPI cublasZgemv (char trans, int m, int n, cuDoubleComplex alpha,
+                               const cuDoubleComplex *A, int lda, const cuDoubleComplex *x, int incx,
+                               cuDoubleComplex beta, cuDoubleComplex *y, int incy);
 /*------------------------------------------------------------------------*/
 /* GBMV */
-void CUBLASAPI cublasSgbmv (char trans, int m, int n, int kl, int ku, 
-                            float alpha, const float *A, int lda, 
-                            const float *x, int incx, float beta, float *y, 
-                            int incy);
-void CUBLASAPI cublasDgbmv (char trans, int m, int n, int kl, int ku, 
-                            double alpha, const double *A, int lda, 
-                            const double *x, int incx, double beta, double *y, 
-                            int incy);
-void CUBLASAPI cublasCgbmv (char trans, int m, int n, int kl, int ku, 
-                            cuComplex alpha, const cuComplex *A, int lda, 
-                            const cuComplex *x, int incx, cuComplex beta, cuComplex *y, 
-                            int incy);
-void CUBLASAPI cublasZgbmv (char trans, int m, int n, int kl, int ku, 
-                            cuDoubleComplex alpha, const cuDoubleComplex *A, int lda, 
-                            const cuDoubleComplex *x, int incx, cuDoubleComplex beta, cuDoubleComplex *y, 
-                            int incy);                  
+void CUBLASWINAPI cublasSgbmv (char trans, int m, int n, int kl, int ku, 
+                               float alpha, const float *A, int lda, 
+                               const float *x, int incx, float beta, float *y, 
+                               int incy);
+void CUBLASWINAPI cublasDgbmv (char trans, int m, int n, int kl, int ku, 
+                               double alpha, const double *A, int lda, 
+                               const double *x, int incx, double beta, double *y, 
+                               int incy);
+void CUBLASWINAPI cublasCgbmv (char trans, int m, int n, int kl, int ku, 
+                               cuComplex alpha, const cuComplex *A, int lda, 
+                               const cuComplex *x, int incx, cuComplex beta, cuComplex *y, 
+                               int incy);
+void CUBLASWINAPI cublasZgbmv (char trans, int m, int n, int kl, int ku, 
+                               cuDoubleComplex alpha, const cuDoubleComplex *A, int lda, 
+                               const cuDoubleComplex *x, int incx, cuDoubleComplex beta, cuDoubleComplex *y, 
+                               int incy);                  
 /*------------------------------------------------------------------------*/
 /* TRMV */
-void CUBLASAPI cublasStrmv (char uplo, char trans, char diag, int n, 
-                            const float *A, int lda, float *x, int incx);
-void CUBLASAPI cublasDtrmv (char uplo, char trans, char diag, int n, 
-                            const double *A, int lda, double *x, int incx);
-void CUBLASAPI cublasCtrmv (char uplo, char trans, char diag, int n, 
-                            const cuComplex *A, int lda, cuComplex *x, int incx);
-void CUBLASAPI cublasZtrmv (char uplo, char trans, char diag, int n, 
-                            const cuDoubleComplex *A, int lda, cuDoubleComplex *x, int incx);
+void CUBLASWINAPI cublasStrmv (char uplo, char trans, char diag, int n, 
+                               const float *A, int lda, float *x, int incx);
+void CUBLASWINAPI cublasDtrmv (char uplo, char trans, char diag, int n, 
+                               const double *A, int lda, double *x, int incx);
+void CUBLASWINAPI cublasCtrmv (char uplo, char trans, char diag, int n, 
+                               const cuComplex *A, int lda, cuComplex *x, int incx);
+void CUBLASWINAPI cublasZtrmv (char uplo, char trans, char diag, int n, 
+                               const cuDoubleComplex *A, int lda, cuDoubleComplex *x, int incx);
 /*------------------------------------------------------------------------*/
 /* TBMV */
-void CUBLASAPI cublasStbmv (char uplo, char trans, char diag, int n, int k, 
-                            const float *A, int lda, float *x, int incx);
-void CUBLASAPI cublasDtbmv (char uplo, char trans, char diag, int n, int k, 
-                            const double *A, int lda, double *x, int incx);
-void CUBLASAPI cublasCtbmv (char uplo, char trans, char diag, int n, int k, 
-                            const cuComplex *A, int lda, cuComplex *x, int incx);
-void CUBLASAPI cublasZtbmv (char uplo, char trans, char diag, int n, int k, 
-                            const cuDoubleComplex *A, int lda, cuDoubleComplex *x, int incx);
+void CUBLASWINAPI cublasStbmv (char uplo, char trans, char diag, int n, int k, 
+                               const float *A, int lda, float *x, int incx);
+void CUBLASWINAPI cublasDtbmv (char uplo, char trans, char diag, int n, int k, 
+                               const double *A, int lda, double *x, int incx);
+void CUBLASWINAPI cublasCtbmv (char uplo, char trans, char diag, int n, int k, 
+                               const cuComplex *A, int lda, cuComplex *x, int incx);
+void CUBLASWINAPI cublasZtbmv (char uplo, char trans, char diag, int n, int k, 
+                               const cuDoubleComplex *A, int lda, cuDoubleComplex *x, int incx);
 /*------------------------------------------------------------------------*/
 /* TPMV */                                                    
-void CUBLASAPI cublasStpmv(char uplo, char trans, char diag, int n, const float *AP, float *x, int incx);
+void CUBLASWINAPI cublasStpmv(char uplo, char trans, char diag, int n, const float *AP, float *x, int incx);
 
-void CUBLASAPI cublasDtpmv(char uplo, char trans, char diag, int n, const double *AP, double *x, int incx);
+void CUBLASWINAPI cublasDtpmv(char uplo, char trans, char diag, int n, const double *AP, double *x, int incx);
 
-void CUBLASAPI cublasCtpmv(char uplo, char trans, char diag, int n, const cuComplex *AP, cuComplex *x, int incx);
+void CUBLASWINAPI cublasCtpmv(char uplo, char trans, char diag, int n, const cuComplex *AP, cuComplex *x, int incx);
                                          
-void CUBLASAPI cublasZtpmv(char uplo, char trans, char diag, int n, const cuDoubleComplex *AP, cuDoubleComplex *x, int incx);
+void CUBLASWINAPI cublasZtpmv(char uplo, char trans, char diag, int n, const cuDoubleComplex *AP, cuDoubleComplex *x, int incx);
 /*------------------------------------------------------------------------*/
 /* TRSV */
-void CUBLASAPI cublasStrsv(char uplo, char trans, char diag, int n, const float *A, int lda, float *x, int incx);
+void CUBLASWINAPI cublasStrsv(char uplo, char trans, char diag, int n, const float *A, int lda, float *x, int incx);
 
-void CUBLASAPI cublasDtrsv(char uplo, char trans, char diag, int n, const double *A, int lda, double *x, int incx);
+void CUBLASWINAPI cublasDtrsv(char uplo, char trans, char diag, int n, const double *A, int lda, double *x, int incx);
 
-void CUBLASAPI cublasCtrsv(char uplo, char trans, char diag, int n, const cuComplex *A, int lda, cuComplex *x, int incx);
+void CUBLASWINAPI cublasCtrsv(char uplo, char trans, char diag, int n, const cuComplex *A, int lda, cuComplex *x, int incx);
 
-void CUBLASAPI cublasZtrsv(char uplo, char trans, char diag, int n, const cuDoubleComplex *A, int lda, 
-                                         cuDoubleComplex *x, int incx);       
+void CUBLASWINAPI cublasZtrsv(char uplo, char trans, char diag, int n, const cuDoubleComplex *A, int lda, 
+                              cuDoubleComplex *x, int incx);       
 /*------------------------------------------------------------------------*/
 /* TPSV */
-void CUBLASAPI cublasStpsv(char uplo, char trans, char diag, int n, const float *AP, 
-                          float *x, int incx);
+void CUBLASWINAPI cublasStpsv(char uplo, char trans, char diag, int n, const float *AP, 
+                              float *x, int incx);
                                                                                                             
-void CUBLASAPI cublasDtpsv(char uplo, char trans, char diag, int n, const double *AP, double *x, int incx);
+void CUBLASWINAPI cublasDtpsv(char uplo, char trans, char diag, int n, const double *AP, double *x, int incx);
 
-void CUBLASAPI cublasCtpsv(char uplo, char trans, char diag, int n, const cuComplex *AP, cuComplex *x, int incx);
+void CUBLASWINAPI cublasCtpsv(char uplo, char trans, char diag, int n, const cuComplex *AP, cuComplex *x, int incx);
 
-void CUBLASAPI cublasZtpsv(char uplo, char trans, char diag, int n, const cuDoubleComplex *AP, 
-                                         cuDoubleComplex *x, int incx);
+void CUBLASWINAPI cublasZtpsv(char uplo, char trans, char diag, int n, const cuDoubleComplex *AP, 
+                              cuDoubleComplex *x, int incx);
 /*------------------------------------------------------------------------*/                                         
 /* TBSV */                                         
-void CUBLASAPI cublasStbsv(char uplo, char trans, 
-                                         char diag, int n, int k, const float *A, 
-                                         int lda, float *x, int incx);
-
-void CUBLASAPI cublasDtbsv(char uplo, char trans, 
-                                         char diag, int n, int k, const double *A, 
-                                         int lda, double *x, int incx);
-void CUBLASAPI cublasCtbsv(char uplo, char trans, 
-                                         char diag, int n, int k, const cuComplex *A, 
-                                         int lda, cuComplex *x, int incx);      
+void CUBLASWINAPI cublasStbsv(char uplo, char trans, 
+                              char diag, int n, int k, const float *A, 
+                              int lda, float *x, int incx);
+    
+void CUBLASWINAPI cublasDtbsv(char uplo, char trans, 
+                              char diag, int n, int k, const double *A, 
+                              int lda, double *x, int incx);
+void CUBLASWINAPI cublasCtbsv(char uplo, char trans, 
+                              char diag, int n, int k, const cuComplex *A, 
+                              int lda, cuComplex *x, int incx);      
                                          
-void CUBLASAPI cublasZtbsv(char uplo, char trans, 
-                                         char diag, int n, int k, const cuDoubleComplex *A, 
-                                         int lda, cuDoubleComplex *x, int incx);  
+void CUBLASWINAPI cublasZtbsv(char uplo, char trans, 
+                              char diag, int n, int k, const cuDoubleComplex *A, 
+                              int lda, cuDoubleComplex *x, int incx);  
 /*------------------------------------------------------------------------*/                                         
 /* SYMV/HEMV */
-void CUBLASAPI cublasSsymv (char uplo, int n, float alpha, const float *A,
-                            int lda, const float *x, int incx, float beta, 
-                            float *y, int incy);
-void CUBLASAPI cublasDsymv (char uplo, int n, double alpha, const double *A,
-                            int lda, const double *x, int incx, double beta, 
-                            double *y, int incy);
-void CUBLASAPI cublasChemv (char uplo, int n, cuComplex alpha, const cuComplex *A,
-                            int lda, const cuComplex *x, int incx, cuComplex beta, 
-                            cuComplex *y, int incy);
-void CUBLASAPI cublasZhemv (char uplo, int n, cuDoubleComplex alpha, const cuDoubleComplex *A,
-                            int lda, const cuDoubleComplex *x, int incx, cuDoubleComplex beta, 
-                            cuDoubleComplex *y, int incy);
+void CUBLASWINAPI cublasSsymv (char uplo, int n, float alpha, const float *A,
+                               int lda, const float *x, int incx, float beta, 
+                               float *y, int incy);
+void CUBLASWINAPI cublasDsymv (char uplo, int n, double alpha, const double *A,
+                               int lda, const double *x, int incx, double beta, 
+                               double *y, int incy);
+void CUBLASWINAPI cublasChemv (char uplo, int n, cuComplex alpha, const cuComplex *A,
+                               int lda, const cuComplex *x, int incx, cuComplex beta, 
+                               cuComplex *y, int incy);
+void CUBLASWINAPI cublasZhemv (char uplo, int n, cuDoubleComplex alpha, const cuDoubleComplex *A,
+                               int lda, const cuDoubleComplex *x, int incx, cuDoubleComplex beta, 
+                               cuDoubleComplex *y, int incy);
 /*------------------------------------------------------------------------*/       
 /* SBMV/HBMV */
-void CUBLASAPI cublasSsbmv (char uplo, int n, int k, float alpha, 
-                            const float *A, int lda, const float *x, int incx, 
-                            float beta, float *y, int incy);
-void CUBLASAPI cublasDsbmv (char uplo, int n, int k, double alpha, 
-                            const double *A, int lda, const double *x, int incx, 
-                            double beta, double *y, int incy);
-void CUBLASAPI cublasChbmv (char uplo, int n, int k, cuComplex alpha, 
-                            const cuComplex *A, int lda, const cuComplex *x, int incx, 
-                            cuComplex beta, cuComplex *y, int incy);
-void CUBLASAPI cublasZhbmv (char uplo, int n, int k, cuDoubleComplex alpha, 
-                            const cuDoubleComplex *A, int lda, const cuDoubleComplex *x, int incx, 
-                            cuDoubleComplex beta, cuDoubleComplex *y, int incy);
+void CUBLASWINAPI cublasSsbmv (char uplo, int n, int k, float alpha, 
+                               const float *A, int lda, const float *x, int incx, 
+                               float beta, float *y, int incy);
+void CUBLASWINAPI cublasDsbmv (char uplo, int n, int k, double alpha, 
+                               const double *A, int lda, const double *x, int incx, 
+                               double beta, double *y, int incy);
+void CUBLASWINAPI cublasChbmv (char uplo, int n, int k, cuComplex alpha, 
+                               const cuComplex *A, int lda, const cuComplex *x, int incx, 
+                               cuComplex beta, cuComplex *y, int incy);
+void CUBLASWINAPI cublasZhbmv (char uplo, int n, int k, cuDoubleComplex alpha, 
+                               const cuDoubleComplex *A, int lda, const cuDoubleComplex *x, int incx, 
+                               cuDoubleComplex beta, cuDoubleComplex *y, int incy);
 /*------------------------------------------------------------------------*/       
 /* SPMV/HPMV */
-void CUBLASAPI cublasSspmv(char uplo, int n, float alpha,
-                                     const float *AP, const float *x,
-                                     int incx, float beta, float *y, int incy);
-void CUBLASAPI cublasDspmv(char uplo, int n, double alpha,
-                                     const double *AP, const double *x,
-                                     int incx, double beta, double *y, int incy);
-void CUBLASAPI cublasChpmv(char uplo, int n, cuComplex alpha,
-                                     const cuComplex *AP, const cuComplex *x,
-                                     int incx, cuComplex beta, cuComplex *y, int incy);
-void CUBLASAPI cublasZhpmv(char uplo, int n, cuDoubleComplex alpha,
-                                     const cuDoubleComplex *AP, const cuDoubleComplex *x,
-                                     int incx, cuDoubleComplex beta, cuDoubleComplex *y, int incy);
+void CUBLASWINAPI cublasSspmv(char uplo, int n, float alpha,
+                              const float *AP, const float *x,
+                              int incx, float beta, float *y, int incy);
+void CUBLASWINAPI cublasDspmv(char uplo, int n, double alpha,
+                              const double *AP, const double *x,
+                              int incx, double beta, double *y, int incy);
+void CUBLASWINAPI cublasChpmv(char uplo, int n, cuComplex alpha,
+                              const cuComplex *AP, const cuComplex *x,
+                              int incx, cuComplex beta, cuComplex *y, int incy);
+void CUBLASWINAPI cublasZhpmv(char uplo, int n, cuDoubleComplex alpha,
+                              const cuDoubleComplex *AP, const cuDoubleComplex *x,
+                              int incx, cuDoubleComplex beta, cuDoubleComplex *y, int incy);
 
 /*------------------------------------------------------------------------*/       
 /* GER */
-void CUBLASAPI cublasSger (int m, int n, float alpha, const float *x, int incx,
-                           const float *y, int incy, float *A, int lda);
-void CUBLASAPI cublasDger (int m, int n, double alpha, const double *x, int incx,
-                           const double *y, int incy, double *A, int lda);
+void CUBLASWINAPI cublasSger (int m, int n, float alpha, const float *x, int incx,
+                              const float *y, int incy, float *A, int lda);
+void CUBLASWINAPI cublasDger (int m, int n, double alpha, const double *x, int incx,
+                              const double *y, int incy, double *A, int lda);
 
-void CUBLASAPI cublasCgeru (int m, int n, cuComplex alpha, const cuComplex *x,
-                            int incx, const cuComplex *y, int incy,
-                            cuComplex *A, int lda);
-void CUBLASAPI cublasCgerc (int m, int n, cuComplex alpha, const cuComplex *x,
-                            int incx, const cuComplex *y, int incy,
-                            cuComplex *A, int lda);
-void CUBLASAPI cublasZgeru (int m, int n, cuDoubleComplex alpha, const cuDoubleComplex *x,
-                            int incx, const cuDoubleComplex *y, int incy,
-                            cuDoubleComplex *A, int lda);
-void CUBLASAPI cublasZgerc (int m, int n, cuDoubleComplex alpha, const cuDoubleComplex *x,
-                            int incx, const cuDoubleComplex *y, int incy,
-                            cuDoubleComplex *A, int lda);
+void CUBLASWINAPI cublasCgeru (int m, int n, cuComplex alpha, const cuComplex *x,
+                               int incx, const cuComplex *y, int incy,
+                               cuComplex *A, int lda);
+void CUBLASWINAPI cublasCgerc (int m, int n, cuComplex alpha, const cuComplex *x,
+                               int incx, const cuComplex *y, int incy,
+                               cuComplex *A, int lda);
+void CUBLASWINAPI cublasZgeru (int m, int n, cuDoubleComplex alpha, const cuDoubleComplex *x,
+                               int incx, const cuDoubleComplex *y, int incy,
+                               cuDoubleComplex *A, int lda);
+void CUBLASWINAPI cublasZgerc (int m, int n, cuDoubleComplex alpha, const cuDoubleComplex *x,
+                               int incx, const cuDoubleComplex *y, int incy,
+                               cuDoubleComplex *A, int lda);
 /*------------------------------------------------------------------------*/       
 /* SYR/HER */
-void CUBLASAPI cublasSsyr (char uplo, int n, float alpha, const float *x,
-                           int incx, float *A, int lda);
-void CUBLASAPI cublasDsyr (char uplo, int n, double alpha, const double *x,
-                           int incx, double *A, int lda);
+void CUBLASWINAPI cublasSsyr (char uplo, int n, float alpha, const float *x,
+                              int incx, float *A, int lda);
+void CUBLASWINAPI cublasDsyr (char uplo, int n, double alpha, const double *x,
+                              int incx, double *A, int lda);
 
-void CUBLASAPI cublasCher (char uplo, int n, float alpha, 
-                           const cuComplex *x, int incx, cuComplex *A, int lda);
-void CUBLASAPI cublasZher (char uplo, int n, double alpha, 
-                           const cuDoubleComplex *x, int incx, cuDoubleComplex *A, int lda);
+void CUBLASWINAPI cublasCher (char uplo, int n, float alpha, 
+                              const cuComplex *x, int incx, cuComplex *A, int lda);
+void CUBLASWINAPI cublasZher (char uplo, int n, double alpha, 
+                              const cuDoubleComplex *x, int incx, cuDoubleComplex *A, int lda);
 
 /*------------------------------------------------------------------------*/       
 /* SPR/HPR */
-void CUBLASAPI cublasSspr (char uplo, int n, float alpha, const float *x,
-                           int incx, float *AP);
-void CUBLASAPI cublasDspr (char uplo, int n, double alpha, const double *x,
-                           int incx, double *AP);
-void CUBLASAPI cublasChpr (char uplo, int n, float alpha, const cuComplex *x,
-                           int incx, cuComplex *AP);
-void CUBLASAPI cublasZhpr (char uplo, int n, double alpha, const cuDoubleComplex *x,
-                           int incx, cuDoubleComplex *AP);
+void CUBLASWINAPI cublasSspr (char uplo, int n, float alpha, const float *x,
+                              int incx, float *AP);
+void CUBLASWINAPI cublasDspr (char uplo, int n, double alpha, const double *x,
+                              int incx, double *AP);
+void CUBLASWINAPI cublasChpr (char uplo, int n, float alpha, const cuComplex *x,
+                              int incx, cuComplex *AP);
+void CUBLASWINAPI cublasZhpr (char uplo, int n, double alpha, const cuDoubleComplex *x,
+                              int incx, cuDoubleComplex *AP);
 /*------------------------------------------------------------------------*/       
 /* SYR2/HER2 */
-void CUBLASAPI cublasSsyr2 (char uplo, int n, float alpha, const float *x, 
-                            int incx, const float *y, int incy, float *A, 
-                            int lda);
-void CUBLASAPI cublasDsyr2 (char uplo, int n, double alpha, const double *x, 
-                            int incx, const double *y, int incy, double *A, 
-                            int lda);
-void CUBLASAPI cublasCher2 (char uplo, int n, cuComplex alpha, const cuComplex *x, 
-                            int incx, const cuComplex *y, int incy, cuComplex *A, 
-                            int lda);
-void CUBLASAPI cublasZher2 (char uplo, int n, cuDoubleComplex alpha, const cuDoubleComplex *x, 
-                            int incx, const cuDoubleComplex *y, int incy, cuDoubleComplex *A, 
-                            int lda);
+void CUBLASWINAPI cublasSsyr2 (char uplo, int n, float alpha, const float *x, 
+                               int incx, const float *y, int incy, float *A, 
+                               int lda);
+void CUBLASWINAPI cublasDsyr2 (char uplo, int n, double alpha, const double *x, 
+                               int incx, const double *y, int incy, double *A, 
+                               int lda);
+void CUBLASWINAPI cublasCher2 (char uplo, int n, cuComplex alpha, const cuComplex *x, 
+                               int incx, const cuComplex *y, int incy, cuComplex *A, 
+                               int lda);
+void CUBLASWINAPI cublasZher2 (char uplo, int n, cuDoubleComplex alpha, const cuDoubleComplex *x, 
+                               int incx, const cuDoubleComplex *y, int incy, cuDoubleComplex *A, 
+                               int lda);
 
 /*------------------------------------------------------------------------*/       
 /* SPR2/HPR2 */
-void CUBLASAPI cublasSspr2 (char uplo, int n, float alpha, const float *x, 
-                            int incx, const float *y, int incy, float *AP);
-void CUBLASAPI cublasDspr2 (char uplo, int n, double alpha,
-                            const double *x, int incx, const double *y,
-                            int incy, double *AP);
-void CUBLASAPI cublasChpr2 (char uplo, int n, cuComplex alpha,
-                            const cuComplex *x, int incx, const cuComplex *y,
-                            int incy, cuComplex *AP);
-void CUBLASAPI cublasZhpr2 (char uplo, int n, cuDoubleComplex alpha,
-                            const cuDoubleComplex *x, int incx, const cuDoubleComplex *y,
-                            int incy, cuDoubleComplex *AP);
+void CUBLASWINAPI cublasSspr2 (char uplo, int n, float alpha, const float *x, 
+                               int incx, const float *y, int incy, float *AP);
+void CUBLASWINAPI cublasDspr2 (char uplo, int n, double alpha,
+                               const double *x, int incx, const double *y,
+                               int incy, double *AP);
+void CUBLASWINAPI cublasChpr2 (char uplo, int n, cuComplex alpha,
+                               const cuComplex *x, int incx, const cuComplex *y,
+                               int incy, cuComplex *AP);
+void CUBLASWINAPI cublasZhpr2 (char uplo, int n, cuDoubleComplex alpha,
+                               const cuDoubleComplex *x, int incx, const cuDoubleComplex *y,
+                               int incy, cuDoubleComplex *AP);
 /* ------------------------BLAS3 Functions ------------------------------- */
 /* GEMM */
-void CUBLASAPI cublasSgemm (char transa, char transb, int m, int n, int k, 
-                            float alpha, const float *A, int lda, 
-                            const float *B, int ldb, float beta, float *C, 
-                            int ldc);
-void CUBLASAPI cublasDgemm (char transa, char transb, int m, int n, int k,
-                            double alpha, const double *A, int lda, 
-                            const double *B, int ldb, double beta, double *C, 
-                            int ldc);              
-void CUBLASAPI cublasCgemm (char transa, char transb, int m, int n, int k, 
-                            cuComplex alpha, const cuComplex *A, int lda,
-                            const cuComplex *B, int ldb, cuComplex beta,
-                            cuComplex *C, int ldc);
-void CUBLASAPI cublasZgemm (char transa, char transb, int m, int n,
-                            int k, cuDoubleComplex alpha,
-                            const cuDoubleComplex *A, int lda,
-                            const cuDoubleComplex *B, int ldb,
-                            cuDoubleComplex beta, cuDoubleComplex *C,
-                            int ldc);                   
+void CUBLASWINAPI cublasSgemm (char transa, char transb, int m, int n, int k, 
+                               float alpha, const float *A, int lda, 
+                               const float *B, int ldb, float beta, float *C, 
+                               int ldc);
+void CUBLASWINAPI cublasDgemm (char transa, char transb, int m, int n, int k,
+                               double alpha, const double *A, int lda, 
+                               const double *B, int ldb, double beta, double *C, 
+                               int ldc);              
+void CUBLASWINAPI cublasCgemm (char transa, char transb, int m, int n, int k, 
+                               cuComplex alpha, const cuComplex *A, int lda,
+                               const cuComplex *B, int ldb, cuComplex beta,
+                               cuComplex *C, int ldc);
+void CUBLASWINAPI cublasZgemm (char transa, char transb, int m, int n,
+                               int k, cuDoubleComplex alpha,
+                               const cuDoubleComplex *A, int lda,
+                               const cuDoubleComplex *B, int ldb,
+                               cuDoubleComplex beta, cuDoubleComplex *C,
+                               int ldc);                   
 /* -------------------------------------------------------*/
 /* SYRK */
-void CUBLASAPI cublasSsyrk (char uplo, char trans, int n, int k, float alpha, 
-                            const float *A, int lda, float beta, float *C, 
-                            int ldc);
-void CUBLASAPI cublasDsyrk (char uplo, char trans, int n, int k,
-                            double alpha, const double *A, int lda,
-                            double beta, double *C, int ldc);
+void CUBLASWINAPI cublasSsyrk (char uplo, char trans, int n, int k, float alpha, 
+                               const float *A, int lda, float beta, float *C, 
+                               int ldc);
+void CUBLASWINAPI cublasDsyrk (char uplo, char trans, int n, int k,
+                               double alpha, const double *A, int lda,
+                               double beta, double *C, int ldc);
 
-void CUBLASAPI cublasCsyrk (char uplo, char trans, int n, int k,
-                            cuComplex alpha, const cuComplex *A, int lda,
-                            cuComplex beta, cuComplex *C, int ldc);
-void CUBLASAPI cublasZsyrk (char uplo, char trans, int n, int k,
-                            cuDoubleComplex alpha,
-                            const cuDoubleComplex *A, int lda,
-                            cuDoubleComplex beta,
-                            cuDoubleComplex *C, int ldc);
+void CUBLASWINAPI cublasCsyrk (char uplo, char trans, int n, int k,
+                               cuComplex alpha, const cuComplex *A, int lda,
+                               cuComplex beta, cuComplex *C, int ldc);
+void CUBLASWINAPI cublasZsyrk (char uplo, char trans, int n, int k,
+                               cuDoubleComplex alpha,
+                               const cuDoubleComplex *A, int lda,
+                               cuDoubleComplex beta,
+                               cuDoubleComplex *C, int ldc);
 /* ------------------------------------------------------- */
 /* HERK */
-void CUBLASAPI cublasCherk (char uplo, char trans, int n, int k,
-          float alpha, const cuComplex *A, int lda,
-          float beta, cuComplex *C, int ldc);
-void CUBLASAPI cublasZherk (char uplo, char trans, int n, int k,
-                            double alpha,
-                            const cuDoubleComplex *A, int lda,
-                            double beta,
-                            cuDoubleComplex *C, int ldc);
+void CUBLASWINAPI cublasCherk (char uplo, char trans, int n, int k,
+                               float alpha, const cuComplex *A, int lda,
+                               float beta, cuComplex *C, int ldc);
+void CUBLASWINAPI cublasZherk (char uplo, char trans, int n, int k,
+                               double alpha,
+                               const cuDoubleComplex *A, int lda,
+                               double beta,
+                               cuDoubleComplex *C, int ldc);
 /* ------------------------------------------------------- */
 /* SYR2K */
-void CUBLASAPI cublasSsyr2k (char uplo, char trans, int n, int k, float alpha, 
-           const float *A, int lda, const float *B, int ldb, 
-           float beta, float *C, int ldc);
+void CUBLASWINAPI cublasSsyr2k (char uplo, char trans, int n, int k, float alpha, 
+                                const float *A, int lda, const float *B, int ldb, 
+                                float beta, float *C, int ldc);
 
-void CUBLASAPI cublasDsyr2k (char uplo, char trans, int n, int k,
-           double alpha, const double *A, int lda,
-           const double *B, int ldb, double beta,
-           double *C, int ldc);
-void CUBLASAPI cublasCsyr2k (char uplo, char trans, int n, int k,
-           cuComplex alpha, const cuComplex *A, int lda,
-           const cuComplex *B, int ldb, cuComplex beta,
-           cuComplex *C, int ldc);
+void CUBLASWINAPI cublasDsyr2k (char uplo, char trans, int n, int k,
+                                double alpha, const double *A, int lda,
+                                const double *B, int ldb, double beta,
+                                double *C, int ldc);
+void CUBLASWINAPI cublasCsyr2k (char uplo, char trans, int n, int k,
+                                cuComplex alpha, const cuComplex *A, int lda,
+                                const cuComplex *B, int ldb, cuComplex beta,
+                                cuComplex *C, int ldc);
 
-void CUBLASAPI cublasZsyr2k (char uplo, char trans, int n, int k,
-                             cuDoubleComplex alpha, const cuDoubleComplex *A, int lda,
-                             const cuDoubleComplex *B, int ldb, cuDoubleComplex beta,
-                             cuDoubleComplex *C, int ldc);                             
+void CUBLASWINAPI cublasZsyr2k (char uplo, char trans, int n, int k,
+                                cuDoubleComplex alpha, const cuDoubleComplex *A, int lda,
+                                const cuDoubleComplex *B, int ldb, cuDoubleComplex beta,
+                                cuDoubleComplex *C, int ldc);                             
 /* ------------------------------------------------------- */
 /* HER2K */
-void CUBLASAPI cublasCher2k (char uplo, char trans, int n, int k,
-           cuComplex alpha, const cuComplex *A, int lda,
-           const cuComplex *B, int ldb, float beta,
-           cuComplex *C, int ldc);
+void CUBLASWINAPI cublasCher2k (char uplo, char trans, int n, int k,
+                                cuComplex alpha, const cuComplex *A, int lda,
+                                const cuComplex *B, int ldb, float beta,
+                                cuComplex *C, int ldc);
 
-void CUBLASAPI cublasZher2k (char uplo, char trans, int n, int k,
-                             cuDoubleComplex alpha, const cuDoubleComplex *A, int lda,
-                             const cuDoubleComplex *B, int ldb, double beta,
-                             cuDoubleComplex *C, int ldc); 
+void CUBLASWINAPI cublasZher2k (char uplo, char trans, int n, int k,
+                                cuDoubleComplex alpha, const cuDoubleComplex *A, int lda,
+                                const cuDoubleComplex *B, int ldb, double beta,
+                                cuDoubleComplex *C, int ldc); 
 
 /*------------------------------------------------------------------------*/       
 /* SYMM*/
-void CUBLASAPI cublasSsymm (char side, char uplo, int m, int n, float alpha, 
-          const float *A, int lda, const float *B, int ldb,
-          float beta, float *C, int ldc);
-void CUBLASAPI cublasDsymm (char side, char uplo, int m, int n, double alpha, 
-          const double *A, int lda, const double *B, int ldb,
-          double beta, double *C, int ldc);
+void CUBLASWINAPI cublasSsymm (char side, char uplo, int m, int n, float alpha, 
+                               const float *A, int lda, const float *B, int ldb,
+                               float beta, float *C, int ldc);
+void CUBLASWINAPI cublasDsymm (char side, char uplo, int m, int n, double alpha, 
+                               const double *A, int lda, const double *B, int ldb,
+                               double beta, double *C, int ldc);
           
-void CUBLASAPI cublasCsymm (char side, char uplo, int m, int n, cuComplex alpha, 
-          const cuComplex *A, int lda, const cuComplex *B, int ldb,
-          cuComplex beta, cuComplex *C, int ldc);
+void CUBLASWINAPI cublasCsymm (char side, char uplo, int m, int n, cuComplex alpha, 
+                               const cuComplex *A, int lda, const cuComplex *B, int ldb,
+                               cuComplex beta, cuComplex *C, int ldc);
           
-void CUBLASAPI cublasZsymm (char side, char uplo, int m, int n, cuDoubleComplex alpha, 
-                            const cuDoubleComplex *A, int lda, const cuDoubleComplex *B, int ldb,
-                            cuDoubleComplex beta, cuDoubleComplex *C, int ldc);
+void CUBLASWINAPI cublasZsymm (char side, char uplo, int m, int n, cuDoubleComplex alpha, 
+                               const cuDoubleComplex *A, int lda, const cuDoubleComplex *B, int ldb,
+                               cuDoubleComplex beta, cuDoubleComplex *C, int ldc);
 /*------------------------------------------------------------------------*/       
 /* HEMM*/
-void CUBLASAPI cublasChemm (char side, char uplo, int m, int n,
-                            cuComplex alpha, const cuComplex *A, int lda,
-                            const cuComplex *B, int ldb, cuComplex beta,
-                            cuComplex *C, int ldc);
-void CUBLASAPI cublasZhemm (char side, char uplo, int m, int n,
-                            cuDoubleComplex alpha, const cuDoubleComplex *A, int lda,
-                            const cuDoubleComplex *B, int ldb, cuDoubleComplex beta,
-                            cuDoubleComplex *C, int ldc);  
+void CUBLASWINAPI cublasChemm (char side, char uplo, int m, int n,
+                               cuComplex alpha, const cuComplex *A, int lda,
+                               const cuComplex *B, int ldb, cuComplex beta,
+                               cuComplex *C, int ldc);
+void CUBLASWINAPI cublasZhemm (char side, char uplo, int m, int n,
+                               cuDoubleComplex alpha, const cuDoubleComplex *A, int lda,
+                               const cuDoubleComplex *B, int ldb, cuDoubleComplex beta,
+                               cuDoubleComplex *C, int ldc);  
 
 /*------------------------------------------------------------------------*/       
 /* TRSM*/
-void CUBLASAPI cublasStrsm (char side, char uplo, char transa, char diag,
-                            int m, int n, float alpha, const float *A, int lda,
-                            float *B, int ldb);
+void CUBLASWINAPI cublasStrsm (char side, char uplo, char transa, char diag,
+                               int m, int n, float alpha, const float *A, int lda,
+                               float *B, int ldb);
 
-void CUBLASAPI cublasDtrsm (char side, char uplo, char transa,
-                            char diag, int m, int n, double alpha,
-                            const double *A, int lda, double *B,
-                            int ldb);
+void CUBLASWINAPI cublasDtrsm (char side, char uplo, char transa,
+                               char diag, int m, int n, double alpha,
+                               const double *A, int lda, double *B,
+                               int ldb);
 
-void CUBLASAPI cublasCtrsm (char side, char uplo, char transa, char diag,
-                            int m, int n, cuComplex alpha, const cuComplex *A,
-                            int lda, cuComplex *B, int ldb);
+void CUBLASWINAPI cublasCtrsm (char side, char uplo, char transa, char diag,
+                               int m, int n, cuComplex alpha, const cuComplex *A,
+                               int lda, cuComplex *B, int ldb);
 
-void CUBLASAPI cublasZtrsm (char side, char uplo, char transa,
-                            char diag, int m, int n, cuDoubleComplex alpha,
-                            const cuDoubleComplex *A, int lda,
-                            cuDoubleComplex *B, int ldb);                                                        
+void CUBLASWINAPI cublasZtrsm (char side, char uplo, char transa,
+                               char diag, int m, int n, cuDoubleComplex alpha,
+                               const cuDoubleComplex *A, int lda,
+                               cuDoubleComplex *B, int ldb);                                                        
 /*------------------------------------------------------------------------*/       
 /* TRMM*/
-void CUBLASAPI cublasStrmm (char side, char uplo, char transa, char diag,
-                            int m, int n, float alpha, const float *A, int lda,
-                            float *B, int ldb);
-void CUBLASAPI cublasDtrmm (char side, char uplo, char transa,
-                            char diag, int m, int n, double alpha,
-                            const double *A, int lda, double *B,
-                            int ldb);
-void CUBLASAPI cublasCtrmm (char side, char uplo, char transa, char diag,
-                            int m, int n, cuComplex alpha, const cuComplex *A,
-                            int lda, cuComplex *B, int ldb);
-void CUBLASAPI cublasZtrmm (char side, char uplo, char transa,
-                            char diag, int m, int n, cuDoubleComplex alpha,
-                            const cuDoubleComplex *A, int lda, cuDoubleComplex *B,
-                            int ldb);                                                                            
+void CUBLASWINAPI cublasStrmm (char side, char uplo, char transa, char diag,
+                               int m, int n, float alpha, const float *A, int lda,
+                               float *B, int ldb);
+void CUBLASWINAPI cublasDtrmm (char side, char uplo, char transa,
+                               char diag, int m, int n, double alpha,
+                               const double *A, int lda, double *B,
+                               int ldb);
+void CUBLASWINAPI cublasCtrmm (char side, char uplo, char transa, char diag,
+                               int m, int n, cuComplex alpha, const cuComplex *A,
+                               int lda, cuComplex *B, int ldb);
+void CUBLASWINAPI cublasZtrmm (char side, char uplo, char transa,
+                               char diag, int m, int n, cuDoubleComplex alpha,
+                               const cuDoubleComplex *A, int lda, cuDoubleComplex *B,
+                               int ldb);
 
-                                                                                                                                                                                                 
 #if defined(__cplusplus)
 }
 #endif /* __cplusplus */

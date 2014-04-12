@@ -132,8 +132,80 @@ struct __device_builtin__ textureReference
      * Perform sRGB->linear conversion during texture read
      */
     int                          sRGB;
+    /**
+     * Limit to the anisotropy ratio
+     */
+    unsigned int                 maxAnisotropy;
+    /**
+     * Mipmap filter mode
+     */
+    enum cudaTextureFilterMode   mipmapFilterMode;
+    /**
+     * Offset applied to the supplied mipmap level
+     */
+    float                        mipmapLevelBias;
+    /**
+     * Lower end of the mipmap level range to clamp access to
+     */
+    float                        minMipmapLevelClamp;
+    /**
+     * Upper end of the mipmap level range to clamp access to
+     */
+    float                        maxMipmapLevelClamp;
     int                          __cudaReserved[15];
 };
+
+/**
+ * CUDA texture descriptor
+ */
+struct __device_builtin__ cudaTextureDesc
+{
+    /**
+     * Texture address mode for up to 3 dimensions
+     */
+    enum cudaTextureAddressMode addressMode[3];
+    /**
+     * Texture filter mode
+     */
+    enum cudaTextureFilterMode  filterMode;
+    /**
+     * Texture read mode
+     */
+    enum cudaTextureReadMode    readMode;
+    /**
+     * Perform sRGB->linear conversion during texture read
+     */
+    int                         sRGB;
+    /**
+     * Indicates whether texture reads are normalized or not
+     */
+    int                         normalizedCoords;
+    /**
+     * Limit to the anisotropy ratio
+     */
+    unsigned int                maxAnisotropy;
+    /**
+     * Mipmap filter mode
+     */
+    enum cudaTextureFilterMode  mipmapFilterMode;
+    /**
+     * Offset applied to the supplied mipmap level
+     */
+    float                       mipmapLevelBias;
+    /**
+     * Lower end of the mipmap level range to clamp access to
+     */
+    float                       minMipmapLevelClamp;
+    /**
+     * Upper end of the mipmap level range to clamp access to
+     */
+    float                       maxMipmapLevelClamp;
+};
+
+/**
+ * CUDA texture object
+ */
+typedef __device_builtin__ unsigned long long cudaTextureObject_t;
 
 /** @} */
 /** @} */ /* END CUDART_TYPES */

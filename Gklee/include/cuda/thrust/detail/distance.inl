@@ -19,20 +19,21 @@
  *  \brief Inline file for distance.h
  */
 
+#include <thrust/advance.h>
+#include <thrust/system/detail/generic/distance.h>
 #include <thrust/iterator/iterator_traits.h>
-#include <thrust/detail/dispatch/distance.h>
 
 namespace thrust
 {
+
 
 template<typename InputIterator>
   inline typename thrust::iterator_traits<InputIterator>::difference_type
     distance(InputIterator first, InputIterator last)
 {
-  // dispatch on traversal
-  return thrust::detail::dispatch::distance(first,last,
-    typename thrust::iterator_traversal<InputIterator>::type());
+  return thrust::system::detail::generic::distance(first, last);
 } // end distance()
+
 
 } // end namespace thrust
 

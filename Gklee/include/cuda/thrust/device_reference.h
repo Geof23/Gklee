@@ -16,7 +16,7 @@
 
 
 /*! \file device_reference.h
- *  \brief A reference to a variable which resides in the "device" memory space
+ *  \brief A reference to a variable which resides in the "device" system's memory space
  */
 
 #pragma once
@@ -24,7 +24,7 @@
 #include <thrust/detail/config.h>
 #include <thrust/device_ptr.h>
 #include <thrust/detail/type_traits.h>
-#include <thrust/detail/reference_base.h>
+#include <thrust/detail/reference.h>
 
 namespace thrust
 {
@@ -184,17 +184,17 @@ namespace thrust
  */
 template<typename T>
   class device_reference
-    : public thrust::detail::reference_base<
-               thrust::device_reference<T>,
+    : public thrust::reference<
                T,
-               thrust::device_ptr<T>
+               thrust::device_ptr<T>,
+               thrust::device_reference<T>
              >
 {
   private:
-    typedef thrust::detail::reference_base<
-      thrust::device_reference<T>,
+    typedef thrust::reference<
       T,
-      thrust::device_ptr<T>
+      thrust::device_ptr<T>,
+      thrust::device_reference<T>
     > super_t;
 
   public:
@@ -223,7 +223,7 @@ template<typename T>
      *  thrust::device_reference<int> ref = v[0];
      *
      *  // ref equals the object at v[0]
-     *  assert(ref1 == v[0]);
+     *  assert(ref == v[0]);
      *
      *  // the address of ref equals the address of v[0]
      *  assert(&ref == &v[0]);
@@ -288,6 +288,7 @@ template<typename T>
      *  \return <tt>*this</tt>
      */
     template<typename OtherT>
+    __host__ __device__
     device_reference &operator=(const device_reference<OtherT> &other);
 
     /*! Assignment operator assigns the value of the given value to the
@@ -296,6 +297,7 @@ template<typename T>
      *  \param x The value to assign from.
      *  \return <tt>*this</tt>
      */
+    __host__ __device__
     device_reference &operator=(const value_type &x);
 
 // declare these members for the purpose of Doxygenating them

@@ -146,11 +146,6 @@ namespace {
                cl::desc("Inject checks for division-by-zero"),
                cl::init(true));
 
-  cl::opt<bool>
-  UseFLAEX("use-FLA-extensions", 
-	   cl::desc("Use the experimental extensions by FLA"),
-	   cl::init(false));
-    
   cl::opt<std::string>
   OutputDir("output-dir", 
             cl::desc("Directory to write results in (defaults to klee-out-N)"),
@@ -1397,8 +1392,6 @@ int main(int argc, char **argv, char **envp) {
 
   Interpreter::InterpreterOptions IOpts;
   IOpts.MakeConcreteSymbolic = MakeConcreteSymbolic;
-  // by Guodong
-  IOpts.UseFLAEX = false;
   KleeHandler *handler = new KleeHandler(pArgc, pArgv);
   Interpreter *interpreter = 
     theInterpreter = Interpreter::create(IOpts, handler);

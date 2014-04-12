@@ -15,7 +15,7 @@
  */
 
 
-/*! \file iterator_adaptor.h
+/*! \file thrust/iterator/iterator_adaptor.h
  *  \brief An iterator which adapts a base iterator
  */
 
@@ -34,86 +34,168 @@
 
 #include <thrust/detail/config.h>
 #include <thrust/iterator/iterator_facade.h>
-
-// #include the details first
-#include <thrust/iterator/detail/iterator_adaptor.inl>
+#include <thrust/detail/use_default.h>
+#include <thrust/iterator/detail/iterator_adaptor_base.h>
 
 namespace thrust
 {
 
-struct use_default {};
+/*! \addtogroup iterators
+ *  \{
+ */
 
-namespace experimental
-{
+/*! \addtogroup fancyiterator Fancy Iterators
+ *  \ingroup iterators
+ *  \{
+ */
 
-template <
-      typename Derived
-    , typename Base
-    , typename Pointer
-    // XXX nvcc can't handle these defaults at the moment
-    //, typename Value                = use_default
-    //, typename CategoryOrSpace      = use_default
-    //, typename CategoryOrTraversal  = use_default
-    //, typename Reference            = use_default
-    //, typename Difference           = use_default
-    , typename Value
-    , typename Space
-    , typename Traversal
-    , typename Reference
-    , typename Difference = use_default
-  >
+/*! \p iterator_adaptor is an iterator which adapts an existing type of iterator to create a new type of
+ *  iterator. Most of Thrust's fancy iterators are defined via inheritance from \p iterator_adaptor.
+ *  While composition of these existing Thrust iterators is often sufficient for expressing the desired
+ *  functionality, it is occasionally more straightforward to derive from \p iterator_adaptor directly.
+ *
+ *  To see how to use \p iterator_adaptor to create a novel iterator type, let's examine how to use it to
+ *  define \p repeat_iterator, a fancy iterator which repeats elements from another range a given number of time:
+ *
+ *  \code
+ *  #include <thrust/iterator/iterator_adaptor.h>
+ *
+ *  // derive repeat_iterator from iterator_adaptor
+ *  template<typename Iterator>
+ *    class repeat_iterator
+ *      : public thrust::iterator_adaptor<
+ *          repeat_iterator<Iterator>, // the first template parameter is the name of the iterator we're creating
+ *          Iterator                   // the second template parameter is the name of the iterator we're adapting
+ *                                     // we can use the default for the additional template parameters
+ *        >
+ *  {
+ *    public:
+ *      // shorthand for the name of the iterator_adaptor we're deriving from
+ *      typedef thrust::iterator_adaptor<
+ *        repeat_iterator<Iterator>,
+ *        Iterator
+ *      > super_t;
+ *
+ *      __host__ __device__
+ *      repeat_iterator(const Iterator &x, int n) : super_t(x), begin(x), n(n) {}
+ *
+ *      // befriend thrust::iterator_core_access to allow it access to the private interface below
+ *      friend class thrust::iterator_core_access;
+ *
+ *    private:
+ *      // repeat each element of the adapted range n times
+ *      unsigned int n;
+ *
+ *      // used to keep track of where we began
+ *      const Iterator begin;
+ *
+ *      // it is private because only thrust::iterator_core_access needs access to it
+ *      __host__ __device__
+ *      typename super_t::reference dereference() const
+ *      {
+ *        return *(begin + (this->base() - begin) / n);
+ *      }
+ *  };
+ *  \endcode
+ *
+ *  Except for the first two, \p iterator_adaptor's template parameters are optional. When omitted, or when the
+ *  user specifies \p thrust::use_default in its place, \p iterator_adaptor will use a default type inferred from \p Base.
+ *
+ *  \p iterator_adaptor's functionality is derived from and generally equivalent to \p boost::iterator_adaptor.
+ *  The exception is Thrust's addition of the template parameter \p System, which is necessary to allow Thrust
+ *  to dispatch an algorithm to one of several parallel backend systems.
+ *
+ *  \p iterator_adaptor is a powerful tool for creating custom iterators directly. However, the large set of iterator semantics which must be satisfied
+ *  for algorithm compatibility can make \p iterator_adaptor difficult to use correctly. Unless you require the full expressivity of \p iterator_adaptor,
+ *  consider building a custom iterator through composition of existing higher-level fancy iterators instead. 
+ *
+ *  Interested users may refer to <tt>boost::iterator_adaptor</tt>'s documentation for further usage examples.
+ */
+template<typename Derived,
+         typename Base,
+         typename Value      = use_default,
+         typename System     = use_default,
+         typename Traversal  = use_default,
+         typename Reference  = use_default,
+         typename Difference = use_default>
   class iterator_adaptor:
     public detail::iterator_adaptor_base<
-      Derived, Base, Pointer, Value, Space, Traversal, Reference, Difference
+      Derived, Base, Value, System, Traversal, Reference, Difference
     >::type
 {
-    friend class iterator_core_access;
+  /*! \cond
+   */
+
+    friend class thrust::iterator_core_access;
 
   protected:
     typedef typename detail::iterator_adaptor_base<
-        Derived, Base, Pointer, Value, Space, Traversal, Reference, Difference
+        Derived, Base, Value, System, Traversal, Reference, Difference
     >::type super_t;
+
+  /*! \endcond
+   */
   
   public:
+    /*! \p iterator_adaptor's default constructor does nothing.
+     */
     __host__ __device__
     iterator_adaptor(){}
 
+    /*! This constructor copies from a given instance of the \p Base iterator.
+     */
     __host__ __device__
     explicit iterator_adaptor(Base const& iter)
       : m_iterator(iter)
     {}
 
+    /*! The type of iterator this \p iterator_adaptor's \p adapts.
+     */
     typedef Base       base_type;
-    // XXX BUG: why do we have to declare this here?  it's supposed to be published in super_t
+                                                                                              
+    /*! \cond
+     */
     typedef typename super_t::reference reference;
-    // XXX BUG: why do we have to declare this here?  it's supposed to be published in super_t
+                                                                                              
     typedef typename super_t::difference_type difference_type;
+    /*! \endcond
+     */
 
+    /*! \return A \p const reference to the \p Base iterator this \p iterator_adaptor adapts.
+     */
     __host__ __device__
     Base const& base() const
     { return m_iterator; }
 
   protected:
-    typedef iterator_adaptor iterator_adaptor_;
-
+    /*! \return A \p const reference to the \p Base iterator this \p iterator_adaptor adapts.
+     */
     __host__ __device__
     Base const& base_reference() const
     { return m_iterator; }
 
+    /*! \return A mutable reference to the \p Base iterator this \p iterator_adaptor adapts.
+     */
     __host__ __device__
     Base& base_reference()
     { return m_iterator; }
 
+    /*! \cond
+     */
   private: // Core iterator interface for iterator_facade
 
+    __thrust_hd_warning_disable__
+    __host__ __device__
     typename iterator_adaptor::reference dereference() const
     { return *m_iterator; }
 
-    template<typename OtherDerived, typename OtherIterator, typename P, typename V, typename S, typename T, typename R, typename D>
+    __thrust_hd_warning_disable__
+    template<typename OtherDerived, typename OtherIterator, typename V, typename S, typename T, typename R, typename D>
     __host__ __device__
-    bool equal(iterator_adaptor<OtherDerived, OtherIterator, P, V, S, T, R, D> const& x) const
+    bool equal(iterator_adaptor<OtherDerived, OtherIterator, V, S, T, R, D> const& x) const
     { return m_iterator == x.base(); }
 
+    __thrust_hd_warning_disable__
     __host__ __device__
     void advance(typename iterator_adaptor::difference_type n)
     {
@@ -121,10 +203,12 @@ template <
       m_iterator += n;
     }
 
+    __thrust_hd_warning_disable__
     __host__ __device__
     void increment()
     { ++m_iterator; }
 
+    __thrust_hd_warning_disable__
     __host__ __device__
     void decrement()
     {
@@ -132,16 +216,24 @@ template <
       --m_iterator;
     }
 
-    template<typename OtherDerived, typename OtherIterator, typename P, typename V, typename S, typename T, typename R, typename D>
+    __thrust_hd_warning_disable__
+    template<typename OtherDerived, typename OtherIterator, typename V, typename S, typename T, typename R, typename D>
     __host__ __device__
-    typename iterator_adaptor::difference_type distance_to(iterator_adaptor<OtherDerived, OtherIterator, P, V, S, T, R, D> const& y) const
+    typename iterator_adaptor::difference_type distance_to(iterator_adaptor<OtherDerived, OtherIterator, V, S, T, R, D> const& y) const
     { return y.base() - m_iterator; }
 
   private:
-    Base m_iterator; // exposition only
+    Base m_iterator;
+
+    /*! \endcond
+     */
 }; // end iterator_adaptor
 
-} // end experimental
+/*! \} // end fancyiterators
+ */
+
+/*! \} // end iterators
+ */
 
 } // end thrust
 

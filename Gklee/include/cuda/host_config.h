@@ -67,31 +67,31 @@
 
 #if defined(__ICC)
 
-#if __ICC != 1110 || !defined(__GNUC__) || !defined(__LP64__)
+#if !(__INTEL_COMPILER == 9999 && __INTEL_COMPILER_BUILD_DATE == 20110811) || !defined(__GNUC__) || !defined(__LP64__)
 
-//#error -- unsupported ICC configuration! Only ICC 11.1 on Linux x86_64 is supported!
+#error -- unsupported ICC configuration! Only ICC 12.1 on Linux x86_64 is supported!
 
-#endif /* __ICC != 1110 || !__GNUC__ || !__LP64__ */
+#endif /* !(__INTEL_COMPILER == 9999 && __INTEL_COMPILER_BUILD_DATE == 20110811) || !__GNUC__ || !__LP64__ */
 
 #endif /* __ICC */
 
 #if defined(__GNUC__)
 
-#if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ > 6)
+#if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ > 8)
 
-#error -- unsupported GNU version! gcc 4.7 and up are not supported!
+#error -- unsupported GNU version! gcc 4.9 and up are not supported!
 
-#endif /* __GNUC__> 4 || (__GNUC__ == 4 && __GNUC_MINOR__ > 6) */
+#endif /* __GNUC__> 4 || (__GNUC__ == 4 && __GNUC_MINOR__ > 8) */
 
 #endif /* __GNUC__ */
 
 #if defined(_WIN32)
 
-#if _MSC_VER < 1400 || _MSC_VER > 1600
+#if _MSC_VER < 1500 || _MSC_VER > 1700
 
-#error -- unsupported MSVC version! Only MSVC 8.0, 9.0, and 10.0 are supported!
+#error -- unsupported Microsoft Visual Studio version! Only the versions 2008, 2010, and 2012 are supported!
 
-#endif /* _MSC_VER < 1400 || _MSC_VER > 1500 */
+#endif /* _MSC_VER < 1500 || _MSC_VER > 1700 */
 
 #endif /* _WIN32 */
 
@@ -106,6 +106,11 @@
 #undef __BLOCKS__
 
 #endif /* __BLOCKS__ */
+
+#elif defined(__ANDROID__)
+
+#define _CRTIMP
+#define __THROW
 
 #elif defined(__GNUC__)
 

@@ -19,22 +19,61 @@
  *  \brief Inline file for sequence.h.
  */
 
+#include <thrust/detail/config.h>
 #include <thrust/sequence.h>
-
-#include <thrust/transform.h>
-#include <thrust/distance.h>
 #include <thrust/iterator/iterator_traits.h>
-#include <thrust/iterator/counting_iterator.h>
+#include <thrust/system/detail/generic/select_system.h>
+#include <thrust/system/detail/generic/sequence.h>
+#include <thrust/system/detail/adl/sequence.h>
 
 namespace thrust
 {
+
+
+template<typename DerivedPolicy, typename ForwardIterator>
+  void sequence(const thrust::detail::execution_policy_base<DerivedPolicy> &exec,
+                ForwardIterator first,
+                ForwardIterator last)
+{
+  using thrust::system::detail::generic::sequence;
+  return sequence(thrust::detail::derived_cast(thrust::detail::strip_const(exec)), first, last);
+} // end sequence()
+
+
+template<typename DerivedPolicy, typename ForwardIterator, typename T>
+  void sequence(const thrust::detail::execution_policy_base<DerivedPolicy> &exec,
+                ForwardIterator first,
+                ForwardIterator last,
+                T init)
+{
+  using thrust::system::detail::generic::sequence;
+  return sequence(thrust::detail::derived_cast(thrust::detail::strip_const(exec)), first, last, init);
+} // end sequence()
+
+
+template<typename DerivedPolicy, typename ForwardIterator, typename T>
+  void sequence(const thrust::detail::execution_policy_base<DerivedPolicy> &exec,
+                ForwardIterator first,
+                ForwardIterator last,
+                T init,
+                T step)
+{
+  using thrust::system::detail::generic::sequence;
+  return sequence(thrust::detail::derived_cast(thrust::detail::strip_const(exec)), first, last, init, step);
+} // end sequence()
+
 
 template<typename ForwardIterator>
   void sequence(ForwardIterator first,
                 ForwardIterator last)
 {
-  typedef typename thrust::iterator_traits<ForwardIterator>::value_type T;
-  thrust::sequence(first, last, T(0));
+  using thrust::system::detail::generic::select_system;
+
+  typedef typename thrust::iterator_system<ForwardIterator>::type System;
+
+  System system;
+
+  return thrust::sequence(select_system(system), first, last);
 } // end sequence()
 
 
@@ -43,32 +82,14 @@ template<typename ForwardIterator, typename T>
                 ForwardIterator last,
                 T init)
 {
-  thrust::sequence(first, last, init, T(1));
+  using thrust::system::detail::generic::select_system;
+
+  typedef typename thrust::iterator_system<ForwardIterator>::type System;
+
+  System system;
+
+  return thrust::sequence(select_system(system), first, last, init);
 } // end sequence()
-
-
-
-namespace detail
-{
-
-template <typename T>
-struct sequence_functor
-{
-  const T init;
-  const T step;
-
-  sequence_functor(T _init, T _step) 
-      : init(_init), step(_step) {}
-  
-  template <typename IntegerType>
-      __host__ __device__
-  T operator()(const IntegerType i) const
-  {
-    return init + step * i;
-  }
-}; // end sequence_functor
-
-} // end namespace detail
 
 
 template<typename ForwardIterator, typename T>
@@ -77,18 +98,15 @@ template<typename ForwardIterator, typename T>
                 T init,
                 T step)
 {
-    typedef typename thrust::iterator_traits<ForwardIterator>::difference_type difference_type;
+  using thrust::system::detail::generic::select_system;
 
-    detail::sequence_functor<T> func(init, step);
+  typedef typename thrust::iterator_system<ForwardIterator>::type System;
 
-    // by default, counting_iterator uses a 64b difference_type on 32b platforms to avoid overflowing its counter.
-    // this causes problems when a zip_iterator is created in transform's implementation -- ForwardIterator is
-    // incremented by a 64b difference_type and some compilers warn
-    // to avoid this, specify the counting_iterator's difference_type to be the same as ForwardIterator's.
-    thrust::counting_iterator<difference_type, thrust::use_default, thrust::use_default, difference_type> iter(0);
+  System system;
 
-    thrust::transform(iter, iter + thrust::distance(first, last), first, func);
+  return thrust::sequence(select_system(system), first, last, init, step);
 } // end sequence()
+
 
 } // end namespace thrust
 

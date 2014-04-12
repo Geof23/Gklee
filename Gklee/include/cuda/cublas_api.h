@@ -57,12 +57,16 @@
 #if !defined(CUBLAS_API_H_)
 #define CUBLAS_API_H_
 
-#ifndef CUBLASAPI
+#ifndef CUBLASWINAPI
 #ifdef _WIN32
-#define CUBLASAPI __stdcall
+#define CUBLASWINAPI __stdcall
 #else
-#define CUBLASAPI 
+#define CUBLASWINAPI 
 #endif
+#endif
+
+#ifndef CUBLASAPI
+#error "This file should not be included without defining CUBLASAPI"
 #endif
 
 #include "driver_types.h"
@@ -71,7 +75,6 @@
 #if defined(__cplusplus)
 extern "C" {
 #endif /* __cplusplus */
-
 
 /* CUBLAS status type returns */
 typedef enum{
@@ -114,21 +117,26 @@ typedef enum {
     CUBLAS_POINTER_MODE_DEVICE = 1        
 } cublasPointerMode_t;
 
-
+typedef enum { 
+    CUBLAS_ATOMICS_NOT_ALLOWED   = 0,  
+    CUBLAS_ATOMICS_ALLOWED       = 1        
+} cublasAtomicsMode_t;
 
 /* Opaque structure holding CUBLAS library context */
 struct cublasContext;
 typedef struct cublasContext *cublasHandle_t;
 
-cublasStatus_t CUBLASAPI cublasCreate_v2 (cublasHandle_t *handle);
-cublasStatus_t CUBLASAPI cublasDestroy_v2 (cublasHandle_t handle);
-cublasStatus_t CUBLASAPI cublasGetVersion_v2(cublasHandle_t handle, int *version);
-cublasStatus_t CUBLASAPI cublasSetStream_v2 (cublasHandle_t handle, cudaStream_t streamId); 
-cublasStatus_t CUBLASAPI cublasGetStream_v2 (cublasHandle_t handle, cudaStream_t *streamId); 
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCreate_v2 (cublasHandle_t *handle);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDestroy_v2 (cublasHandle_t handle);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasGetVersion_v2(cublasHandle_t handle, int *version);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSetStream_v2 (cublasHandle_t handle, cudaStream_t streamId); 
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasGetStream_v2 (cublasHandle_t handle, cudaStream_t *streamId); 
 
-cublasStatus_t  CUBLASAPI cublasGetPointerMode_v2 (cublasHandle_t handle, cublasPointerMode_t *mode);
-cublasStatus_t  CUBLASAPI cublasSetPointerMode_v2 (cublasHandle_t handle, cublasPointerMode_t mode);         
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasGetPointerMode_v2 (cublasHandle_t handle, cublasPointerMode_t *mode);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSetPointerMode_v2 (cublasHandle_t handle, cublasPointerMode_t mode);         
 
+CUBLASAPI cublasStatus_t  CUBLASWINAPI cublasGetAtomicsMode(cublasHandle_t handle, cublasAtomicsMode_t *mode);
+CUBLASAPI cublasStatus_t  CUBLASWINAPI cublasSetAtomicsMode(cublasHandle_t handle, cublasAtomicsMode_t mode);         
 
 /* 
  * cublasStatus_t 
@@ -153,8 +161,8 @@ cublasStatus_t  CUBLASAPI cublasSetPointerMode_v2 (cublasHandle_t handle, cublas
  * CUBLAS_STATUS_MAPPING_ERROR    if an error occurred accessing GPU memory   
  * CUBLAS_STATUS_SUCCESS          if the operation completed successfully
  */
-cublasStatus_t CUBLASAPI cublasSetVector (int n, int elemSize, const void *x, 
-                                        int incx, void *devicePtr, int incy);
+cublasStatus_t CUBLASWINAPI cublasSetVector (int n, int elemSize, const void *x, 
+                                             int incx, void *devicePtr, int incy);
 
 /* 
  * cublasStatus_t 
@@ -179,8 +187,8 @@ cublasStatus_t CUBLASAPI cublasSetVector (int n, int elemSize, const void *x,
  * CUBLAS_STATUS_MAPPING_ERROR    if an error occurred accessing GPU memory   
  * CUBLAS_STATUS_SUCCESS          if the operation completed successfully
  */
-cublasStatus_t CUBLASAPI cublasGetVector (int n, int elemSize, const void *x, 
-                                        int incx, void *y, int incy);
+cublasStatus_t CUBLASWINAPI cublasGetVector (int n, int elemSize, const void *x, 
+                                             int incx, void *y, int incy);
 
 /*
  * cublasStatus_t 
@@ -203,9 +211,9 @@ cublasStatus_t CUBLASAPI cublasGetVector (int n, int elemSize, const void *x,
  * CUBLAS_STATUS_MAPPING_ERROR    if error occurred accessing GPU memory
  * CUBLAS_STATUS_SUCCESS          if the operation completed successfully
  */
-cublasStatus_t CUBLASAPI cublasSetMatrix (int rows, int cols, int elemSize, 
-                                        const void *A, int lda, void *B, 
-                                        int ldb);
+cublasStatus_t CUBLASWINAPI cublasSetMatrix (int rows, int cols, int elemSize, 
+                                             const void *A, int lda, void *B, 
+                                             int ldb);
 
 /*
  * cublasStatus_t 
@@ -227,9 +235,9 @@ cublasStatus_t CUBLASAPI cublasSetMatrix (int rows, int cols, int elemSize,
  * CUBLAS_STATUS_MAPPING_ERROR    if error occurred accessing GPU memory
  * CUBLAS_STATUS_SUCCESS          if the operation completed successfully
  */
-cublasStatus_t CUBLASAPI cublasGetMatrix (int rows, int cols, int elemSize, 
-                                        const void *A, int lda, void *B,
-                                        int ldb);
+cublasStatus_t CUBLASWINAPI cublasGetMatrix (int rows, int cols, int elemSize, 
+                                             const void *A, int lda, void *B,
+                                             int ldb);
 
 /* 
  * cublasStatus 
@@ -247,10 +255,10 @@ cublasStatus_t CUBLASAPI cublasGetMatrix (int rows, int cols, int elemSize,
  * CUBLAS_STATUS_MAPPING_ERROR    if an error occurred accessing GPU memory   
  * CUBLAS_STATUS_SUCCESS          if the operation completed successfully
  */
-cublasStatus_t CUBLASAPI cublasSetVectorAsync (int n, int elemSize, 
-                                             const void *hostPtr, int incx, 
-                                             void *devicePtr, int incy,
-                                             cudaStream_t stream);
+cublasStatus_t CUBLASWINAPI cublasSetVectorAsync (int n, int elemSize, 
+                                                  const void *hostPtr, int incx, 
+                                                  void *devicePtr, int incy,
+                                                  cudaStream_t stream);
 /* 
  * cublasStatus 
  * cublasGetVectorAsync( int n, int elemSize, const void *x, int incx, 
@@ -267,10 +275,10 @@ cublasStatus_t CUBLASAPI cublasSetVectorAsync (int n, int elemSize,
  * CUBLAS_STATUS_MAPPING_ERROR    if an error occurred accessing GPU memory   
  * CUBLAS_STATUS_SUCCESS          if the operation completed successfully
  */
-cublasStatus_t CUBLASAPI cublasGetVectorAsync (int n, int elemSize,
-                                             const void *devicePtr, int incx,
-                                             void *hostPtr, int incy,
-                                             cudaStream_t stream);
+cublasStatus_t CUBLASWINAPI cublasGetVectorAsync (int n, int elemSize,
+                                                  const void *devicePtr, int incx,
+                                                  void *hostPtr, int incy,
+                                                  cudaStream_t stream);
 
 /*
  * cublasStatus_t 
@@ -289,9 +297,9 @@ cublasStatus_t CUBLASAPI cublasGetVectorAsync (int n, int elemSize,
  * CUBLAS_STATUS_MAPPING_ERROR    if error occurred accessing GPU memory
  * CUBLAS_STATUS_SUCCESS          if the operation completed successfully
  */
-cublasStatus_t CUBLASAPI cublasSetMatrixAsync (int rows, int cols, int elemSize,
-                                             const void *A, int lda, void *B,
-                                             int ldb, cudaStream_t stream);
+cublasStatus_t CUBLASWINAPI cublasSetMatrixAsync (int rows, int cols, int elemSize,
+                                                  const void *A, int lda, void *B,
+                                                  int ldb, cudaStream_t stream);
 
 /*
  * cublasStatus_t 
@@ -309,1447 +317,2023 @@ cublasStatus_t CUBLASAPI cublasSetMatrixAsync (int rows, int cols, int elemSize,
  * CUBLAS_STATUS_MAPPING_ERROR    if error occurred accessing GPU memory
  * CUBLAS_STATUS_SUCCESS          if the operation completed successfully
  */
-cublasStatus_t CUBLASAPI cublasGetMatrixAsync (int rows, int cols, int elemSize,
-                                             const void *A, int lda, void *B,
-                                             int ldb, cudaStream_t stream);
+cublasStatus_t CUBLASWINAPI cublasGetMatrixAsync (int rows, int cols, int elemSize,
+                                                  const void *A, int lda, void *B,
+                                                  int ldb, cudaStream_t stream);
 
 
-void CUBLASAPI cublasXerbla (const char *srName, int info);
+CUBLASAPI void CUBLASWINAPI cublasXerbla (const char *srName, int info);
 /* ---------------- CUBLAS BLAS1 functions ---------------- */
-cublasStatus_t CUBLASAPI cublasSnrm2_v2(cublasHandle_t handle, 
-                                        int n, 
-                                        const float *x, 
-                                        int incx, 
-                                        float *result); /* host or device pointer */
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSnrm2_v2(cublasHandle_t handle, 
+                                                     int n, 
+                                                     const float *x, 
+                                                     int incx, 
+                                                     float *result); /* host or device pointer */
 
-cublasStatus_t CUBLASAPI cublasDnrm2_v2(cublasHandle_t handle, 
-                                        int n, 
-                                        const double *x, 
-                                        int incx, 
-                                        double *result);  /* host or device pointer */
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDnrm2_v2(cublasHandle_t handle, 
+                                                     int n, 
+                                                     const double *x, 
+                                                     int incx, 
+                                                     double *result);  /* host or device pointer */
 
-cublasStatus_t CUBLASAPI cublasScnrm2_v2(cublasHandle_t handle, 
-                                         int n, 
-                                         const cuComplex *x, 
-                                         int incx, 
-                                         float *result);  /* host or device pointer */
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasScnrm2_v2(cublasHandle_t handle, 
+                                                      int n, 
+                                                      const cuComplex *x, 
+                                                      int incx, 
+                                                      float *result);  /* host or device pointer */
 
-cublasStatus_t CUBLASAPI cublasDznrm2_v2(cublasHandle_t handle, 
-                                         int n, 
-                                         const cuDoubleComplex *x, 
-                                         int incx, 
-                                         double *result);  /* host or device pointer */
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDznrm2_v2(cublasHandle_t handle, 
+                                                      int n, 
+                                                      const cuDoubleComplex *x, 
+                                                      int incx, 
+                                                      double *result);  /* host or device pointer */
 
-cublasStatus_t CUBLASAPI cublasSdot_v2 (cublasHandle_t handle,
-                                        int n, 
-                                        const float *x, 
-                                        int incx, 
-                                        const float *y, 
-                                        int incy,
-                                        float *result);  /* host or device pointer */
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSdot_v2 (cublasHandle_t handle,
+                                                     int n, 
+                                                     const float *x, 
+                                                     int incx, 
+                                                     const float *y, 
+                                                     int incy,
+                                                     float *result);  /* host or device pointer */
 
-cublasStatus_t CUBLASAPI cublasDdot_v2 (cublasHandle_t handle,
-                                        int n, 
-                                        const double *x, 
-                                        int incx, 
-                                        const double *y,
-                                        int incy,
-                                        double *result);  /* host or device pointer */
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDdot_v2 (cublasHandle_t handle,
+                                                     int n, 
+                                                     const double *x, 
+                                                     int incx, 
+                                                     const double *y,
+                                                     int incy,
+                                                     double *result);  /* host or device pointer */
     
-cublasStatus_t CUBLASAPI cublasCdotu_v2 (cublasHandle_t handle,
-                                         int n, 
-                                         const cuComplex *x, 
-                                         int incx, 
-                                         const cuComplex *y, 
-                                         int incy,
-                                         cuComplex *result);  /* host or device pointer */
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCdotu_v2 (cublasHandle_t handle,
+                                                      int n, 
+                                                      const cuComplex *x, 
+                                                      int incx, 
+                                                      const cuComplex *y, 
+                                                      int incy,
+                                                      cuComplex *result);  /* host or device pointer */
 
-cublasStatus_t CUBLASAPI cublasCdotc_v2 (cublasHandle_t handle,
-                                         int n, 
-                                         const cuComplex *x, 
-                                         int incx, 
-                                         const cuComplex *y, 
-                                         int incy,
-                                         cuComplex *result); /* host or device pointer */
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCdotc_v2 (cublasHandle_t handle,
+                                                      int n, 
+                                                      const cuComplex *x, 
+                                                      int incx, 
+                                                      const cuComplex *y, 
+                                                      int incy,
+                                                      cuComplex *result); /* host or device pointer */
 
-cublasStatus_t CUBLASAPI cublasZdotu_v2 (cublasHandle_t handle,
-                                         int n, 
-                                         const cuDoubleComplex *x, 
-                                         int incx, 
-                                         const cuDoubleComplex *y, 
-                                         int incy,
-                                         cuDoubleComplex *result); /* host or device pointer */
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZdotu_v2 (cublasHandle_t handle,
+                                                      int n, 
+                                                      const cuDoubleComplex *x, 
+                                                      int incx, 
+                                                      const cuDoubleComplex *y, 
+                                                      int incy,
+                                                      cuDoubleComplex *result); /* host or device pointer */
 
-cublasStatus_t CUBLASAPI cublasZdotc_v2 (cublasHandle_t handle,
-                                         int n, 
-                                         const cuDoubleComplex *x, 
-                                         int incx,
-                                         const cuDoubleComplex *y, 
-                                         int incy,
-                                         cuDoubleComplex *result); /* host or device pointer */
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZdotc_v2 (cublasHandle_t handle,
+                                                      int n, 
+                                                      const cuDoubleComplex *x, 
+                                                      int incx,
+                                                      const cuDoubleComplex *y, 
+                                                      int incy,
+                                                      cuDoubleComplex *result); /* host or device pointer */
 
-cublasStatus_t CUBLASAPI cublasSscal_v2(cublasHandle_t handle, 
-                                        int n, 
-                                        const float *alpha,  /* host or device pointer */
-                                        float *x, 
-                                        int incx);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSscal_v2(cublasHandle_t handle, 
+                                                     int n, 
+                                                     const float *alpha,  /* host or device pointer */
+                                                     float *x, 
+                                                     int incx);
+    
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDscal_v2(cublasHandle_t handle, 
+                                                     int n, 
+                                                     const double *alpha,  /* host or device pointer */
+                                                     double *x, 
+                                                     int incx);
+    
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCscal_v2(cublasHandle_t handle, 
+                                                     int n, 
+                                                     const cuComplex *alpha, /* host or device pointer */
+                                                     cuComplex *x, 
+                                                     int incx);
 
-cublasStatus_t CUBLASAPI cublasDscal_v2(cublasHandle_t handle, 
-                                        int n, 
-                                        const double *alpha,  /* host or device pointer */
-                                        double *x, 
-                                        int incx);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCsscal_v2(cublasHandle_t handle, 
+                                                      int n, 
+                                                      const float *alpha, /* host or device pointer */
+                                                      cuComplex *x, 
+                                                      int incx);
 
-cublasStatus_t CUBLASAPI cublasCscal_v2(cublasHandle_t handle, 
-                                        int n, 
-                                        const cuComplex *alpha, /* host or device pointer */
-                                        cuComplex *x, 
-                                        int incx);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZscal_v2(cublasHandle_t handle, 
+                                                     int n, 
+                                                     const cuDoubleComplex *alpha, /* host or device pointer */
+                                                     cuDoubleComplex *x, 
+                                                     int incx);
 
-cublasStatus_t CUBLASAPI cublasCsscal_v2(cublasHandle_t handle, 
-                                         int n, 
-                                         const float *alpha, /* host or device pointer */
-                                         cuComplex *x, 
-                                         int incx);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZdscal_v2(cublasHandle_t handle, 
+                                                      int n, 
+                                                      const double *alpha, /* host or device pointer */
+                                                      cuDoubleComplex *x, 
+                                                      int incx);
 
-cublasStatus_t CUBLASAPI cublasZscal_v2(cublasHandle_t handle, 
-                                        int n, 
-                                        const cuDoubleComplex *alpha, /* host or device pointer */
-                                        cuDoubleComplex *x, 
-                                        int incx);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSaxpy_v2 (cublasHandle_t handle,
+                                                      int n, 
+                                                      const float *alpha, /* host or device pointer */
+                                                      const float *x, 
+                                                      int incx, 
+                                                      float *y, 
+                                                      int incy);
 
-cublasStatus_t CUBLASAPI cublasZdscal_v2(cublasHandle_t handle, 
-                                         int n, 
-                                         const double *alpha, /* host or device pointer */
-                                         cuDoubleComplex *x, 
-                                         int incx);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDaxpy_v2 (cublasHandle_t handle,
+                                                      int n, 
+                                                      const double *alpha, /* host or device pointer */
+                                                      const double *x, 
+                                                      int incx, 
+                                                      double *y, 
+                                                      int incy);
 
-cublasStatus_t CUBLASAPI cublasSaxpy_v2 (cublasHandle_t handle,
-                                         int n, 
-                                         const float *alpha, /* host or device pointer */
-                                         const float *x, 
-                                         int incx, 
-                                         float *y, 
-                                         int incy);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCaxpy_v2 (cublasHandle_t handle,
+                                                      int n, 
+                                                      const cuComplex *alpha, /* host or device pointer */
+                                                      const cuComplex *x, 
+                                                      int incx, 
+                                                      cuComplex *y, 
+                                                      int incy);
 
-cublasStatus_t CUBLASAPI cublasDaxpy_v2 (cublasHandle_t handle,
-                                         int n, 
-                                         const double *alpha, /* host or device pointer */
-                                         const double *x, 
-                                         int incx, 
-                                         double *y, 
-                                         int incy);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZaxpy_v2 (cublasHandle_t handle,
+                                                      int n, 
+                                                      const cuDoubleComplex *alpha, /* host or device pointer */
+                                                      const cuDoubleComplex *x, 
+                                                      int incx, 
+                                                      cuDoubleComplex *y, 
+                                                      int incy);
 
-cublasStatus_t CUBLASAPI cublasCaxpy_v2 (cublasHandle_t handle,
-                                         int n, 
-                                         const cuComplex *alpha, /* host or device pointer */
-                                         const cuComplex *x, 
-                                         int incx, 
-                                         cuComplex *y, 
-                                         int incy);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasScopy_v2 (cublasHandle_t handle,
+                                                      int n, 
+                                                      const float *x, 
+                                                      int incx, 
+                                                      float *y, 
+                                                      int incy);
 
-cublasStatus_t CUBLASAPI cublasZaxpy_v2 (cublasHandle_t handle,
-                                         int n, 
-                                         const cuDoubleComplex *alpha, /* host or device pointer */
-                                         const cuDoubleComplex *x, 
-                                         int incx, 
-                                         cuDoubleComplex *y, 
-                                         int incy);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDcopy_v2 (cublasHandle_t handle,
+                                                      int n, 
+                                                      const double *x, 
+                                                      int incx, 
+                                                      double *y, 
+                                                      int incy);
 
-cublasStatus_t CUBLASAPI cublasScopy_v2 (cublasHandle_t handle,
-                                         int n, 
-                                         const float *x, 
-                                         int incx, 
-                                         float *y, 
-                                         int incy);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCcopy_v2 (cublasHandle_t handle,
+                                                      int n, 
+                                                      const cuComplex *x, 
+                                                      int incx, 
+                                                      cuComplex *y,
+                                                      int incy);
 
-cublasStatus_t CUBLASAPI cublasDcopy_v2 (cublasHandle_t handle,
-                                         int n, 
-                                         const double *x, 
-                                         int incx, 
-                                         double *y, 
-                                         int incy);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZcopy_v2 (cublasHandle_t handle,
+                                                      int n, 
+                                                      const cuDoubleComplex *x, 
+                                                      int incx, 
+                                                      cuDoubleComplex *y,
+                                                      int incy);
+    
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSswap_v2 (cublasHandle_t handle,
+                                                      int n, 
+                                                      float *x, 
+                                                      int incx, 
+                                                      float *y, 
+                                                      int incy);
 
-cublasStatus_t CUBLASAPI cublasCcopy_v2 (cublasHandle_t handle,
-                                         int n, 
-                                         const cuComplex *x, 
-                                         int incx, 
-                                         cuComplex *y,
-                                         int incy);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDswap_v2 (cublasHandle_t handle,
+                                                      int n, 
+                                                      double *x, 
+                                                      int incx, 
+                                                      double *y, 
+                                                      int incy);
 
-cublasStatus_t CUBLASAPI cublasZcopy_v2 (cublasHandle_t handle,
-                                         int n, 
-                                         const cuDoubleComplex *x, 
-                                         int incx, 
-                                         cuDoubleComplex *y,
-                                         int incy);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCswap_v2 (cublasHandle_t handle,
+                                                      int n, 
+                                                      cuComplex *x, 
+                                                      int incx, 
+                                                      cuComplex *y,
+                                                      int incy);
 
-cublasStatus_t CUBLASAPI cublasSswap_v2 (cublasHandle_t handle,
-                                         int n, 
-                                         float *x, 
-                                         int incx, 
-                                         float *y, 
-                                         int incy);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZswap_v2 (cublasHandle_t handle,
+                                                      int n, 
+                                                      cuDoubleComplex *x, 
+                                                      int incx, 
+                                                      cuDoubleComplex *y,
+                                                      int incy);
 
-cublasStatus_t CUBLASAPI cublasDswap_v2 (cublasHandle_t handle,
-                                         int n, 
-                                         double *x, 
-                                         int incx, 
-                                         double *y, 
-                                         int incy);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasIsamax_v2(cublasHandle_t handle, 
+                                                      int n, 
+                                                      const float *x, 
+                                                      int incx, 
+                                                      int *result); /* host or device pointer */
+    
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasIdamax_v2(cublasHandle_t handle, 
+                                                      int n, 
+                                                      const double *x, 
+                                                      int incx, 
+                                                      int *result); /* host or device pointer */
 
-cublasStatus_t CUBLASAPI cublasCswap_v2 (cublasHandle_t handle,
-                                         int n, 
-                                         cuComplex *x, 
-                                         int incx, 
-                                         cuComplex *y,
-                                         int incy);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasIcamax_v2(cublasHandle_t handle, 
+                                                      int n, 
+                                                      const cuComplex *x, 
+                                                      int incx, 
+                                                      int *result); /* host or device pointer */
 
-cublasStatus_t CUBLASAPI cublasZswap_v2 (cublasHandle_t handle,
-                                         int n, 
-                                         cuDoubleComplex *x, 
-                                         int incx, 
-                                         cuDoubleComplex *y,
-                                         int incy);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasIzamax_v2(cublasHandle_t handle, 
+                                                      int n, 
+                                                      const cuDoubleComplex *x, 
+                                                      int incx, 
+                                                      int *result); /* host or device pointer */
 
-cublasStatus_t CUBLASAPI cublasIsamax_v2(cublasHandle_t handle, 
-                                         int n, 
-                                         const float *x, 
-                                         int incx, 
-                                         int *result); /* host or device pointer */
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasIsamin_v2(cublasHandle_t handle, 
+                                                      int n, 
+                                                      const float *x, 
+                                                      int incx, 
+                                                      int *result); /* host or device pointer */
 
-cublasStatus_t CUBLASAPI cublasIdamax_v2(cublasHandle_t handle, 
-                                         int n, 
-                                         const double *x, 
-                                         int incx, 
-                                         int *result); /* host or device pointer */
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasIdamin_v2(cublasHandle_t handle, 
+                                                      int n, 
+                                                      const double *x, 
+                                                      int incx, 
+                                                      int *result); /* host or device pointer */
 
-cublasStatus_t CUBLASAPI cublasIcamax_v2(cublasHandle_t handle, 
-                                         int n, 
-                                         const cuComplex *x, 
-                                         int incx, 
-                                         int *result); /* host or device pointer */
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasIcamin_v2(cublasHandle_t handle, 
+                                                      int n, 
+                                                      const cuComplex *x, 
+                                                      int incx, 
+                                                      int *result); /* host or device pointer */
 
-cublasStatus_t CUBLASAPI cublasIzamax_v2(cublasHandle_t handle, 
-                                         int n, 
-                                         const cuDoubleComplex *x, 
-                                         int incx, 
-                                         int *result); /* host or device pointer */
-
-cublasStatus_t CUBLASAPI cublasIsamin_v2(cublasHandle_t handle, 
-                                         int n, 
-                                         const float *x, 
-                                         int incx, 
-                                         int *result); /* host or device pointer */
-
-cublasStatus_t CUBLASAPI cublasIdamin_v2(cublasHandle_t handle, 
-                                         int n, 
-                                         const double *x, 
-                                         int incx, 
-                                         int *result); /* host or device pointer */
-
-cublasStatus_t CUBLASAPI cublasIcamin_v2(cublasHandle_t handle, 
-                                         int n, 
-                                         const cuComplex *x, 
-                                         int incx, 
-                                         int *result); /* host or device pointer */
-
-cublasStatus_t CUBLASAPI cublasIzamin_v2(cublasHandle_t handle, 
-                                         int n, 
-                                         const cuDoubleComplex *x, 
-                                         int incx, 
-                                         int *result); /* host or device pointer */
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasIzamin_v2(cublasHandle_t handle, 
+                                                      int n, 
+                                                      const cuDoubleComplex *x, 
+                                                      int incx, 
+                                                      int *result); /* host or device pointer */
  
-cublasStatus_t CUBLASAPI cublasSasum_v2(cublasHandle_t handle, 
-                                        int n, 
-                                        const float *x, 
-                                        int incx, 
-                                        float *result); /* host or device pointer */
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSasum_v2(cublasHandle_t handle, 
+                                                     int n, 
+                                                     const float *x, 
+                                                     int incx, 
+                                                     float *result); /* host or device pointer */
 
-cublasStatus_t CUBLASAPI cublasDasum_v2(cublasHandle_t handle, 
-                                        int n, 
-                                        const double *x, 
-                                        int incx, 
-                                        double *result); /* host or device pointer */
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDasum_v2(cublasHandle_t handle, 
+                                                     int n, 
+                                                     const double *x, 
+                                                     int incx, 
+                                                     double *result); /* host or device pointer */
 
-cublasStatus_t CUBLASAPI cublasScasum_v2(cublasHandle_t handle, 
-                                         int n, 
-                                         const cuComplex *x, 
-                                         int incx, 
-                                         float *result); /* host or device pointer */
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasScasum_v2(cublasHandle_t handle, 
+                                                      int n, 
+                                                      const cuComplex *x, 
+                                                      int incx, 
+                                                      float *result); /* host or device pointer */
 
-cublasStatus_t CUBLASAPI cublasDzasum_v2(cublasHandle_t handle, 
-                                         int n, 
-                                         const cuDoubleComplex *x, 
-                                         int incx, 
-                                         double *result); /* host or device pointer */
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDzasum_v2(cublasHandle_t handle, 
+                                                      int n, 
+                                                      const cuDoubleComplex *x, 
+                                                      int incx, 
+                                                      double *result); /* host or device pointer */
 
-cublasStatus_t CUBLASAPI cublasSrot_v2 (cublasHandle_t handle, 
-                                        int n, 
-                                        float *x, 
-                                        int incx, 
-                                        float *y, 
-                                        int incy, 
-                                        const float *c,  /* host or device pointer */
-                                        const float *s); /* host or device pointer */
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSrot_v2 (cublasHandle_t handle, 
+                                                     int n, 
+                                                     float *x, 
+                                                     int incx, 
+                                                     float *y, 
+                                                     int incy, 
+                                                     const float *c,  /* host or device pointer */
+                                                     const float *s); /* host or device pointer */
 
-cublasStatus_t CUBLASAPI cublasDrot_v2 (cublasHandle_t handle, 
-                                        int n, 
-                                        double *x, 
-                                        int incx, 
-                                        double *y, 
-                                        int incy, 
-                                        const double *c,  /* host or device pointer */
-                                        const double *s); /* host or device pointer */
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDrot_v2 (cublasHandle_t handle, 
+                                                     int n, 
+                                                     double *x, 
+                                                     int incx, 
+                                                     double *y, 
+                                                     int incy, 
+                                                     const double *c,  /* host or device pointer */
+                                                     const double *s); /* host or device pointer */
 
-cublasStatus_t CUBLASAPI cublasCrot_v2 (cublasHandle_t handle, 
-                                        int n, 
-                                        cuComplex *x, 
-                                        int incx, 
-                                        cuComplex *y, 
-                                        int incy, 
-                                        const float *c,      /* host or device pointer */
-                                        const cuComplex *s); /* host or device pointer */
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCrot_v2 (cublasHandle_t handle, 
+                                                     int n, 
+                                                     cuComplex *x, 
+                                                     int incx, 
+                                                     cuComplex *y, 
+                                                     int incy, 
+                                                     const float *c,      /* host or device pointer */
+                                                     const cuComplex *s); /* host or device pointer */
 
-cublasStatus_t CUBLASAPI cublasCsrot_v2(cublasHandle_t handle, 
-                                        int n, 
-                                        cuComplex *x, 
-                                        int incx, 
-                                        cuComplex *y, 
-                                        int incy, 
-                                        const float *c,  /* host or device pointer */
-                                        const float *s); /* host or device pointer */
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCsrot_v2(cublasHandle_t handle, 
+                                                     int n, 
+                                                     cuComplex *x, 
+                                                     int incx, 
+                                                     cuComplex *y, 
+                                                     int incy, 
+                                                     const float *c,  /* host or device pointer */
+                                                     const float *s); /* host or device pointer */
 
-cublasStatus_t CUBLASAPI cublasZrot_v2 (cublasHandle_t handle, 
-                                        int n, 
-                                        cuDoubleComplex *x, 
-                                        int incx, 
-                                        cuDoubleComplex *y, 
-                                        int incy, 
-                                        const double *c,            /* host or device pointer */
-                                        const cuDoubleComplex *s);  /* host or device pointer */
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZrot_v2 (cublasHandle_t handle, 
+                                                     int n, 
+                                                     cuDoubleComplex *x, 
+                                                     int incx, 
+                                                     cuDoubleComplex *y, 
+                                                     int incy, 
+                                                     const double *c,            /* host or device pointer */
+                                                     const cuDoubleComplex *s);  /* host or device pointer */
 
-cublasStatus_t CUBLASAPI cublasZdrot_v2(cublasHandle_t handle, 
-                                        int n, 
-                                        cuDoubleComplex *x, 
-                                        int incx, 
-                                        cuDoubleComplex *y, 
-                                        int incy, 
-                                        const double *c,  /* host or device pointer */
-                                        const double *s); /* host or device pointer */
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZdrot_v2(cublasHandle_t handle, 
+                                                     int n, 
+                                                     cuDoubleComplex *x, 
+                                                     int incx, 
+                                                     cuDoubleComplex *y, 
+                                                     int incy, 
+                                                     const double *c,  /* host or device pointer */
+                                                     const double *s); /* host or device pointer */
 
-cublasStatus_t CUBLASAPI cublasSrotg_v2(cublasHandle_t handle, 
-                                        float *a,   /* host or device pointer */
-                                        float *b,   /* host or device pointer */
-                                        float *c,   /* host or device pointer */
-                                        float *s);  /* host or device pointer */
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSrotg_v2(cublasHandle_t handle, 
+                                                     float *a,   /* host or device pointer */
+                                                     float *b,   /* host or device pointer */
+                                                     float *c,   /* host or device pointer */
+                                                     float *s);  /* host or device pointer */
+    
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDrotg_v2(cublasHandle_t handle, 
+                                                     double *a,  /* host or device pointer */
+                                                     double *b,  /* host or device pointer */
+                                                     double *c,  /* host or device pointer */
+                                                     double *s); /* host or device pointer */
+    
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCrotg_v2(cublasHandle_t handle, 
+                                                     cuComplex *a,  /* host or device pointer */
+                                                     cuComplex *b,  /* host or device pointer */
+                                                     float *c,      /* host or device pointer */
+                                                     cuComplex *s); /* host or device pointer */
 
-cublasStatus_t CUBLASAPI cublasDrotg_v2(cublasHandle_t handle, 
-                                        double *a,  /* host or device pointer */
-                                        double *b,  /* host or device pointer */
-                                        double *c,  /* host or device pointer */
-                                        double *s); /* host or device pointer */
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZrotg_v2(cublasHandle_t handle, 
+                                                     cuDoubleComplex *a,  /* host or device pointer */
+                                                     cuDoubleComplex *b,  /* host or device pointer */
+                                                     double *c,           /* host or device pointer */
+                                                     cuDoubleComplex *s); /* host or device pointer */
 
-cublasStatus_t CUBLASAPI cublasCrotg_v2(cublasHandle_t handle, 
-                                        cuComplex *a,  /* host or device pointer */
-                                        cuComplex *b,  /* host or device pointer */
-                                        float *c,      /* host or device pointer */
-                                        cuComplex *s); /* host or device pointer */
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSrotm_v2(cublasHandle_t handle, 
+                                                     int n, 
+                                                     float *x, 
+                                                     int incx, 
+                                                     float *y, 
+                                                     int incy, 
+                                                     const float* param);  /* host or device pointer */
 
-cublasStatus_t CUBLASAPI cublasZrotg_v2(cublasHandle_t handle, 
-                                        cuDoubleComplex *a,  /* host or device pointer */
-                                        cuDoubleComplex *b,  /* host or device pointer */
-                                        double *c,           /* host or device pointer */
-                                        cuDoubleComplex *s); /* host or device pointer */
-
-cublasStatus_t CUBLASAPI cublasSrotm_v2(cublasHandle_t handle, 
-                                        int n, 
-                                        float *x, 
-                                        int incx, 
-                                        float *y, 
-                                        int incy, 
-                                        const float* param);  /* host or device pointer */
-
-cublasStatus_t CUBLASAPI cublasDrotm_v2(cublasHandle_t handle, 
-                                        int n, 
-                                        double *x, 
-                                        int incx, 
-                                        double *y, 
-                                        int incy, 
-                                        const double* param);  /* host or device pointer */
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDrotm_v2(cublasHandle_t handle, 
+                                                     int n, 
+                                                     double *x, 
+                                                     int incx, 
+                                                     double *y, 
+                                                     int incy, 
+                                                     const double* param);  /* host or device pointer */
         
-cublasStatus_t CUBLASAPI cublasSrotmg_v2(cublasHandle_t handle, 
-                                         float *d1,        /* host or device pointer */
-                                         float *d2,        /* host or device pointer */
-                                         float *x1,        /* host or device pointer */
-                                         const float *y1,  /* host or device pointer */
-                                         float *param);    /* host or device pointer */
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSrotmg_v2(cublasHandle_t handle, 
+                                                      float *d1,        /* host or device pointer */
+                                                      float *d2,        /* host or device pointer */
+                                                      float *x1,        /* host or device pointer */
+                                                      const float *y1,  /* host or device pointer */
+                                                      float *param);    /* host or device pointer */
                                          
-cublasStatus_t CUBLASAPI cublasDrotmg_v2(cublasHandle_t handle, 
-                                         double *d1,        /* host or device pointer */  
-                                         double *d2,        /* host or device pointer */  
-                                         double *x1,        /* host or device pointer */  
-                                         const double *y1,  /* host or device pointer */  
-                                         double *param);    /* host or device pointer */  
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDrotmg_v2(cublasHandle_t handle, 
+                                                      double *d1,        /* host or device pointer */  
+                                                      double *d2,        /* host or device pointer */  
+                                                      double *x1,        /* host or device pointer */  
+                                                      const double *y1,  /* host or device pointer */  
+                                                      double *param);    /* host or device pointer */  
 
 /* --------------- CUBLAS BLAS2 functions  ---------------- */
 
 /* GEMV */
-cublasStatus_t CUBLASAPI cublasSgemv_v2 (cublasHandle_t handle, 
-                                         cublasOperation_t trans, 
-                                         int m, 
-                                         int n, 
-                                         const float *alpha, /* host or device pointer */
-                                         const float *A, 
-                                         int lda, 
-                                         const float *x, 
-                                         int incx, 
-                                         const float *beta,  /* host or device pointer */
-                                         float *y, 
-                                         int incy);  
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSgemv_v2 (cublasHandle_t handle, 
+                                                      cublasOperation_t trans, 
+                                                      int m, 
+                                                      int n, 
+                                                      const float *alpha, /* host or device pointer */
+                                                      const float *A, 
+                                                      int lda, 
+                                                      const float *x, 
+                                                      int incx, 
+                                                      const float *beta,  /* host or device pointer */
+                                                      float *y, 
+                                                      int incy);  
  
-cublasStatus_t CUBLASAPI cublasDgemv_v2 (cublasHandle_t handle, 
-                                         cublasOperation_t trans, 
-                                         int m,
-                                         int n,
-                                         const double *alpha, /* host or device pointer */ 
-                                         const double *A,
-                                         int lda,
-                                         const double *x,
-                                         int incx,
-                                         const double *beta, /* host or device pointer */
-                                         double *y, 
-                                         int incy);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDgemv_v2 (cublasHandle_t handle, 
+                                                      cublasOperation_t trans, 
+                                                      int m,
+                                                      int n,
+                                                      const double *alpha, /* host or device pointer */ 
+                                                      const double *A,
+                                                      int lda,
+                                                      const double *x,
+                                                      int incx,
+                                                      const double *beta, /* host or device pointer */
+                                                      double *y, 
+                                                      int incy);
 
-cublasStatus_t CUBLASAPI cublasCgemv_v2 (cublasHandle_t handle,
-                                         cublasOperation_t trans, 
-                                         int m,
-                                         int n,
-                                         const cuComplex *alpha, /* host or device pointer */ 
-                                         const cuComplex *A,
-                                         int lda,
-                                         const cuComplex *x, 
-                                         int incx,
-                                         const cuComplex *beta, /* host or device pointer */ 
-                                         cuComplex *y,
-                                         int incy);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCgemv_v2 (cublasHandle_t handle,
+                                                      cublasOperation_t trans, 
+                                                      int m,
+                                                      int n,
+                                                      const cuComplex *alpha, /* host or device pointer */ 
+                                                      const cuComplex *A,
+                                                      int lda,
+                                                      const cuComplex *x, 
+                                                      int incx,
+                                                      const cuComplex *beta, /* host or device pointer */ 
+                                                      cuComplex *y,
+                                                      int incy);
 
-cublasStatus_t CUBLASAPI cublasZgemv_v2 (cublasHandle_t handle,
-                                         cublasOperation_t trans, 
-                                         int m,
-                                         int n,
-                                         const cuDoubleComplex *alpha, /* host or device pointer */  
-                                         const cuDoubleComplex *A,
-                                         int lda, 
-                                         const cuDoubleComplex *x, 
-                                         int incx,
-                                         const cuDoubleComplex *beta, /* host or device pointer */  
-                                         cuDoubleComplex *y,
-                                         int incy);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZgemv_v2 (cublasHandle_t handle,
+                                                      cublasOperation_t trans, 
+                                                      int m,
+                                                      int n,
+                                                      const cuDoubleComplex *alpha, /* host or device pointer */  
+                                                      const cuDoubleComplex *A,
+                                                      int lda, 
+                                                      const cuDoubleComplex *x, 
+                                                      int incx,
+                                                      const cuDoubleComplex *beta, /* host or device pointer */  
+                                                      cuDoubleComplex *y,
+                                                      int incy);
 /* GBMV */                                
-cublasStatus_t CUBLASAPI cublasSgbmv_v2 (cublasHandle_t handle, 
-                                         cublasOperation_t trans, 
-                                         int m,
-                                         int n,
-                                         int kl,
-                                         int ku, 
-                                         const float *alpha, /* host or device pointer */  
-                                         const float *A, 
-                                         int lda, 
-                                         const float *x,
-                                         int incx,
-                                         const float *beta, /* host or device pointer */  
-                                         float *y,
-                                         int incy);                                
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSgbmv_v2 (cublasHandle_t handle, 
+                                                      cublasOperation_t trans, 
+                                                      int m,
+                                                      int n,
+                                                      int kl,
+                                                      int ku, 
+                                                      const float *alpha, /* host or device pointer */  
+                                                      const float *A, 
+                                                      int lda, 
+                                                      const float *x,
+                                                      int incx,
+                                                      const float *beta, /* host or device pointer */  
+                                                      float *y,
+                                                      int incy);                                
                                 
-cublasStatus_t CUBLASAPI cublasDgbmv_v2 (cublasHandle_t handle,
-                                         cublasOperation_t trans, 
-                                         int m,
-                                         int n,
-                                         int kl,
-                                         int ku, 
-                                         const double *alpha, /* host or device pointer */ 
-                                         const double *A,
-                                         int lda, 
-                                         const double *x,
-                                         int incx,
-                                         const double *beta, /* host or device pointer */ 
-                                         double *y,
-                                         int incy);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDgbmv_v2 (cublasHandle_t handle,
+                                                      cublasOperation_t trans, 
+                                                      int m,
+                                                      int n,
+                                                      int kl,
+                                                      int ku, 
+                                                      const double *alpha, /* host or device pointer */ 
+                                                      const double *A,
+                                                      int lda, 
+                                                      const double *x,
+                                                      int incx,
+                                                      const double *beta, /* host or device pointer */ 
+                                                      double *y,
+                                                      int incy);
                                          
-cublasStatus_t CUBLASAPI cublasCgbmv_v2 (cublasHandle_t handle,
-                                         cublasOperation_t trans, 
-                                         int m,
-                                         int n,
-                                         int kl,
-                                         int ku, 
-                                         const cuComplex *alpha, /* host or device pointer */ 
-                                         const cuComplex *A,
-                                         int lda, 
-                                         const cuComplex *x,
-                                         int incx,
-                                         const cuComplex *beta, /* host or device pointer */ 
-                                         cuComplex *y,
-                                         int incy);                                             
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCgbmv_v2 (cublasHandle_t handle,
+                                                      cublasOperation_t trans, 
+                                                      int m,
+                                                      int n,
+                                                      int kl,
+                                                      int ku, 
+                                                      const cuComplex *alpha, /* host or device pointer */ 
+                                                      const cuComplex *A,
+                                                      int lda, 
+                                                      const cuComplex *x,
+                                                      int incx,
+                                                      const cuComplex *beta, /* host or device pointer */ 
+                                                      cuComplex *y,
+                                                      int incy);                                             
                                          
-cublasStatus_t CUBLASAPI cublasZgbmv_v2 (cublasHandle_t handle,
-                                         cublasOperation_t trans, 
-                                         int m,
-                                         int n,
-                                         int kl,
-                                         int ku, 
-                                         const cuDoubleComplex *alpha, /* host or device pointer */ 
-                                         const cuDoubleComplex *A,
-                                         int lda, 
-                                         const cuDoubleComplex *x,
-                                         int incx,
-                                         const cuDoubleComplex *beta, /* host or device pointer */ 
-                                         cuDoubleComplex *y,
-                                         int incy);   
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZgbmv_v2 (cublasHandle_t handle,
+                                                      cublasOperation_t trans, 
+                                                      int m,
+                                                      int n,
+                                                      int kl,
+                                                      int ku, 
+                                                      const cuDoubleComplex *alpha, /* host or device pointer */ 
+                                                      const cuDoubleComplex *A,
+                                                      int lda, 
+                                                      const cuDoubleComplex *x,
+                                                      int incx,
+                                                      const cuDoubleComplex *beta, /* host or device pointer */ 
+                                                      cuDoubleComplex *y,
+                                                      int incy);   
                                          
 /* TRMV */
-cublasStatus_t CUBLASAPI cublasStrmv_v2 (cublasHandle_t handle,cublasFillMode_t uplo, cublasOperation_t trans, 
-                                         cublasDiagType_t diag, int n, const float *A, int lda, float *x, int incx);                                                 
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasStrmv_v2 (cublasHandle_t handle,
+                                                      cublasFillMode_t uplo, 
+                                                      cublasOperation_t trans, 
+                                                      cublasDiagType_t diag, 
+                                                      int n, 
+                                                      const float *A, 
+                                                      int lda, 
+                                                      float *x, 
+                                                      int incx);                                                 
 
-cublasStatus_t CUBLASAPI cublasDtrmv_v2 (cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, 
-                                         cublasDiagType_t diag, int n, const double *A, int lda, double *x, int incx);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDtrmv_v2 (cublasHandle_t handle, 
+                                                      cublasFillMode_t uplo, 
+                                                      cublasOperation_t trans, 
+                                                      cublasDiagType_t diag, 
+                                                      int n, 
+                                                      const double *A, 
+                                                      int lda, 
+                                                      double *x, 
+                                                      int incx);
 
-cublasStatus_t CUBLASAPI cublasCtrmv_v2 (cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, 
-                                         cublasDiagType_t diag, int n, const cuComplex *A, int lda, cuComplex *x, int incx);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCtrmv_v2 (cublasHandle_t handle, 
+                                                      cublasFillMode_t uplo, 
+                                                      cublasOperation_t trans, 
+                                                      cublasDiagType_t diag, 
+                                                      int n, 
+                                                      const cuComplex *A, 
+                                                      int lda, 
+                                                      cuComplex *x, 
+                                                      int incx);
                                         
-cublasStatus_t CUBLASAPI cublasZtrmv_v2 (cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, 
-                                         cublasDiagType_t diag, int n, const cuDoubleComplex *A, int lda, 
-                                         cuDoubleComplex *x, int incx);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZtrmv_v2 (cublasHandle_t handle, 
+                                                      cublasFillMode_t uplo, 
+                                                      cublasOperation_t trans, 
+                                                      cublasDiagType_t diag, 
+                                                      int n, 
+                                                      const cuDoubleComplex *A, 
+                                                      int lda, 
+                                                      cuDoubleComplex *x, 
+                                                      int incx);
                                                                                                              
 /* TBMV */
-cublasStatus_t CUBLASAPI cublasStbmv_v2 (cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, 
-                                         cublasDiagType_t diag, int n, int k, const float *A, int lda, float *x, int incx);                                                 
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasStbmv_v2 (cublasHandle_t handle, 
+                                                      cublasFillMode_t uplo, 
+                                                      cublasOperation_t trans, 
+                                                      cublasDiagType_t diag, 
+                                                      int n, 
+                                                      int k, 
+                                                      const float *A, 
+                                                      int lda, 
+                                                      float *x, 
+                                                      int incx);                                                 
 
-cublasStatus_t CUBLASAPI cublasDtbmv_v2 (cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, 
-                                         cublasDiagType_t diag, int n, int k, const double *A, int lda, double *x, int incx);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDtbmv_v2 (cublasHandle_t handle, 
+                                                      cublasFillMode_t uplo, 
+                                                      cublasOperation_t trans, 
+                                                      cublasDiagType_t diag, 
+                                                      int n, 
+                                                      int k, 
+                                                      const double *A, 
+                                                      int lda, 
+                                                      double *x, 
+                                                      int incx);
 
-cublasStatus_t CUBLASAPI cublasCtbmv_v2 (cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, 
-                                         cublasDiagType_t diag, int n, int k, const cuComplex *A, int lda, cuComplex *x, int incx);
-                                        
-cublasStatus_t CUBLASAPI cublasZtbmv_v2 (cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, 
-                                         cublasDiagType_t diag, int n, int k, const cuDoubleComplex *A, int lda, 
-                                         cuDoubleComplex *x, int incx);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCtbmv_v2 (cublasHandle_t handle, 
+                                                      cublasFillMode_t uplo, 
+                                                      cublasOperation_t trans, 
+                                                      cublasDiagType_t diag, 
+                                                      int n, 
+                                                      int k, 
+                                                      const cuComplex *A, 
+                                                      int lda, 
+                                                      cuComplex *x, 
+                                                      int incx);
+                                               
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZtbmv_v2 (cublasHandle_t handle, 
+                                                      cublasFillMode_t uplo, 
+                                                      cublasOperation_t trans, 
+                                                      cublasDiagType_t diag, 
+                                                      int n, 
+                                                      int k, 
+                                                      const cuDoubleComplex *A, 
+                                                      int lda, 
+                                                      cuDoubleComplex *x, 
+                                                      int incx);
                                          
-
 /* TPMV */
-cublasStatus_t CUBLASAPI cublasStpmv_v2 (cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, 
-                                         cublasDiagType_t diag, int n, const float *AP, float *x, int incx);                                                 
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasStpmv_v2 (cublasHandle_t handle, 
+                                                      cublasFillMode_t uplo, 
+                                                      cublasOperation_t trans, 
+                                                      cublasDiagType_t diag, 
+                                                      int n, 
+                                                      const float *AP, 
+                                                      float *x, 
+                                                      int incx);                                                 
 
-cublasStatus_t CUBLASAPI cublasDtpmv_v2 (cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, 
-                                         cublasDiagType_t diag, int n, const double *AP, double *x, int incx);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDtpmv_v2 (cublasHandle_t handle, 
+                                                      cublasFillMode_t uplo, 
+                                                      cublasOperation_t trans, 
+                                                      cublasDiagType_t diag, 
+                                                      int n, 
+                                                      const double *AP, 
+                                                      double *x, 
+                                                      int incx);
 
-cublasStatus_t CUBLASAPI cublasCtpmv_v2 (cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, 
-                                         cublasDiagType_t diag, int n, const cuComplex *AP, cuComplex *x, int incx);
-                                         
-cublasStatus_t CUBLASAPI cublasZtpmv_v2 (cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, 
-                                         cublasDiagType_t diag, int n, const cuDoubleComplex *AP, 
-                                         cuDoubleComplex *x, int incx);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCtpmv_v2 (cublasHandle_t handle, 
+                                                      cublasFillMode_t uplo, 
+                                                      cublasOperation_t trans, 
+                                                      cublasDiagType_t diag, 
+                                                      int n, 
+                                                      const cuComplex *AP, 
+                                                      cuComplex *x, 
+                                                      int incx);
+                                                
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZtpmv_v2 (cublasHandle_t handle, 
+                                                      cublasFillMode_t uplo, 
+                                                      cublasOperation_t trans, 
+                                                      cublasDiagType_t diag, 
+                                                      int n, 
+                                                      const cuDoubleComplex *AP, 
+                                                      cuDoubleComplex *x, 
+                                                      int incx);
 
 /* TRSV */
-cublasStatus_t CUBLASAPI cublasStrsv_v2 (cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, 
-                                         cublasDiagType_t diag, int n, const float *A, int lda, float *x, int incx);                                                 
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasStrsv_v2 (cublasHandle_t handle, 
+                                                      cublasFillMode_t uplo, 
+                                                      cublasOperation_t trans, 
+                                                      cublasDiagType_t diag, 
+                                                      int n, 
+                                                      const float *A, 
+                                                      int lda, 
+                                                      float *x, 
+                                                      int incx);                                                 
 
-cublasStatus_t CUBLASAPI cublasDtrsv_v2 (cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, 
-                                         cublasDiagType_t diag, int n, const double *A, int lda, double *x, int incx);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDtrsv_v2 (cublasHandle_t handle, 
+                                                      cublasFillMode_t uplo, 
+                                                      cublasOperation_t trans, 
+                                                      cublasDiagType_t diag, 
+                                                      int n, 
+                                                      const double *A, 
+                                                      int lda, 
+                                                      double *x, 
+                                                      int incx);
 
-cublasStatus_t CUBLASAPI cublasCtrsv_v2 (cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, 
-                                         cublasDiagType_t diag, int n, const cuComplex *A, int lda, cuComplex *x, int incx);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCtrsv_v2 (cublasHandle_t handle, 
+                                                      cublasFillMode_t uplo, 
+                                                      cublasOperation_t trans, 
+                                                      cublasDiagType_t diag, 
+                                                      int n, 
+                                                      const cuComplex *A, 
+                                                      int lda, 
+                                                      cuComplex *x, 
+                                                      int incx);
 
-cublasStatus_t CUBLASAPI cublasZtrsv_v2 (cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, 
-                                         cublasDiagType_t diag, int n, const cuDoubleComplex *A, int lda, 
-                                         cuDoubleComplex *x, int incx);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZtrsv_v2 (cublasHandle_t handle, 
+                                                      cublasFillMode_t uplo, 
+                                                      cublasOperation_t trans, 
+                                                      cublasDiagType_t diag, 
+                                                      int n, 
+                                                      const cuDoubleComplex *A, 
+                                                      int lda, 
+                                                      cuDoubleComplex *x, 
+                                                      int incx);
 
 /* TPSV */
-cublasStatus_t CUBLASAPI cublasStpsv_v2 (cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, 
-                                         cublasDiagType_t diag, int n, const float *AP, 
-                                         float *x, int incx);  
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasStpsv_v2 (cublasHandle_t handle, 
+                                                      cublasFillMode_t uplo, 
+                                                      cublasOperation_t trans, 
+                                                      cublasDiagType_t diag, 
+                                                      int n, 
+                                                      const float *AP, 
+                                                      float *x, 
+                                                      int incx);  
                                                                                                             
-cublasStatus_t CUBLASAPI cublasDtpsv_v2 (cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, 
-                                         cublasDiagType_t diag, int n, const double *AP, double *x, int incx);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDtpsv_v2 (cublasHandle_t handle, 
+                                                      cublasFillMode_t uplo, 
+                                                      cublasOperation_t trans, 
+                                                      cublasDiagType_t diag, 
+                                                      int n, 
+                                                      const double *AP, 
+                                                      double *x, 
+                                                      int incx);
 
-cublasStatus_t CUBLASAPI cublasCtpsv_v2 (cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, 
-                                         cublasDiagType_t diag, int n, const cuComplex *AP, cuComplex *x, int incx);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCtpsv_v2 (cublasHandle_t handle, 
+                                                      cublasFillMode_t uplo, 
+                                                      cublasOperation_t trans, 
+                                                      cublasDiagType_t diag, 
+                                                      int n, 
+                                                      const cuComplex *AP, 
+                                                      cuComplex *x, 
+                                                      int incx);
 
-cublasStatus_t CUBLASAPI cublasZtpsv_v2 (cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, 
-                                         cublasDiagType_t diag, int n, const cuDoubleComplex *AP, 
-                                         cuDoubleComplex *x, int incx);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZtpsv_v2 (cublasHandle_t handle, 
+                                                      cublasFillMode_t uplo, 
+                                                      cublasOperation_t trans, 
+                                                      cublasDiagType_t diag, 
+                                                      int n, 
+                                                      const cuDoubleComplex *AP, 
+                                                      cuDoubleComplex *x, 
+                                                      int incx);
 /* TBSV */                                         
-cublasStatus_t CUBLASAPI cublasStbsv_v2 (cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, 
-                                         cublasDiagType_t diag, int n, int k, const float *A, 
-                                         int lda, float *x, int incx);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasStbsv_v2 (cublasHandle_t handle, 
+                                                      cublasFillMode_t uplo, 
+                                                      cublasOperation_t trans, 
+                                                      cublasDiagType_t diag, 
+                                                      int n, 
+                                                      int k, 
+                                                      const float *A, 
+                                                      int lda, 
+                                                      float *x, 
+                                                      int incx);
 
-cublasStatus_t CUBLASAPI cublasDtbsv_v2 (cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, 
-                                         cublasDiagType_t diag, int n, int k, const double *A, 
-                                         int lda, double *x, int incx);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDtbsv_v2 (cublasHandle_t handle, 
+                                                      cublasFillMode_t uplo, 
+                                                      cublasOperation_t trans, 
+                                                      cublasDiagType_t diag, 
+                                                      int n, 
+                                                      int k, 
+                                                      const double *A, 
+                                                      int lda, 
+                                                      double *x, 
+                                                      int incx);
                                          
-cublasStatus_t CUBLASAPI cublasCtbsv_v2 (cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, 
-                                         cublasDiagType_t diag, int n, int k, const cuComplex *A, 
-                                         int lda, cuComplex *x, int incx);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCtbsv_v2 (cublasHandle_t handle, 
+                                                      cublasFillMode_t uplo, 
+                                                      cublasOperation_t trans, 
+                                                      cublasDiagType_t diag, 
+                                                      int n, 
+                                                      int k, 
+                                                      const cuComplex *A, 
+                                                      int lda, 
+                                                      cuComplex *x, 
+                                                      int incx);
                                          
-cublasStatus_t CUBLASAPI cublasZtbsv_v2 (cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, 
-                                         cublasDiagType_t diag, int n, int k, const cuDoubleComplex *A, 
-                                         int lda, cuDoubleComplex *x, int incx);     
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZtbsv_v2 (cublasHandle_t handle, 
+                                                      cublasFillMode_t uplo, 
+                                                      cublasOperation_t trans, 
+                                                      cublasDiagType_t diag, 
+                                                      int n, 
+                                                      int k, 
+                                                      const cuDoubleComplex *A, 
+                                                      int lda, 
+                                                      cuDoubleComplex *x, 
+                                                      int incx);     
                                          
 /* SYMV/HEMV */
-cublasStatus_t CUBLASAPI cublasSsymv_v2 (cublasHandle_t handle, 
-                                         cublasFillMode_t uplo, 
-                                         int n,
-                                         const float *alpha, /* host or device pointer */ 
-                                         const float *A,
-                                         int lda,
-                                         const float *x,
-                                         int incx,
-                                         const float *beta, /* host or device pointer */ 
-                                         float *y,
-                                         int incy);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSsymv_v2 (cublasHandle_t handle, 
+                                                      cublasFillMode_t uplo, 
+                                                      int n,
+                                                      const float *alpha, /* host or device pointer */ 
+                                                      const float *A,
+                                                      int lda,
+                                                      const float *x,
+                                                      int incx,
+                                                      const float *beta, /* host or device pointer */ 
+                                                      float *y,
+                                                      int incy);
 
-cublasStatus_t CUBLASAPI cublasDsymv_v2 (cublasHandle_t handle,
-                                         cublasFillMode_t uplo, 
-                                         int n,
-                                         const double *alpha, /* host or device pointer */ 
-                                         const double *A,
-                                         int lda,
-                                         const double *x,
-                                         int incx,
-                                         const double *beta, /* host or device pointer */ 
-                                         double *y,
-                                         int incy);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDsymv_v2 (cublasHandle_t handle,
+                                                      cublasFillMode_t uplo, 
+                                                      int n,
+                                                      const double *alpha, /* host or device pointer */ 
+                                                      const double *A,
+                                                      int lda,
+                                                      const double *x,
+                                                      int incx,
+                                                      const double *beta, /* host or device pointer */ 
+                                                      double *y,
+                                                      int incy);
+    
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCsymv_v2 (cublasHandle_t handle,
+                                                      cublasFillMode_t uplo, 
+                                                      int n,
+                                                      const cuComplex *alpha, /* host or device pointer */ 
+                                                      const cuComplex *A,
+                                                      int lda,
+                                                      const cuComplex *x,
+                                                      int incx,
+                                                      const cuComplex *beta, /* host or device pointer */ 
+                                                      cuComplex *y,
+                                                      int incy);                                     
                                      
-cublasStatus_t CUBLASAPI cublasChemv_v2 (cublasHandle_t handle,
-                                         cublasFillMode_t uplo, 
-                                         int n,
-                                         const cuComplex *alpha, /* host or device pointer */ 
-                                         const cuComplex *A,
-                                         int lda,
-                                         const cuComplex *x,
-                                         int incx,
-                                         const cuComplex *beta, /* host or device pointer */ 
-                                         cuComplex *y,
-                                         int incy);                                     
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZsymv_v2 (cublasHandle_t handle, 
+                                                      cublasFillMode_t uplo, 
+                                                      int n,
+                                                      const cuDoubleComplex *alpha,  /* host or device pointer */ 
+                                                      const cuDoubleComplex *A,
+                                                      int lda,
+                                                      const cuDoubleComplex *x,
+                                                      int incx,
+                                                      const cuDoubleComplex *beta,   /* host or device pointer */ 
+                                                      cuDoubleComplex *y,
+                                                      int incy);                                            
                                      
-cublasStatus_t CUBLASAPI cublasZhemv_v2 (cublasHandle_t handle, 
-                                         cublasFillMode_t uplo, 
-                                         int n,
-                                         const cuDoubleComplex *alpha,  /* host or device pointer */ 
-                                         const cuDoubleComplex *A,
-                                         int lda,
-                                         const cuDoubleComplex *x,
-                                         int incx,
-                                         const cuDoubleComplex *beta,   /* host or device pointer */ 
-                                         cuDoubleComplex *y,
-                                         int incy);   
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasChemv_v2 (cublasHandle_t handle,
+                                                      cublasFillMode_t uplo, 
+                                                      int n,
+                                                      const cuComplex *alpha, /* host or device pointer */ 
+                                                      const cuComplex *A,
+                                                      int lda,
+                                                      const cuComplex *x,
+                                                      int incx,
+                                                      const cuComplex *beta, /* host or device pointer */ 
+                                                      cuComplex *y,
+                                                      int incy);                                     
+                                     
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZhemv_v2 (cublasHandle_t handle, 
+                                                      cublasFillMode_t uplo, 
+                                                      int n,
+                                                      const cuDoubleComplex *alpha,  /* host or device pointer */ 
+                                                      const cuDoubleComplex *A,
+                                                      int lda,
+                                                      const cuDoubleComplex *x,
+                                                      int incx,
+                                                      const cuDoubleComplex *beta,   /* host or device pointer */ 
+                                                      cuDoubleComplex *y,
+                                                      int incy);   
                                      
 /* SBMV/HBMV */
-cublasStatus_t CUBLASAPI cublasSsbmv_v2 (cublasHandle_t handle,
-                                         cublasFillMode_t uplo, 
-                                         int n,
-                                         int k,
-                                         const float *alpha,   /* host or device pointer */ 
-                                         const float *A,
-                                         int lda,
-                                         const float *x, 
-                                         int incx,
-                                         const float *beta,  /* host or device pointer */ 
-                                         float *y,
-                                         int incy);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSsbmv_v2 (cublasHandle_t handle,
+                                                      cublasFillMode_t uplo, 
+                                                      int n,
+                                                      int k,
+                                                      const float *alpha,   /* host or device pointer */ 
+                                                      const float *A,
+                                                      int lda,
+                                                      const float *x, 
+                                                      int incx,
+                                                      const float *beta,  /* host or device pointer */ 
+                                                      float *y,
+                                                      int incy);
                                       
-cublasStatus_t CUBLASAPI cublasDsbmv_v2 (cublasHandle_t handle, 
-                                         cublasFillMode_t uplo, 
-                                         int n,
-                                         int k,
-                                         const double *alpha,   /* host or device pointer */ 
-                                         const double *A,
-                                         int lda,
-                                         const double *x, 
-                                         int incx,
-                                         const double *beta,   /* host or device pointer */ 
-                                         double *y,
-                                         int incy);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDsbmv_v2 (cublasHandle_t handle, 
+                                                      cublasFillMode_t uplo, 
+                                                      int n,
+                                                      int k,
+                                                      const double *alpha,   /* host or device pointer */ 
+                                                      const double *A,
+                                                      int lda,
+                                                      const double *x, 
+                                                      int incx,
+                                                      const double *beta,   /* host or device pointer */ 
+                                                      double *y,
+                                                      int incy);
                                       
-cublasStatus_t CUBLASAPI cublasChbmv_v2 (cublasHandle_t handle,
-                                         cublasFillMode_t uplo, 
-                                         int n,
-                                         int k,
-                                         const cuComplex *alpha, /* host or device pointer */ 
-                                         const cuComplex *A,
-                                         int lda,
-                                         const cuComplex *x, 
-                                         int incx,
-                                         const cuComplex *beta, /* host or device pointer */ 
-                                         cuComplex *y,
-                                         int incy);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasChbmv_v2 (cublasHandle_t handle,
+                                                      cublasFillMode_t uplo, 
+                                                      int n,
+                                                      int k,
+                                                      const cuComplex *alpha, /* host or device pointer */ 
+                                                      const cuComplex *A,
+                                                      int lda,
+                                                      const cuComplex *x, 
+                                                      int incx,
+                                                      const cuComplex *beta, /* host or device pointer */ 
+                                                      cuComplex *y,
+                                                      int incy);
                                       
-cublasStatus_t CUBLASAPI cublasZhbmv_v2 (cublasHandle_t handle,
-                                         cublasFillMode_t uplo, 
-                                         int n,
-                                         int k,
-                                         const cuDoubleComplex *alpha, /* host or device pointer */  
-                                         const cuDoubleComplex *A,
-                                         int lda,
-                                         const cuDoubleComplex *x, 
-                                         int incx,
-                                         const cuDoubleComplex *beta, /* host or device pointer */ 
-                                         cuDoubleComplex *y,
-                                         int incy);                                                                            
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZhbmv_v2 (cublasHandle_t handle,
+                                                      cublasFillMode_t uplo, 
+                                                      int n,
+                                                      int k,
+                                                      const cuDoubleComplex *alpha, /* host or device pointer */  
+                                                      const cuDoubleComplex *A,
+                                                      int lda,
+                                                      const cuDoubleComplex *x, 
+                                                      int incx,
+                                                      const cuDoubleComplex *beta, /* host or device pointer */ 
+                                                      cuDoubleComplex *y,
+                                                      int incy);                                                                            
                                                                                                                                                    
 /* SPMV/HPMV */
-cublasStatus_t CUBLASAPI cublasSspmv_v2 (cublasHandle_t handle, 
-                                         cublasFillMode_t uplo,
-                                         int n, 
-                                         const float *alpha,  /* host or device pointer */                                           
-                                         const float *AP,
-                                         const float *x,
-                                         int incx,
-                                         const float *beta,   /* host or device pointer */  
-                                         float *y,
-                                         int incy);
-
-cublasStatus_t CUBLASAPI cublasDspmv_v2 (cublasHandle_t handle, 
-                                         cublasFillMode_t uplo,
-                                         int n,
-                                         const double *alpha, /* host or device pointer */  
-                                         const double *AP,
-                                         const double *x,
-                                         int incx,
-                                         const double *beta,  /* host or device pointer */  
-                                         double *y,
-                                         int incy);                                     
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSspmv_v2 (cublasHandle_t handle, 
+                                                      cublasFillMode_t uplo,
+                                                      int n, 
+                                                      const float *alpha,  /* host or device pointer */                                           
+                                                      const float *AP,
+                                                      const float *x,
+                                                      int incx,
+                                                      const float *beta,   /* host or device pointer */  
+                                                      float *y,
+                                                      int incy);
+    
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDspmv_v2 (cublasHandle_t handle, 
+                                                      cublasFillMode_t uplo,
+                                                      int n,
+                                                      const double *alpha, /* host or device pointer */  
+                                                      const double *AP,
+                                                      const double *x,
+                                                      int incx,
+                                                      const double *beta,  /* host or device pointer */  
+                                                      double *y,
+                                                      int incy);                                     
                                      
-cublasStatus_t CUBLASAPI cublasChpmv_v2 (cublasHandle_t handle, 
-                                         cublasFillMode_t uplo,
-                                         int n,
-                                         const cuComplex *alpha, /* host or device pointer */  
-                                         const cuComplex *AP,
-                                         const cuComplex *x,
-                                         int incx,
-                                         const cuComplex *beta, /* host or device pointer */  
-                                         cuComplex *y,
-                                         int incy);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasChpmv_v2 (cublasHandle_t handle, 
+                                                      cublasFillMode_t uplo,
+                                                      int n,
+                                                      const cuComplex *alpha, /* host or device pointer */  
+                                                      const cuComplex *AP,
+                                                      const cuComplex *x,
+                                                      int incx,
+                                                      const cuComplex *beta, /* host or device pointer */  
+                                                      cuComplex *y,
+                                                      int incy);
                                      
-cublasStatus_t CUBLASAPI cublasZhpmv_v2 (cublasHandle_t handle,
-                                         cublasFillMode_t uplo,
-                                         int n,
-                                         const cuDoubleComplex *alpha, /* host or device pointer */  
-                                         const cuDoubleComplex *AP,
-                                         const cuDoubleComplex *x,
-                                         int incx,
-                                         const cuDoubleComplex *beta, /* host or device pointer */  
-                                         cuDoubleComplex *y, 
-                                         int incy);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZhpmv_v2 (cublasHandle_t handle,
+                                                      cublasFillMode_t uplo,
+                                                      int n,
+                                                      const cuDoubleComplex *alpha, /* host or device pointer */  
+                                                      const cuDoubleComplex *AP,
+                                                      const cuDoubleComplex *x,
+                                                      int incx,
+                                                      const cuDoubleComplex *beta, /* host or device pointer */  
+                                                      cuDoubleComplex *y, 
+                                                      int incy);
 
 /* GER */
-cublasStatus_t CUBLASAPI cublasSger_v2 (cublasHandle_t handle,
-                                        int m,
-                                        int n,
-                                        const float *alpha, /* host or device pointer */  
-                                        const float *x,
-                                        int incx,
-                                        const float *y,
-                                        int incy,
-                                        float *A,
-                                        int lda);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSger_v2 (cublasHandle_t handle,
+                                                     int m,
+                                                     int n,
+                                                     const float *alpha, /* host or device pointer */  
+                                                     const float *x,
+                                                     int incx,
+                                                     const float *y,
+                                                     int incy,
+                                                     float *A,
+                                                     int lda);
                                     
-cublasStatus_t CUBLASAPI cublasDger_v2 (cublasHandle_t handle, 
-                                        int m,
-                                        int n,
-                                        const double *alpha, /* host or device pointer */   
-                                        const double *x,
-                                        int incx,
-                                        const double *y,
-                                        int incy,
-                                        double *A,
-                                        int lda);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDger_v2 (cublasHandle_t handle, 
+                                                     int m,
+                                                     int n,
+                                                     const double *alpha, /* host or device pointer */   
+                                                     const double *x,
+                                                     int incx,
+                                                     const double *y,
+                                                     int incy,
+                                                     double *A,
+                                                     int lda);
                                     
-cublasStatus_t CUBLASAPI cublasCgeru_v2 (cublasHandle_t handle, 
-                                         int m,
-                                         int n,
-                                         const cuComplex *alpha, /* host or device pointer */  
-                                         const cuComplex *x,
-                                         int incx,
-                                         const cuComplex *y,
-                                         int incy,
-                                         cuComplex *A,
-                                         int lda);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCgeru_v2 (cublasHandle_t handle, 
+                                                      int m,
+                                                      int n,
+                                                      const cuComplex *alpha, /* host or device pointer */  
+                                                      const cuComplex *x,
+                                                      int incx,
+                                                      const cuComplex *y,
+                                                      int incy,
+                                                      cuComplex *A,
+                                                      int lda);
 
-cublasStatus_t CUBLASAPI cublasCgerc_v2 (cublasHandle_t handle,
-                                         int m,
-                                         int n,
-                                         const cuComplex *alpha, /* host or device pointer */  
-                                         const cuComplex *x,
-                                         int incx,
-                                         const cuComplex *y,
-                                         int incy,
-                                         cuComplex *A,
-                                         int lda);                                   
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCgerc_v2 (cublasHandle_t handle,
+                                                      int m,
+                                                      int n,
+                                                      const cuComplex *alpha, /* host or device pointer */  
+                                                      const cuComplex *x,
+                                                      int incx,
+                                                      const cuComplex *y,
+                                                      int incy,
+                                                      cuComplex *A,
+                                                      int lda);                                   
 
-cublasStatus_t CUBLASAPI cublasZgeru_v2 (cublasHandle_t handle, 
-                                         int m,
-                                         int n,
-                                         const cuDoubleComplex *alpha, /* host or device pointer */  
-                                         const cuDoubleComplex *x,
-                                         int incx,
-                                         const cuDoubleComplex *y,
-                                         int incy,
-                                         cuDoubleComplex *A,
-                                         int lda);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZgeru_v2 (cublasHandle_t handle, 
+                                                      int m,
+                                                      int n,
+                                                      const cuDoubleComplex *alpha, /* host or device pointer */  
+                                                      const cuDoubleComplex *x,
+                                                      int incx,
+                                                      const cuDoubleComplex *y,
+                                                      int incy,
+                                                      cuDoubleComplex *A,
+                                                      int lda);
 
-cublasStatus_t CUBLASAPI cublasZgerc_v2 (cublasHandle_t handle,
-                                         int m,
-                                         int n,
-                                         const cuDoubleComplex *alpha, /* host or device pointer */  
-                                         const cuDoubleComplex *x,
-                                         int incx,
-                                         const cuDoubleComplex *y,
-                                         int incy,
-                                         cuDoubleComplex *A,
-                                         int lda); 
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZgerc_v2 (cublasHandle_t handle,
+                                                      int m,
+                                                      int n,
+                                                      const cuDoubleComplex *alpha, /* host or device pointer */  
+                                                      const cuDoubleComplex *x,
+                                                      int incx,
+                                                      const cuDoubleComplex *y,
+                                                      int incy,
+                                                      cuDoubleComplex *A,
+                                                      int lda); 
                                     
 /* SYR/HER */
-cublasStatus_t CUBLASAPI cublasSsyr_v2 (cublasHandle_t handle,
-                                        cublasFillMode_t uplo,
-                                        int n,
-                                        const float *alpha, /* host or device pointer */  
-                                        const float *x,
-                                        int incx,
-                                        float *A, 
-                                        int lda);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSsyr_v2 (cublasHandle_t handle,
+                                                     cublasFillMode_t uplo,
+                                                     int n,
+                                                     const float *alpha, /* host or device pointer */  
+                                                     const float *x,
+                                                     int incx,
+                                                     float *A, 
+                                                     int lda);
                                     
-cublasStatus_t CUBLASAPI cublasDsyr_v2 (cublasHandle_t handle,
-                                        cublasFillMode_t uplo,
-                                        int n,
-                                        const double *alpha, /* host or device pointer */  
-                                        const double *x,
-                                        int incx,
-                                        double *A, 
-                                        int lda);  
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDsyr_v2 (cublasHandle_t handle,
+                                                     cublasFillMode_t uplo,
+                                                     int n,
+                                                     const double *alpha, /* host or device pointer */  
+                                                     const double *x,
+                                                     int incx,
+                                                     double *A, 
+                                                     int lda);  
+                                        
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCsyr_v2 (cublasHandle_t handle,
+                                                     cublasFillMode_t uplo,
+                                                     int n,
+                                                     const cuComplex *alpha, /* host or device pointer */  
+                                                     const cuComplex *x,
+                                                     int incx,
+                                                     cuComplex *A, 
+                                                     int lda);
+                                    
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZsyr_v2 (cublasHandle_t handle,
+                                                     cublasFillMode_t uplo,
+                                                     int n,
+                                                     const cuDoubleComplex *alpha, /* host or device pointer */  
+                                                     const cuDoubleComplex *x,
+                                                     int incx,
+                                                     cuDoubleComplex *A, 
+                                                     int lda);                                          
                                                                       
-cublasStatus_t CUBLASAPI cublasCher_v2 (cublasHandle_t handle,
-                                        cublasFillMode_t uplo,
-                                        int n,
-                                        const float *alpha, /* host or device pointer */  
-                                        const cuComplex *x,
-                                        int incx,
-                                        cuComplex *A, 
-                                        int lda); 
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCher_v2 (cublasHandle_t handle,
+                                                     cublasFillMode_t uplo,
+                                                     int n,
+                                                     const float *alpha, /* host or device pointer */  
+                                                     const cuComplex *x,
+                                                     int incx,
+                                                     cuComplex *A, 
+                                                     int lda); 
                                     
-cublasStatus_t CUBLASAPI cublasZher_v2 (cublasHandle_t handle,
-                                        cublasFillMode_t uplo,
-                                        int n,
-                                        const double *alpha, /* host or device pointer */  
-                                        const cuDoubleComplex *x,
-                                        int incx,
-                                        cuDoubleComplex *A, 
-                                        int lda); 
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZher_v2 (cublasHandle_t handle,
+                                                     cublasFillMode_t uplo,
+                                                     int n,
+                                                     const double *alpha, /* host or device pointer */  
+                                                     const cuDoubleComplex *x,
+                                                     int incx,
+                                                     cuDoubleComplex *A, 
+                                                     int lda); 
 
 /* SPR/HPR */                                    
-cublasStatus_t CUBLASAPI cublasSspr_v2 (cublasHandle_t handle,
-                                        cublasFillMode_t uplo,
-                                        int n,
-                                        const float *alpha, /* host or device pointer */  
-                                        const float *x,
-                                        int incx,
-                                        float *AP);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSspr_v2 (cublasHandle_t handle,
+                                                     cublasFillMode_t uplo,
+                                                     int n,
+                                                     const float *alpha, /* host or device pointer */  
+                                                     const float *x,
+                                                     int incx,
+                                                     float *AP);
                                     
-cublasStatus_t CUBLASAPI cublasDspr_v2 (cublasHandle_t handle,
-                                        cublasFillMode_t uplo,
-                                        int n,
-                                        const double *alpha, /* host or device pointer */  
-                                        const double *x,
-                                        int incx,
-                                        double *AP);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDspr_v2 (cublasHandle_t handle,
+                                                     cublasFillMode_t uplo,
+                                                     int n,
+                                                     const double *alpha, /* host or device pointer */  
+                                                     const double *x,
+                                                     int incx,
+                                                     double *AP);
 
-cublasStatus_t CUBLASAPI cublasChpr_v2 (cublasHandle_t handle,
-                                        cublasFillMode_t uplo,
-                                        int n,
-                                        const float *alpha, /* host or device pointer */  
-                                        const cuComplex *x,
-                                        int incx,
-                                        cuComplex *AP);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasChpr_v2 (cublasHandle_t handle,
+                                                     cublasFillMode_t uplo,
+                                                     int n,
+                                                     const float *alpha, /* host or device pointer */  
+                                                     const cuComplex *x,
+                                                     int incx,
+                                                     cuComplex *AP);
 
-cublasStatus_t CUBLASAPI cublasZhpr_v2 (cublasHandle_t handle,
-                                        cublasFillMode_t uplo,
-                                        int n,
-                                        const double *alpha, /* host or device pointer */  
-                                        const cuDoubleComplex *x,
-                                        int incx,
-                                        cuDoubleComplex *AP);                       
-                                    
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZhpr_v2 (cublasHandle_t handle,
+                                                     cublasFillMode_t uplo,
+                                                     int n,
+                                                     const double *alpha, /* host or device pointer */  
+                                                     const cuDoubleComplex *x,
+                                                     int incx,
+                                                     cuDoubleComplex *AP);                       
+    
 /* SYR2/HER2 */                                    
-cublasStatus_t CUBLASAPI cublasSsyr2_v2 (cublasHandle_t handle,
-                                        cublasFillMode_t uplo,
-                                        int n, 
-                                        const float *alpha, /* host or device pointer */  
-                                        const float *x,
-                                        int incx,
-                                        const float *y,
-                                        int incy,
-                                        float *A,
-                                        int lda);
-                                    
-cublasStatus_t CUBLASAPI cublasDsyr2_v2 (cublasHandle_t handle,
-                                         cublasFillMode_t uplo,
-                                         int n, 
-                                         const double *alpha, /* host or device pointer */  
-                                         const double *x,
-                                         int incx,
-                                         const double *y,
-                                         int incy,
-                                         double *A,
-                                         int lda);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSsyr2_v2 (cublasHandle_t handle,
+                                                      cublasFillMode_t uplo,
+                                                      int n, 
+                                                      const float *alpha, /* host or device pointer */  
+                                                      const float *x,
+                                                      int incx,
+                                                      const float *y,
+                                                      int incy,
+                                                      float *A,
+                                                      int lda);
+    
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDsyr2_v2 (cublasHandle_t handle,
+                                                      cublasFillMode_t uplo,
+                                                      int n, 
+                                                      const double *alpha, /* host or device pointer */  
+                                                      const double *x,
+                                                      int incx,
+                                                      const double *y,
+                                                      int incy,
+                                                      double *A,
+                                                      int lda);
+                                         
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCsyr2_v2 (cublasHandle_t handle,
+                                                      cublasFillMode_t uplo, int n, 
+                                                      const cuComplex *alpha,  /* host or device pointer */  
+                                                      const cuComplex *x,
+                                                      int incx, 
+                                                      const cuComplex *y,
+                                                      int incy, 
+                                                      cuComplex *A, 
+                                                      int lda);   
+    
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZsyr2_v2 (cublasHandle_t handle,
+                                                      cublasFillMode_t uplo,
+                                                      int n, 
+                                                      const cuDoubleComplex *alpha,  /* host or device pointer */  
+                                                      const cuDoubleComplex *x,
+                                                      int incx,
+                                                      const cuDoubleComplex *y,
+                                                      int incy,
+                                                      cuDoubleComplex *A,
+                                                      int lda);                       
+    
 
-cublasStatus_t CUBLASAPI cublasCher2_v2 (cublasHandle_t handle,
-                                         cublasFillMode_t uplo, int n, 
-                                         const cuComplex *alpha,  /* host or device pointer */  
-                                         const cuComplex *x,
-                                         int incx, 
-                                         const cuComplex *y,
-                                         int incy, 
-                                         cuComplex *A, 
-                                         int lda);   
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCher2_v2 (cublasHandle_t handle,
+                                                      cublasFillMode_t uplo, int n, 
+                                                      const cuComplex *alpha,  /* host or device pointer */  
+                                                      const cuComplex *x,
+                                                      int incx, 
+                                                      const cuComplex *y,
+                                                      int incy, 
+                                                      cuComplex *A, 
+                                                      int lda);   
 
-cublasStatus_t CUBLASAPI cublasZher2_v2 (cublasHandle_t handle,
-                                         cublasFillMode_t uplo,
-                                         int n, 
-                                         const cuDoubleComplex *alpha,  /* host or device pointer */  
-                                         const cuDoubleComplex *x,
-                                         int incx,
-                                         const cuDoubleComplex *y,
-                                         int incy,
-                                         cuDoubleComplex *A,
-                                         int lda);                       
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZher2_v2 (cublasHandle_t handle,
+                                                      cublasFillMode_t uplo,
+                                                      int n, 
+                                                      const cuDoubleComplex *alpha,  /* host or device pointer */  
+                                                      const cuDoubleComplex *x,
+                                                      int incx,
+                                                      const cuDoubleComplex *y,
+                                                      int incy,
+                                                      cuDoubleComplex *A,
+                                                      int lda);                       
 
 /* SPR2/HPR2 */
-cublasStatus_t CUBLASAPI cublasSspr2_v2 (cublasHandle_t handle,
-                                         cublasFillMode_t uplo,
-                                         int n,
-                                         const float *alpha,  /* host or device pointer */  
-                                         const float *x,
-                                         int incx,
-                                         const float *y,
-                                         int incy,
-                                         float *AP);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSspr2_v2 (cublasHandle_t handle,
+                                                      cublasFillMode_t uplo,
+                                                      int n,
+                                                      const float *alpha,  /* host or device pointer */  
+                                                      const float *x,
+                                                      int incx,
+                                                      const float *y,
+                                                      int incy,
+                                                      float *AP);
                                                                           
-cublasStatus_t CUBLASAPI cublasDspr2_v2 (cublasHandle_t handle,
-                                         cublasFillMode_t uplo,
-                                         int n,
-                                         const double *alpha,  /* host or device pointer */  
-                                         const double *x,
-                                         int incx, 
-                                         const double *y,
-                                         int incy,
-                                         double *AP);
-                                     
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDspr2_v2 (cublasHandle_t handle,
+                                                      cublasFillMode_t uplo,
+                                                      int n,
+                                                      const double *alpha,  /* host or device pointer */  
+                                                      const double *x,
+                                                      int incx, 
+                                                      const double *y,
+                                                      int incy,
+                                                      double *AP);
+    
 
-cublasStatus_t CUBLASAPI cublasChpr2_v2 (cublasHandle_t handle,
-                                         cublasFillMode_t uplo,
-                                         int n,
-                                         const cuComplex *alpha, /* host or device pointer */  
-                                         const cuComplex *x,
-                                         int incx,
-                                         const cuComplex *y,
-                                         int incy,
-                                         cuComplex *AP);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasChpr2_v2 (cublasHandle_t handle,
+                                                      cublasFillMode_t uplo,
+                                                      int n,
+                                                      const cuComplex *alpha, /* host or device pointer */  
+                                                      const cuComplex *x,
+                                                      int incx,
+                                                      const cuComplex *y,
+                                                      int incy,
+                                                      cuComplex *AP);
                                      
-cublasStatus_t CUBLASAPI cublasZhpr2_v2 (cublasHandle_t handle,
-                                         cublasFillMode_t uplo,
-                                         int n,
-                                         const cuDoubleComplex *alpha, /* host or device pointer */  
-                                         const cuDoubleComplex *x,
-                                         int incx,
-                                         const cuDoubleComplex *y,
-                                         int incy,
-                                         cuDoubleComplex *AP);                                     
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZhpr2_v2 (cublasHandle_t handle,
+                                                      cublasFillMode_t uplo,
+                                                      int n,
+                                                      const cuDoubleComplex *alpha, /* host or device pointer */  
+                                                      const cuDoubleComplex *x,
+                                                      int incx,
+                                                      const cuDoubleComplex *y,
+                                                      int incy,
+                                                      cuDoubleComplex *AP); 
+
 /* ---------------- CUBLAS BLAS3 functions ---------------- */
 
 /* GEMM */
-cublasStatus_t CUBLASAPI cublasSgemm_v2 (cublasHandle_t handle, 
-                                        cublasOperation_t transa,
-                                        cublasOperation_t transb, 
-                                        int m,
-                                        int n,
-                                        int k,
-                                        const float *alpha, /* host or device pointer */  
-                                        const float *A, 
-                                        int lda,
-                                        const float *B,
-                                        int ldb, 
-                                        const float *beta, /* host or device pointer */  
-                                        float *C,
-                                        int ldc);
-
-cublasStatus_t CUBLASAPI cublasDgemm_v2 (cublasHandle_t handle, 
-                                        cublasOperation_t transa,
-                                        cublasOperation_t transb, 
-                                        int m,
-                                        int n,
-                                        int k,
-                                        const double *alpha, /* host or device pointer */  
-                                        const double *A, 
-                                        int lda,
-                                        const double *B,
-                                        int ldb, 
-                                        const double *beta, /* host or device pointer */  
-                                        double *C,
-                                        int ldc);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSgemm_v2 (cublasHandle_t handle, 
+                                                      cublasOperation_t transa,
+                                                      cublasOperation_t transb, 
+                                                      int m,
+                                                      int n,
+                                                      int k,
+                                                      const float *alpha, /* host or device pointer */  
+                                                      const float *A, 
+                                                      int lda,
+                                                      const float *B,
+                                                      int ldb, 
+                                                      const float *beta, /* host or device pointer */  
+                                                      float *C,
+                                                      int ldc);
+    
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDgemm_v2 (cublasHandle_t handle, 
+                                                      cublasOperation_t transa,
+                                                      cublasOperation_t transb, 
+                                                      int m,
+                                                      int n,
+                                                      int k,
+                                                      const double *alpha, /* host or device pointer */  
+                                                      const double *A, 
+                                                      int lda,
+                                                      const double *B,
+                                                      int ldb, 
+                                                      const double *beta, /* host or device pointer */  
+                                                      double *C,
+                                                      int ldc);
                                         
-cublasStatus_t CUBLASAPI cublasCgemm_v2 (cublasHandle_t handle, 
-                                        cublasOperation_t transa,
-                                        cublasOperation_t transb, 
-                                        int m,
-                                        int n,
-                                        int k,
-                                        const cuComplex *alpha, /* host or device pointer */  
-                                        const cuComplex *A, 
-                                        int lda,
-                                        const cuComplex *B,
-                                        int ldb, 
-                                        const cuComplex *beta, /* host or device pointer */  
-                                        cuComplex *C,
-                                        int ldc);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCgemm_v2 (cublasHandle_t handle, 
+                                                      cublasOperation_t transa,
+                                                      cublasOperation_t transb, 
+                                                      int m,
+                                                      int n,
+                                                      int k,
+                                                      const cuComplex *alpha, /* host or device pointer */  
+                                                      const cuComplex *A, 
+                                                      int lda,
+                                                      const cuComplex *B,
+                                                      int ldb, 
+                                                      const cuComplex *beta, /* host or device pointer */  
+                                                      cuComplex *C,
+                                                      int ldc);
                                         
-cublasStatus_t CUBLASAPI cublasZgemm_v2 (cublasHandle_t handle, 
-                                        cublasOperation_t transa,
-                                        cublasOperation_t transb, 
-                                        int m,
-                                        int n,
-                                        int k,
-                                        const cuDoubleComplex *alpha, /* host or device pointer */  
-                                        const cuDoubleComplex *A, 
-                                        int lda,
-                                        const cuDoubleComplex *B,
-                                        int ldb, 
-                                        const cuDoubleComplex *beta, /* host or device pointer */  
-                                        cuDoubleComplex *C,
-                                        int ldc);                                                                                
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZgemm_v2 (cublasHandle_t handle, 
+                                                      cublasOperation_t transa,
+                                                      cublasOperation_t transb, 
+                                                      int m,
+                                                      int n,
+                                                      int k,
+                                                      const cuDoubleComplex *alpha, /* host or device pointer */  
+                                                      const cuDoubleComplex *A, 
+                                                      int lda,
+                                                      const cuDoubleComplex *B,
+                                                      int ldb, 
+                                                      const cuDoubleComplex *beta, /* host or device pointer */  
+                                                      cuDoubleComplex *C,
+                                                      int ldc);                                                                                
                             
 /* SYRK */
-cublasStatus_t CUBLASAPI cublasSsyrk_v2 (cublasHandle_t handle,
-                                        cublasFillMode_t uplo,
-                                        cublasOperation_t trans,
-                                        int n,
-                                        int k,
-                                        const float *alpha, /* host or device pointer */  
-                                        const float *A,
-                                        int lda,
-                                        const float *beta, /* host or device pointer */  
-                                        float *C,
-                                        int ldc);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSsyrk_v2 (cublasHandle_t handle,
+                                                      cublasFillMode_t uplo,
+                                                      cublasOperation_t trans,
+                                                      int n,
+                                                      int k,
+                                                      const float *alpha, /* host or device pointer */  
+                                                      const float *A,
+                                                      int lda,
+                                                      const float *beta, /* host or device pointer */  
+                                                      float *C,
+                                                      int ldc);
                                      
-cublasStatus_t CUBLASAPI cublasDsyrk_v2 (cublasHandle_t handle,
-                                         cublasFillMode_t uplo,
-                                         cublasOperation_t trans,
-                                         int n,
-                                         int k,
-                                         const double *alpha,  /* host or device pointer */  
-                                         const double *A,
-                                         int lda,
-                                         const double *beta,  /* host or device pointer */  
-                                         double *C,
-                                         int ldc);   
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDsyrk_v2 (cublasHandle_t handle,
+                                                      cublasFillMode_t uplo,
+                                                      cublasOperation_t trans,
+                                                      int n,
+                                                      int k,
+                                                      const double *alpha,  /* host or device pointer */  
+                                                      const double *A,
+                                                      int lda,
+                                                      const double *beta,  /* host or device pointer */  
+                                                      double *C,
+                                                      int ldc);   
                                      
-cublasStatus_t CUBLASAPI cublasCsyrk_v2 (cublasHandle_t handle,
-                                         cublasFillMode_t uplo,
-                                         cublasOperation_t trans,
-                                         int n,
-                                         int k,
-                                         const cuComplex *alpha, /* host or device pointer */  
-                                         const cuComplex *A,
-                                         int lda,
-                                         const cuComplex *beta, /* host or device pointer */  
-                                         cuComplex *C,
-                                         int ldc);         
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCsyrk_v2 (cublasHandle_t handle,
+                                                      cublasFillMode_t uplo,
+                                                      cublasOperation_t trans,
+                                                      int n,
+                                                      int k,
+                                                      const cuComplex *alpha, /* host or device pointer */  
+                                                      const cuComplex *A,
+                                                      int lda,
+                                                      const cuComplex *beta, /* host or device pointer */  
+                                                      cuComplex *C,
+                                                      int ldc);         
                                      
-cublasStatus_t CUBLASAPI cublasZsyrk_v2 (cublasHandle_t handle,
-                                         cublasFillMode_t uplo,
-                                         cublasOperation_t trans,
-                                         int n,
-                                         int k,
-                                         const cuDoubleComplex *alpha, /* host or device pointer */  
-                                         const cuDoubleComplex *A,
-                                         int lda,
-                                         const cuDoubleComplex *beta, /* host or device pointer */  
-                                         cuDoubleComplex *C, 
-                                         int ldc);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZsyrk_v2 (cublasHandle_t handle,
+                                                      cublasFillMode_t uplo,
+                                                      cublasOperation_t trans,
+                                                      int n,
+                                                      int k,
+                                                      const cuDoubleComplex *alpha, /* host or device pointer */  
+                                                      const cuDoubleComplex *A,
+                                                      int lda,
+                                                      const cuDoubleComplex *beta, /* host or device pointer */  
+                                                      cuDoubleComplex *C, 
+                                                      int ldc);
 /* HERK */
-cublasStatus_t CUBLASAPI cublasCherk_v2 (cublasHandle_t handle,
-                                         cublasFillMode_t uplo,
-                                         cublasOperation_t trans,
-                                         int n,
-                                         int k,
-                                         const float *alpha,  /* host or device pointer */  
-                                         const cuComplex *A,
-                                         int lda,
-                                         const float *beta,   /* host or device pointer */  
-                                         cuComplex *C,
-                                         int ldc);
-                                     
-cublasStatus_t CUBLASAPI cublasZherk_v2 (cublasHandle_t handle,
-                                        cublasFillMode_t uplo,
-                                        cublasOperation_t trans,
-                                        int n,
-                                        int k,
-                                        const double *alpha,  /* host or device pointer */  
-                                        const cuDoubleComplex *A,
-                                        int lda,
-                                        const double *beta,  /* host or device pointer */  
-                                        cuDoubleComplex *C,
-                                        int ldc);    
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCherk_v2 (cublasHandle_t handle,
+                                                      cublasFillMode_t uplo,
+                                                      cublasOperation_t trans,
+                                                      int n,
+                                                      int k,
+                                                      const float *alpha,  /* host or device pointer */  
+                                                      const cuComplex *A,
+                                                      int lda,
+                                                      const float *beta,   /* host or device pointer */  
+                                                      cuComplex *C,
+                                                      int ldc);
+    
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZherk_v2 (cublasHandle_t handle,
+                                                      cublasFillMode_t uplo,
+                                                      cublasOperation_t trans,
+                                                      int n,
+                                                      int k,
+                                                      const double *alpha,  /* host or device pointer */  
+                                                      const cuDoubleComplex *A,
+                                                      int lda,
+                                                      const double *beta,  /* host or device pointer */  
+                                                      cuDoubleComplex *C,
+                                                      int ldc);    
 
 /* SYR2K */                                     
-cublasStatus_t CUBLASAPI cublasSsyr2k_v2 (cublasHandle_t handle,
-                                          cublasFillMode_t uplo,
-                                          cublasOperation_t trans,
-                                          int n,
-                                          int k,
-                                          const float *alpha, /* host or device pointer */  
-                                          const float *A,
-                                          int lda,
-                                          const float *B,
-                                          int ldb,
-                                          const float *beta, /* host or device pointer */  
-                                          float *C,
-                                          int ldc);  
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSsyr2k_v2 (cublasHandle_t handle,
+                                                       cublasFillMode_t uplo,
+                                                       cublasOperation_t trans,
+                                                       int n,
+                                                       int k,
+                                                       const float *alpha, /* host or device pointer */  
+                                                       const float *A,
+                                                       int lda,
+                                                       const float *B,
+                                                       int ldb,
+                                                       const float *beta, /* host or device pointer */  
+                                                       float *C,
+                                                       int ldc);  
                                       
-cublasStatus_t CUBLASAPI cublasDsyr2k_v2 (cublasHandle_t handle,
-                                          cublasFillMode_t uplo,
-                                          cublasOperation_t trans,
-                                          int n,
-                                          int k,
-                                          const double *alpha, /* host or device pointer */  
-                                          const double *A,
-                                          int lda,
-                                          const double *B,
-                                          int ldb,
-                                          const double *beta, /* host or device pointer */  
-                                          double *C,
-                                          int ldc);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDsyr2k_v2 (cublasHandle_t handle,
+                                                       cublasFillMode_t uplo,
+                                                       cublasOperation_t trans,
+                                                       int n,
+                                                       int k,
+                                                       const double *alpha, /* host or device pointer */  
+                                                       const double *A,
+                                                       int lda,
+                                                       const double *B,
+                                                       int ldb,
+                                                       const double *beta, /* host or device pointer */  
+                                                       double *C,
+                                                       int ldc);
                                       
-cublasStatus_t CUBLASAPI cublasCsyr2k_v2 (cublasHandle_t handle,
-                                          cublasFillMode_t uplo,
-                                          cublasOperation_t trans,
-                                          int n,
-                                          int k,
-                                          const cuComplex *alpha, /* host or device pointer */  
-                                          const cuComplex *A,
-                                          int lda,
-                                          const cuComplex *B,
-                                          int ldb,
-                                          const cuComplex *beta, /* host or device pointer */  
-                                          cuComplex *C,
-                                          int ldc);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCsyr2k_v2 (cublasHandle_t handle,
+                                                       cublasFillMode_t uplo,
+                                                       cublasOperation_t trans,
+                                                       int n,
+                                                       int k,
+                                                       const cuComplex *alpha, /* host or device pointer */  
+                                                       const cuComplex *A,
+                                                       int lda,
+                                                       const cuComplex *B,
+                                                       int ldb,
+                                                       const cuComplex *beta, /* host or device pointer */  
+                                                       cuComplex *C,
+                                                       int ldc);
                                       
-cublasStatus_t CUBLASAPI cublasZsyr2k_v2 (cublasHandle_t handle,
-                                          cublasFillMode_t uplo,
-                                          cublasOperation_t trans,
-                                          int n,
-                                          int k,
-                                          const cuDoubleComplex *alpha,  /* host or device pointer */  
-                                          const cuDoubleComplex *A,
-                                          int lda,
-                                          const cuDoubleComplex *B,
-                                          int ldb,
-                                          const cuDoubleComplex *beta,  /* host or device pointer */  
-                                          cuDoubleComplex *C,
-                                          int ldc);  
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZsyr2k_v2 (cublasHandle_t handle,
+                                                       cublasFillMode_t uplo,
+                                                       cublasOperation_t trans,
+                                                       int n,
+                                                       int k,
+                                                       const cuDoubleComplex *alpha,  /* host or device pointer */  
+                                                       const cuDoubleComplex *A,
+                                                       int lda,
+                                                       const cuDoubleComplex *B,
+                                                       int ldb,
+                                                       const cuDoubleComplex *beta,  /* host or device pointer */  
+                                                       cuDoubleComplex *C,
+                                                       int ldc);  
 /* HER2K */                                       
-cublasStatus_t CUBLASAPI cublasCher2k_v2 (cublasHandle_t handle,
-                                          cublasFillMode_t uplo,
-                                          cublasOperation_t trans,
-                                          int n,
-                                          int k,
-                                          const cuComplex *alpha, /* host or device pointer */  
-                                          const cuComplex *A,
-                                          int lda,
-                                          const cuComplex *B,
-                                          int ldb,
-                                          const float *beta,   /* host or device pointer */  
-                                          cuComplex *C,
-                                          int ldc);  
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCher2k_v2 (cublasHandle_t handle,
+                                                       cublasFillMode_t uplo,
+                                                       cublasOperation_t trans,
+                                                       int n,
+                                                       int k,
+                                                       const cuComplex *alpha, /* host or device pointer */  
+                                                       const cuComplex *A,
+                                                       int lda,
+                                                       const cuComplex *B,
+                                                       int ldb,
+                                                       const float *beta,   /* host or device pointer */  
+                                                       cuComplex *C,
+                                                       int ldc);  
                                       
-cublasStatus_t CUBLASAPI cublasZher2k_v2 (cublasHandle_t handle,
-                                          cublasFillMode_t uplo,
-                                          cublasOperation_t trans, 
-                                          int n,
-                                          int k,
-                                          const cuDoubleComplex *alpha, /* host or device pointer */  
-                                          const cuDoubleComplex *A, 
-                                          int lda,
-                                          const cuDoubleComplex *B,
-                                          int ldb,
-                                          const double *beta, /* host or device pointer */  
-                                          cuDoubleComplex *C,
-                                          int ldc);        
-                                      
-/* SYMM */
-cublasStatus_t CUBLASAPI cublasSsymm_v2 (cublasHandle_t handle,
-                                         cublasSideMode_t side,
-                                         cublasFillMode_t uplo,
-                                         int m,
-                                         int n,
-                                         const float *alpha, /* host or device pointer */  
-                                         const float *A,
-                                         int lda,
-                                         const float *B,
-                                         int ldb,
-                                         const float *beta, /* host or device pointer */  
-                                         float *C,
-                                         int ldc);
-                                     
-cublasStatus_t CUBLASAPI cublasDsymm_v2 (cublasHandle_t handle,
-                                         cublasSideMode_t side,
-                                         cublasFillMode_t uplo,
-                                         int m, 
-                                         int n,
-                                         const double *alpha, /* host or device pointer */  
-                                         const double *A,
-                                         int lda,
-                                         const double *B,
-                                         int ldb,
-                                         const double *beta, /* host or device pointer */  
-                                         double *C,
-                                         int ldc);                                     
-
-cublasStatus_t CUBLASAPI cublasCsymm_v2 (cublasHandle_t handle,
-                                         cublasSideMode_t side,
-                                         cublasFillMode_t uplo,
-                                         int m,
-                                         int n,
-                                         const cuComplex *alpha, /* host or device pointer */  
-                                         const cuComplex *A,
-                                         int lda,
-                                         const cuComplex *B,
-                                         int ldb,
-                                         const cuComplex *beta, /* host or device pointer */  
-                                         cuComplex *C,
-                                         int ldc);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZher2k_v2 (cublasHandle_t handle,
+                                                       cublasFillMode_t uplo,
+                                                       cublasOperation_t trans, 
+                                                       int n,
+                                                       int k,
+                                                       const cuDoubleComplex *alpha, /* host or device pointer */  
+                                                       const cuDoubleComplex *A, 
+                                                       int lda,
+                                                       const cuDoubleComplex *B,
+                                                       int ldb,
+                                                       const double *beta, /* host or device pointer */  
+                                                       cuDoubleComplex *C,
+                                                       int ldc);     
+/* SYRKX : eXtended SYRK*/
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSsyrkx (cublasHandle_t handle,
+                                                    cublasFillMode_t uplo,
+                                                    cublasOperation_t trans,
+                                                    int n,
+                                                    int k,
+                                                    const float *alpha, /* host or device pointer */ 
+                                                    const float *A,
+                                                    int lda,
+                                                    const float *B,
+                                                    int ldb,
+                                                    const float *beta, /* host or device pointer */ 
+                                                    float *C,
+                                                    int ldc);
                                                    
-cublasStatus_t CUBLASAPI cublasZsymm_v2 (cublasHandle_t handle,
-                                         cublasSideMode_t side,
-                                         cublasFillMode_t uplo,
-                                         int m,
-                                         int n,
-                                         const cuDoubleComplex *alpha, /* host or device pointer */  
-                                         const cuDoubleComplex *A,
-                                         int lda,
-                                         const cuDoubleComplex *B,
-                                         int ldb,
-                                         const cuDoubleComplex *beta, /* host or device pointer */  
-                                         cuDoubleComplex *C,
-                                         int ldc);   
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDsyrkx (cublasHandle_t handle,
+                                                    cublasFillMode_t uplo,
+                                                    cublasOperation_t trans,
+                                                    int n,
+                                                    int k,
+                                                    const double *alpha, /* host or device pointer */ 
+                                                    const double *A,
+                                                    int lda,
+                                                    const double *B,
+                                                    int ldb,
+                                                    const double *beta, /* host or device pointer */ 
+                                                    double *C,
+                                                    int ldc);
+                                                    
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCsyrkx (cublasHandle_t handle,
+                                                    cublasFillMode_t uplo,
+                                                    cublasOperation_t trans,
+                                                    int n,
+                                                    int k,
+                                                    const cuComplex *alpha, /* host or device pointer */ 
+                                                    const cuComplex *A,
+                                                    int lda,
+                                                    const cuComplex *B,
+                                                    int ldb,
+                                                    const cuComplex *beta, /* host or device pointer */ 
+                                                    cuComplex *C, 
+                                                    int ldc);
+                                                    
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZsyrkx (cublasHandle_t handle,
+                                                    cublasFillMode_t uplo, 
+                                                    cublasOperation_t trans,
+                                                    int n,
+                                                    int k,
+                                                    const cuDoubleComplex *alpha, /* host or device pointer */ 
+                                                    const cuDoubleComplex *A,
+                                                    int lda,
+                                                    const cuDoubleComplex *B,
+                                                    int ldb,
+                                                    const cuDoubleComplex *beta, /* host or device pointer */ 
+                                                    cuDoubleComplex *C, 
+                                                    int ldc);
+/* HERKX : eXtended HERK */
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCherkx (cublasHandle_t handle,
+                                                    cublasFillMode_t uplo,
+                                                    cublasOperation_t trans,
+                                                    int n,
+                                                    int k,
+                                                    const cuComplex *alpha, /* host or device pointer */ 
+                                                    const cuComplex *A,
+                                                    int lda,
+                                                    const cuComplex *B,
+                                                    int ldb,
+                                                    const float *beta, /* host or device pointer */ 
+                                                    cuComplex *C,
+                                                    int ldc);
+                                                
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZherkx (cublasHandle_t handle,
+                                                    cublasFillMode_t uplo,
+                                                    cublasOperation_t trans,
+                                                    int n,
+                                                    int k,
+                                                    const cuDoubleComplex *alpha, /* host or device pointer */ 
+                                                    const cuDoubleComplex *A,
+                                                    int lda,
+                                                    const cuDoubleComplex *B,
+                                                    int ldb,
+                                                    const double *beta, /* host or device pointer */ 
+                                                    cuDoubleComplex *C,
+                                                    int ldc);
+/* SYMM */
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSsymm_v2 (cublasHandle_t handle,
+                                                      cublasSideMode_t side,
+                                                      cublasFillMode_t uplo,
+                                                      int m,
+                                                      int n,
+                                                      const float *alpha, /* host or device pointer */  
+                                                      const float *A,
+                                                      int lda,
+                                                      const float *B,
+                                                      int ldb,
+                                                      const float *beta, /* host or device pointer */  
+                                                      float *C,
+                                                      int ldc);
+                                     
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDsymm_v2 (cublasHandle_t handle,
+                                                      cublasSideMode_t side,
+                                                      cublasFillMode_t uplo,
+                                                      int m, 
+                                                      int n,
+                                                      const double *alpha, /* host or device pointer */  
+                                                      const double *A,
+                                                      int lda,
+                                                      const double *B,
+                                                      int ldb,
+                                                      const double *beta, /* host or device pointer */  
+                                                      double *C,
+                                                      int ldc);                                     
+
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCsymm_v2 (cublasHandle_t handle,
+                                                      cublasSideMode_t side,
+                                                      cublasFillMode_t uplo,
+                                                      int m,
+                                                      int n,
+                                                      const cuComplex *alpha, /* host or device pointer */  
+                                                      const cuComplex *A,
+                                                      int lda,
+                                                      const cuComplex *B,
+                                                      int ldb,
+                                                      const cuComplex *beta, /* host or device pointer */  
+                                                      cuComplex *C,
+                                                      int ldc);
+                                                   
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZsymm_v2 (cublasHandle_t handle,
+                                                      cublasSideMode_t side,
+                                                      cublasFillMode_t uplo,
+                                                      int m,
+                                                      int n,
+                                                      const cuDoubleComplex *alpha, /* host or device pointer */  
+                                                      const cuDoubleComplex *A,
+                                                      int lda,
+                                                      const cuDoubleComplex *B,
+                                                      int ldb,
+                                                      const cuDoubleComplex *beta, /* host or device pointer */  
+                                                      cuDoubleComplex *C,
+                                                      int ldc);   
                                      
 /* HEMM */
-cublasStatus_t CUBLASAPI cublasChemm_v2 (cublasHandle_t handle,
-                                         cublasSideMode_t side,
-                                         cublasFillMode_t uplo,
-                                         int m,
-                                         int n,
-                                         const cuComplex *alpha, /* host or device pointer */  
-                                         const cuComplex *A,
-                                         int lda,
-                                         const cuComplex *B,
-                                         int ldb,
-                                         const cuComplex *beta, /* host or device pointer */  
-                                         cuComplex *C, 
-                                         int ldc);                                                                                                                                                                                                                                                                                                                                                                                                                                                         
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasChemm_v2 (cublasHandle_t handle,
+                                                      cublasSideMode_t side,
+                                                      cublasFillMode_t uplo,
+                                                      int m,
+                                                      int n,
+                                                      const cuComplex *alpha, /* host or device pointer */  
+                                                      const cuComplex *A,
+                                                      int lda,
+                                                      const cuComplex *B,
+                                                      int ldb,
+                                                      const cuComplex *beta, /* host or device pointer */  
+                                                      cuComplex *C, 
+                                                      int ldc); 
 
-cublasStatus_t CUBLASAPI cublasZhemm_v2 (cublasHandle_t handle,
-                                         cublasSideMode_t side,
-                                         cublasFillMode_t uplo,
-                                         int m,
-                                         int n,
-                                         const cuDoubleComplex *alpha, /* host or device pointer */  
-                                         const cuDoubleComplex *A,
-                                         int lda,
-                                         const cuDoubleComplex *B,
-                                         int ldb,
-                                         const cuDoubleComplex *beta, /* host or device pointer */  
-                                         cuDoubleComplex *C,
-                                         int ldc); 
-                                     
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZhemm_v2 (cublasHandle_t handle,
+                                                      cublasSideMode_t side,
+                                                      cublasFillMode_t uplo,
+                                                      int m,
+                                                      int n,
+                                                      const cuDoubleComplex *alpha, /* host or device pointer */  
+                                                      const cuDoubleComplex *A,
+                                                      int lda,
+                                                      const cuDoubleComplex *B,
+                                                      int ldb,
+                                                      const cuDoubleComplex *beta, /* host or device pointer */  
+                                                      cuDoubleComplex *C,
+                                                      int ldc); 
+    
 /* TRSM */                                                                         
-cublasStatus_t CUBLASAPI cublasStrsm_v2 (cublasHandle_t handle, 
-                                         cublasSideMode_t side,
-                                         cublasFillMode_t uplo,
-                                         cublasOperation_t trans,
-                                         cublasDiagType_t diag,
-                                         int m,
-                                         int n,
-                                         const float *alpha, /* host or device pointer */  
-                                         const float *A,
-                                         int lda,
-                                         float *B,
-                                         int ldb);
-                            
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasStrsm_v2 (cublasHandle_t handle, 
+                                                      cublasSideMode_t side,
+                                                      cublasFillMode_t uplo,
+                                                      cublasOperation_t trans,
+                                                      cublasDiagType_t diag,
+                                                      int m,
+                                                      int n,
+                                                      const float *alpha, /* host or device pointer */  
+                                                      const float *A,
+                                                      int lda,
+                                                      float *B,
+                                                      int ldb);
+    
 
-cublasStatus_t CUBLASAPI cublasDtrsm_v2 (cublasHandle_t handle,
-                                         cublasSideMode_t side,
-                                         cublasFillMode_t uplo,
-                                         cublasOperation_t trans,
-                                         cublasDiagType_t diag,
-                                         int m,
-                                         int n,
-                                         const double *alpha, /* host or device pointer */  
-                                         const double *A, 
-                                         int lda, 
-                                         double *B,
-                                         int ldb);
-                            
-cublasStatus_t CUBLASAPI cublasCtrsm_v2(cublasHandle_t handle,
-                                        cublasSideMode_t side,
-                                        cublasFillMode_t uplo,
-                                        cublasOperation_t trans,
-                                        cublasDiagType_t diag,
-                                        int m,
-                                        int n,
-                                        const cuComplex *alpha, /* host or device pointer */  
-                                        const cuComplex *A,
-                                        int lda,
-                                        cuComplex *B,
-                                        int ldb );
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDtrsm_v2 (cublasHandle_t handle,
+                                                      cublasSideMode_t side,
+                                                      cublasFillMode_t uplo,
+                                                      cublasOperation_t trans,
+                                                      cublasDiagType_t diag,
+                                                      int m,
+                                                      int n,
+                                                      const double *alpha, /* host or device pointer */  
+                                                      const double *A, 
+                                                      int lda, 
+                                                      double *B,
+                                                      int ldb);
+    
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCtrsm_v2(cublasHandle_t handle,
+                                                     cublasSideMode_t side,
+                                                     cublasFillMode_t uplo,
+                                                     cublasOperation_t trans,
+                                                     cublasDiagType_t diag,
+                                                     int m,
+                                                     int n,
+                                                     const cuComplex *alpha, /* host or device pointer */  
+                                                     const cuComplex *A,
+                                                     int lda,
+                                                     cuComplex *B,
+                                                     int ldb);
                   
-cublasStatus_t CUBLASAPI cublasZtrsm_v2(cublasHandle_t handle, 
-                                        cublasSideMode_t side,
-                                        cublasFillMode_t uplo,
-                                        cublasOperation_t trans,
-                                        cublasDiagType_t diag,
-                                        int m,
-                                        int n,
-                                        const cuDoubleComplex *alpha, /* host or device pointer */  
-                                        const cuDoubleComplex *A,                                        
-                                        int lda,
-                                        cuDoubleComplex *B,
-                                        int ldb );              
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZtrsm_v2(cublasHandle_t handle, 
+                                                     cublasSideMode_t side,
+                                                     cublasFillMode_t uplo,
+                                                     cublasOperation_t trans,
+                                                     cublasDiagType_t diag,
+                                                     int m,
+                                                     int n,
+                                                     const cuDoubleComplex *alpha, /* host or device pointer */  
+                                                     const cuDoubleComplex *A,                                        
+                                                     int lda,
+                                                     cuDoubleComplex *B,
+                                                     int ldb);              
                                                 
  /* TRMM */  
-cublasStatus_t CUBLASAPI cublasStrmm_v2 (cublasHandle_t handle,
-                                         cublasSideMode_t side,
-                                         cublasFillMode_t uplo,
-                                         cublasOperation_t trans,
-                                         cublasDiagType_t diag,
-                                         int m,
-                                         int n,
-                                         const float *alpha, /* host or device pointer */  
-                                         const float *A,
-                                         int lda, 
-                                         const float *B,
-                                         int ldb,
-                                         float *C,
-                                         int ldc);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasStrmm_v2 (cublasHandle_t handle,
+                                                      cublasSideMode_t side,
+                                                      cublasFillMode_t uplo,
+                                                      cublasOperation_t trans,
+                                                      cublasDiagType_t diag,
+                                                      int m,
+                                                      int n,
+                                                      const float *alpha, /* host or device pointer */  
+                                                      const float *A,
+                                                      int lda, 
+                                                      const float *B,
+                                                      int ldb,
+                                                      float *C,
+                                                      int ldc);
                                                
-cublasStatus_t CUBLASAPI cublasDtrmm_v2 (cublasHandle_t handle,
-                                         cublasSideMode_t side,
-                                         cublasFillMode_t uplo,
-                                         cublasOperation_t trans,
-                                         cublasDiagType_t diag,
-                                         int m,
-                                         int n,
-                                         const double *alpha, /* host or device pointer */  
-                                         const double *A,
-                                         int lda,
-                                         const double *B,
-                                         int ldb,
-                                         double *C,
-                                         int ldc)  ;
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDtrmm_v2 (cublasHandle_t handle,
+                                                      cublasSideMode_t side,
+                                                      cublasFillMode_t uplo,
+                                                      cublasOperation_t trans,
+                                                      cublasDiagType_t diag,
+                                                      int m,
+                                                      int n,
+                                                      const double *alpha, /* host or device pointer */  
+                                                      const double *A,
+                                                      int lda,
+                                                      const double *B,
+                                                      int ldb,
+                                                      double *C,
+                                                      int ldc);
                                      
-cublasStatus_t CUBLASAPI cublasCtrmm_v2(cublasHandle_t handle,
-                                        cublasSideMode_t side,
-                                        cublasFillMode_t uplo,
-                                        cublasOperation_t trans,
-                                        cublasDiagType_t diag,
-                                        int m,
-                                        int n,
-                                        const cuComplex *alpha, /* host or device pointer */  
-                                        const cuComplex *A,
-                                        int lda,
-                                        const cuComplex *B,
-                                        int ldb,
-                                        cuComplex *C,
-                                        int ldc);
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCtrmm_v2(cublasHandle_t handle,
+                                                     cublasSideMode_t side,
+                                                     cublasFillMode_t uplo,
+                                                     cublasOperation_t trans,
+                                                     cublasDiagType_t diag,
+                                                     int m,
+                                                     int n,
+                                                     const cuComplex *alpha, /* host or device pointer */  
+                                                     const cuComplex *A,
+                                                     int lda,
+                                                     const cuComplex *B,
+                                                     int ldb,
+                                                     cuComplex *C,
+                                                     int ldc);
                   
-cublasStatus_t CUBLASAPI cublasZtrmm_v2(cublasHandle_t handle, cublasSideMode_t side, 
-                                        cublasFillMode_t uplo,
-                                        cublasOperation_t trans,
-                                        cublasDiagType_t diag,
-                                        int m,
-                                        int n,
-                                        const cuDoubleComplex *alpha, /* host or device pointer */  
-                                        const cuDoubleComplex *A,
-                                        int lda,
-                                        const cuDoubleComplex *B,
-                                        int ldb,
-                                        cuDoubleComplex *C,
-                                        int ldc  );                                                                                                                                                                                                                                                                                             
-                                                 
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZtrmm_v2(cublasHandle_t handle, cublasSideMode_t side, 
+                                                     cublasFillMode_t uplo,
+                                                     cublasOperation_t trans,
+                                                     cublasDiagType_t diag,
+                                                     int m,
+                                                     int n,
+                                                     const cuDoubleComplex *alpha, /* host or device pointer */  
+                                                     const cuDoubleComplex *A,
+                                                     int lda,
+                                                     const cuDoubleComplex *B,
+                                                     int ldb,
+                                                     cuDoubleComplex *C,
+                                                     int ldc);
 /* BATCH GEMM */
-cublasStatus_t cublasSgemmBatched (cublasHandle_t handle,
-                                   cublasOperation_t transa,
-                                   cublasOperation_t transb, 
-                                   int m,
-                                   int n,
-                                   int k,
-                                   const float *alpha,  /* host or device pointer */  
-                                   const float *Aarray[], 
-                                   int lda,
-                                   const float *Barray[],
-                                   int ldb, 
-                                   const float *beta,   /* host or device pointer */  
-                                   float *Carray[],
-                                   int ldc,
-                                   int batchCount);
+CUBLASAPI cublasStatus_t cublasSgemmBatched (cublasHandle_t handle,
+                                             cublasOperation_t transa,
+                                             cublasOperation_t transb, 
+                                             int m,
+                                             int n,
+                                             int k,
+                                             const float *alpha,  /* host or device pointer */  
+                                             const float *Aarray[], 
+                                             int lda,
+                                             const float *Barray[],
+                                             int ldb, 
+                                             const float *beta,   /* host or device pointer */  
+                                             float *Carray[],
+                                             int ldc,
+                                             int batchCount);
 
-cublasStatus_t cublasDgemmBatched (cublasHandle_t handle,
-                                   cublasOperation_t transa,
-                                   cublasOperation_t transb, 
-                                   int m,
-                                   int n,
-                                   int k,
-                                   const double *alpha,  /* host or device pointer */ 
-                                   const double *Aarray[], 
-                                   int lda,
-                                   const double *Barray[],
-                                   int ldb, 
-                                   const double *beta,  /* host or device pointer */ 
-                                   double *Carray[],
-                                   int ldc,
-                                   int batchCount);
+CUBLASAPI cublasStatus_t cublasDgemmBatched (cublasHandle_t handle,
+                                             cublasOperation_t transa,
+                                             cublasOperation_t transb, 
+                                             int m,
+                                             int n,
+                                             int k,
+                                             const double *alpha,  /* host or device pointer */ 
+                                             const double *Aarray[], 
+                                             int lda,
+                                             const double *Barray[],
+                                             int ldb, 
+                                             const double *beta,  /* host or device pointer */ 
+                                             double *Carray[],
+                                             int ldc,
+                                             int batchCount);
 
-cublasStatus_t cublasCgemmBatched (cublasHandle_t handle,
-                                   cublasOperation_t transa,
-                                   cublasOperation_t transb, 
-                                   int m,
-                                   int n,
-                                   int k,
-                                   const cuComplex *alpha, /* host or device pointer */ 
-                                   const cuComplex *Aarray[], 
-                                   int lda,
-                                   const cuComplex *Barray[],
-                                   int ldb, 
-                                   const cuComplex *beta, /* host or device pointer */ 
-                                   cuComplex *Carray[],
-                                   int ldc,
-                                   int batchCount);
+CUBLASAPI cublasStatus_t cublasCgemmBatched (cublasHandle_t handle,
+                                             cublasOperation_t transa,
+                                             cublasOperation_t transb, 
+                                             int m,
+                                             int n,
+                                             int k,
+                                             const cuComplex *alpha, /* host or device pointer */ 
+                                             const cuComplex *Aarray[], 
+                                             int lda,
+                                             const cuComplex *Barray[],
+                                             int ldb, 
+                                             const cuComplex *beta, /* host or device pointer */ 
+                                             cuComplex *Carray[],
+                                             int ldc,
+                                             int batchCount);
 
-cublasStatus_t cublasZgemmBatched (cublasHandle_t handle,
-                                   cublasOperation_t transa,
-                                   cublasOperation_t transb, 
-                                   int m,
-                                   int n,
-                                   int k,
-                                   const cuDoubleComplex *alpha, /* host or device pointer */ 
-                                   const cuDoubleComplex *Aarray[], 
-                                   int lda,
-                                   const cuDoubleComplex *Barray[],
-                                   int ldb, 
-                                   const cuDoubleComplex *beta, /* host or device pointer */ 
-                                   cuDoubleComplex *Carray[],
-                                   int ldc,
-                                   int batchCount);                                                                                                                                                                                                                                                                                                                                       
+CUBLASAPI cublasStatus_t cublasZgemmBatched (cublasHandle_t handle,
+                                             cublasOperation_t transa,
+                                             cublasOperation_t transb, 
+                                             int m,
+                                             int n,
+                                             int k,
+                                             const cuDoubleComplex *alpha, /* host or device pointer */ 
+                                             const cuDoubleComplex *Aarray[], 
+                                             int lda,
+                                             const cuDoubleComplex *Barray[],
+                                             int ldb, 
+                                             const cuDoubleComplex *beta, /* host or device pointer */ 
+                                             cuDoubleComplex *Carray[],
+                                             int ldc,
+                                             int batchCount); 
+
+/* ---------------- CUBLAS BLAS-like extension ---------------- */
+/* GEAM */
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSgeam(cublasHandle_t handle,
+                                                  cublasOperation_t transa, 
+                                                  cublasOperation_t transb,
+                                                  int m, 
+                                                  int n,
+                                                  const float *alpha, /* host or device pointer */ 
+                                                  const float *A, 
+                                                  int lda,
+                                                  const float *beta , /* host or device pointer */ 
+                                                  const float *B, 
+                                                  int ldb,
+                                                  float *C, 
+                                                  int ldc);
+    
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDgeam(cublasHandle_t handle,
+                                                  cublasOperation_t transa, 
+                                                  cublasOperation_t transb,
+                                                  int m, 
+                                                  int n,
+                                                  const double *alpha, /* host or device pointer */ 
+                                                  const double *A, 
+                                                  int lda,
+                                                  const double *beta, /* host or device pointer */ 
+                                                  const double *B, 
+                                                  int ldb,
+                                                  double *C, 
+                                                  int ldc);
+
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCgeam(cublasHandle_t handle,
+                                                  cublasOperation_t transa, 
+                                                  cublasOperation_t transb,
+                                                  int m, 
+                                                  int n,
+                                                  const cuComplex *alpha, /* host or device pointer */ 
+                                                  const cuComplex *A, 
+                                                  int lda,
+                                                  const cuComplex *beta, /* host or device pointer */  
+                                                  const cuComplex *B, 
+                                                  int ldb,
+                                                  cuComplex *C, 
+                                                  int ldc);
+
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZgeam(cublasHandle_t handle,
+                                                  cublasOperation_t transa, 
+                                                  cublasOperation_t transb,
+                                                  int m, 
+                                                  int n,
+                                                  const cuDoubleComplex *alpha, /* host or device pointer */ 
+                                                  const cuDoubleComplex *A, 
+                                                  int lda,
+                                                  const cuDoubleComplex *beta, /* host or device pointer */  
+                                                  const cuDoubleComplex *B, 
+                                                  int ldb,
+                                                  cuDoubleComplex *C, 
+                                                  int ldc);
+ 
+/* Batched LU - GETRF*/
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSgetrfBatched(cublasHandle_t handle,
+                                                  int n, 
+                                                  float *A[],                      /*Device pointer*/
+                                                  int lda, 
+                                                  int *P,                          /*Device Pointer*/
+                                                  int *INFO,                       /*Device Pointer*/
+                                                  int batchSize);
+
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDgetrfBatched(cublasHandle_t handle,
+                                                  int n, 
+                                                  double *A[],                     /*Device pointer*/
+                                                  int lda, 
+                                                  int *P,                          /*Device Pointer*/
+                                                  int *INFO,                       /*Device Pointer*/
+                                                  int batchSize);
+
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCgetrfBatched(cublasHandle_t handle,
+                                                  int n, 
+                                                  cuComplex *A[],                 /*Device pointer*/
+                                                  int lda, 
+                                                  int *P,                         /*Device Pointer*/
+                                                  int *INFO,                      /*Device Pointer*/
+                                                  int batchSize);
+
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZgetrfBatched(cublasHandle_t handle,
+                                                  int n, 
+                                                  cuDoubleComplex *A[],           /*Device pointer*/
+                                                  int lda, 
+                                                  int *P,                         /*Device Pointer*/
+                                                  int *INFO,                      /*Device Pointer*/
+                                                  int batchSize);
+
+/* Batched inversion based on LU factorization from getrf */
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSgetriBatched(cublasHandle_t handle,
+                                                  int n,
+                                                  float *A[],                     /*Device pointer*/
+                                                  int lda,
+                                                  int *P,                         /*Device pointer*/
+                                                  float *C[],                     /*Device pointer*/
+                                                  int ldc,
+                                                  int *INFO,
+                                                  int batchSize);
+
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDgetriBatched(cublasHandle_t handle,
+                                                  int n,
+                                                  double *A[],                    /*Device pointer*/
+                                                  int lda,
+                                                  int *P,                         /*Device pointer*/
+                                                  double *C[],                    /*Device pointer*/
+                                                  int ldc,
+                                                  int *INFO,
+                                                  int batchSize);
+
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCgetriBatched(cublasHandle_t handle,
+                                                  int n,
+                                                  cuComplex *A[],                 /*Device pointer*/
+                                                  int lda,
+                                                  int *P,                         /*Device pointer*/
+                                                  cuComplex *C[],                 /*Device pointer*/
+                                                  int ldc,
+                                                  int *INFO,
+                                                  int batchSize);
+
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZgetriBatched(cublasHandle_t handle,
+                                                  int n,
+                                                  cuDoubleComplex *A[],           /*Device pointer*/
+                                                  int lda,
+                                                  int *P,                         /*Device pointer*/
+                                                  cuDoubleComplex *C[],           /*Device pointer*/
+                                                  int ldc,
+                                                  int *INFO,
+                                                  int batchSize);
+
+
+
+/* TRSM - Batched Triangular Solver */
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasStrsmBatched( cublasHandle_t    handle, 
+                                                          cublasSideMode_t  side, 
+                                                          cublasFillMode_t  uplo,
+                                                          cublasOperation_t trans, 
+                                                          cublasDiagType_t  diag,
+                                                          int m, 
+                                                          int n, 
+                                                          float *alpha,           /*Host or Device Pointer*/
+                                                          float *A[], 
+                                                          int lda,
+                                                          float *B[], 
+                                                          int ldb,
+                                                          int batchCount);
+
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDtrsmBatched( cublasHandle_t    handle, 
+                                                          cublasSideMode_t  side, 
+                                                          cublasFillMode_t  uplo,
+                                                          cublasOperation_t trans, 
+                                                          cublasDiagType_t  diag,
+                                                          int m, 
+                                                          int n, 
+                                                          double *alpha,          /*Host or Device Pointer*/
+                                                          double *A[], 
+                                                          int lda,
+                                                          double *B[], 
+                                                          int ldb,
+                                                          int batchCount);
+
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCtrsmBatched( cublasHandle_t    handle, 
+                                                          cublasSideMode_t  side, 
+                                                          cublasFillMode_t  uplo,
+                                                          cublasOperation_t trans, 
+                                                          cublasDiagType_t  diag,
+                                                          int m, 
+                                                          int n, 
+                                                          cuComplex *alpha,       /*Host or Device Pointer*/
+                                                          cuComplex *A[], 
+                                                          int lda,
+                                                          cuComplex *B[], 
+                                                          int ldb,
+                                                          int batchCount);
+
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZtrsmBatched( cublasHandle_t    handle, 
+                                                          cublasSideMode_t  side, 
+                                                          cublasFillMode_t  uplo,
+                                                          cublasOperation_t trans, 
+                                                          cublasDiagType_t  diag,
+                                                          int m, 
+                                                          int n, 
+                                                          cuDoubleComplex *alpha, /*Host or Device Pointer*/
+                                                          cuDoubleComplex *A[], 
+                                                          int lda,
+                                                          cuDoubleComplex *B[], 
+                                                          int ldb,
+                                                          int batchCount);
+
+/* Batched - MATINV*/
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSmatinvBatched(cublasHandle_t handle,
+                                                          int n, 
+                                                          float *A[],                  /*Device pointer*/
+                                                          int lda, 
+                                                          float *Ainv[],               /*Device pointer*/
+                                                          int lda_inv, 
+                                                          int *INFO,                   /*Device Pointer*/
+                                                          int batchSize);
+
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDmatinvBatched(cublasHandle_t handle,
+                                                          int n, 
+                                                          double *A[],                 /*Device pointer*/
+                                                          int lda, 
+                                                          double *Ainv[],              /*Device pointer*/
+                                                          int lda_inv, 
+                                                          int *INFO,                   /*Device Pointer*/
+                                                          int batchSize);
+
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCmatinvBatched(cublasHandle_t handle,
+                                                          int n, 
+                                                          cuComplex *A[],              /*Device pointer*/
+                                                          int lda, 
+                                                          cuComplex *Ainv[],           /*Device pointer*/
+                                                          int lda_inv, 
+                                                          int *INFO,                   /*Device Pointer*/
+                                                          int batchSize);
+
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZmatinvBatched(cublasHandle_t handle,
+                                                          int n, 
+                                                          cuDoubleComplex *A[],        /*Device pointer*/
+                                                          int lda, 
+                                                          cuDoubleComplex *Ainv[],     /*Device pointer*/
+                                                          int lda_inv, 
+                                                          int *INFO,                   /*Device Pointer*/
+                                                          int batchSize);
+
+/* DGMM */
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSdgmm(cublasHandle_t handle,
+                                                  cublasSideMode_t mode, 
+                                                  int m, 
+                                                  int n,
+                                                  const float *A, 
+                                                  int lda,
+                                                  const float *x, 
+                                                  int incx,
+                                                  float *C, 
+                                                  int ldc);
+    
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDdgmm(cublasHandle_t handle,
+                                                  cublasSideMode_t mode, 
+                                                  int m, 
+                                                  int n,
+                                                  const double *A, 
+                                                  int lda,
+                                                  const double *x, 
+                                                  int incx,
+                                                  double *C, 
+                                                  int ldc);
+
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCdgmm(cublasHandle_t handle,
+                                                  cublasSideMode_t mode, 
+                                                  int m, 
+                                                  int n,
+                                                  const cuComplex *A, 
+                                                  int lda,
+                                                  const cuComplex *x, 
+                                                  int incx,
+                                                  cuComplex *C, 
+                                                  int ldc);
+    
+CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZdgmm(cublasHandle_t handle,
+                                                  cublasSideMode_t mode, 
+                                                  int m, 
+                                                  int n,
+                                                  const cuDoubleComplex *A, 
+                                                  int lda,
+                                                  const cuDoubleComplex *x, 
+                                                  int incx,
+                                                  cuDoubleComplex *C, 
+                                                  int ldc);
 
 #if defined(__cplusplus)
 }

@@ -107,8 +107,9 @@ template<typename T> struct is_pointer<T *> : public true_type  {};
 
 template<typename T> struct is_device_ptr  : public false_type {};
 
-template<typename T> struct is_void       : public false_type {};
-template<>           struct is_void<void> : public true_type {};
+template<typename T> struct is_void             : public false_type {};
+template<>           struct is_void<void>       : public true_type {};
+template<>           struct is_void<const void> : public true_type {};
 
 
 namespace tt_detail
@@ -377,9 +378,15 @@ template<typename T1, typename T2>
 
 // mpl stuff
 
-template <typename Condition1, typename Condition2, typename Condition3 = false_type>
+template <typename Condition1,               typename Condition2,              typename Condition3 = false_type,
+          typename Condition4  = false_type, typename Condition5 = false_type, typename Condition6 = false_type,
+          typename Condition7  = false_type, typename Condition8 = false_type, typename Condition9 = false_type,
+          typename Condition10 = false_type>
   struct or_
-    : public integral_constant<bool, Condition1::value || Condition2::value || Condition3::value>
+    : public integral_constant<
+        bool,
+        Condition1::value || Condition2::value || Condition3::value || Condition4::value || Condition5::value || Condition6::value || Condition7::value || Condition8::value || Condition9::value || Condition10::value
+      >
 {
 }; // end or_
 
@@ -423,10 +430,28 @@ template<typename T>
 template<bool, typename T = void> struct enable_if {};
 template<typename T>              struct enable_if<true, T> {typedef T type;};
 
+template<bool, typename T> struct lazy_enable_if {};
+template<typename T>       struct lazy_enable_if<true, T> {typedef typename T::type type;};
 
-template<typename T1, typename T2>
+template<bool condition, typename T = void> struct disable_if : enable_if<!condition, T> {};
+template<bool condition, typename T>        struct lazy_disable_if : lazy_enable_if<!condition, T> {};
+
+
+template<typename T1, typename T2, typename T = void>
   struct enable_if_convertible
-    : enable_if< is_convertible<T1,T2>::value>
+    : enable_if< is_convertible<T1,T2>::value, T >
+{};
+
+
+template<typename T1, typename T2, typename T = void>
+  struct disable_if_convertible
+    : disable_if< is_convertible<T1,T2>::value, T >
+{};
+
+
+template<typename T1, typename T2, typename Result = void>
+  struct enable_if_different
+    : enable_if<is_different<T1,T2>::value, Result>
 {};
 
 
@@ -522,6 +547,91 @@ template<typename T1, typename T2>
         thrust::detail::identity_<T1>
       >
 {};
+
+
+namespace is_base_of_ns
+{
+
+typedef char                          yes;
+typedef struct { char two_chars[2]; } no;
+
+template<typename Base, typename Derived>
+  struct host
+{
+  operator Base*() const;
+  operator Derived*();
+}; // end host
+
+template<typename Base, typename Derived>
+  struct impl
+{
+  template<typename T> static yes check(Derived *, T);
+  static no check(Base*, int);
+
+  static const bool value = sizeof(check(host<Base,Derived>(), int())) == sizeof(yes);
+}; // end impl
+
+} // end is_base_of_ns
+
+
+template<typename Base, typename Derived>
+  struct is_base_of
+    : integral_constant<
+        bool,
+        is_base_of_ns::impl<Base,Derived>::value
+      >
+{};
+
+template<typename Base, typename Derived, typename Result = void>
+  struct enable_if_base_of
+    : enable_if<
+        is_base_of<Base,Derived>::value,
+        Result
+      >
+{};
+
+
+namespace is_assignable_ns
+{
+
+template<typename T1, typename T2>
+  class is_assignable
+{
+  typedef char                      yes_type;
+  typedef struct { char array[2]; } no_type;
+
+  template<typename T> static typename add_reference<T>::type declval();
+  
+  template<unsigned int> struct helper { typedef void * type; };
+
+  template<typename U1, typename U2> static yes_type test(typename helper<sizeof(declval<U1>() = declval<U2>())>::type);
+
+  template<typename,typename> static no_type test(...);
+
+  public:
+    static const bool value = sizeof(test<T1,T2>(0)) == 1;
+}; // end is_assignable
+
+} // end is_assignable_ns
+
+
+template<typename T1, typename T2>
+  struct is_assignable
+    : integral_constant<
+        bool,
+        is_assignable_ns::is_assignable<T1,T2>::value
+      >
+{};
+
+
+template<typename T>
+  struct is_copy_assignable
+    : is_assignable<
+        typename add_reference<T>::type,
+        typename add_reference<typename add_const<T>::type>::type
+      >
+{};
+
 
 } // end detail
 

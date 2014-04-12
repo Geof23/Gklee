@@ -569,12 +569,21 @@ static bool checkRWRace(Executor &executor, ExecutionState &state,
       if (!isBothAtomic(*ii, *jj)
            && checkConflictExprs(executor, state, raceCond, queryNum, 
                                  ii->offset, width1, jj->offset, width2)) {
-        GKLEE_INFO2 << "Across different warps, threads " << tid1 << " and " << tid2
-		    << " incur a Read-Write race (Actual) on " << std::endl;
+        bool benign = false;
+        if (!checkValuesSame(executor, state, ii->val, jj->val)) {
+	  GKLEE_INFO2 << "Across different warps, threads " << tid1 << " and " << tid2
+	              << " incur a Read-Write race (Actual) on " << std::endl;
+        } else {
+          // If the written values are same, 'benign' race conditions...
+	  GKLEE_INFO2 << "Across different warps, threads " << tid1 << " and " << tid2
+		      << " incur a Read-Write race with same value (Benign) on " << std::endl;
+          benign = true;
+        }
 	ii->dump(executor, state, raceCond);
         jj->dump(executor, state, raceCond);
 	if(Emacs) AddressSpace::dumpEmacsInfoVect(ii->bid, jj->bid, tid1, tid2, ii->instr, jj->instr, "rwraw");
-	return true;
+        if (benign) return false;
+	else return true;
       }
     }
   }
@@ -627,18 +636,28 @@ static bool checkWWRacePureCS(Executor &executor, ExecutionState &state,
         if (tid1 != tid2) {
           if (!isBothAtomic(*ii, *jj)
                && accessSameMemoryRegion(executor, state, base1, base2)
-                && checkConflictExprs(executor, state, raceCond, queryNum, 
-                                      offset1, width1, offset2, width2)
-                  && ii->val != jj->val
-                    && fenceRelation(*ii, *jj, withinBlock)) {
+                 && checkConflictExprs(executor, state, raceCond, queryNum, 
+                                       offset1, width1, offset2, width2)
+                   && fenceRelation(*ii, *jj, withinBlock)) {
  	    if (Emacs) AddressSpace::dumpEmacsInfoVect(ii->bid, jj->bid, tid1, tid2, 
 	    			                       ii->instr, jj->instr, "ww");
-            GKLEE_INFO2 << "Under the pure canonical schedule, within the same block, "
-                        << "threads " << tid1 << " and " << tid2
-                        << " incur a Write-Write race (Actual) on ";
+            bool benign = false;
+            if (!checkValuesSame(executor, state, ii->val, jj->val)) {
+              GKLEE_INFO2 << "Under the pure canonical schedule, within a block, "
+                          << "thread " << tid1 << " and " << tid2
+	    	          << " incur a Write-Write race (Actual) on " 
+                          << std::endl;
+            } else {
+              GKLEE_INFO2 << "Under the pure canonical schedule, within a block, "
+                          << "thread " << tid1 << " and " << tid2
+	  	          << " incur a Write-Write race with the same value (Benign) on " 
+                          << std::endl;
+              benign = true;
+            }
             ii->dump(executor, state, raceCond);
 	    jj->dump(executor, state, raceCond);
-            return true;
+            if (benign) return false;
+	    else return true;
           }
         }
       }
@@ -659,17 +678,28 @@ static bool checkWWRacePureCS(Executor &executor, ExecutionState &state,
         if (tid1 != tid2) {
           if (!isBothAtomic(*ii, *jj)
                && accessSameMemoryRegion(executor, state, base1, base2)
-                && checkConflictExprs(executor, state, raceCond, queryNum, 
-                                      offset1, width1, offset2, width2)
-                 && ii->val != jj->val) {
+                 && checkConflictExprs(executor, state, raceCond, queryNum, 
+                                       offset1, width1, offset2, width2)
+                   && fenceRelation(*ii, *jj, withinBlock)) {
  	    if (Emacs) AddressSpace::dumpEmacsInfoVect(ii->bid, jj->bid, tid1, tid2, 
 	    			                       ii->instr, jj->instr, "ww");
-            GKLEE_INFO2 << "Under the pure canonical schedule, across different blocks, "
-                        << "threads " << tid1 << " and " << tid2
-                        << " incur a Write-Write race (Actual) on ";
+            bool benign = false;
+            if (!checkValuesSame(executor, state, ii->val, jj->val)) {
+              GKLEE_INFO2 << "Under the pure canonical schedule, across different blocks, "
+                          << "thread " << tid1 << " and " << tid2
+	    	          << " incur a Write-Write race (Actual) on " 
+                          << std::endl;
+            } else {
+              GKLEE_INFO2 << "Under the pure canonical schedule, across different blocks, "
+                          << "thread " << tid1 << " and " << tid2
+	  	          << " incur a Write-Write race with the same value (Benign) on " 
+                          << std::endl;
+              benign = true;
+            }
             ii->dump(executor, state, raceCond);
 	    jj->dump(executor, state, raceCond);
-            return true;
+            if (benign) return false;
+	    else return true;
           }
         }
       } 
@@ -700,13 +730,25 @@ static bool checkRWRacePureCS(Executor &executor, ExecutionState &state,
               && checkConflictExprs(executor, state, raceCond, queryNum, 
                                     offset1, width1, offset2, width2)
                 && fenceRelation(*ii, *jj, withinBlock)) {
-          GKLEE_INFO2 << "Threads " << tid1 << " and " << tid2
-                      << " incur a Write-Read race (Actual) on ";
-          ii->dump(executor, state, raceCond);
-	  jj->dump(executor, state, raceCond);
  	  if (Emacs) AddressSpace::dumpEmacsInfoVect(ii->bid, jj->bid, tid1, tid2, 
                                                      ii->instr, jj->instr, "rw");
-	  return true;
+          bool benign = false;
+          if (!checkValuesSame(executor, state, ii->val, jj->val)) {
+            GKLEE_INFO2 << "Under the pure canonical schedule, "
+                        << "thread " << tid1 << " and " << tid2
+	                << " incur a Write-Read race (Actual) on " 
+                        << std::endl;
+          } else {
+            GKLEE_INFO2 << "Under the pure canonical schedule, "
+                        << "thread " << tid1 << " and " << tid2
+	                << " incur a Write-Read race with the same value (Benign) on " 
+                        << std::endl;
+            benign = true;
+          }
+          ii->dump(executor, state, raceCond);
+	  jj->dump(executor, state, raceCond);
+          if (benign) return false;
+	  else return true;
         }
       }
     }

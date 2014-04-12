@@ -1,4 +1,4 @@
- /* Copyright 2009-2012 NVIDIA Corporation.  All rights reserved. 
+ /* Copyright 2009-2011 NVIDIA Corporation.  All rights reserved. 
   * 
   * NOTICE TO LICENSEE: 
   * 
@@ -62,13 +62,13 @@
 extern "C" {
 #endif
 
-#define NPP_VERSION_MAJOR 4
-#define NPP_VERSION_MINOR 2
-#define NPP_VERSION_BUILD 9
+#define NPP_VERSION_MAJOR 5
+#define NPP_VERSION_MINOR 5
+#define NPP_VERSION_BUILD 22
 
 #ifdef __cplusplus
-} // extern "C"
+} /* extern "C" */
 #endif
 
 
-#endif // NV_NPPI_VERSION_H
+#endif /* NV_NPPI_VERSION_H */

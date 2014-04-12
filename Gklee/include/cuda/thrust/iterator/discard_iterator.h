@@ -15,7 +15,7 @@
  */
 
 
-/*! \file discard_iterator.h
+/*! \file thrust/iterator/discard_iterator.h
  *  \brief An iterator which "discards" (ignores) values assigned to it upon dereference
  */
 
@@ -23,6 +23,7 @@
 
 #include <thrust/detail/config.h>
 #include <thrust/iterator/detail/discard_iterator_base.h>
+#include <thrust/iterator/iterator_facade.h>
 
 __THRUST_DISABLE_MSVC_POSSIBLE_LOSS_OF_DATA_WARNING_BEGIN
 
@@ -89,16 +90,16 @@ namespace thrust
  *
  *  \see make_discard_iterator
  */
-template<typename Space = use_default>
+template<typename System = use_default>
   class discard_iterator
-    : public detail::discard_iterator_base<Space>::type
+    : public detail::discard_iterator_base<System>::type
 {
     /*! \cond
      */
-    friend class thrust::experimental::iterator_core_access;
-    typedef typename detail::discard_iterator_base<Space>::type          super_t;
-    typedef typename detail::discard_iterator_base<Space>::incrementable incrementable;
-    typedef typename detail::discard_iterator_base<Space>::base_iterator base_iterator;
+    friend class thrust::iterator_core_access;
+    typedef typename detail::discard_iterator_base<System>::type          super_t;
+    typedef typename detail::discard_iterator_base<System>::incrementable incrementable;
+    typedef typename detail::discard_iterator_base<System>::base_iterator base_iterator;
 
   public:
     typedef typename super_t::reference  reference;
@@ -130,10 +131,13 @@ template<typename Space = use_default>
      */
   
   private: // Core iterator interface
+    __host__ __device__
     reference dereference(void) const
     {
-      return reference();
+      return m_element;
     }
+
+    mutable value_type m_element;
 
     /*! \endcond
      */
@@ -164,6 +168,4 @@ discard_iterator<> make_discard_iterator(discard_iterator<>::difference_type i =
 } // end namespace thrust
   
 __THRUST_DISABLE_MSVC_POSSIBLE_LOSS_OF_DATA_WARNING_END
-
-#include <thrust/iterator/detail/discard_iterator.inl>
 

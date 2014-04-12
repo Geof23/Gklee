@@ -117,11 +117,33 @@ extern __device__ __device_builtin__ double                __ddiv_ru(double x, d
 extern __device__ __device_builtin__ double                __ddiv_rd(double x, double y);
 /**
  * \ingroup CUDA_MATH_INTRINSIC_DOUBLE
- * \brief Compute \f$\frac{1}{x}\f$ in round-to-nearest-even mode.
+ * \brief Compute 
+ * \latexonly $\frac{1}{x}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mfrac>
+ *     <m:mn>1</m:mn>
+ *     <m:mi>x</m:mi>
+ *   </m:mfrac>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  in round-to-nearest-even mode.
  * 
  * Compute the reciprocal of \p x in round-to-nearest-even mode.
  *
- * \return Returns \f$\frac{1}{x}\f$.
+ * \return Returns 
+ * \latexonly $\frac{1}{x}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mfrac>
+ *     <m:mn>1</m:mn>
+ *     <m:mi>x</m:mi>
+ *   </m:mfrac>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_double
  * \note_requires_fermi
@@ -129,11 +151,33 @@ extern __device__ __device_builtin__ double                __ddiv_rd(double x, d
 extern __device__ __device_builtin__ double                __drcp_rn(double x);
 /**
  * \ingroup CUDA_MATH_INTRINSIC_DOUBLE
- * \brief Compute \f$\frac{1}{x}\f$ in round-towards-zero mode.
+ * \brief Compute 
+ * \latexonly $\frac{1}{x}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mfrac>
+ *     <m:mn>1</m:mn>
+ *     <m:mi>x</m:mi>
+ *   </m:mfrac>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  in round-towards-zero mode.
  *
  * Compute the reciprocal of \p x in round-towards-zero mode.
  *
- * \return Returns \f$\frac{1}{x}\f$.
+ * \return Returns 
+ * \latexonly $\frac{1}{x}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mfrac>
+ *     <m:mn>1</m:mn>
+ *     <m:mi>x</m:mi>
+ *   </m:mfrac>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_double
  * \note_requires_fermi
@@ -141,11 +185,33 @@ extern __device__ __device_builtin__ double                __drcp_rn(double x);
 extern __device__ __device_builtin__ double                __drcp_rz(double x);
 /**
  * \ingroup CUDA_MATH_INTRINSIC_DOUBLE
- * \brief Compute \f$\frac{1}{x}\f$ in round-up mode.
+ * \brief Compute 
+ * \latexonly $\frac{1}{x}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mfrac>
+ *     <m:mn>1</m:mn>
+ *     <m:mi>x</m:mi>
+ *   </m:mfrac>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  in round-up mode.
  * 
  * Compute the reciprocal of \p x in round-up (to positive infinity) mode.
  *
- * \return Returns \f$\frac{1}{x}\f$.
+ * \return Returns 
+ * \latexonly $\frac{1}{x}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mfrac>
+ *     <m:mn>1</m:mn>
+ *     <m:mi>x</m:mi>
+ *   </m:mfrac>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_double
  * \note_requires_fermi
@@ -153,11 +219,33 @@ extern __device__ __device_builtin__ double                __drcp_rz(double x);
 extern __device__ __device_builtin__ double                __drcp_ru(double x);
 /**
  * \ingroup CUDA_MATH_INTRINSIC_DOUBLE
- * \brief Compute \f$\frac{1}{x}\f$ in round-down mode.
+ * \brief Compute 
+ * \latexonly $\frac{1}{x}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mfrac>
+ *     <m:mn>1</m:mn>
+ *     <m:mi>x</m:mi>
+ *   </m:mfrac>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  in round-down mode.
  * 
  * Compute the reciprocal of \p x in round-down (to negative infinity) mode.
  *
- * \return Returns \f$\frac{1}{x}\f$.
+ * \return Returns 
+ * \latexonly $\frac{1}{x}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mfrac>
+ *     <m:mn>1</m:mn>
+ *     <m:mi>x</m:mi>
+ *   </m:mfrac>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_double
  * \note_requires_fermi
@@ -165,11 +253,31 @@ extern __device__ __device_builtin__ double                __drcp_ru(double x);
 extern __device__ __device_builtin__ double                __drcp_rd(double x);
 /**
  * \ingroup CUDA_MATH_INTRINSIC_DOUBLE
- * \brief Compute \f$\sqrt{x}\f$ in round-to-nearest-even mode.
+ * \brief Compute 
+ * \latexonly $\sqrt{x}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msqrt>
+ *     <m:mi>x</m:mi>
+ *   </m:msqrt>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  in round-to-nearest-even mode.
  * 
  * Compute the square root of \p x in round-to-nearest-even mode.
  *
- * \return Returns \f$\sqrt{x}\f$.
+ * \return Returns 
+ * \latexonly $\sqrt{x}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msqrt>
+ *     <m:mi>x</m:mi>
+ *   </m:msqrt>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_double
  * \note_requires_fermi
@@ -177,11 +285,31 @@ extern __device__ __device_builtin__ double                __drcp_rd(double x);
 extern __device__ __device_builtin__ double                __dsqrt_rn(double x);
 /**
  * \ingroup CUDA_MATH_INTRINSIC_DOUBLE
- * \brief Compute \f$\sqrt{x}\f$ in round-towards-zero mode.
+ * \brief Compute 
+ * \latexonly $\sqrt{x}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msqrt>
+ *     <m:mi>x</m:mi>
+ *   </m:msqrt>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  in round-towards-zero mode.
  * 
  * Compute the square root of \p x in round-towards-zero mode.
  *
- * \return Returns \f$\sqrt{x}\f$.
+ * \return Returns 
+ * \latexonly $\sqrt{x}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msqrt>
+ *     <m:mi>x</m:mi>
+ *   </m:msqrt>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_double
  * \note_requires_fermi
@@ -189,11 +317,31 @@ extern __device__ __device_builtin__ double                __dsqrt_rn(double x);
 extern __device__ __device_builtin__ double                __dsqrt_rz(double x);
 /**
  * \ingroup CUDA_MATH_INTRINSIC_DOUBLE
- * \brief Compute \f$\sqrt{x}\f$ in round-up mode.
+ * \brief Compute 
+ * \latexonly $\sqrt{x}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msqrt>
+ *     <m:mi>x</m:mi>
+ *   </m:msqrt>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  in round-up mode.
  * 
  * Compute the square root of \p x in round-up (to positive infinity) mode.
  *
- * \return Returns \f$\sqrt{x}\f$.
+ * \return Returns 
+ * \latexonly $\sqrt{x}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msqrt>
+ *     <m:mi>x</m:mi>
+ *   </m:msqrt>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_double
  * \note_requires_fermi
@@ -201,11 +349,31 @@ extern __device__ __device_builtin__ double                __dsqrt_rz(double x);
 extern __device__ __device_builtin__ double                __dsqrt_ru(double x);
 /**
  * \ingroup CUDA_MATH_INTRINSIC_DOUBLE
- * \brief Compute \f$\sqrt{x}\f$ in round-down mode.
+ * \brief Compute 
+ * \latexonly $\sqrt{x}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msqrt>
+ *     <m:mi>x</m:mi>
+ *   </m:msqrt>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  in round-down mode.
  * 
  * Compute the square root of \p x in round-down (to negative infinity) mode.
  *
- * \return Returns \f$\sqrt{x}\f$.
+ * \return Returns 
+ * \latexonly $\sqrt{x}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msqrt>
+ *     <m:mi>x</m:mi>
+ *   </m:msqrt>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_double
  * \note_requires_fermi
@@ -254,6 +422,25 @@ static __inline__ __device__ bool syncthreads_and(bool pred)
 static __inline__ __device__ bool syncthreads_or(bool pred)
 {
   return (bool)__syncthreads_or((int)pred);
+}
+
+
+// This function returns 1 if generic address "ptr" is in global memory space.
+// It returns 0 if "ptr" is in shared, local or constant memory space.
+static __inline__ __device__ unsigned int __isGlobal(const void *ptr)
+{
+    unsigned int ret;
+    asm volatile ("{ \n\t"
+                  "    .reg .pred p; \n\t"
+                  "    isspacep.global p, %1; \n\t"
+                  "    selp.u32 %0, 1, 0, p;  \n\t"
+#if (defined(_MSC_VER) && defined(_WIN64)) || defined(__LP64__)
+                  "} \n\t" : "=r"(ret) : "l"(ptr));
+#else
+                  "} \n\t" : "=r"(ret) : "r"(ptr));
+#endif
+
+    return ret;
 }
 
 #endif /* !__CUDA_ARCH__ || __CUDA_ARCH__ >= 200 */

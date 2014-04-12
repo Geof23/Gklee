@@ -56,9 +56,10 @@ template<typename T, typename Alloc = std::allocator<T> >
     typedef detail::vector_base<T,Alloc> Parent;
 
   public:
-    // typedefs
+    /*! \cond */
     typedef typename Parent::size_type  size_type;
     typedef typename Parent::value_type value_type;
+    /*! \endcond */
 
     /*! This constructor creates an empty \p host_vector.
      */
@@ -66,13 +67,21 @@ template<typename T, typename Alloc = std::allocator<T> >
     host_vector(void)
       :Parent() {}
 
+    /*! This constructor creates a \p host_vector with the given
+     *  size.
+     *  \param n The number of elements to initially craete.
+     */
+    __host__
+    explicit host_vector(size_type n)
+      :Parent(n) {}
+
     /*! This constructor creates a \p host_vector with copies
      *  of an exemplar element.
      *  \param n The number of elements to initially create.
      *  \param value An element to copy.
      */
     __host__
-    explicit host_vector(size_type n, const value_type &value = value_type())
+    explicit host_vector(size_type n, const value_type &value)
       :Parent(n,value) {}
 
     /*! Copy constructor copies from an exemplar \p host_vector.
@@ -127,6 +136,14 @@ template<typename T, typename Alloc = std::allocator<T> >
     template<typename OtherT, typename OtherAlloc>
     __host__
     host_vector(const device_vector<OtherT,OtherAlloc> &v);
+
+    /*! Assign operator copies from an exemplar \p device_vector.
+     *  \param v The \p device_vector to copy.
+     */
+    template<typename OtherT, typename OtherAlloc>
+    __host__
+    host_vector &operator=(const device_vector<OtherT,OtherAlloc> &v)
+    { Parent::operator=(v); return *this; }
 
     /*! This constructor builds a \p host_vector from a range.
      *  \param first The beginning of the range.

@@ -59,6 +59,8 @@
 #define CUDART_ZERO_F           0.0f
 #define CUDART_ONE_F            1.0f
 #define CUDART_SQRT_HALF_F      0.707106781f
+#define CUDART_SQRT_HALF_HI_F   0.707106781f
+#define CUDART_SQRT_HALF_LO_F   1.210161749e-08f
 #define CUDART_SQRT_TWO_F       1.414213562f
 #define CUDART_THIRD_F          0.333333333f
 #define CUDART_PIO4_F           0.785398163f
@@ -83,7 +85,11 @@
 #define CUDART_TWO_TO_32_F      4294967296.0f
 #define CUDART_REMQUO_BITS_F    3
 #define CUDART_REMQUO_MASK_F    (~((~0)<<CUDART_REMQUO_BITS_F))
+#if __CUDA_ARCH__ >= 200
+#define CUDART_TRIG_PLOSS_F     105615.0f
+#else
 #define CUDART_TRIG_PLOSS_F     48039.0f
+#endif
 
 /* double precision constants */
 #if __CUDA_ARCH__ >= 130
@@ -106,6 +112,8 @@
 #define CUDART_ONE              1.0
 #define CUDART_SQRT_TWO         1.4142135623730951e+0
 #define CUDART_SQRT_HALF        7.0710678118654757e-1
+#define CUDART_SQRT_HALF_HI     7.0710678118654757e-1
+#define CUDART_SQRT_HALF_LO   (-4.8336466567264567e-17)
 #define CUDART_THIRD            3.3333333333333333e-1
 #define CUDART_TWOTHIRD         6.6666666666666667e-1
 #define CUDART_PIO4             7.8539816339744828e-1

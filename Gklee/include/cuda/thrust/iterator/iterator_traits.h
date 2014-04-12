@@ -15,7 +15,7 @@
  */
 
 
-/*! \file iterator_traits.h
+/*! \file thrust/iterator/iterator_traits.h
  *  \brief Traits and metafunctions for reasoning about the traits of iterators
  */
 
@@ -36,36 +36,14 @@
 namespace thrust
 {
 
+/*! \p iterator_traits is a type trait class that provides a uniform
+ *  interface for querying the properties of iterators at compile-time.
+ */
 template<typename T>
   struct iterator_traits
     : public std::iterator_traits<T>
 {
 }; // end iterator_traits
-
-
-// define space tags
-struct host_space_tag {};
-
-struct device_space_tag {};
-
-
-// define Boost's traversal tags
-struct no_traversal_tag {};
-
-struct incrementable_traversal_tag
-  : no_traversal_tag {};
-
-struct single_pass_traversal_tag
-  : incrementable_traversal_tag {};
-
-struct forward_traversal_tag
-  : single_pass_traversal_tag {};
-
-struct bidirectional_traversal_tag
-  : forward_traversal_tag {};
-
-struct random_access_traversal_tag
-  : bidirectional_traversal_tag {};
 
 
 template<typename Iterator> struct iterator_value;
@@ -78,10 +56,21 @@ template<typename Iterator> struct iterator_difference;
 
 template<typename Iterator> struct iterator_traversal;
 
-template<typename Iterator> struct iterator_space;
+template<typename Iterator> struct iterator_system;
+
+// TODO remove this in Thrust v1.7.0
+template<typename Iterator>
+  struct THRUST_DEPRECATED iterator_space
+{
+  typedef THRUST_DEPRECATED typename iterator_system<Iterator>::type type;
+};
+
 
 } // end thrust
 
-#include <thrust/iterator/detail/any_space_tag.h>
+#include <thrust/iterator/detail/iterator_traversal_tags.h>
+#include <thrust/iterator/detail/host_system_tag.h>
+#include <thrust/iterator/detail/device_system_tag.h>
+#include <thrust/iterator/detail/any_system_tag.h>
 #include <thrust/iterator/detail/iterator_traits.inl>
 

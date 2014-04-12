@@ -15,7 +15,7 @@
  */
 
 
-/*! \file reverse_iterator.h
+/*! \file thrust/iterator/reverse_iterator.h
  *  \brief An iterator adaptor which adapts another iterator to traverse backwards
  */
 
@@ -35,6 +35,7 @@
 #include <thrust/detail/config.h>
 #include <thrust/detail/type_traits.h>
 #include <thrust/iterator/detail/reverse_iterator_base.h>
+#include <thrust/iterator/iterator_facade.h>
 
 namespace thrust
 {
@@ -151,7 +152,7 @@ template<typename BidirectionalIterator>
       BidirectionalIterator
     >::type super_t;
 
-    friend class thrust::experimental::iterator_core_access;
+    friend class thrust::iterator_core_access;
   /*! \endcond
    */
 
@@ -192,6 +193,8 @@ template<typename BidirectionalIterator>
   /*! \cond
    */
   private:
+    __thrust_hd_warning_disable__
+    __host__ __device__
     typename super_t::reference dereference(void) const;
 
     __host__ __device__

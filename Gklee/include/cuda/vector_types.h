@@ -56,7 +56,9 @@
 *                                                                              *
 *******************************************************************************/
 
+#if !defined(__CUDA_LIBDEVICE__)
 #include "builtin_types.h"
+#endif /* !__CUDA_LIBDEVICE__ */
 #include "host_defines.h"
 
 /*******************************************************************************
@@ -250,7 +252,27 @@ struct __device_builtin__ float1
     float x;
 };
 
+#if !defined(__CUDACC__) && !defined(__CUDABE__) && defined(__arm__) && \
+    defined(__ARM_PCS_VFP) && __GNUC__ == 4 && __GNUC_MINOR__ == 6
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-pedantic"
+
+struct __device_builtin__ __attribute__((aligned(8))) float2
+{
+    float x; float y; float __cuda_gnu_arm_ice_workaround[0];
+};
+
+#pragma GCC poison __cuda_gnu_arm_ice_workaround
+#pragma GCC diagnostic pop
+
+#else /* !__CUDACC__ && !__CUDABE__ && __arm__ && __ARM_PCS_VFP &&
+         __GNUC__ == 4&& __GNUC_MINOR__ == 6 */
+
 __cuda_builtin_vector_align8(float2, float x; float y;);
+
+#endif /* !__CUDACC__ && !__CUDABE__ && __arm__ && __ARM_PCS_VFP &&
+          __GNUC__ == 4&& __GNUC_MINOR__ == 6 */
 
 struct __device_builtin__ float3
 {

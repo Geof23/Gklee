@@ -21,13 +21,41 @@
  */
 
 #include <thrust/generate.h>
-#include <thrust/for_each.h>
-#include <thrust/detail/type_traits.h>
 #include <thrust/iterator/iterator_traits.h>
-#include <thrust/detail/internal_functional.h>
+#include <thrust/system/detail/generic/select_system.h>
+#include <thrust/system/detail/generic/generate.h>
+#include <thrust/system/detail/adl/generate.h>
 
 namespace thrust
 {
+
+
+template<typename DerivedPolicy,
+         typename ForwardIterator,
+         typename Generator>
+  void generate(const thrust::detail::execution_policy_base<DerivedPolicy> &exec,
+                ForwardIterator first,
+                ForwardIterator last,
+                Generator gen)
+{
+  using thrust::system::detail::generic::generate;
+  return generate(thrust::detail::derived_cast(thrust::detail::strip_const(exec)), first, last, gen);
+} // end generate()
+
+
+template<typename DerivedPolicy,
+         typename OutputIterator,
+         typename Size,
+         typename Generator>
+  OutputIterator generate_n(const thrust::detail::execution_policy_base<DerivedPolicy> &exec,
+                            OutputIterator first,
+                            Size n,
+                            Generator gen)
+{
+  using thrust::system::detail::generic::generate_n;
+  return generate_n(thrust::detail::derived_cast(thrust::detail::strip_const(exec)), first, n, gen);
+} // end generate_n()
+
 
 template<typename ForwardIterator,
          typename Generator>
@@ -35,8 +63,13 @@ template<typename ForwardIterator,
                 ForwardIterator last,
                 Generator gen)
 {
-  typedef typename thrust::iterator_space<ForwardIterator>::type Space;
-  return thrust::for_each(first, last, typename detail::generate_functor<Space,Generator>::type(gen));
+  using thrust::system::detail::generic::select_system;
+
+  typedef typename thrust::iterator_system<ForwardIterator>::type System;
+
+  System system;
+
+  return thrust::generate(select_system(system), first, last, gen);
 } // end generate()
 
 
@@ -47,9 +80,14 @@ template<typename OutputIterator,
                             Size n,
                             Generator gen)
 {
-  typedef typename thrust::iterator_space<OutputIterator>::type Space;
-  return detail::for_each_n(first, n, typename detail::generate_functor<Space,Generator>::type(gen));
-} // end generate()
+  using thrust::system::detail::generic::select_system;
+
+  typedef typename thrust::iterator_system<OutputIterator>::type System;
+
+  System system;
+
+  return thrust::generate_n(select_system(system), first, n, gen);
+} // end generate_n()
 
 
 } // end thrust

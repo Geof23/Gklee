@@ -65,27 +65,23 @@ extern "C" {
  */
 
 /**
- * \brief Initialize the profiling.
+ * \brief Initialize the CUDA profiler.
  *
- * Using this API user can specify the configuration file, output file and
- * output file format. This API is generally used to profile different set
- * of counters by looping the kernel launch.
- * \p configFile parameter can be used to select profiling options including
- * profiler counters. Refer the "Command Line Profiler" section in the 
- * "Compute Visual Profiler User Guide" for supported profiler options and 
- * counters.
+ * Using this API user can initialize the CUDA profiler by specifying
+ * the configuration file, output file and output file format. This
+ * API is generally used to profile different set of counters by
+ * looping the kernel launch. The \p configFile parameter can be used
+ * to select profiling options including profiler counters. Refer to
+ * the "Compute Command Line Profiler User Guide" for supported
+ * profiler options and counters.
  *
- * Configurations defined initially by environment variable settings are
- * overwritten by cudaProfilerInitialize().
- *
- * Limitation: Profiling APIs do not work when the application is running
- * with any profiler tool such as Compute Visual Profiler. User must handle
- * error ::cudaErrorProfilerDisabled returned by profiler APIs if application
- * is likely to be used with any profiler tool. 
+ * Limitation: The CUDA profiler cannot be initialized with this API
+ * if another profiling tool is already active, as indicated by the
+ * ::cudaErrorProfilerDisabled return code.
  *
  * Typical usage of the profiling APIs is as follows: 
  *
- * for each set of counters\n
+ * for each set of counters/options\n
  * {\n
  *      cudaProfilerInitialize(); //Initialize profiling,set the counters/options in 
  * the config file \n
@@ -101,10 +97,10 @@ extern "C" {
  * }\n
  *
  *
- * \param configFile - Name of the config file that lists the counters for 
- * profiling.
- * \param outputFile - Name of the outputFile where the profiling results
- * will be stored.
+ * \param configFile - Name of the config file that lists the counters/options
+ * for profiling.
+ * \param outputFile - Name of the outputFile where the profiling results will
+ * be stored.
  * \param outputMode - outputMode, can be ::cudaKeyValuePair OR ::cudaCSV.
  *
  * \return
@@ -120,19 +116,19 @@ extern __host__ cudaError_t CUDARTAPI cudaProfilerInitialize(const char *configF
                                                              cudaOutputMode_t outputMode);
 
 /**
- * \brief Start the profiling.
+ * \brief Enable profiling.
  *
- * This API is used in conjunction with cudaProfilerStop to selectively profile 
- * subsets of the CUDA program.
- * Profiler must be initialized using cudaProfilerInitialize() before making a 
- * call to cudaProfilerStart(). API returns an error 
- * ::cudaErrorProfilerNotInitialized if it is called without initializing profiler.
+ * Enables profile collection by the active profiling tool for the
+ * current context. If profiling is already enabled, then
+ * cudaProfilerStart() has no effect.
+ *
+ * cudaProfilerStart and cudaProfilerStop APIs are used to
+ * programmatically control the profiling granularity by allowing
+ * profiling to be done only on selective pieces of code.
+ * 
  *
  * \return
- * ::cudaSuccess,
- * ::cudaErrorProfilerDisabled,
- * ::cudaErrorProfilerAlreadyStarted,
- * ::cudaErrorProfilerNotInitialized
+ * ::cudaSuccess
  * \notefnerr
  *
  * \sa ::cudaProfilerInitialize, ::cudaProfilerStop
@@ -140,29 +136,29 @@ extern __host__ cudaError_t CUDARTAPI cudaProfilerInitialize(const char *configF
 extern __host__ cudaError_t CUDARTAPI cudaProfilerStart(void);
 
 /**
- * \brief Stop the profiling.
+ * \brief Disable profiling.
  *
- * This API is used in conjunction with cudaProfilerStart to selectively profile 
- * subsets of the CUDA program.
- * Profiler must be initialized using cudaProfilerInitialize() before making a 
- * call to cudaProfilerStop().API returns an error ::cudaErrorProfilerNotInitialized 
- * if it is called without initializing profiler.
+ * Disables profile collection by the active profiling tool for the
+ * current context. If profiling is already disabled, then
+ * cudaProfilerStop() has no effect.
+ *
+ * cudaProfilerStart and cudaProfilerStop APIs are used to
+ * programmatically control the profiling granularity by allowing
+ * profiling to be done only on selective pieces of code.
  *
  * \return
- * ::cudaSuccess,
- * ::cudaErrorProfilerDisabled,
- * ::cudaErrorProfilerAlreadyStopped,
- * ::cudaErrorProfilerNotInitialized
+ * ::cudaSuccess
  * \notefnerr
  *
  * \sa ::cudaProfilerInitialize, ::cudaProfilerStart
  */
 extern __host__ cudaError_t CUDARTAPI cudaProfilerStop(void);
 
-/** @} */ /* END CUDA_PROFILER */
+/** @} */ /* END CUDART_PROFILER */
 
 #if defined(__cplusplus)
 }
 #endif /* __cplusplus */
 
 #endif /* !__CUDA_PROFILER_API_H__ */
+

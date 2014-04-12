@@ -61,7 +61,7 @@
  */
 
 /**
- * \brief Returns a ::cudaPitchedPtr based on input parameters
+ * \brief Returns a cudaPitchedPtr based on input parameters
  *
  * Returns a ::cudaPitchedPtr based on the specified input parameters \p d,
  * \p p, \p xsz, and \p ysz.
@@ -89,7 +89,7 @@ static __inline__ __host__ struct cudaPitchedPtr make_cudaPitchedPtr(void *d, si
 }
 
 /**
- * \brief Returns a ::cudaPos based on input parameters
+ * \brief Returns a cudaPos based on input parameters
  *
  * Returns a ::cudaPos based on the specified input parameters \p x,
  * \p y, and \p z.
@@ -115,7 +115,7 @@ static __inline__ __host__ struct cudaPos make_cudaPos(size_t x, size_t y, size_
 }
 
 /**
- * \brief Returns a ::cudaExtent based on input parameters
+ * \brief Returns a cudaExtent based on input parameters
  *
  * Returns a ::cudaExtent based on the specified input parameters \p w,
  * \p h, and \p d.

@@ -16,9 +16,10 @@
 
 #pragma once
 
+#include <thrust/detail/config.h>
 #include <thrust/iterator/iterator_categories.h>
-#include <thrust/iterator/iterator_traits.h>
-#include <thrust/iterator/detail/iterator_category_to_space.h>
+#include <thrust/iterator/detail/iterator_traversal_tags.h>
+#include <thrust/iterator/detail/iterator_category_to_system.h>
 #include <thrust/detail/type_traits.h>
 
 namespace thrust
@@ -32,14 +33,14 @@ namespace detail
 {
 
 // forward declarations
-template <typename> struct is_iterator_space;
+template <typename> struct is_iterator_system;
 template <typename> struct is_iterator_traversal;
 
 // make type_traits easy to access
 using namespace thrust::detail;
 
 template <typename Category>
-  struct host_space_category_to_traversal
+  struct host_system_category_to_traversal
     : eval_if<
         is_convertible<Category, random_access_host_iterator_tag>::value,
         detail::identity_<random_access_traversal_tag>,
@@ -62,12 +63,12 @@ template <typename Category>
         >
       >
 {
-}; // end host_space_category_to_traversal
+}; // end host_system_category_to_traversal
 
 
 
 template <typename Category>
-  struct device_space_category_to_traversal
+  struct device_system_category_to_traversal
     : eval_if<
         is_convertible<Category, random_access_device_iterator_tag>::value,
         detail::identity_<random_access_traversal_tag>,
@@ -90,12 +91,12 @@ template <typename Category>
         >
       >
 {
-}; // end device_space_category_to_traversal
+}; // end device_system_category_to_traversal
 
 
 
 template <typename Category>
-  struct any_space_category_to_traversal
+  struct any_system_category_to_traversal
     : eval_if<
         is_convertible<Category, random_access_universal_iterator_tag>::value,
         identity_<random_access_traversal_tag>,
@@ -120,37 +121,37 @@ template <typename Category>
         >
       >
 {
-}; // end any_space_category_to_traversal
+}; // end any_system_category_to_traversal
 
 
 template<typename Category>
   struct category_to_traversal
-      // check for any space
+      // check for any system
     : eval_if<
         or_<
           is_convertible<Category, thrust::input_universal_iterator_tag>,
           is_convertible<Category, thrust::output_universal_iterator_tag>
         >::value,
 
-        any_space_category_to_traversal<Category>,
+        any_system_category_to_traversal<Category>,
 
-        // check for host space
+        // check for host system
         eval_if<
           or_<
             is_convertible<Category, thrust::input_host_iterator_tag>,
             is_convertible<Category, thrust::output_host_iterator_tag>
           >::value,
 
-          host_space_category_to_traversal<Category>,
+          host_system_category_to_traversal<Category>,
 
-          // check for device space
+          // check for device system
           eval_if<
             or_<
               is_convertible<Category, thrust::input_device_iterator_tag>,
               is_convertible<Category, thrust::output_device_iterator_tag>
             >::value,
 
-            device_space_category_to_traversal<Category>,
+            device_system_category_to_traversal<Category>,
 
             // unknown category
             void

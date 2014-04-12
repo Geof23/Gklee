@@ -17,9 +17,27 @@
 #pragma once
 
 #include <thrust/detail/config.h>
+#include <thrust/detail/execution_policy.h>
 
 namespace thrust
 {
+
+template<typename System,
+         typename InputIterator,
+         typename OutputIterator>
+  OutputIterator copy(const thrust::detail::execution_policy_base<System> &system,
+                      InputIterator first,
+                      InputIterator last,
+                      OutputIterator result);
+
+template<typename System,
+         typename InputIterator,
+         typename Size,
+         typename OutputIterator>
+  OutputIterator copy_n(const thrust::detail::execution_policy_base<System> &system,
+                        InputIterator first,
+                        Size n,
+                        OutputIterator result);
 
 template<typename InputIterator,
          typename OutputIterator>
@@ -34,6 +52,35 @@ template<typename InputIterator,
                         Size n,
                         OutputIterator result);
 
+
+namespace detail
+{
+
+
+template<typename FromSystem,
+         typename ToSystem,
+         typename InputIterator,
+         typename OutputIterator>
+  OutputIterator two_system_copy(thrust::execution_policy<FromSystem> &from_system,
+                                 thrust::execution_policy<ToSystem>   &two_system,
+                                 InputIterator first,
+                                 InputIterator last,
+                                 OutputIterator result);
+
+
+template<typename FromSystem,
+         typename ToSystem,
+         typename InputIterator,
+         typename Size,
+         typename OutputIterator>
+  OutputIterator two_system_copy_n(thrust::execution_policy<FromSystem> &from_system,
+                                   thrust::execution_policy<ToSystem>   &two_system,
+                                   InputIterator first,
+                                   Size n,
+                                   OutputIterator result);
+
+
+} // end detail
 } // end thrust
 
 #include <thrust/detail/copy.inl>

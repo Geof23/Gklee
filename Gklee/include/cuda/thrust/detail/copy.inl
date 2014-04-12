@@ -17,10 +17,74 @@
 
 #include <thrust/detail/config.h>
 #include <thrust/detail/copy.h>
-#include <thrust/detail/backend/copy.h>
+#include <thrust/system/detail/generic/select_system.h>
+#include <thrust/system/detail/generic/copy.h>
+#include <thrust/system/detail/adl/copy.h>
 
 namespace thrust
 {
+
+
+template<typename DerivedPolicy, typename InputIterator, typename OutputIterator>
+  OutputIterator copy(const thrust::detail::execution_policy_base<DerivedPolicy> &exec,
+                      InputIterator first,
+                      InputIterator last,
+                      OutputIterator result)
+{
+  using thrust::system::detail::generic::copy;
+  return copy(thrust::detail::derived_cast(thrust::detail::strip_const(exec)), first, last, result);
+} // end copy()
+
+
+template<typename DerivedPolicy, typename InputIterator, typename Size, typename OutputIterator>
+  OutputIterator copy_n(const thrust::detail::execution_policy_base<DerivedPolicy> &exec,
+                        InputIterator first,
+                        Size n,
+                        OutputIterator result)
+{
+  using thrust::system::detail::generic::copy_n;
+  return copy_n(thrust::detail::derived_cast(thrust::detail::strip_const(exec)), first, n, result);
+} // end copy_n()
+
+
+namespace detail
+{
+
+
+template<typename System1,
+         typename System2,
+         typename InputIterator,
+         typename OutputIterator>
+  OutputIterator two_system_copy(thrust::execution_policy<System1> &system1,
+                                 thrust::execution_policy<System2> &system2,
+                                 InputIterator first,
+                                 InputIterator last,
+                                 OutputIterator result)
+{
+  using thrust::system::detail::generic::select_system;
+
+  return thrust::copy(select_system(thrust::detail::derived_cast(thrust::detail::strip_const(system1)), thrust::detail::derived_cast(thrust::detail::strip_const(system2))), first, last, result);
+} // end two_system_copy()
+
+
+template<typename System1,
+         typename System2,
+         typename InputIterator,
+         typename Size,
+         typename OutputIterator>
+  OutputIterator two_system_copy_n(thrust::execution_policy<System1> &system1,
+                                   thrust::execution_policy<System2> &system2,
+                                   InputIterator first,
+                                   Size n,
+                                   OutputIterator result)
+{
+  using thrust::system::detail::generic::select_system;
+
+  return thrust::copy_n(select_system(thrust::detail::derived_cast(thrust::detail::strip_const(system1)), thrust::detail::derived_cast(thrust::detail::strip_const(system2))), first, n, result);
+} // end two_system_copy_n()
+
+
+} // end detail
 
 
 template<typename InputIterator,
@@ -29,12 +93,15 @@ template<typename InputIterator,
                       InputIterator last,
                       OutputIterator result)
 {
-  // make sure this isn't necessary
-  if(first == last) 
-    return result;
+  typedef typename thrust::iterator_system<InputIterator>::type  System1;
+  typedef typename thrust::iterator_system<OutputIterator>::type System2;
 
-  return thrust::detail::backend::copy(first, last, result);
-}
+  System1 system1;
+  System2 system2;
+
+  return thrust::detail::two_system_copy(system1, system2, first, last, result);
+} // end copy()
+
 
 template<typename InputIterator,
          typename Size,
@@ -43,12 +110,15 @@ template<typename InputIterator,
                         Size n,
                         OutputIterator result)
 {
-  // make sure this isn't necessary
-  if(n <= Size(0)) 
-    return result;
+  typedef typename thrust::iterator_system<InputIterator>::type  System1;
+  typedef typename thrust::iterator_system<OutputIterator>::type System2;
 
-  return thrust::detail::backend::copy_n(first, n, result);
-}
+  System1 system1;
+  System2 system2;
+
+  return thrust::detail::two_system_copy_n(system1, system2, first, n, result);
+} // end copy_n()
+
 
 } // end namespace thrust
 

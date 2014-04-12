@@ -60,7 +60,7 @@
         #error "Unsupported value of CUDA_FORCE_API_VERSION"
     #endif
 #else
-    #define __CUDA_API_VERSION 3020
+    #define __CUDA_API_VERSION 5050
 #endif /* CUDA_FORCE_API_VERSION */
 
 #if defined(__CUDA_API_VERSION_INTERNAL) || __CUDA_API_VERSION >= 3020
@@ -80,7 +80,7 @@ extern "C" {
  * This section describes the OpenGL interoperability functions of the
  * low-level CUDA driver application programming interface. Note that mapping 
  * of OpenGL resources is performed with the graphics API agnostic, resource 
- * mapping interface described in \ref CUDA_GRAPHICS "Graphics Interopability".
+ * mapping interface described in \ref CUDA_GRAPHICS "Graphics Interoperability".
  *
  * @{
  */
@@ -90,38 +90,6 @@ extern "C" {
 typedef void* HGPUNV;
 #endif
 #endif /* _WIN32 */
-
-#if __CUDA_API_VERSION >= 3020
-/**
- * \brief Create a CUDA context for interoperability with OpenGL
- *
- * Creates a new CUDA context, initializes OpenGL interoperability, and
- * associates the CUDA context with the calling thread. It must be called
- * before performing any other OpenGL interoperability operations. It may fail
- * if the needed OpenGL driver facilities are not available. For usage of the
- * \p Flags parameter, see ::cuCtxCreate().
- *
- * \param pCtx   - Returned CUDA context
- * \param Flags  - Options for CUDA context creation
- * \param device - Device on which to create the context
- *
- * \return
- * ::CUDA_SUCCESS,
- * ::CUDA_ERROR_DEINITIALIZED,
- * ::CUDA_ERROR_NOT_INITIALIZED,
- * ::CUDA_ERROR_INVALID_CONTEXT,
- * ::CUDA_ERROR_INVALID_VALUE,
- * ::CUDA_ERROR_OUT_OF_MEMORY
- * \notefnerr
- *
- * \sa ::cuCtxCreate, ::cuGLInit, ::cuGLMapBufferObject,
- * ::cuGLRegisterBufferObject, ::cuGLUnmapBufferObject,
- * ::cuGLUnregisterBufferObject, ::cuGLMapBufferObjectAsync,
- * ::cuGLUnmapBufferObjectAsync, ::cuGLSetBufferObjectMapFlags,
- * ::cuWGLGetDevice
- */
-CUresult CUDAAPI cuGLCtxCreate(CUcontext *pCtx, unsigned int Flags, CUdevice device );
-#endif /* __CUDA_API_VERSION >= 3020 */
 
 /**
  * \brief Registers an OpenGL buffer object
@@ -153,7 +121,6 @@ CUresult CUDAAPI cuGLCtxCreate(CUcontext *pCtx, unsigned int Flags, CUdevice dev
  * \notefnerr
  *
  * \sa 
- * ::cuGLCtxCreate, 
  * ::cuGraphicsUnregisterResource,
  * ::cuGraphicsMapResources,
  * ::cuGraphicsResourceGetMappedPointer
@@ -211,7 +178,6 @@ CUresult CUDAAPI cuGraphicsGLRegisterBuffer(CUgraphicsResource *pCudaResource, G
  * \notefnerr
  *
  * \sa 
- * ::cuGLCtxCreate, 
  * ::cuGraphicsUnregisterResource,
  * ::cuGraphicsMapResources,
  * ::cuGraphicsSubResourceGetMappedArray
@@ -236,7 +202,7 @@ CUresult CUDAAPI cuGraphicsGLRegisterImage(CUgraphicsResource *pCudaResource, GL
  * ::CUDA_ERROR_INVALID_VALUE
  * \notefnerr
  *
- * \sa ::cuGLCtxCreate, ::cuGLInit, ::cuGLMapBufferObject,
+ * \sa ::cuGLMapBufferObject,
  * ::cuGLRegisterBufferObject, ::cuGLUnmapBufferObject,
  * ::cuGLUnregisterBufferObject, ::cuGLUnmapBufferObjectAsync,
  * ::cuGLSetBufferObjectMapFlags
@@ -278,11 +244,13 @@ typedef enum CUGLDeviceList_enum {
  * \return
  * ::CUDA_SUCCESS,
  * ::CUDA_ERROR_NO_DEVICE,
- * ::CUDA_ERROR_INVALID_VALUE
+ * ::CUDA_ERROR_INVALID_VALUE,
  * ::CUDA_ERROR_INVALID_CONTEXT
+ *
+ * \note This function is not supported on Mac OS X.
  * \notefnerr
  *
- * \sa ::cuGLCtxCreate, ::cuGLInit, ::cuWGLGetDevice
+ * \sa ::cuWGLGetDevice
  */
 CUresult CUDAAPI cuGLGetDevices(unsigned int *pCudaDeviceCount, CUdevice *pCudaDevices, unsigned int cudaDeviceCount, CUGLDeviceList deviceList);
 
@@ -299,6 +267,38 @@ typedef enum CUGLmap_flags_enum {
     CU_GL_MAP_RESOURCE_FLAGS_READ_ONLY     = 0x01,
     CU_GL_MAP_RESOURCE_FLAGS_WRITE_DISCARD = 0x02,    
 } CUGLmap_flags;
+
+#if __CUDA_API_VERSION >= 3020
+/**
+ * \brief Create a CUDA context for interoperability with OpenGL
+ *
+ * \deprecated This function is deprecated as of Cuda 5.0. 
+ *
+ * This function is deprecated and should no longer be used.  It is
+ * no longer necessary to associate a CUDA context with an OpenGL
+ * context in order to achieve maximum interoperability performance.
+ *
+ * \param pCtx   - Returned CUDA context
+ * \param Flags  - Options for CUDA context creation
+ * \param device - Device on which to create the context
+ *
+ * \return
+ * ::CUDA_SUCCESS,
+ * ::CUDA_ERROR_DEINITIALIZED,
+ * ::CUDA_ERROR_NOT_INITIALIZED,
+ * ::CUDA_ERROR_INVALID_CONTEXT,
+ * ::CUDA_ERROR_INVALID_VALUE,
+ * ::CUDA_ERROR_OUT_OF_MEMORY
+ * \notefnerr
+ *
+ * \sa ::cuCtxCreate, ::cuGLInit, ::cuGLMapBufferObject,
+ * ::cuGLRegisterBufferObject, ::cuGLUnmapBufferObject,
+ * ::cuGLUnregisterBufferObject, ::cuGLMapBufferObjectAsync,
+ * ::cuGLUnmapBufferObjectAsync, ::cuGLSetBufferObjectMapFlags,
+ * ::cuWGLGetDevice
+ */
+CUresult CUDAAPI cuGLCtxCreate(CUcontext *pCtx, unsigned int Flags, CUdevice device );
+#endif /* __CUDA_API_VERSION >= 3020 */
 
 /**
  * \brief Initializes OpenGL interoperability
@@ -317,7 +317,7 @@ typedef enum CUGLmap_flags_enum {
  * ::CUDA_ERROR_UNKNOWN
  * \notefnerr
  *
- * \sa ::cuGLCtxCreate, ::cuGLMapBufferObject,
+ * \sa ::cuGLMapBufferObject,
  * ::cuGLRegisterBufferObject, ::cuGLUnmapBufferObject,
  * ::cuGLUnregisterBufferObject, ::cuGLMapBufferObjectAsync,
  * ::cuGLUnmapBufferObjectAsync, ::cuGLSetBufferObjectMapFlags,

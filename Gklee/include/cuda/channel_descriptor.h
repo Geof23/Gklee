@@ -99,8 +99,8 @@
  * \ref ::cudaBindTexture(size_t*, const struct texture< T, dim, readMode>&, const void*, const struct cudaChannelFormatDesc&, size_t) "cudaBindTexture (High level)",
  * \ref ::cudaBindTexture(size_t*, const struct texture< T, dim, readMode>&, const void*, size_t) "cudaBindTexture (High level, inherited channel descriptor)",
  * \ref ::cudaBindTexture2D(size_t*, const struct texture< T, dim, readMode>&, const void*, const struct cudaChannelFormatDesc&, size_t, size_t, size_t) "cudaBindTexture2D (High level)",
- * \ref ::cudaBindTextureToArray(const struct texture< T, dim, readMode>&, const struct cudaArray*, const struct cudaChannelFormatDesc&) "cudaBindTextureToArray (High level)",
- * \ref ::cudaBindTextureToArray(const struct texture< T, dim, readMode>&, const struct cudaArray*) "cudaBindTextureToArray (High level, inherited channel descriptor)",
+ * \ref ::cudaBindTextureToArray(const struct texture< T, dim, readMode>&, cudaArray_const_t, const struct cudaChannelFormatDesc&) "cudaBindTextureToArray (High level)",
+ * \ref ::cudaBindTextureToArray(const struct texture< T, dim, readMode>&, cudaArray_const_t) "cudaBindTextureToArray (High level, inherited channel descriptor)",
  * \ref ::cudaUnbindTexture(const struct texture< T, dim, readMode>&) "cudaUnbindTexture (High level)",
  * \ref ::cudaGetTextureAlignmentOffset(size_t*, const struct texture< T, dim, readMode>&) "cudaGetTextureAlignmentOffset (High level)"
  */

@@ -15,7 +15,7 @@
  */
 
 
-/*! \file counting_iterator.h
+/*! \file thrust/iterator/counting_iterator.h
  *  \brief An iterator which returns an increasing incrementable value
  *         when dereferenced
  */
@@ -33,6 +33,7 @@
 
 #include <thrust/detail/config.h>
 #include <thrust/iterator/iterator_adaptor.h>
+#include <thrust/iterator/iterator_facade.h>
 #include <thrust/iterator/iterator_categories.h>
 
 // #include the details first
@@ -125,17 +126,17 @@ namespace thrust
  *  \see make_counting_iterator
  */
 template<typename Incrementable,
-         typename Space = use_default,
+         typename System = use_default,
          typename Traversal = use_default,
          typename Difference = use_default>
   class counting_iterator
-    : public detail::counting_iterator_base<Incrementable, Space, Traversal, Difference>::type
+    : public detail::counting_iterator_base<Incrementable, System, Traversal, Difference>::type
 {
     /*! \cond
      */
-    typedef typename detail::counting_iterator_base<Incrementable, Space, Traversal, Difference>::type super_t;
+    typedef typename detail::counting_iterator_base<Incrementable, System, Traversal, Difference>::type super_t;
 
-    friend class thrust::experimental::iterator_core_access;
+    friend class thrust::iterator_core_access;
 
   public:
     typedef typename super_t::reference       reference;
@@ -159,16 +160,16 @@ template<typename Incrementable,
     counting_iterator(counting_iterator const &rhs):super_t(rhs.base()){}
 
     /*! Copy constructor copies the value of another counting_iterator 
-     *  with related Space type.
+     *  with related System type.
      *
      *  \param rhs The \p counting_iterator to copy.
      */
-    template<typename OtherSpace>
+    template<typename OtherSystem>
     __host__ __device__
-    counting_iterator(counting_iterator<Incrementable, OtherSpace, Traversal, Difference> const &rhs,
+    counting_iterator(counting_iterator<Incrementable, OtherSystem, Traversal, Difference> const &rhs,
                       typename thrust::detail::enable_if_convertible<
-                        typename thrust::iterator_space<counting_iterator<Incrementable,OtherSpace,Traversal,Difference> >::type,
-                        typename thrust::iterator_space<super_t>::type
+                        typename thrust::iterator_system<counting_iterator<Incrementable,OtherSystem,Traversal,Difference> >::type,
+                        typename thrust::iterator_system<super_t>::type
                       >::type * = 0)
       : super_t(rhs.base()){}
 
@@ -184,15 +185,25 @@ template<typename Incrementable,
     /*! \cond
      */
   private:
+    __host__ __device__
     reference dereference(void) const
     {
       return this->base_reference();
     }
 
+    // note that we implement equal specially for floating point counting_iterator
+    template <typename OtherIncrementable, typename OtherSystem, typename OtherTraversal, typename OtherDifference>
+    __host__ __device__
+    bool equal(counting_iterator<OtherIncrementable, OtherSystem, OtherTraversal, OtherDifference> const& y) const
+    {
+      typedef thrust::detail::counting_iterator_equal<difference_type,Incrementable,OtherIncrementable> e;
+      return e::equal(this->base(), y.base());
+    }
+
     template <class OtherIncrementable>
     __host__ __device__
     difference_type
-    distance_to(counting_iterator<OtherIncrementable, Space, Traversal, Difference> const& y) const
+    distance_to(counting_iterator<OtherIncrementable, System, Traversal, Difference> const& y) const
     {
       typedef typename
       thrust::detail::eval_if<

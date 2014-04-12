@@ -15,6 +15,7 @@
  */
 
 #include <thrust/detail/type_traits.h>
+#include <thrust/detail/swap.h>
 
 namespace thrust
 {
@@ -347,6 +348,15 @@ template <class HT, class TT>
   get() const {
     return thrust::get<N>(*this); // delegate to non-member get
   }
+
+  inline __host__ __device__
+  void swap(cons &c)
+  {
+    using thrust::swap;
+
+    swap(head, c.head);
+    tail.swap(c.tail);
+  }
 };
 
 template <class HT>
@@ -435,6 +445,14 @@ template <class HT>
   get(void) const
   {
     return thrust::get<N>(*this);
+  }
+
+  inline __host__ __device__
+  void swap(cons &c)
+  {
+    using thrust::swap;
+
+    swap(head, c.head);
   }
 }; // end cons
 
@@ -769,6 +787,17 @@ tuple<T0&,T1&,T2&,T3&,T4&,T5&,T6&,T7&,T8&,T9&> tie(T0 &t0, T1 &t1, T2 &t2, T3 &t
   return tuple<T0&,T1&,T2&,T3&,T4&,T5&,T6&,T7&,T8&,T9&>(t0,t1,t2,t3,t4,t5,t6,t7,t8,t9);
 }
 
+template<
+  typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9,
+  typename U0, typename U1, typename U2, typename U3, typename U4, typename U5, typename U6, typename U7, typename U8, typename U9
+>
+__host__ __device__ inline
+void swap(thrust::tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9> &x,
+          thrust::tuple<U0,U1,U2,U3,U4,U5,U6,U7,U8,U9> &y)
+{
+  return x.swap(y);
+}
+
 
 
 namespace detail
@@ -796,9 +825,9 @@ inline bool neq<null_type,null_type>(const null_type&, const null_type&) { retur
 template<class T1, class T2>
 __host__ __device__
 inline bool lt(const T1& lhs, const T2& rhs) {
-  return lhs.get_head() < rhs.get_head()  ||
-            !(rhs.get_head() < lhs.get_head()) &&
-            lt(lhs.get_tail(), rhs.get_tail());
+  return (lhs.get_head() < rhs.get_head())  ||
+            (!(rhs.get_head() < lhs.get_head()) &&
+             lt(lhs.get_tail(), rhs.get_tail()));
 }
 template<>
 __host__ __device__
@@ -807,9 +836,9 @@ inline bool lt<null_type,null_type>(const null_type&, const null_type&) { return
 template<class T1, class T2>
 __host__ __device__
 inline bool gt(const T1& lhs, const T2& rhs) {
-  return lhs.get_head() > rhs.get_head()  ||
-            !(rhs.get_head() > lhs.get_head()) &&
-            gt(lhs.get_tail(), rhs.get_tail());
+  return (lhs.get_head() > rhs.get_head())  ||
+            (!(rhs.get_head() > lhs.get_head()) &&
+             gt(lhs.get_tail(), rhs.get_tail()));
 }
 template<>
 __host__ __device__

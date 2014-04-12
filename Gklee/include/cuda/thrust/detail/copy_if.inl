@@ -16,10 +16,46 @@
 
 #include <thrust/detail/config.h>
 #include <thrust/detail/copy_if.h>
-#include <thrust/detail/backend/copy_if.h>
+#include <thrust/iterator/iterator_traits.h>
+#include <thrust/system/detail/generic/copy_if.h>
+#include <thrust/system/detail/generic/select_system.h>
+#include <thrust/system/detail/adl/copy_if.h>
 
 namespace thrust
 {
+
+
+template<typename DerivedPolicy,
+         typename InputIterator,
+         typename OutputIterator,
+         typename Predicate>
+  OutputIterator copy_if(const thrust::detail::execution_policy_base<DerivedPolicy> &exec,
+                         InputIterator first,
+                         InputIterator last,
+                         OutputIterator result,
+                         Predicate pred)
+{
+  using thrust::system::detail::generic::copy_if;
+  return copy_if(thrust::detail::derived_cast(thrust::detail::strip_const(exec)), first, last, result, pred);
+} // end copy_if()
+
+
+template<typename DerivedPolicy,
+         typename InputIterator1,
+         typename InputIterator2,
+         typename OutputIterator,
+         typename Predicate>
+  OutputIterator copy_if(const thrust::detail::execution_policy_base<DerivedPolicy> &exec,
+                         InputIterator1 first,
+                         InputIterator1 last,
+                         InputIterator2 stencil,
+                         OutputIterator result,
+                         Predicate pred)
+{
+  using thrust::system::detail::generic::copy_if;
+  return copy_if(thrust::detail::derived_cast(thrust::detail::strip_const(exec)), first, last, stencil, result, pred);
+} // end copy_if()
+
 
 template<typename InputIterator,
          typename OutputIterator,
@@ -29,12 +65,17 @@ template<typename InputIterator,
                          OutputIterator result,
                          Predicate pred)
 {
-  // XXX it's potentially expensive to send [first,last) twice
-  //     we should probably specialize this case for POD
-  //     since we can safely keep the input in a temporary instead
-  //     of doing two loads
-  return thrust::copy_if(first, last, first, result, pred);
-}
+  using thrust::system::detail::generic::select_system;
+
+  typedef typename thrust::iterator_system<InputIterator>::type  System1;
+  typedef typename thrust::iterator_system<OutputIterator>::type System2;
+
+  System1 system1;
+  System2 system2;
+
+  return thrust::copy_if(select_system(system1,system2), first, last, result, pred);
+} // end copy_if()
+
 
 template<typename InputIterator1,
          typename InputIterator2,
@@ -46,8 +87,19 @@ template<typename InputIterator1,
                          OutputIterator result,
                          Predicate pred)
 {
-  return detail::backend::copy_if(first, last, stencil, result, pred);
-}
+  using thrust::system::detail::generic::select_system;
+
+  typedef typename thrust::iterator_system<InputIterator1>::type System1;
+  typedef typename thrust::iterator_system<InputIterator2>::type System2;
+  typedef typename thrust::iterator_system<OutputIterator>::type System3;
+
+  System1 system1;
+  System2 system2;
+  System3 system3;
+
+  return thrust::copy_if(select_system(system1,system2,system3), first, last, stencil, result, pred);
+} // end copy_if()
+
 
 } // end thrust
 

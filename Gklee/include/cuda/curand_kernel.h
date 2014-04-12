@@ -1,5 +1,5 @@
 
- /* Copyright 2010-2012 NVIDIA Corporation.  All rights reserved.
+ /* Copyright 2010-2013 NVIDIA Corporation.  All rights reserved.
   *
   * NOTICE TO LICENSEE:
   *
@@ -52,38 +52,38 @@
 #define CURAND_KERNEL_H_
 
 /**
- * \file
- * \name CURAND Device API
- * \author NVIDIA Corporation
- */
-
-/**
  * \defgroup DEVICE Device API
  *
  * @{
  */
-/** @} */
 
 #include "curand.h"
+#include "curand_discrete.h"
 #include "curand_precalc.h"
+#include "curand_mrg32k3a.h"
 #include "curand_mtgp32_kernel.h"
 #include <math.h>
+
+#include "curand_philox4x32_x.h" 
 
 #define MAX_XOR_N (5)
 #define SKIPAHEAD_BLOCKSIZE (4)
 #define SKIPAHEAD_MASK ((1<<SKIPAHEAD_BLOCKSIZE)-1)
+#define CURAND_2POW32_DOUBLE (4294967296.)
 #define CURAND_2POW32_INV (2.3283064e-10f)
 #define CURAND_2POW32_INV_DOUBLE (2.3283064365386963e-10) 
 #define CURAND_2POW53_INV_DOUBLE (1.1102230246251565e-16)
 #define CURAND_2POW32_INV_2PI (2.3283064e-10f * 6.2831855f)
 #define CURAND_2PI (6.2831855f)
 #define CURAND_2POW53_INV_2PI_DOUBLE (1.1102230246251565e-16 * 6.2831853071795860)
+#define CURAND_PI_DOUBLE  (3.1415926535897932)
 #define CURAND_2PI_DOUBLE (6.2831853071795860)
 #define CURAND_SQRT2 (-1.4142135f)
 #define CURAND_SQRT2_DOUBLE (-1.4142135623730951)
 
+
 #if !defined(QUALIFIERS)
-#define QUALIFIERS static inline __device__
+#define QUALIFIERS static __forceinline__ __device__
 #endif
 
 /* Test RNG */
@@ -96,7 +96,9 @@ struct curandStateTest {
     unsigned int v;
 };
 
+/** \cond UNHIDE_TYPEDEFS */
 typedef struct curandStateTest curandStateTest_t;
+/** \endcond */
 
 /* XORSHIFT FAMILY RNGs */
 /* These generators are a family proposed by Marsaglia.  They keep state
@@ -115,12 +117,8 @@ Has period 2^192 - 2^32.
  */
 struct curandStateXORWOW;
 
-/**
- * CURAND XORWOW state 
- */
-typedef struct curandStateXORWOW curandStateXORWOW_t;
-
-/* Implementation details not in reference documentation */
+/*
+ * Implementation details not in reference documentation */
 struct curandStateXORWOW {
     unsigned int d, v[5];
     int boxmuller_flag;
@@ -129,8 +127,15 @@ struct curandStateXORWOW {
     double boxmuller_extra_double;
 };
 
+/*
+ * CURAND XORWOW state 
+ */
+/** \cond UNHIDE_TYPEDEFS */
+typedef struct curandStateXORWOW curandStateXORWOW_t;
+
 #define EXTRA_FLAG_NORMAL         0x00000001
 #define EXTRA_FLAG_LOG_NORMAL     0x00000002
+/** \endcond */
 
 /* Combined Multiple Recursive Generators */
 /* These generators are a family proposed by L'Ecuyer.  They keep state
@@ -145,7 +150,7 @@ Has period 2^191.
 */
 
 /* moduli for the recursions */
-
+/** \cond UNHIDE_DEFINES */
 #define MRG32K3A_MOD1 4294967087.
 #define MRG32K3A_MOD2 4294944443.
 
@@ -156,65 +161,43 @@ Has period 2^191.
 #define MRG32K3A_A21  527612.
 #define MRG32K3A_A23N 1370589.
 #define MRG32K3A_NORM 2.328306549295728e-10
+//
+// #define MRG32K3A_BITS_NORM ((double)((POW32_DOUBLE-1.0)/MOD1))
+//  above constant, used verbatim, rounds differently on some host systems.
+#define MRG32K3A_BITS_NORM 1.000000048662
+
 
 /* Constants for address manipulation */
 
 #define MRG32K3A_SKIPUNITS_DOUBLES   (sizeof(struct sMRG32k3aSkipUnits)/sizeof(double))
 #define MRG32K3A_SKIPSUBSEQ_DOUBLES  (sizeof(struct sMRG32k3aSkipSubSeq)/sizeof(double))
 #define MRG32K3A_SKIPSEQ_DOUBLES     (sizeof(struct sMRG32k3aSkipSeq)/sizeof(double))
+/** \endcond */
 
 
-/* structures for skipahead matrices */
 
-typedef struct sMRG32k3aSkipUnits sMRG32k3aSkipUnits_t;
-struct sMRG32k3aSkipUnits {
-    double m[64][3][3];
-};
-
-typedef struct sMRG32k3aSkipSubSeq sMRG32k3aSkipSubSeq_t;
-struct sMRG32k3aSkipSubSeq {
-/* note we round up from 51 to 56 entries to get 64 byte alignment */
-
-    double m[56][3][3];
-};
-
-typedef struct sMRG32k3aSkipSeq sMRG32k3aSkipSeq_t;
-struct sMRG32k3aSkipSeq {
-    double m[64][3][3];
-};
-
-typedef struct curandMRG32k3aPtrs curandMRG32k3aPtrs_t;
-struct curandMRG32k3aPtrs {
-    sMRG32k3aSkipUnits_t * unitsM1;
-    sMRG32k3aSkipUnits_t * unitsM2;
-    sMRG32k3aSkipSubSeq_t * subSeqM1;
-    sMRG32k3aSkipSubSeq_t * subSeqM2;
-    sMRG32k3aSkipSeq_t * seqM1;
-    sMRG32k3aSkipSeq_t * seqM2;
-};
 
 /**
  * CURAND MRG32K3A state 
  */
 struct curandStateMRG32k3a;
 
-/**
- * CURAND MRG32K3A state 
- */
-typedef struct curandStateMRG32k3a curandStateMRG32k3a_t;
-
 /* Implementation details not in reference documentation */
 struct curandStateMRG32k3a {
     double s1[3];
     double s2[3];
-    curandMRG32k3aPtrs_t * scratch;
-    int precise_double_flag;
     int boxmuller_flag;
     int boxmuller_flag_double;
     float boxmuller_extra;
     double boxmuller_extra_double;
 };
 
+/*
+ * CURAND MRG32K3A state 
+ */
+/** \cond UNHIDE_TYPEDEFS */
+typedef struct curandStateMRG32k3a curandStateMRG32k3a_t;
+/** \endcond */
 
 /* SOBOL QRNG */
 /**
@@ -228,10 +211,12 @@ struct curandStateSobol32 {
     unsigned int direction_vectors[32];
 };
 
-/**
+/*
  * CURAND Sobol32 state 
  */
+/** \cond UNHIDE_TYPEDEFS */
 typedef struct curandStateSobol32 curandStateSobol32_t;
+/** \endcond */
 
 /**
  * CURAND Scrambled Sobol32 state 
@@ -244,10 +229,12 @@ struct curandStateScrambledSobol32 {
     unsigned int direction_vectors[32];
 };
 
-/**
+/*
  * CURAND Scrambled Sobol32 state 
  */
+/** \cond UNHIDE_TYPEDEFS */
 typedef struct curandStateScrambledSobol32 curandStateScrambledSobol32_t;
+/** \endcond */
 
 /**
  * CURAND Sobol64 state 
@@ -260,10 +247,12 @@ struct curandStateSobol64 {
     unsigned long long direction_vectors[64];
 };
 
-/**
+/*
  * CURAND Sobol64 state 
  */
+/** \cond UNHIDE_TYPEDEFS */
 typedef struct curandStateSobol64 curandStateSobol64_t;
+/** \endcond */
 
 /**
  * CURAND Scrambled Sobol64 state 
@@ -276,23 +265,27 @@ struct curandStateScrambledSobol64 {
     unsigned long long direction_vectors[64];
 };
 
-/**
+/*
  * CURAND Scrambled Sobol64 state 
  */
+/** \cond UNHIDE_TYPEDEFS */
 typedef struct curandStateScrambledSobol64 curandStateScrambledSobol64_t;
+/** \endcond */
 
-
-/**
+/*
  * Default RNG
  */
+/** \cond UNHIDE_TYPEDEFS */
 typedef struct curandStateXORWOW curandState_t;
 typedef struct curandStateXORWOW curandState;
+/** \endcond */
 
 /****************************************************************************/
 /* Utility functions needed by RNGs */
 /****************************************************************************/
-
-/* multiply vector by matrix, store in result
+/** \cond UNHIDE_UTILITIES */
+/* 
+   multiply vector by matrix, store in result
    matrix is n x n, measured in 32 bit units
    matrix is stored in row major order
    vector and result cannot be same pointer
@@ -544,7 +537,7 @@ QUALIFIERS void curnand_MRGmatPow2Pow3x3( double in[][3], double o[][3], double 
     }
 }
 
-
+/** \endcond */
 
 /****************************************************************************/
 /* Kernel implementations of RNGs                                           */
@@ -560,6 +553,7 @@ QUALIFIERS void curand_init(unsigned long long seed,
     state->v = (unsigned int)(seed * 3) + (unsigned int)(subsequence * 31337) + \
                      (unsigned int)offset;
 }
+
 
 QUALIFIERS unsigned int curand(curandStateTest_t *state)
 {
@@ -727,8 +721,8 @@ QUALIFIERS void skipahead(unsigned long long n, curandStateXORWOW_t *state)
  * \brief Update XORWOW state to skip ahead \p n subsequences.
  *
  * Update the XORWOW state in \p state to skip ahead \p n subsequences.  Each
- * subsequence is \f$ 2^{67} \f$ elements long, so this means the function will skip ahead
- * \f$ 2^{67} \cdot n\f$ elements.
+ * subsequence is \xmlonly<ph outputclass="xmlonly">2<sup>67</sup></ph>\endxmlonly elements long, so this means the function will skip ahead
+ * \xmlonly<ph outputclass="xmlonly">2<sup>67</sup></ph>\endxmlonly  * n elements.
  *
  * All values of \p n are valid.  Large values require more computation and so
  * will take more time to complete.
@@ -741,6 +735,8 @@ QUALIFIERS void skipahead_sequence(unsigned long long n, curandStateXORWOW_t *st
     unsigned int scratch[5 * 5 * 32 * 2 + 5 * 2];
     _skipahead_sequence_scratch<curandStateXORWOW_t, 5>(n, state, (unsigned int *)scratch);
 }
+
+
 
 QUALIFIERS void _curand_init_scratch(unsigned long long seed, 
                                      unsigned long long subsequence, 
@@ -794,6 +790,36 @@ QUALIFIERS void curand_init(unsigned long long seed,
     unsigned int scratch[5 * 5 * 32 * 2 + 5 * 2];
     _curand_init_scratch(seed, subsequence, offset, state, (unsigned int*)scratch);
 }
+
+/**
+ * \brief Initialize Philox4_32_10 state.
+ *
+ * Initialize Philox4_32_10 state in \p state with the given \p seed and \p id
+ *
+ * All input values for \p seed and \p id are legal.
+ * \p id should be different for each thread
+ *
+ * \param seed - Arbitrary bits to use as a seed
+ * \param id - thread id (second seed value)
+ * \param offset - Absolute offset into sequence
+ * \param state - Pointer to state to initialize
+ */
+QUALIFIERS void curand_init(unsigned long long seed, 
+                                 unsigned long long id,
+                                 unsigned long long offset,
+                                 curandStatePhilox4_32_10_t *state)
+{
+    *((unsigned long long*)(void*)state->key) = seed + id;
+    *((unsigned long long*)(void*)state->ctr) = (offset/4);
+    for(int j = 0; j <2; j++) state->ctr[j] = 0;
+    state->STATE = (offset%4);
+    if (state->STATE != 0){
+	     uint32x4 ctr = {state->ctr[0],state->ctr[1],state->ctr[2],state->ctr[3]};
+	     uint32x2 key = {state->key[0],state->key[1]};
+	     curand_Philox4x32_10(ctr,key,state->output);
+    }
+}
+
 /**
  * \brief Return 32-bits of pseudorandomness from an XORWOW generator.
  *
@@ -817,12 +843,147 @@ QUALIFIERS unsigned int curand(curandStateXORWOW_t *state)
     return state->v[4] + state->d;
 }
 
+
+/**
+ * \brief Return 32-bits of pseudorandomness from an Philox4_32_10 generator.
+ *
+ * Return 32-bits of pseudorandomness from the Philox4_32_10 generator in \p state,
+ * increment position of generator by one.
+ *
+ * \param state - Pointer to state to update
+ *
+ * \return 32-bits of pseudorandomness as an unsigned int, all bits valid to use.
+ */
+
+QUALIFIERS unsigned int curand(curandStatePhilox4_32_10_t *state)
+{
+     curandStatePhilox4_32_10_t* s = state;
+     if(s->STATE > 3)
+     {
+	     Philox_State_Incr(s);
+	     s->STATE = 0;
+     }
+     if(s->STATE == 0)
+     {
+	     uint32x4 ctr = {s->ctr[0],s->ctr[1],s->ctr[2],s->ctr[3]};
+	     uint32x2 key = {s->key[0],s->key[1]};
+	     curand_Philox4x32_10(ctr,key,s->output);
+     }
+     return s->output[s->STATE++];
+}
+
+/**
+ * \brief Return tuple of 4 32-bits of pseudorandomness from an Philox4_32_10 generator.
+ *
+ * Return four 32-bits of pseudorandomness from the Philox4_32_10 generator in \p state,
+ * increment position of generator by four.
+ *
+ * \param state - Pointer to state to update
+ *
+ * \return 32-bits of pseudorandomness as an unsigned int, all bits valid to use.
+ */
+
+QUALIFIERS uint4 curand4(curandStatePhilox4_32_10_t *state)
+{
+     curandStatePhilox4_32_10_t* s = state;
+     uint32x4 ctr = {s->ctr[0],s->ctr[1],s->ctr[2],s->ctr[3]};
+     uint32x2 key = {s->key[0],s->key[1]};
+     curand_Philox4x32_10(ctr, key, s->output);
+     Philox_State_Incr(s);
+     uint4 r = {s->output[0],s->output[1],s->output[2],s->output[3]};
+     return r;
+}
+
+/**
+ * \brief Update Philox4_32_10 state to skip \p n elements.
+ *
+ * Update the Philox4_32_10 state in \p state to skip ahead \p n elements.
+ *
+ * All values of \p n are valid.  Large values require more computation and so
+ * will take more time to complete.
+ *
+ * \param n - Number of elements to skip
+ * \param state - Pointer to state to update
+ */
+QUALIFIERS void skipahead(unsigned long long n, curandStatePhilox4_32_10_t *state)
+{
+    state->STATE += (n & 3);
+    if (state->STATE > 3){
+	     Philox_State_Incr(state);
+	     state->STATE -= 4;
+    }
+    Philox_State_Incr(state, n/4);
+    if (state->STATE != 0){
+	     uint32x4 ctr = {state->ctr[0],state->ctr[1],state->ctr[2],state->ctr[3]};
+	     uint32x2 key = {state->key[0],state->key[1]};
+	     curand_Philox4x32_10(ctr,key,state->output);
+    }
+}
+
+/**
+ * \brief Update Philox4_32_10 state to skip ahead \p n subsequences.
+ *
+ * Update the Philox4_32_10 state in \p state to skip ahead \p n subsequences.  Each
+ * subsequence is \xmlonly<ph outputclass="xmlonly">2<sup>67</sup></ph>\endxmlonly elements long, so this means the function will skip ahead
+ * \xmlonly<ph outputclass="xmlonly">2<sup>67</sup></ph>\endxmlonly * n elements.
+ *
+ * All values of \p n are valid.  Large values require more computation and so
+ * will take more time to complete.
+ *
+ * \param n - Number of subsequences to skip
+ * \param state - Pointer to state to update
+ */
+QUALIFIERS void skipahead_sequence(unsigned long long n, curandStatePhilox4_32_10_t *state)
+{
+    Philox_State_Incr_hi(state, 8*(n/4));
+    if (state->STATE != 0){
+	     uint32x4 ctr = {state->ctr[0],state->ctr[1],state->ctr[2],state->ctr[3]};
+	     uint32x2 key = {state->key[0],state->key[1]};
+	     curand_Philox4x32_10(ctr,key,state->output);
+    }
+}
+
+
+
 /* MRG32k3a RNG */
 
 /* Base generator for MRG32k3a                                              */
 /* note that the parameters have been selected such that intermediate       */
 /* results stay within 53 bits                                              */
 
+
+#if __CUDA_ARCH__ > 0
+/*  nj's implementation */
+QUALIFIERS double curand_MRG32k3a (curandStateMRG32k3a_t *state)
+{
+    const double m1 = 4294967087.;
+    const double m2 = 4294944443.;
+    const double a12  = 1403580.;
+    const double a13n = 810728.;
+    const double a21  = 527612.;
+    const double a23n = 1370589.;
+
+    const double rh1 =  2.3283065498378290e-010;  /* (1.0 / m1)__hi */
+    const double rl1 = -1.7354913086174288e-026;  /* (1.0 / m1)__lo */
+    const double rh2 =  2.3283188252407387e-010;  /* (1.0 / m2)__hi */
+    const double rl2 =  2.4081018096503646e-026;  /* (1.0 / m2)__lo */
+
+    double q, p1, p2;
+    p1 = a12 * state->s1[1] - a13n * state->s1[0];
+    q = trunc (fma (p1, rh1, p1 * rl1));
+    p1 -= q * m1;  
+    if (p1 < 0.0) p1 += m1;
+    state->s1[0] = state->s1[1];   state->s1[1] = state->s1[2];   state->s1[2] = p1;
+    p2 = a21 * state->s2[2] - a23n * state->s2[0];
+    q = trunc (fma (p2, rh2, p2 * rl2));
+    p2 -= q * m2;  
+    if (p2 < 0.0) p2 += m2;
+    state->s2[0] = state->s2[1];   state->s2[1] = state->s2[2];   state->s2[2] = p2;
+    if (p1 <= p2) return (p1 - p2 + m1);
+    else return (p1 - p2);
+}
+/* end nj's implementation */
+#else
 QUALIFIERS double curand_MRG32k3a(curandStateMRG32k3a_t *state)
 {
     double p1,p2,r;
@@ -839,9 +1000,30 @@ QUALIFIERS double curand_MRG32k3a(curandStateMRG32k3a_t *state)
     state->s2[1] = state->s2[2]; 
     state->s2[2] = p2;
     r = p1 - p2;
-    if (r < 0) r += MRG32K3A_MOD1;
+    if (r <= 0) r += MRG32K3A_MOD1;
     return r;
 }
+#endif
+
+
+/**
+ * \brief Return 32-bits of pseudorandomness from an MRG32k3a generator.
+ *
+ * Return 32-bits of pseudorandomness from the MRG32k3a generator in \p state,
+ * increment position of generator by one.
+ *
+ * \param state - Pointer to state to update
+ *
+ * \return 32-bits of pseudorandomness as an unsigned int, all bits valid to use.
+ */
+QUALIFIERS unsigned int curand(curandStateMRG32k3a_t *state)
+{
+    double dRet;
+    dRet = (double)curand_MRG32k3a(state)*(double)MRG32K3A_BITS_NORM;
+    return (unsigned int)dRet;  
+}
+
+
 
 /**
  * \brief Update MRG32k3a state to skip \p n elements.
@@ -857,23 +1039,29 @@ QUALIFIERS double curand_MRG32k3a(curandStateMRG32k3a_t *state)
 QUALIFIERS void skipahead(unsigned long long n, curandStateMRG32k3a_t *state)
 {
     double t[3][3];
-    sMRG32k3aSkipUnits_t * pSkip;
-    pSkip = ((curandMRG32k3aPtrs_t *)state->scratch)->unitsM1;
-    curand_MRGmatPow3x3( pSkip->m, t, MRG32K3A_MOD1, n);
+#ifdef __CUDA_ARCH__
+    curand_MRGmatPow3x3( mrg32k3aM1, t, MRG32K3A_MOD1, n);
     curand_MRGmatVecMul3x3( t, state->s1, MRG32K3A_MOD1);
-    pSkip = ((curandMRG32k3aPtrs_t *)state->scratch)->unitsM2;
-    curand_MRGmatPow3x3(pSkip->m, t, MRG32K3A_MOD2, n);
+    curand_MRGmatPow3x3(mrg32k3aM2, t, MRG32K3A_MOD2, n);
     curand_MRGmatVecMul3x3( t, state->s2, MRG32K3A_MOD2);
+#else
+    curand_MRGmatPow3x3( mrg32k3aM1Host, t, MRG32K3A_MOD1, n);
+    curand_MRGmatVecMul3x3( t, state->s1, MRG32K3A_MOD1);
+    curand_MRGmatPow3x3(mrg32k3aM2Host, t, MRG32K3A_MOD2, n);
+    curand_MRGmatVecMul3x3( t, state->s2, MRG32K3A_MOD2);
+#endif
 }
 
 /**
  * \brief Update MRG32k3a state to skip ahead \p n subsequences.
  *
  * Update the MRG32k3a state in \p state to skip ahead \p n subsequences.  Each
- * subsequence is \f$ 2^{76} \f$ elements long, so this means the function will skip ahead
- * \f$ 2^{76} \cdot n\f$ elements.
+ * subsequence is \xmlonly<ph outputclass="xmlonly">2<sup>127</sup></ph>\endxmlonly
  *
- * Valid values of \p n are 0 to \f$ 2^51 \f$.  Note \p n will be masked to 51 bits
+ * \xmlonly<ph outputclass="xmlonly">2<sup>76</sup></ph>\endxmlonly elements long, so this means the function will skip ahead
+ * \xmlonly<ph outputclass="xmlonly">2<sup>67</sup></ph>\endxmlonly * n elements.
+ *
+ * Valid values of \p n are 0 to \xmlonly<ph outputclass="xmlonly">2<sup>51</sup></ph>\endxmlonly.  Note \p n will be masked to 51 bits
  *
  * \param n - Number of subsequences to skip
  * \param state - Pointer to state to update 
@@ -881,21 +1069,25 @@ QUALIFIERS void skipahead(unsigned long long n, curandStateMRG32k3a_t *state)
 QUALIFIERS void skipahead_subsequence(unsigned long long n, curandStateMRG32k3a_t *state)
 {
     double t[3][3];
-    struct sMRG32k3aSkipSubSeq * pSkip;
-    pSkip = ((curandMRG32k3aPtrs_t *)state->scratch)->subSeqM1;
-    curand_MRGmatPow3x3( pSkip->m, t, MRG32K3A_MOD1, n);
+#ifdef __CUDA_ARCH__
+    curand_MRGmatPow3x3( mrg32k3aM1SubSeq, t, MRG32K3A_MOD1, n);
     curand_MRGmatVecMul3x3( t, state->s1, MRG32K3A_MOD1);
-    pSkip = ((curandMRG32k3aPtrs_t *)state->scratch)->subSeqM2;
-    curand_MRGmatPow3x3( pSkip->m, t, MRG32K3A_MOD2, n);
+    curand_MRGmatPow3x3( mrg32k3aM2SubSeq, t, MRG32K3A_MOD2, n);
     curand_MRGmatVecMul3x3( t, state->s2, MRG32K3A_MOD2);
+#else    
+    curand_MRGmatPow3x3( mrg32k3aM1SubSeqHost, t, MRG32K3A_MOD1, n);
+    curand_MRGmatVecMul3x3( t, state->s1, MRG32K3A_MOD1);
+    curand_MRGmatPow3x3( mrg32k3aM2SubSeqHost, t, MRG32K3A_MOD2, n);
+    curand_MRGmatVecMul3x3( t, state->s2, MRG32K3A_MOD2);
+#endif    
 }
 
 /**
  * \brief Update MRG32k3a state to skip ahead \p n sequences.
  *
  * Update the MRG32k3a state in \p state to skip ahead \p n sequences.  Each
- * sequence is \f$ 2^{127} \f$ elements long, so this means the function will skip ahead
- * \f$ 2^{127} \cdot n\f$ elements. 
+ * sequence is \xmlonly<ph outputclass="xmlonly">2<sup>127</sup></ph>\endxmlonly elements long, so this means the function will skip ahead
+ * \xmlonly<ph outputclass="xmlonly">2<sup>127</sup></ph>\endxmlonly * n elements. 
  *
  * All values of \p n are valid.  Large values require more computation and so
  * will take more time to complete.
@@ -906,13 +1098,17 @@ QUALIFIERS void skipahead_subsequence(unsigned long long n, curandStateMRG32k3a_
 QUALIFIERS void skipahead_sequence(unsigned long long n, curandStateMRG32k3a_t *state)
 {
     double t[3][3];
-    struct sMRG32k3aSkipSeq * pSkip;
-    pSkip = ((curandMRG32k3aPtrs_t *)state->scratch)->seqM1;
-    curand_MRGmatPow3x3( pSkip->m, t, MRG32K3A_MOD1, n);
+#ifdef __CUDA_ARCH__    
+    curand_MRGmatPow3x3( mrg32k3aM1Seq, t, MRG32K3A_MOD1, n);
     curand_MRGmatVecMul3x3( t, state->s1, MRG32K3A_MOD1);
-    pSkip = ((curandMRG32k3aPtrs_t *)state->scratch)->seqM2;
-    curand_MRGmatPow3x3( pSkip->m, t, MRG32K3A_MOD2, n);
+    curand_MRGmatPow3x3(  mrg32k3aM2Seq, t, MRG32K3A_MOD2, n);
     curand_MRGmatVecMul3x3( t, state->s2, MRG32K3A_MOD2);
+#else
+    curand_MRGmatPow3x3( mrg32k3aM1SeqHost, t, MRG32K3A_MOD1, n);
+    curand_MRGmatVecMul3x3( t, state->s1, MRG32K3A_MOD1);
+    curand_MRGmatPow3x3(  mrg32k3aM2SeqHost, t, MRG32K3A_MOD2, n);
+    curand_MRGmatVecMul3x3( t, state->s2, MRG32K3A_MOD2);
+#endif    
 }
 
 
@@ -955,6 +1151,8 @@ QUALIFIERS void curand_init(unsigned long long seed,
     } 
     skipahead_subsequence( subsequence, state );
     skipahead( offset, state );
+    state->boxmuller_flag = 0;
+    state->boxmuller_flag_double = 0;
 }
 
 /**
@@ -1230,1367 +1428,84 @@ QUALIFIERS unsigned long long curand(curandStateScrambledSobol64_t * state)
     return res;
 }
 
-
-/******************************************************/
-
-QUALIFIERS float _curand_uniform(unsigned int x)
-{
-    return x * CURAND_2POW32_INV + (CURAND_2POW32_INV/2.0f);
-}
-
-QUALIFIERS float _curand_uniform(unsigned long long x)
-{
-    unsigned int t;
-    t = (unsigned int)(x >> 32); 
-    return t * CURAND_2POW32_INV + (CURAND_2POW32_INV/2.0f);
-}
-
-QUALIFIERS double _curand_uniform_double(unsigned int x)
-{
-    return x * CURAND_2POW32_INV_DOUBLE + (CURAND_2POW32_INV_DOUBLE/2.0);
-}
-
-QUALIFIERS double _curand_uniform_double(unsigned long long x)
-{
-    return (x >> 11) * CURAND_2POW53_INV_DOUBLE + (CURAND_2POW53_INV_DOUBLE/2.0);
-}
-
-QUALIFIERS double _curand_uniform_double_hq(unsigned int x, unsigned int y)
-{
-    unsigned long long z = (unsigned long long)x ^ 
-        ((unsigned long long)y << (53 - 32));
-    return z * CURAND_2POW53_INV_DOUBLE + (CURAND_2POW53_INV_DOUBLE/2.0);
-}
-
-QUALIFIERS float curand_uniform(curandStateTest_t *state)
-{
-    return _curand_uniform(curand(state));
-}
-
-QUALIFIERS double curand_uniform_double(curandStateTest_t *state)
-{
-    return _curand_uniform_double(curand(state));
-}
-
-/**
- * \brief Return a uniformly distributed float from an XORWOW generator.
- *
- * Return a uniformly distributed float between \p 0.0f and \p 1.0f 
- * from the XORWOW generator in \p state, increment position of generator.
- * Output range excludes \p 0.0f but includes \p 1.0f.  Denormalized floating
- * point outputs are never returned.
- *
- * The implementation may use any number of calls to \p curand() to
- * get enough random bits to create the return value.  The current
- * implementation uses one call.
- *
- * \param state - Pointer to state to update
- *
- * \return uniformly distributed float between \p 0.0f and \p 1.0f
- */
-QUALIFIERS float curand_uniform(curandStateXORWOW_t *state)
-{
-    return _curand_uniform(curand(state));
-}
-
-/**
- * \brief Return a uniformly distributed double from an XORWOW generator.
- *
- * Return a uniformly distributed double between \p 0.0 and \p 1.0 
- * from the XORWOW generator in \p state, increment position of generator.
- * Output range excludes \p 0.0 but includes \p 1.0.  Denormalized floating
- * point outputs are never returned.
- *
- * The implementation may use any number of calls to \p curand() to
- * get enough random bits to create the return value.  The current
- * implementation uses exactly two calls.
- *
- * \param state - Pointer to state to update
- *
- * \return uniformly distributed double between \p 0.0 and \p 1.0
- */
-QUALIFIERS double curand_uniform_double(curandStateXORWOW_t *state)
-{
-    unsigned int x, y;
-    x = curand(state);
-    y = curand(state);
-    return _curand_uniform_double_hq(x, y);
-}
-
-/**
- * \brief Return a uniformly distributed float from an MRG32k3a generator.
- *
- * Return a uniformly distributed float between \p 0.0f and \p 1.0f 
- * from the MRG32k3a generator in \p state, increment position of generator.
- * Output range excludes \p 0.0f but includes \p 1.0f.  Denormalized floating
- * point outputs are never returned.
- *
- * The implementation returns up to 23 bits of mantissa, with the minimum 
- * return value \f$ 2^{-32} \f$ 
- *
- * \param state - Pointer to state to update
- *
- * \return uniformly distributed float between \p 0.0f and \p 1.0f
- */
-QUALIFIERS float curand_uniform(curandStateMRG32k3a_t *state)
-{
-    return ((float)(curand_MRG32k3a(state)*MRG32K3A_NORM));
-}
-
-/**
- * \brief Return a uniformly distributed double from an MRG32k3a generator.
- *
- * Return a uniformly distributed double between \p 0.0 and \p 1.0 
- * from the MRG32k3a generator in \p state, increment position of generator.
- * Output range excludes \p 0.0 but includes \p 1.0.  Denormalized floating
- * point outputs are never returned. 
- *
- * Note the implementation returns at most 32 random bits of mantissa as 
- * outlined in the seminal paper by L'Ecuyer.
- *
- * \param state - Pointer to state to update
- *
- * \return uniformly distributed double between \p 0.0 and \p 1.0
- */
-QUALIFIERS double curand_uniform_double(curandStateMRG32k3a_t *state)
-{
-    return curand_MRG32k3a(state)*MRG32K3A_NORM;
-}
-
-/**
- * \brief Return 32-bits of pseudorandomness from an MRG32k3a generator.
- *
- * Return 32-bits of pseudorandomness from the MRG32k3a generator in \p state,
- * increment position of generator by one.
- *
- * \param state - Pointer to state to update
- *
- * \return 32-bits of pseudorandomness as an unsigned int, all bits valid to use.
- */
-QUALIFIERS unsigned int curand(curandStateMRG32k3a_t *state)
-{
- //   double r = (curand_uniform_double(state) + (CURAND_2POW32_INV_DOUBLE/2.0))*0x100000000ull;
-    return (unsigned int)(curand_MRG32k3a(state));    
-}
-
-/**
- * \brief Return a uniformly distributed float from a MTGP32 generator.
- *
- * Return a uniformly distributed float between \p 0.0f and \p 1.0f 
- * from the MTGP32 generator in \p state, increment position of generator.
- * Output range excludes \p 0.0f but includes \p 1.0f.  Denormalized floating
- * point outputs are never returned.
- *
- * \param state - Pointer to state to update
- *
- * \return uniformly distributed float between \p 0.0f and \p 1.0f
- */
-QUALIFIERS float curand_uniform(curandStateMtgp32_t *state)
-{
-    return _curand_uniform(curand(state));
-}
-/**
- * \brief Return a uniformly distributed double from a MTGP32 generator.
- *
- * Return a uniformly distributed double between \p 0.0f and \p 1.0f 
- * from the MTGP32 generator in \p state, increment position of generator.
- * Output range excludes \p 0.0f but includes \p 1.0f.  Denormalized floating
- * point outputs are never returned.
- *
- * \param state - Pointer to state to update
- *
- * \return uniformly distributed double between \p 0.0f and \p 1.0f
- */
-QUALIFIERS double curand_uniform_double(curandStateMtgp32_t *state)
-{
-    return _curand_uniform_double(curand(state));
-}
-
-/**
- * \brief Return a uniformly distributed float from a Sobol32 generator.
- *
- * Return a uniformly distributed float between \p 0.0f and \p 1.0f 
- * from the Sobol32 generator in \p state, increment position of generator.
- * Output range excludes \p 0.0f but includes \p 1.0f.  Denormalized floating
- * point outputs are never returned.
- *
- * The implementation is guaranteed to use a single call to \p curand().
- *
- * \param state - Pointer to state to update
- *
- * \return uniformly distributed float between \p 0.0f and \p 1.0f
- */
-QUALIFIERS float curand_uniform(curandStateSobol32_t *state)
-{
-    return _curand_uniform(curand(state));
-}
-
-/**
- * \brief Return a uniformly distributed double from a Sobol32 generator.
- *
- * Return a uniformly distributed double between \p 0.0 and \p 1.0 
- * from the Sobol32 generator in \p state, increment position of generator.
- * Output range excludes \p 0.0 but includes \p 1.0.  Denormalized floating
- * point outputs are never returned.
- *
- * The implementation is guaranteed to use a single call to \p curand()
- * to preserve the quasirandom properties of the sequence.
- *
- * \param state - Pointer to state to update
- *
- * \return uniformly distributed double between \p 0.0 and \p 1.0
- */
-QUALIFIERS double curand_uniform_double(curandStateSobol32_t *state)
-{
-    return _curand_uniform_double(curand(state));
-}
-/**
- * \brief Return a uniformly distributed float from a scrambled Sobol32 generator.
- *
- * Return a uniformly distributed float between \p 0.0f and \p 1.0f 
- * from the scrambled Sobol32 generator in \p state, increment position of generator.
- * Output range excludes \p 0.0f but includes \p 1.0f.  Denormalized floating
- * point outputs are never returned.
- *
- * The implementation is guaranteed to use a single call to \p curand().
- *
- * \param state - Pointer to state to update
- *
- * \return uniformly distributed float between \p 0.0f and \p 1.0f
- */
-QUALIFIERS float curand_uniform(curandStateScrambledSobol32_t *state)
-{
-    return _curand_uniform(curand(state));
-}
-
-/**
- * \brief Return a uniformly distributed double from a scrambled Sobol32 generator.
- *
- * Return a uniformly distributed double between \p 0.0 and \p 1.0 
- * from the scrambled Sobol32 generator in \p state, increment position of generator.
- * Output range excludes \p 0.0 but includes \p 1.0.  Denormalized floating
- * point outputs are never returned.
- *
- * The implementation is guaranteed to use a single call to \p curand()
- * to preserve the quasirandom properties of the sequence.
- *
- * \param state - Pointer to state to update
- *
- * \return uniformly distributed double between \p 0.0 and \p 1.0
- */
-QUALIFIERS double curand_uniform_double(curandStateScrambledSobol32_t *state)
-{
-    return _curand_uniform_double(curand(state));
-}
-/**
- * \brief Return a uniformly distributed float from a Sobol64 generator.
- *
- * Return a uniformly distributed float between \p 0.0f and \p 1.0f 
- * from the Sobol64 generator in \p state, increment position of generator.
- * Output range excludes \p 0.0f but includes \p 1.0f.  Denormalized floating
- * point outputs are never returned.
- *
- * The implementation is guaranteed to use a single call to \p curand().
- *
- * \param state - Pointer to state to update
- *
- * \return uniformly distributed float between \p 0.0f and \p 1.0f
- */
-QUALIFIERS float curand_uniform(curandStateSobol64_t *state)
-{
-    return _curand_uniform(curand(state));
-}
-
-/**
- * \brief Return a uniformly distributed double from a Sobol64 generator.
- *
- * Return a uniformly distributed double between \p 0.0 and \p 1.0 
- * from the Sobol64 generator in \p state, increment position of generator.
- * Output range excludes \p 0.0 but includes \p 1.0.  Denormalized floating
- * point outputs are never returned.
- *
- * The implementation is guaranteed to use a single call to \p curand()
- * to preserve the quasirandom properties of the sequence.
- *
- * \param state - Pointer to state to update
- *
- * \return uniformly distributed double between \p 0.0 and \p 1.0
- */
-QUALIFIERS double curand_uniform_double(curandStateSobol64_t *state)
-{
-    return _curand_uniform_double(curand(state));
-}
-/**
- * \brief Return a uniformly distributed float from a scrambled Sobol64 generator.
- *
- * Return a uniformly distributed float between \p 0.0f and \p 1.0f 
- * from the scrambled Sobol64 generator in \p state, increment position of generator.
- * Output range excludes \p 0.0f but includes \p 1.0f.  Denormalized floating
- * point outputs are never returned.
- *
- * The implementation is guaranteed to use a single call to \p curand().
- *
- * \param state - Pointer to state to update
- *
- * \return uniformly distributed float between \p 0.0f and \p 1.0f
- */
-QUALIFIERS float curand_uniform(curandStateScrambledSobol64_t *state)
-{
-    return _curand_uniform(curand(state));
-}
-
-/**
- * \brief Return a uniformly distributed double from a scrambled Sobol64 generator.
- *
- * Return a uniformly distributed double between \p 0.0 and \p 1.0 
- * from the scrambled Sobol64 generator in \p state, increment position of generator.
- * Output range excludes \p 0.0 but includes \p 1.0.  Denormalized floating
- * point outputs are never returned.
- *
- * The implementation is guaranteed to use a single call to \p curand()
- * to preserve the quasirandom properties of the sequence.
- *
- * \param state - Pointer to state to update
- *
- * \return uniformly distributed double between \p 0.0 and \p 1.0
- */
-QUALIFIERS double curand_uniform_double(curandStateScrambledSobol64_t *state)
-{
-    return _curand_uniform_double(curand(state));
-}
-
-QUALIFIERS float2 _curand_box_muller(unsigned int x, unsigned int y)
-{
-    float2 result;
-    float u = x * CURAND_2POW32_INV + (CURAND_2POW32_INV/2);
-    float v = y * CURAND_2POW32_INV_2PI + (CURAND_2POW32_INV_2PI/2);
-#if __CUDA_ARCH__ > 0
-    float s = sqrtf(-2.0f * logf(u));
-    result.x = s * __sinf(v);
-    result.y = s * __cosf(v);
-#else
-    float s = sqrtf(-2.0f * logf(u));
-    result.x = s * sinf(v);
-    result.y = s * cosf(v);
-#endif
-    return result;
-}
-
-QUALIFIERS float2 curand_box_muller_mrg(curandStateMRG32k3a_t * state)
-{        
-    float x, y;
-    x = curand_uniform(state);
-    y = curand_uniform(state) * CURAND_2PI;
-    float2 result;
-#if __CUDA_ARCH__ > 0
-    float s = sqrtf(-2.0f * logf(x));
-    result.x = s * __sinf(y);
-    result.y = s * __cosf(y);
-#else
-    float s = sqrtf(-2.0f * logf(x));
-    result.x = s * sinf(y);
-    result.y = s * cosf(y);
-#endif
-    return result;
-}
-
-QUALIFIERS double2 
-_curand_box_muller_double(unsigned int x0, unsigned int x1, 
-                          unsigned int y0, unsigned int y1)
-{
-    double2 result;
-    unsigned long long zx = (unsigned long long)x0 ^ 
-        ((unsigned long long)x1 << (53 - 32));
-    double u = zx * CURAND_2POW53_INV_DOUBLE + (CURAND_2POW53_INV_DOUBLE/2.0);
-    unsigned long long zy = (unsigned long long)y0 ^ 
-        ((unsigned long long)y1 << (53 - 32));
-    double v = zy * CURAND_2POW53_INV_2PI_DOUBLE + (CURAND_2POW53_INV_2PI_DOUBLE/2.0);
-    double s = sqrt(-2.0 * log(u));
-    result.x = s * sin(v);
-    result.y = s * cos(v);
-    return result;
-}
-
-QUALIFIERS double2 
-curand_box_muller_mrg_double(curandStateMRG32k3a_t * state) 
-{
-    double x, y;
-    double2 result;    
-    x = curand_uniform_double(state);
-    y = curand_uniform_double(state) * CURAND_2PI_DOUBLE;
-
-    double s = sqrt(-2.0 * log(x));
-    result.x = s * sin(y);
-    result.y = s * cos(y);
-    return result;
-}
-
-template <typename R>
-QUALIFIERS float2 curand_box_muller(R *state)
-{
-    float2 result;
-    unsigned int x = curand(state);
-    unsigned int y = curand(state);
-    result = _curand_box_muller(x, y);
-    return result;
-}
-
-template <typename R>
-QUALIFIERS double2 curand_box_muller_double(R *state)
-{
-    double2 result;
-    unsigned int x0 = curand(state);
-    unsigned int x1 = curand(state);
-    unsigned int y0 = curand(state);
-    unsigned int y1 = curand(state);
-    result = _curand_box_muller_double(x0, x1, y0, y1);
-    return result;
-}
-
-QUALIFIERS float _curand_normal_icdf(unsigned int x)
-{
-#if __CUDA_ARCH__ > 0 || defined(HOST_HAVE_ERFCINVF)
-    float s = CURAND_SQRT2;
-    // Mirror to avoid loss of precision
-    if(x > 0x80000000UL) {
-        x = 0xffffffffUL - x;
-        s = -s;
-    }
-    float p = x * CURAND_2POW32_INV + (CURAND_2POW32_INV/2.0f);
-    // p is in (0, 0.5], 2p is in (0, 1]
-    return s * erfcinvf(2.0f * p);
-#else
-    return 0.0f;
-#endif
-}
-
-QUALIFIERS float _curand_normal_icdf(unsigned long long x)
-{
-#if __CUDA_ARCH__ > 0 || defined(HOST_HAVE_ERFCINVF)
-    unsigned int t = (unsigned int)(x >> 32);
-    float s = CURAND_SQRT2;
-    // Mirror to avoid loss of precision
-    if(t > 0x80000000UL) {
-        t = 0xffffffffUL - t;
-        s = -s;
-    }
-    float p = t * CURAND_2POW32_INV + (CURAND_2POW32_INV/2.0f);
-    // p is in (0, 0.5], 2p is in (0, 1]
-    return s * erfcinvf(2.0f * p);
-#else
-    return 0.0f;
-#endif
-}
-
-QUALIFIERS double _curand_normal_icdf_double(unsigned int x)
-{
-#if __CUDA_ARCH__ > 0 || defined(HOST_HAVE_ERFCINVF)
-    double s = CURAND_SQRT2_DOUBLE;
-    // Mirror to avoid loss of precision
-    if(x > 0x80000000UL) {
-        x = 0xffffffffUL - x;
-        s = -s;
-    }
-    double p = x * CURAND_2POW32_INV_DOUBLE + (CURAND_2POW32_INV_DOUBLE/2.0);
-    // p is in (0, 0.5], 2p is in (0, 1]
-    return s * erfcinv(2.0 * p);
-#else
-    return 0.0;
-#endif
-}
-
-QUALIFIERS double _curand_normal_icdf_double(unsigned long long x)
-{
-#if __CUDA_ARCH__ > 0 || defined(HOST_HAVE_ERFCINVF)
-    double s = CURAND_SQRT2_DOUBLE;
-    x >>= 11;
-    // Mirror to avoid loss of precision
-    if(x > 0x10000000000000UL) {
-        x = 0x1fffffffffffffUL - x;
-        s = -s;
-    }
-    double p = x * CURAND_2POW53_INV_DOUBLE + (CURAND_2POW53_INV_DOUBLE/2.0);
-    // p is in (0, 0.5], 2p is in (0, 1]
-    return s * erfcinv(2.0 * p);
-#else
-    return 0.0;
-#endif
-}
- 
-
-/**
- * \brief Return a normally distributed float from an XORWOW generator.
- *
- * Return a single normally distributed float with mean \p 0.0f and
- * standard deviation \p 1.0f from the XORWOW generator in \p state,
- * increment position of generator by one.
- *
- * The implementation uses a Box-Muller transform to generate two
- * normally distributed results, then returns them one at a time.
- * See ::curand_normal2() for a more efficient version that returns
- * both results at once.
- *
- * \param state - Pointer to state to update
- *
- * \return Normally distributed float with mean \p 0.0f and standard deviation \p 1.0f
- */
-QUALIFIERS float curand_normal(curandStateXORWOW_t *state)
-{
-    if(state->boxmuller_flag != EXTRA_FLAG_NORMAL) {
-        unsigned int x, y;
-        x = curand(state);
-        y = curand(state);
-        float2 v = _curand_box_muller(x, y);
-        state->boxmuller_extra = v.y;
-        state->boxmuller_flag = EXTRA_FLAG_NORMAL;
-        return v.x;
-    }
-    state->boxmuller_flag = 0;
-    return state->boxmuller_extra;
-}
-
-/**
- * \brief Return a normally distributed float from an MRG32k3a generator.
- *
- * Return a single normally distributed float with mean \p 0.0f and
- * standard deviation \p 1.0f from the MRG32k3a generator in \p state,
- * increment position of generator by one.
- *
- * The implementation uses a Box-Muller transform to generate two
- * normally distributed results, then returns them one at a time.
- * See ::curand_normal2() for a more efficient version that returns
- * both results at once.
- *
- * \param state - Pointer to state to update
- *
- * \return Normally distributed float with mean \p 0.0f and standard deviation \p 1.0f
- */
-QUALIFIERS float curand_normal(curandStateMRG32k3a_t *state)
-{
-    if(state->boxmuller_flag != EXTRA_FLAG_NORMAL) {
-        float2 v = curand_box_muller_mrg(state);
-        state->boxmuller_extra = v.y;
-        state->boxmuller_flag = EXTRA_FLAG_NORMAL;
-        return v.x;
-    }
-    state->boxmuller_flag = 0;
-    return state->boxmuller_extra;
-}
-
-/**
- * \brief Return two normally distributed floats from an XORWOW generator.
- *
- * Return two normally distributed floats with mean \p 0.0f and
- * standard deviation \p 1.0f from the XORWOW generator in \p state,
- * increment position of generator by two.
- *
- * The implementation uses a Box-Muller transform to generate two
- * normally distributed results.
- *
- * \param state - Pointer to state to update
- *
- * \return Normally distributed float2 where each element is from a
- * distribution with mean \p 0.0f and standard deviation \p 1.0f
- */
-QUALIFIERS float2 curand_normal2(curandStateXORWOW_t *state)
-{
-    return curand_box_muller(state);
-}
-
-/**
- * \brief Return two normally distributed floats from an MRG32k3a generator.
- *
- * Return two normally distributed floats with mean \p 0.0f and
- * standard deviation \p 1.0f from the MRG32k3a generator in \p state,
- * increment position of generator by two.
- *
- * The implementation uses a Box-Muller transform to generate two
- * normally distributed results.
- *
- * \param state - Pointer to state to update
- *
- * \return Normally distributed float2 where each element is from a
- * distribution with mean \p 0.0f and standard deviation \p 1.0f
- */
-QUALIFIERS float2 curand_normal2(curandStateMRG32k3a_t *state)
-{
-    return curand_box_muller_mrg(state);
-}
-
-/**
- * \brief Return a normally distributed float from a MTGP32 generator.
- *
- * Return a single normally distributed float with mean \p 0.0f and
- * standard deviation \p 1.0f from the MTGP32 generator in \p state,
- * increment position of generator.
- *
- * The implementation uses the inverse cumulative distribution function
- * to generate normally distributed results.
- *
- * \param state - Pointer to state to update
- *
- * \return Normally distributed float with mean \p 0.0f and standard deviation \p 1.0f
- */
-QUALIFIERS float curand_normal(curandStateMtgp32_t *state)
-{
-    return _curand_normal_icdf(curand(state));
-}
-/**
- * \brief Return a normally distributed float from a Sobol32 generator.
- *
- * Return a single normally distributed float with mean \p 0.0f and
- * standard deviation \p 1.0f from the Sobol32 generator in \p state,
- * increment position of generator by one.
- *
- * The implementation uses the inverse cumulative distribution function
- * to generate normally distributed results.
- *
- * \param state - Pointer to state to update
- *
- * \return Normally distributed float with mean \p 0.0f and standard deviation \p 1.0f
- */
-QUALIFIERS float curand_normal(curandStateSobol32_t *state)
-{
-    return _curand_normal_icdf(curand(state));
-}
-
-/**
- * \brief Return a normally distributed float from a scrambled Sobol32 generator.
- *
- * Return a single normally distributed float with mean \p 0.0f and
- * standard deviation \p 1.0f from the scrambled Sobol32 generator in \p state,
- * increment position of generator by one.
- *
- * The implementation uses the inverse cumulative distribution function
- * to generate normally distributed results.
- *
- * \param state - Pointer to state to update
- *
- * \return Normally distributed float with mean \p 0.0f and standard deviation \p 1.0f
- */
-QUALIFIERS float curand_normal(curandStateScrambledSobol32_t *state)
-{
-    return _curand_normal_icdf(curand(state));
-}
-
-/**
- * \brief Return a normally distributed float from a Sobol64 generator.
- *
- * Return a single normally distributed float with mean \p 0.0f and
- * standard deviation \p 1.0f from the Sobol64 generator in \p state,
- * increment position of generator by one.
- *
- * The implementation uses the inverse cumulative distribution function
- * to generate normally distributed results.
- *
- * \param state - Pointer to state to update
- *
- * \return Normally distributed float with mean \p 0.0f and standard deviation \p 1.0f
- */
-QUALIFIERS float curand_normal(curandStateSobol64_t *state)
-{
-    return _curand_normal_icdf(curand(state));
-}
-
-/**
- * \brief Return a normally distributed float from a scrambled Sobol64 generator.
- *
- * Return a single normally distributed float with mean \p 0.0f and
- * standard deviation \p 1.0f from the scrambled Sobol64 generator in \p state,
- * increment position of generator by one.
- *
- * The implementation uses the inverse cumulative distribution function
- * to generate normally distributed results.
- *
- * \param state - Pointer to state to update
- *
- * \return Normally distributed float with mean \p 0.0f and standard deviation \p 1.0f
- */
-QUALIFIERS float curand_normal(curandStateScrambledSobol64_t *state)
-{
-    return _curand_normal_icdf(curand(state));
-}
-
-/**
- * \brief Return a normally distributed double from an XORWOW generator.
- *
- * Return a single normally distributed double with mean \p 0.0 and
- * standard deviation \p 1.0 from the XORWOW generator in \p state,
- * increment position of generator.
- *
- * The implementation uses a Box-Muller transform to generate two
- * normally distributed results, then returns them one at a time.
- * See ::curand_normal2_double() for a more efficient version that returns
- * both results at once.
- *
- * \param state - Pointer to state to update
- *
- * \return Normally distributed double with mean \p 0.0 and standard deviation \p 1.0
- */
-QUALIFIERS double curand_normal_double(curandStateXORWOW_t *state)
-{
-    if(state->boxmuller_flag_double != EXTRA_FLAG_NORMAL) {
-        unsigned int x0, x1, y0, y1;
-        x0 = curand(state);
-        x1 = curand(state);
-        y0 = curand(state);
-        y1 = curand(state);
-        double2 v = _curand_box_muller_double(x0, x1, y0, y1);
-        state->boxmuller_extra_double = v.y;
-        state->boxmuller_flag_double = EXTRA_FLAG_NORMAL;
-        return v.x;
-    }
-    state->boxmuller_flag_double = 0;
-    return state->boxmuller_extra_double;
-}
-/**
- * \brief Return a normally distributed double from an MRG32k3a generator.
- *
- * Return a single normally distributed double with mean \p 0.0 and
- * standard deviation \p 1.0 from the XORWOW generator in \p state,
- * increment position of generator.
- *
- * The implementation uses a Box-Muller transform to generate two
- * normally distributed results, then returns them one at a time.
- * See ::curand_normal2_double() for a more efficient version that returns
- * both results at once.
- *
- * \param state - Pointer to state to update
- *
- * \return Normally distributed double with mean \p 0.0 and standard deviation \p 1.0
- */
-QUALIFIERS double curand_normal_double(curandStateMRG32k3a_t *state)
-{
-    if(state->boxmuller_flag_double != EXTRA_FLAG_NORMAL) {
-        double2 v = curand_box_muller_mrg_double(state);
-        state->boxmuller_extra_double = v.y;
-        state->boxmuller_flag_double = EXTRA_FLAG_NORMAL;
-        return v.x;
-    }
-    state->boxmuller_flag_double = 0;
-    return state->boxmuller_extra_double;
-}
-
-/**
- * \brief Return two normally distributed doubles from an XORWOW generator.
- *
- * Return two normally distributed doubles with mean \p 0.0 and
- * standard deviation \p 1.0 from the XORWOW generator in \p state,
- * increment position of generator.
- *
- * The implementation uses a Box-Muller transform to generate two
- * normally distributed results.
- *
- * \param state - Pointer to state to update
- *
- * \return Normally distributed double2 where each element is from a
- * distribution with mean \p 0.0 and standard deviation \p 1.0
- */
-QUALIFIERS double2 curand_normal2_double(curandStateXORWOW_t *state)
-{
-    return curand_box_muller_double(state);
-}
-
-/**
- * \brief Return two normally distributed doubles from an MRG32k3a generator.
- *
- * Return two normally distributed doubles with mean \p 0.0 and
- * standard deviation \p 1.0 from the MRG32k3a generator in \p state,
- * increment position of generator.
- *
- * The implementation uses a Box-Muller transform to generate two
- * normally distributed results.
- *
- * \param state - Pointer to state to update
- *
- * \return Normally distributed double2 where each element is from a
- * distribution with mean \p 0.0 and standard deviation \p 1.0
- */
-QUALIFIERS double2 curand_normal2_double(curandStateMRG32k3a_t *state)
-{
-    return curand_box_muller_mrg_double(state);
-}
-
-/**
- * \brief Return a normally distributed double from an MTGP32 generator.
- *
- * Return a single normally distributed double with mean \p 0.0 and
- * standard deviation \p 1.0 from the MTGP32 generator in \p state,
- * increment position of generator.
- *
- * The implementation uses the inverse cumulative distribution function
- * to generate normally distributed results.
- *
- * \param state - Pointer to state to update
- *
- * \return Normally distributed double with mean \p 0.0 and standard deviation \p 1.0
- */
-QUALIFIERS double curand_normal_double(curandStateMtgp32_t *state)
-{
-    return _curand_normal_icdf_double(curand(state));
-}
-
-/**
- * \brief Return a normally distributed double from an Sobol32 generator.
- *
- * Return a single normally distributed double with mean \p 0.0 and
- * standard deviation \p 1.0 from the Sobol32 generator in \p state,
- * increment position of generator by one.
- *
- * The implementation uses the inverse cumulative distribution function
- * to generate normally distributed results.
- *
- * \param state - Pointer to state to update
- *
- * \return Normally distributed double with mean \p 0.0 and standard deviation \p 1.0
- */
-QUALIFIERS double curand_normal_double(curandStateSobol32_t *state)
-{
-    return _curand_normal_icdf_double(curand(state));
-}
-
-/**
- * \brief Return a normally distributed double from a scrambled Sobol32 generator.
- *
- * Return a single normally distributed double with mean \p 0.0 and
- * standard deviation \p 1.0 from the scrambled Sobol32 generator in \p state,
- * increment position of generator by one.
- *
- * The implementation uses the inverse cumulative distribution function
- * to generate normally distributed results.
- *
- * \param state - Pointer to state to update
- *
- * \return Normally distributed double with mean \p 0.0 and standard deviation \p 1.0
- */
-QUALIFIERS double curand_normal_double(curandStateScrambledSobol32_t *state)
-{
-    return _curand_normal_icdf_double(curand(state));
-}
-
-/**
- * \brief Return a normally distributed double from a Sobol64 generator.
- *
- * Return a single normally distributed double with mean \p 0.0 and
- * standard deviation \p 1.0 from the Sobol64 generator in \p state,
- * increment position of generator by one.
- *
- * The implementation uses the inverse cumulative distribution function
- * to generate normally distributed results.
- *
- * \param state - Pointer to state to update
- *
- * \return Normally distributed double with mean \p 0.0 and standard deviation \p 1.0
- */
-QUALIFIERS double curand_normal_double(curandStateSobol64_t *state)
-{
-    return _curand_normal_icdf_double(curand(state));
-}
-
-/**
- * \brief Return a normally distributed double from a scrambled Sobol64 generator.
- *
- * Return a single normally distributed double with mean \p 0.0 and
- * standard deviation \p 1.0 from the scrambled Sobol64 generator in \p state,
- * increment position of generator by one.
- *
- * The implementation uses the inverse cumulative distribution function
- * to generate normally distributed results.
- *
- * \param state - Pointer to state to update
- *
- * \return Normally distributed double with mean \p 0.0 and standard deviation \p 1.0
- */
-QUALIFIERS double curand_normal_double(curandStateScrambledSobol64_t *state)
-{
-    return _curand_normal_icdf_double(curand(state));
-}
-
-// begin log_normal
-
-/**
- * \brief Return a log-normally distributed float from an XORWOW generator.
- *
- * Return a single log-normally distributed float derived from a normal
- * distribution with mean \p mean and standard deviation \p stddev 
- * from the XORWOW generator in \p state, 
- * increment position of generator by one.
- *
- * The implementation uses a Box-Muller transform to generate two
- * normally distributed results, transforms them to log-normal distribution,
- * then returns them one at a time.
- * See ::curand_log_normal2() for a more efficient version that returns
- * both results at once.
- *
- * \param state  - Pointer to state to update
- * \param mean   - Mean of the related normal distribution
- * \param stddev - Standard deviation of the related normal distribution
- *
- * \return Log-normally distributed float with mean \p mean and standard deviation \p stddev
- */
-QUALIFIERS float curand_log_normal(curandStateXORWOW_t *state, float mean, float stddev)
-{
-    if(state->boxmuller_flag != EXTRA_FLAG_LOG_NORMAL) {
-        unsigned int x, y;
-        x = curand(state);
-        y = curand(state);
-        float2 v = _curand_box_muller(x, y);
-        state->boxmuller_extra = exp(mean + (stddev * v.y));
-        state->boxmuller_flag = EXTRA_FLAG_LOG_NORMAL;
-        return exp(mean + (stddev * v.x));
-    }
-    state->boxmuller_flag = 0;
-    return state->boxmuller_extra;
-}
-
-/**
- * \brief Return two normally distributed floats from an XORWOW generator.
- *
- * Return two log-normally distributed floats derived from a normal
- * distribution with mean \p mean and standard deviation \p stddev 
- * from the XORWOW generator in \p state,
- * increment position of generator by two.
- *
- * The implementation uses a Box-Muller transform to generate two
- * normally distributed results, then transforms them to log-normal.
- *
- * \param state - Pointer to state to update
- * \param mean   - Mean of the related normal distribution
- * \param stddev - Standard deviation of the related normal distribution
- *
- * \return Log-normally distributed float2 where each element is from a
- * distribution with mean \p mean and standard deviation \p stddev
- */
-QUALIFIERS float2 curand_log_normal2(curandStateXORWOW_t *state, float mean, float stddev)
-{
-    float2 v = curand_box_muller(state);
-    v.x = exp(mean + (stddev * v.x));
-    v.y = exp(mean + (stddev * v.y));
-    return v;
-}
-
-/**
- * \brief Return a log-normally distributed float from an MRG32k3a generator.
- *
- * Return a single log-normally distributed float derived from a normal
- * distribution with mean \p mean and standard deviation \p stddev 
- * from the MRG32k3a generator in \p state, 
- * increment position of generator by one.
- *
- * The implementation uses a Box-Muller transform to generate two
- * normally distributed results, transforms them to log-normal distribution,
- * then returns them one at a time.
- * See ::curand_log_normal2() for a more efficient version that returns
- * both results at once.
- *
- * \param state  - Pointer to state to update
- * \param mean   - Mean of the related normal distribution
- * \param stddev - Standard deviation of the related normal distribution
- *
- * \return Log-normally distributed float with mean \p mean and standard deviation \p stddev
- */
-QUALIFIERS float curand_log_normal(curandStateMRG32k3a_t *state, float mean, float stddev)
-{
-    if(state->boxmuller_flag != EXTRA_FLAG_LOG_NORMAL) {
-        float2 v = curand_box_muller_mrg(state);
-        state->boxmuller_extra = exp(mean + (stddev * v.y));
-        state->boxmuller_flag = EXTRA_FLAG_LOG_NORMAL;
-        return exp(mean + (stddev * v.x));
-    }
-    state->boxmuller_flag = 0;
-    return state->boxmuller_extra;
-}
-
-/**
- * \brief Return two normally distributed floats from an MRG32k3a generator.
- *
- * Return two log-normally distributed floats derived from a normal
- * distribution with mean \p mean and standard deviation \p stddev 
- * from the MRG32k3a generator in \p state,
- * increment position of generator by two.
- *
- * The implementation uses a Box-Muller transform to generate two
- * normally distributed results, then transforms them to log-normal.
- *
- * \param state - Pointer to state to update
- * \param mean   - Mean of the related normal distribution
- * \param stddev - Standard deviation of the related normal distribution
- *
- * \return Log-normally distributed float2 where each element is from a
- * distribution with mean \p mean and standard deviation \p stddev
- */
-QUALIFIERS float2 curand_log_normal2(curandStateMRG32k3a_t *state, float mean, float stddev)
-{
-    float2 v = curand_box_muller_mrg(state);
-    v.x = exp(mean + (stddev * v.x));
-    v.y = exp(mean + (stddev * v.y));
-    return v;
-}
-
-/**
- * \brief Return a log-normally distributed float from an MTGP32 generator.
- *
- * Return a single log-normally distributed float derived from a normal
- * distribution with mean \p mean and standard deviation \p stddev 
- * from the MTGP32 generator in \p state,
- * increment position of generator.
- *
- * The implementation uses the inverse cumulative distribution function
- * to generate a normally distributed result, then transforms the result
- * to log-normal.
- *
- * \param state - Pointer to state to update
- * \param mean   - Mean of the related normal distribution
- * \param stddev - Standard deviation of the related normal distribution
- *
- * \return Log-normally distributed float with mean \p mean and standard deviation \p stddev
- */
-QUALIFIERS float curand_log_normal(curandStateMtgp32_t *state, float mean, float stddev)
-{
-    return exp(mean + (stddev * _curand_normal_icdf(curand(state))));
-}
-
-/**
- * \brief Return a log-normally distributed float from a Sobol32 generator.
- *
- * Return a single log-normally distributed float derived from a normal
- * distribution with mean \p mean and standard deviation \p stddev 
- * from the Sobol32 generator in \p state,
- * increment position of generator by one.
- *
- * The implementation uses the inverse cumulative distribution function
- * to generate a normally distributed result, then transforms the result
- * to log-normal.
- *
- * \param state - Pointer to state to update
- * \param mean   - Mean of the related normal distribution
- * \param stddev - Standard deviation of the related normal distribution
- *
- * \return Log-normally distributed float with mean \p mean and standard deviation \p stddev
- */
-QUALIFIERS float curand_log_normal(curandStateSobol32_t *state, float mean, float stddev)
-{
-    return exp(mean + (stddev * _curand_normal_icdf(curand(state))));
-}
-/**
- * \brief Return a log-normally distributed float from a scrambled Sobol32 generator.
- *
- * Return a single log-normally distributed float derived from a normal
- * distribution with mean \p mean and standard deviation \p stddev 
- * from the scrambled Sobol32 generator in \p state,
- * increment position of generator by one.
- *
- * The implementation uses the inverse cumulative distribution function
- * to generate a normally distributed result, then transforms the result
- * to log-normal.
- *
- * \param state - Pointer to state to update
- * \param mean   - Mean of the related normal distribution
- * \param stddev - Standard deviation of the related normal distribution
- *
- * \return Log-normally distributed float with mean \p mean and standard deviation \p stddev
- */
-QUALIFIERS float curand_log_normal(curandStateScrambledSobol32_t *state, float mean, float stddev)
-{
-    return exp(mean + (stddev * _curand_normal_icdf(curand(state))));
-}
-
-/**
- * \brief Return a log-normally distributed float from a Sobol64 generator.
- *
- * Return a single log-normally distributed float derived from a normal
- * distribution with mean \p mean and standard deviation \p stddev 
- * from the Sobol64 generator in \p state,
- * increment position of generator by one.
- *
- * The implementation uses the inverse cumulative distribution function
- * to generate normally distributed results, then converts to log-normal
- * distribution.
- *
- * \param state - Pointer to state to update
- * \param mean   - Mean of the related normal distribution
- * \param stddev - Standard deviation of the related normal distribution
- *
- * \return Log-normally distributed float with mean \p mean and standard deviation \p stddev
- */
-QUALIFIERS float curand_log_normal(curandStateSobol64_t *state, float mean, float stddev)
-{
-    return exp(mean + (stddev * _curand_normal_icdf(curand(state))));
-}
-
-/**
- * \brief Return a log-normally distributed float from a scrambled Sobol64 generator.
- *
- * Return a single log-normally distributed float derived from a normal
- * distribution with mean \p mean and standard deviation \p stddev 
- * from the scrambled Sobol64 generator in \p state,
- * increment position of generator by one.
- *
- * The implementation uses the inverse cumulative distribution function
- * to generate normally distributed results, then converts to log-normal
- * distribution.
- *
- * \param state - Pointer to state to update
- * \param mean   - Mean of the related normal distribution
- * \param stddev - Standard deviation of the related normal distribution
- *
- * \return Log-normally distributed float with mean \p mean and standard deviation \p stddev
- */
-QUALIFIERS float curand_log_normal(curandStateScrambledSobol64_t *state, float mean, float stddev)
-{
-    return exp(mean + (stddev * _curand_normal_icdf(curand(state))));
-}
-
-/**
- * \brief Return a log-normally distributed double from an XORWOW generator.
- *
- * Return a single normally distributed double derived from a normal
- * distribution with mean \p mean and standard deviation \p stddev 
- * from the XORWOW generator in \p state,
- * increment position of generator.
- *
- * The implementation uses a Box-Muller transform to generate two
- * normally distributed results, transforms them to log-normal distribution,
- * then returns them one at a time.
- * See ::curand_log_normal2_double() for a more efficient version that returns
- * both results at once.
- *
- * \param state - Pointer to state to update
- * \param mean   - Mean of the related normal distribution
- * \param stddev - Standard deviation of the related normal distribution
- *
- * \return Log-normally distributed double with mean \p mean and standard deviation \p stddev
- */
-QUALIFIERS double curand_log_normal_double(curandStateXORWOW_t *state, double mean, double stddev)
-{
-    if(state->boxmuller_flag_double != EXTRA_FLAG_LOG_NORMAL) {
-        unsigned int x0, x1, y0, y1;
-        x0 = curand(state);
-        x1 = curand(state);
-        y0 = curand(state);
-        y1 = curand(state);
-        double2 v = _curand_box_muller_double(x0, x1, y0, y1);
-        state->boxmuller_extra_double = exp(mean + (stddev * v.y));
-        state->boxmuller_flag_double = EXTRA_FLAG_LOG_NORMAL;
-        return exp(mean + (stddev * v.x));
-    }
-    state->boxmuller_flag_double = 0;
-    return state->boxmuller_extra_double;
-}
-
-/**
- * \brief Return two log-normally distributed doubles from an XORWOW generator.
- *
- * Return two log-normally distributed doubles derived from a normal
- * distribution with mean \p mean and standard deviation \p stddev 
- * from the XORWOW generator in \p state,
- * increment position of generator by two.
- *
- * The implementation uses a Box-Muller transform to generate two
- * normally distributed results, and transforms them to log-normal distribution,.
- *
- * \param state - Pointer to state to update
- * \param mean   - Mean of the related normal distribution
- * \param stddev - Standard deviation of the related normal distribution
- *
- * \return Log-normally distributed double2 where each element is from a
- * distribution with mean \p mean and standard deviation \p stddev
- */
-QUALIFIERS double2 curand_log_normal2_double(curandStateXORWOW_t *state, double mean, double stddev)
-{
-    double2 v = curand_box_muller_double(state);
-    v.x = exp(mean + (stddev * v.x));
-    v.y = exp(mean + (stddev * v.y));
-    return v;
-}
-
-/**
- * \brief Return a log-normally distributed double from an MRG32k3a generator.
- *
- * Return a single normally distributed double derived from a normal
- * distribution with mean \p mean and standard deviation \p stddev 
- * from the MRG32k3a generator in \p state,
- * increment position of generator.
- *
- * The implementation uses a Box-Muller transform to generate two
- * normally distributed results, transforms them to log-normal distribution,
- * then returns them one at a time.
- * See ::curand_log_normal2_double() for a more efficient version that returns
- * both results at once.
- *
- * \param state - Pointer to state to update
- * \param mean   - Mean of the related normal distribution
- * \param stddev - Standard deviation of the related normal distribution
- *
- * \return Log-normally distributed double with mean \p mean and standard deviation \p stddev
- */
-QUALIFIERS double curand_log_normal_double(curandStateMRG32k3a_t *state, double mean, double stddev)
-{
-    if(state->boxmuller_flag_double != EXTRA_FLAG_LOG_NORMAL) {
-        double2 v = curand_box_muller_mrg_double(state);
-        state->boxmuller_extra_double = exp(mean + (stddev * v.y));
-        state->boxmuller_flag_double = EXTRA_FLAG_LOG_NORMAL;
-        return exp(mean + (stddev * v.x));
-    }
-    state->boxmuller_flag_double = 0;
-    return state->boxmuller_extra_double;
-}
-
-/**
- * \brief Return two log-normally distributed doubles from an MRG32k3a generator.
- *
- * Return two log-normally distributed doubles derived from a normal
- * distribution with mean \p mean and standard deviation \p stddev 
- * from the MRG32k3a generator in \p state,
- * increment position of generator by two.
- *
- * The implementation uses a Box-Muller transform to generate two
- * normally distributed results, and transforms them to log-normal distribution,.
- *
- * \param state - Pointer to state to update
- * \param mean   - Mean of the related normal distribution
- * \param stddev - Standard deviation of the related normal distribution
- *
- * \return Log-normally distributed double2 where each element is from a
- * distribution with mean \p mean and standard deviation \p stddev
- */
-QUALIFIERS double2 curand_log_normal2_double(curandStateMRG32k3a_t *state, double mean, double stddev)
-{
-    double2 v = curand_box_muller_mrg_double(state);
-    v.x = exp(mean + (stddev * v.x));
-    v.y = exp(mean + (stddev * v.y));
-    return v;
-}
-
-/**
- * \brief Return a log-normally distributed double from an MTGP32 generator.
- *
- * Return a single log-normally distributed double derived from a normal
- * distribution with mean \p mean and standard deviation \p stddev 
- * from the MTGP32 generator in \p state,
- * increment position of generator.
- *
- * The implementation uses the inverse cumulative distribution function
- * to generate normally distributed results, and transforms them into
- * log-normal distribution.
- *
- * \param state - Pointer to state to update
- * \param mean   - Mean of the related normal distribution
- * \param stddev - Standard deviation of the related normal distribution
- *
- * \return Log-normally distributed double with mean \p mean and standard deviation \p stddev
- */
-QUALIFIERS double curand_log_normal_double(curandStateMtgp32_t *state, double mean, double stddev)
-{
-    return exp(mean + (stddev * _curand_normal_icdf_double(curand(state))));
-}
-
-/**
- * \brief Return a log-normally distributed double from a Sobol32 generator.
- *
- * Return a single log-normally distributed double derived from a normal
- * distribution with mean \p mean and standard deviation \p stddev 
- * from the Sobol32 generator in \p state,
- * increment position of generator by one.
- *
- * The implementation uses the inverse cumulative distribution function
- * to generate normally distributed results, and transforms them into
- * log-normal distribution.
- *
- * \param state - Pointer to state to update
- * \param mean   - Mean of the related normal distribution
- * \param stddev - Standard deviation of the related normal distribution
- *
- * \return Log-normally distributed double with mean \p mean and standard deviation \p stddev
- */
-QUALIFIERS double curand_log_normal_double(curandStateSobol32_t *state, double mean, double stddev)
-{
-    return exp(mean + (stddev * _curand_normal_icdf_double(curand(state))));
-}
-
-/**
- * \brief Return a log-normally distributed double from a scrambled Sobol32 generator.
- *
- * Return a single log-normally distributed double derived from a normal
- * distribution with mean \p mean and standard deviation \p stddev 
- * from the scrambled Sobol32 generator in \p state,
- * increment position of generator by one.
- *
- * The implementation uses the inverse cumulative distribution function
- * to generate normally distributed results, and transforms them into
- * log-normal distribution.
- *
- * \param state - Pointer to state to update
- * \param mean   - Mean of the related normal distribution
- * \param stddev - Standard deviation of the related normal distribution
- *
- * \return Log-normally distributed double with mean \p mean and standard deviation \p stddev
- */
-QUALIFIERS double curand_log_normal_double(curandStateScrambledSobol32_t *state, double mean, double stddev)
-{
-    return exp(mean + (stddev * _curand_normal_icdf_double(curand(state))));
-}
-
-/**
- * \brief Return a log-normally distributed double from a Sobol64 generator.
- *
- * Return a single normally distributed double derived from a normal
- * distribution with mean \p mean and standard deviation \p stddev 
- * from the Sobol64 generator in \p state,
- * increment position of generator by one.
- *
- * The implementation uses the inverse cumulative distribution function
- * to generate normally distributed results.
- *
- * \param state - Pointer to state to update
- * \param mean   - Mean of the related normal distribution
- * \param stddev - Standard deviation of the related normal distribution
- *
- * \return Log-normally distributed double with mean \p mean and standard deviation \p stddev
- */
-QUALIFIERS double curand_log_normal_double(curandStateSobol64_t *state, double mean, double stddev)
-{
-    return exp(mean + (stddev * _curand_normal_icdf_double(curand(state))));
-}
-
-/**
- * \brief Return a log-normally distributed double from a scrambled Sobol64 generator.
- *
- * Return a single normally distributed double derived from a normal
- * distribution with mean \p mean and standard deviation \p stddev 
- * from the scrambled Sobol64 generator in \p state,
- * increment position of generator by one.
- *
- * The implementation uses the inverse cumulative distribution function
- * to generate normally distributed results.
- *
- * \param state - Pointer to state to update
- * \param mean   - Mean of the related normal distribution
- * \param stddev - Standard deviation of the related normal distribution
- *
- * \return Log-normally distributed double with mean \p mean and standard deviation \p stddev
- */
-QUALIFIERS double curand_log_normal_double(curandStateScrambledSobol64_t *state, double mean, double stddev)
-{
-    return exp(mean + (stddev * _curand_normal_icdf_double(curand(state))));
-}
-
-
-__host__ __device__ static unsigned int *__get_precalculated_matrix(int n)
+#include "curand_uniform.h"
+#include "curand_normal.h"
+#include "curand_lognormal.h"
+#include "curand_poisson.h"
+#include "curand_discrete2.h"
+
+__device__ static inline unsigned int *__get_precalculated_matrix(int n)
 {
     if(n == 0) {
         return precalc_xorwow_matrix[n];
     }
-    if(n == 1) {
-        return precalc_xorwow_matrix_host[n];
-    }
     if(n == 2) {
         return precalc_xorwow_offset_matrix[n];
+    }
+    return precalc_xorwow_matrix[n];
+}
+
+__host__ static inline unsigned int *__get_precalculated_matrix_host(int n)
+{
+    if(n == 1) {
+        return precalc_xorwow_matrix_host[n];
     }
     if(n == 3) {
         return precalc_xorwow_offset_matrix_host[n];
     }
-    return precalc_xorwow_matrix[n];
+    return precalc_xorwow_matrix_host[n];
 }
+
+__device__ static inline double *__get_mrg32k3a_matrix(int n)
+{
+    if(n == 0) {
+        return mrg32k3aM1[n][0];
+    }
+    if(n == 2) {
+        return mrg32k3aM2[n][0];
+    }
+    if(n == 4) {
+        return mrg32k3aM1SubSeq[n][0];
+    }
+    if(n == 6) {
+        return mrg32k3aM2SubSeq[n][0];
+    }
+    if(n == 8) {
+        return mrg32k3aM1Seq[n][0];
+    }
+    if(n == 10) {
+        return mrg32k3aM2Seq[n][0];
+    }
+    return mrg32k3aM1[n][0];
+}
+
+__host__ static inline double *__get_mrg32k3a_matrix_host(int n)
+{
+    if(n == 1) {
+        return mrg32k3aM1Host[n][0];
+    }
+    if(n == 3) {
+        return mrg32k3aM2Host[n][0];
+    }
+    if(n == 5) {
+        return mrg32k3aM1SubSeqHost[n][0];
+    }
+    if(n == 7) {
+        return mrg32k3aM2SubSeqHost[n][0];
+    }
+    if(n == 9) {
+        return mrg32k3aM1SeqHost[n][0];
+    }
+    if(n == 11) {
+        return mrg32k3aM2SeqHost[n][0];
+    }
+    return mrg32k3aM1Host[n][0];
+}
+
+__host__ static inline double *__get__cr_lgamma_table_host(void) {
+    return __cr_lgamma_table;
+}
+
+/** @} */
 
 #endif // !defined(CURAND_KERNEL_H_)

@@ -39,7 +39,7 @@
 #define __text__
 #define __surf__
 #define __name__shadow_var(c, cpp) \
-        #cpp
+        #c
 #define __name__text_var(c, cpp) \
         #cpp
 #define __host__shadow_var(c, cpp) \
@@ -77,17 +77,19 @@ static inline void *__cudaAddressOf(T &val)
     return (void *)(&(const_cast<char &>(reinterpret_cast<const volatile char &>(val))));
 }
 
-#define __cudaRegisterBinary()                                                   \
+#define __cudaRegisterBinary(X)                                                   \
         __cudaFatCubinHandle = __cudaRegisterFatBinary((void*)&__fatDeviceText); \
+        { void (*callback_fp)(void **) =  (void (*)(void **))(X); (*callback_fp)(__cudaFatCubinHandle); }\
         atexit(__cudaUnregisterBinaryUtil)
-#define __cudaRegisterVariable(var, ext, size, constant, global) \
-        __cudaRegisterVar(__cudaFatCubinHandle, (char*)&__host##var, (char*)__device##var, __name##var, ext, size, constant, global)
-#define __cudaRegisterGlobalTexture(tex, dim, norm, ext) \
-        __cudaRegisterTexture(__cudaFatCubinHandle, (const struct textureReference*)&tex, (const void**)__device##tex, __name##tex, dim, norm, ext)
-#define __cudaRegisterGlobalSurface(surf, dim, ext) \
-        __cudaRegisterSurface(__cudaFatCubinHandle, (const struct surfaceReference*)&surf, (const void**)__device##surf, __name##surf, dim, ext)
-#define __cudaRegisterEntry(funptr, fun, thread_limit) \
-        __cudaRegisterFunction(__cudaFatCubinHandle, (const char*)funptr, (char*)__device_fun(fun), #fun, -1, (uint3*)0, (uint3*)0, (dim3*)0, (dim3*)0, (int*)0)
+        
+#define __cudaRegisterVariable(handle, var, ext, size, constant, global) \
+        __cudaRegisterVar(handle, (char*)&__host##var, (char*)__device##var, __name##var, ext, size, constant, global)
+#define __cudaRegisterGlobalTexture(handle, tex, dim, norm, ext) \
+        __cudaRegisterTexture(handle, (const struct textureReference*)&tex, (const void**)(void*)__device##tex, __name##tex, dim, norm, ext)
+#define __cudaRegisterGlobalSurface(handle, surf, dim, ext) \
+        __cudaRegisterSurface(handle, (const struct surfaceReference*)&surf, (const void**)(void*)__device##surf, __name##surf, dim, ext)
+#define __cudaRegisterEntry(handle, funptr, fun, thread_limit) \
+        __cudaRegisterFunction(handle, (const char*)funptr, (char*)__device_fun(fun), #fun, -1, (uint3*)0, (uint3*)0, (dim3*)0, (dim3*)0, (int*)0)
           
 #define __cudaSetupArg(arg, offset) \
         if (cudaSetupArgument(__cudaAddressOf(arg), sizeof(arg), (size_t)offset) != cudaSuccess) \
@@ -96,12 +98,57 @@ static inline void *__cudaAddressOf(T &val)
 #define __cudaSetupArgSimple(arg, offset) \
         if (cudaSetupArgument((void *)(char *)&arg, sizeof(arg), (size_t)offset) != cudaSuccess) \
           return
-          
+
+#if defined(__GNUC__)
+#define __cudaLaunch(fun) \
+        { volatile static char *__f __attribute__((unused)); __f = fun; (void)cudaLaunch(fun); }
+#else /* __GNUC__ */
 #define __cudaLaunch(fun) \
         { volatile static char *__f; __f = fun; (void)cudaLaunch(fun); }
+#endif /* __GNUC__ */
+
+#if defined(__GNUC__)
+#define __nv_dummy_param_ref(param) \
+        { volatile static void **__ref __attribute__((unused)); __ref = (volatile void **)param; }
+#else /* __GNUC__ */
+#define __nv_dummy_param_ref(param) \
+        { volatile static void **__ref; __ref = (volatile void **)param; }
+#endif /* __GNUC__ */
+
+static void ____nv_dummy_param_ref(void *param) __nv_dummy_param_ref(param)
+
+#define __REGISTERFUNCNAME_CORE(X) __cudaRegisterLinkedBinary##X
+#define __REGISTERFUNCNAME(X) __REGISTERFUNCNAME_CORE(X)
 
 extern "C" {
+void __REGISTERFUNCNAME( __NV_MODULE_ID ) ( void (*)(void **), void *, void *, void (*)(void *));
+}
 
+#define __TO_STRING_CORE(X) #X
+#define __TO_STRING(X) __TO_STRING_CORE(X)
+
+extern "C" {
+#if defined(_WIN32)
+#pragma data_seg("__nv_module_id")
+  static const __declspec(allocate("__nv_module_id")) unsigned char __module_id_str[] = __TO_STRING(__NV_MODULE_ID);
+#pragma data_seg()
+#elif defined(__APPLE__)
+  static const unsigned char __module_id_str[] __attribute__((section ("__NV_CUDA,__nv_module_id"))) = __TO_STRING(__NV_MODULE_ID);
+#else
+  static const unsigned char __module_id_str[] __attribute__((section ("__nv_module_id"))) = __TO_STRING(__NV_MODULE_ID);
+#endif
+
+#undef __FATIDNAME_CORE
+#undef __FATIDNAME
+#define __FATIDNAME_CORE(X) __fatbinwrap##X
+#define __FATIDNAME(X) __FATIDNAME_CORE(X)
+
+#define  ____cudaRegisterLinkedBinary(X) \
+{ __REGISTERFUNCNAME(__NV_MODULE_ID) (( void (*)(void **))(X), (void *)&__FATIDNAME(__NV_MODULE_ID), (void *)&__module_id_str, (void (*)(void *))&____nv_dummy_param_ref); }
+
+}
+
+extern "C" {
 extern void** CUDARTAPI __cudaRegisterFatBinary(
   void *fatCubin
 );
@@ -153,15 +200,15 @@ extern void CUDARTAPI __cudaRegisterFunction(
         int     *wSize
 );
 
-#if defined(__GNUC__)
+#if defined(__APPLE__)
+extern "C" int atexit(void (*)(void));
 
+#elif  defined(__GNUC__) && !defined(__ANDROID__)
 extern int atexit(void(*)(void)) throw();
 
-#else /* __GNUC__ */
-
+#else /* __GNUC__ && !__ANDROID__ */
 extern int __cdecl atexit(void(__cdecl *)(void));
-
-#endif /* __GNUC__ */
+#endif
 
 }
 
@@ -169,6 +216,7 @@ static void **__cudaFatCubinHandle;
 
 static void __cdecl __cudaUnregisterBinaryUtil(void)
 {
+  ____nv_dummy_param_ref((void *)&__cudaFatCubinHandle);
   __cudaUnregisterFatBinary(__cudaFatCubinHandle);
 }
 

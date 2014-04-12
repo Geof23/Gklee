@@ -19,50 +19,71 @@
  *  \brief Inline file for for_each.h.
  */
 
-#include <thrust/detail/backend/for_each.h>
+#include <thrust/detail/config.h>
+#include <thrust/for_each.h>
 #include <thrust/iterator/iterator_traits.h>
+#include <thrust/system/detail/generic/select_system.h>
+#include <thrust/system/detail/generic/for_each.h>
+#include <thrust/system/detail/adl/for_each.h>
 
 namespace thrust
 {
 
-namespace detail
-{
 
-
-template<typename OutputIterator,
-         typename Size,
+template<typename DerivedPolicy,
+         typename InputIterator,
          typename UnaryFunction>
-  OutputIterator for_each_n(OutputIterator first,
-                            Size n,
-                            UnaryFunction f)
-{
-  return thrust::detail::backend::for_each_n(first, n, f);
-} // end for_each_n()
-
-template<typename InputIterator,
-         typename UnaryFunction>
-  InputIterator for_each(InputIterator first,
+  InputIterator for_each(const thrust::detail::execution_policy_base<DerivedPolicy> &exec,
+                         InputIterator first,
                          InputIterator last,
                          UnaryFunction f)
 {
-  return thrust::detail::backend::for_each(first, last, f);
-} // end for_each()
+  using thrust::system::detail::generic::for_each;
+
+  return for_each(thrust::detail::derived_cast(thrust::detail::strip_const(exec)), first, last, f);
+}
 
 
-} // end detail
-
-
-/////////////////
-// Entry Point //
-/////////////////
 template<typename InputIterator,
          typename UnaryFunction>
-void for_each(InputIterator first,
-              InputIterator last,
-              UnaryFunction f)
+InputIterator for_each(InputIterator first,
+                       InputIterator last,
+                       UnaryFunction f)
 {
-  thrust::detail::for_each(first, last, f);
+  using thrust::system::detail::generic::select_system;
+  typedef typename thrust::iterator_system<InputIterator>::type System;
+
+  System system;
+  return thrust::for_each(select_system(system), first, last, f);
 } // end for_each()
+
+
+template<typename DerivedPolicy, typename InputIterator, typename Size, typename UnaryFunction>
+  InputIterator for_each_n(const thrust::detail::execution_policy_base<DerivedPolicy> &exec,
+                           InputIterator first,
+                           Size n,
+                           UnaryFunction f)
+{
+  using thrust::system::detail::generic::for_each_n;
+
+  return for_each_n(thrust::detail::derived_cast(thrust::detail::strip_const(exec)), first, n, f);
+} // end for_each_n()
+
+
+template<typename InputIterator,
+         typename Size,
+         typename UnaryFunction>
+InputIterator for_each_n(InputIterator first,
+                         Size n,
+                         UnaryFunction f)
+{
+  using thrust::system::detail::generic::select_system;
+
+  typedef typename thrust::iterator_system<InputIterator>::type System;
+
+  System system;
+  return thrust::for_each_n(select_system(system), first, n, f);
+} // end for_each_n()
 
 
 } // end namespace thrust

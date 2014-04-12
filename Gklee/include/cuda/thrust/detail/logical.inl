@@ -19,29 +19,78 @@
  *  \brief Inline file for logical.h.
  */
 
-#include <thrust/find.h>
-#include <thrust/detail/internal_functional.h>
+#include <thrust/detail/config.h>
+#include <thrust/iterator/iterator_traits.h>
+#include <thrust/system/detail/generic/select_system.h>
+#include <thrust/system/detail/generic/logical.h>
+#include <thrust/system/detail/adl/logical.h>
 
 namespace thrust
 {
 
-template <class InputIterator, class Predicate>
+
+template <typename DerivedPolicy, typename InputIterator, typename Predicate>
+bool all_of(const thrust::detail::execution_policy_base<DerivedPolicy> &exec, InputIterator first, InputIterator last, Predicate pred)
+{
+  using thrust::system::detail::generic::all_of;
+  return all_of(thrust::detail::derived_cast(thrust::detail::strip_const(exec)), first, last, pred);
+} // end all_of()
+
+
+template <typename DerivedPolicy, typename InputIterator, typename Predicate>
+bool any_of(const thrust::detail::execution_policy_base<DerivedPolicy> &exec, InputIterator first, InputIterator last, Predicate pred)
+{
+  using thrust::system::detail::generic::any_of;
+  return any_of(thrust::detail::derived_cast(thrust::detail::strip_const(exec)), first, last, pred);
+} // end any_of()
+
+
+template <typename DerivedPolicy, typename InputIterator, typename Predicate>
+bool none_of(const thrust::detail::execution_policy_base<DerivedPolicy> &exec, InputIterator first, InputIterator last, Predicate pred)
+{
+  using thrust::system::detail::generic::none_of;
+  return none_of(thrust::detail::derived_cast(thrust::detail::strip_const(exec)), first, last, pred);
+} // end none_of()
+
+
+template <typename InputIterator, typename Predicate>
 bool all_of(InputIterator first, InputIterator last, Predicate pred)
 {
-    return thrust::find_if(first, last, thrust::detail::not1(pred)) == last;
+  using thrust::system::detail::generic::select_system;
+
+  typedef typename thrust::iterator_system<InputIterator>::type System;
+
+  System system;
+
+  return thrust::all_of(select_system(system), first, last, pred);
 }
 
-template <class InputIterator, class Predicate>
+
+template <typename InputIterator, typename Predicate>
 bool any_of(InputIterator first, InputIterator last, Predicate pred)
 {
-    return thrust::find_if(first, last, pred) != last;
+  using thrust::system::detail::generic::select_system;
+
+  typedef typename thrust::iterator_system<InputIterator>::type System;
+
+  System system;
+
+  return thrust::any_of(select_system(system), first, last, pred);
 }
 
-template <class InputIterator, class Predicate>
+
+template <typename InputIterator, typename Predicate>
 bool none_of(InputIterator first, InputIterator last, Predicate pred)
 {
-    return !thrust::any_of(first, last, pred);
+  using thrust::system::detail::generic::select_system;
+
+  typedef typename thrust::iterator_system<InputIterator>::type System;
+
+  System system;
+
+  return thrust::none_of(select_system(system), first, last, pred);
 }
+
 
 } // end namespace thrust
 

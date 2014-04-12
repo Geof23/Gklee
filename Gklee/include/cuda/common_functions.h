@@ -66,14 +66,16 @@
 
 extern "C"
 {
-extern _CRTIMP __host__ __device__ __device_builtin__ clock_t __cdecl clock(void) __THROW;
-extern         __host__ __device__ __device_builtin__ void*   __cdecl memset(void*, int, size_t) __THROW;
-extern         __host__ __device__ __device_builtin__ void*   __cdecl memcpy(void*, const void*, size_t) __THROW;
+extern _CRTIMP __host__ __device__ __device_builtin__ __cudart_builtin__ clock_t __cdecl clock(void) __THROW;
+extern         __host__ __device__ __device_builtin__ __cudart_builtin__ void*   __cdecl memset(void*, int, size_t) __THROW;
+extern         __host__ __device__ __device_builtin__ __cudart_builtin__ void*   __cdecl memcpy(void*, const void*, size_t) __THROW;
 }
 
 #if defined(__CUDA_ARCH__)
 
+#ifndef __CUDA_INTERNAL_SKIP_CPP_HEADERS__
 #include <new>
+#endif
 
 #if defined (__GNUC__)
 
@@ -86,10 +88,10 @@ extern         __host__ __device__ __device_builtin__ void*   __cdecl memcpy(voi
 
 #endif /* __GNUC__ */
 
-extern         __host__ __device__ void*   __cdecl operator new(STD size_t, void*) throw();
-extern         __host__ __device__ void*   __cdecl operator new[](STD size_t, void*) throw();
-extern         __host__ __device__ void    __cdecl operator delete(void*, void*) throw();
-extern         __host__ __device__ void    __cdecl operator delete[](void*, void*) throw();
+extern         __host__ __device__ __cudart_builtin__ void*   __cdecl operator new(STD size_t, void*) throw();
+extern         __host__ __device__ __cudart_builtin__ void*   __cdecl operator new[](STD size_t, void*) throw();
+extern         __host__ __device__ __cudart_builtin__ void    __cdecl operator delete(void*, void*) throw();
+extern         __host__ __device__ __cudart_builtin__ void    __cdecl operator delete[](void*, void*) throw();
 
 #if __CUDA_ARCH__ >= 200
 
@@ -98,10 +100,10 @@ extern         __host__ __device__ void    __cdecl operator delete[](void*, void
 
 extern "C"
 {
-extern _CRTIMP __host__ __device__ __device_builtin__ int     __cdecl printf(const char*, ...);
-extern _CRTIMP __host__ __device__ __device_builtin__ int     __cdecl fprintf(FILE*, const char*, ...);
-extern _CRTIMP __host__ __device__ void*   __cdecl malloc(size_t) __THROW;
-extern _CRTIMP __host__ __device__ void    __cdecl free(void*) __THROW;
+extern _CRTIMP __host__ __device__ __device_builtin__ __cudart_builtin__ int     __cdecl printf(const char*, ...);
+extern _CRTIMP __host__ __device__ __device_builtin__ __cudart_builtin__ int     __cdecl fprintf(FILE*, const char*, ...);
+extern _CRTIMP __host__ __device__ __cudart_builtin__ void*   __cdecl malloc(size_t) __THROW;
+extern _CRTIMP __host__ __device__ __cudart_builtin__ void    __cdecl free(void*) __THROW;
 
 }
 
@@ -111,14 +113,17 @@ extern "C"
 {
 #if defined(__APPLE__)
 #define __builtin_expect(exp,c) (exp)
-extern __host__ __device__ void __assert_rtn(
+extern __host__ __device__ __cudart_builtin__ void __assert_rtn(
   const char *, const char *, int, const char *);
+#elif defined(__ANDROID__)
+extern __host__ __device__ __cudart_builtin__ void __assert2(
+  const char *, int, const char *, const char *);
 #elif defined(__GNUC__)
-extern __host__ __device__ void __assert_fail(
+extern __host__ __device__ __cudart_builtin__ void __assert_fail(
   const char *, const char *, unsigned int, const char *)
   __THROW; 
 #elif defined(_WIN32)
-extern __host__ __device__ _CRTIMP void __cdecl _wassert(
+extern __host__ __device__ __cudart_builtin__ _CRTIMP void __cdecl _wassert(
   const wchar_t *, const wchar_t *, unsigned);
 #endif
 }
@@ -135,10 +140,10 @@ extern __host__ __device__ _CRTIMP void __cdecl _wassert(
 
 #endif /* __GNUC__ */
 
-extern         __host__ __device__ void*   __cdecl operator new(STD size_t) throw(STD BADALLOC);
-extern         __host__ __device__ void*   __cdecl operator new[](STD size_t) throw(STD BADALLOC);
-extern         __host__ __device__ void    __cdecl operator delete(void*) throw();
-extern         __host__ __device__ void    __cdecl operator delete[](void*) throw();
+extern         __host__ __device__ __cudart_builtin__ void*   __cdecl operator new(STD size_t) throw(STD BADALLOC);
+extern         __host__ __device__ __cudart_builtin__ void*   __cdecl operator new[](STD size_t) throw(STD BADALLOC);
+extern         __host__ __device__ __cudart_builtin__ void    __cdecl operator delete(void*) throw();
+extern         __host__ __device__ __cudart_builtin__ void    __cdecl operator delete[](void*) throw();
 
 #undef BADALLOC
 
@@ -155,6 +160,9 @@ extern         __host__ __device__ void    __cdecl operator delete[](void*) thro
 *                                                                              *
 *                                                                              *
 *******************************************************************************/
+#if defined(__CUDABE__) && (__CUDA_ARCH__ >= 350)
+#include "cuda_device_runtime_api.h"
+#endif
 
 #include "math_functions.h"
 

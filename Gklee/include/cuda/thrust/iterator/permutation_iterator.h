@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-/*! \file permutation_iterator.h
+/*! \file thrust/iterator/permutation_iterator.h
  *  \brief An iterator which performs a gather or scatter operation when dereferenced
  */
 
@@ -34,19 +34,11 @@
 #include <thrust/detail/config.h>
 #include <thrust/detail/type_traits.h>
 #include <thrust/iterator/detail/permutation_iterator_base.h>
+#include <thrust/iterator/iterator_facade.h>
 #include <thrust/iterator/iterator_traits.h>
-#include <thrust/detail/backend/dereference.h>
 
 namespace thrust
 {
-
-namespace detail
-{
-
-// XXX remove when we no longer need backend::dereference
-struct permutation_iterator_friend;
-
-}
 
 
 /*! \addtogroup iterators
@@ -136,7 +128,7 @@ template <typename ElementIterator,
   private:
     typedef typename detail::permutation_iterator_base<ElementIterator,IndexIterator>::type super_t;
 
-    friend class experimental::iterator_core_access;
+    friend class thrust::iterator_core_access;
   /*! \endcond
    */
 
@@ -175,6 +167,8 @@ template <typename ElementIterator,
   /*! \cond
    */
   private:
+    __thrust_hd_warning_disable__
+    __host__ __device__
     typename super_t::reference dereference() const
     {
       return *(m_element_iterator + *this->base());
@@ -182,10 +176,6 @@ template <typename ElementIterator,
 
     // make friends for the copy constructor
     template<typename,typename> friend class permutation_iterator;
-
-    // XXX WAR this problem with the omp compile
-    //     remove this when we no longer need backend::dereference
-    friend struct detail::permutation_iterator_friend;
 
     ElementIterator m_element_iterator;
   /*! \endcond
@@ -217,6 +207,4 @@ permutation_iterator<ElementIterator,IndexIterator> make_permutation_iterator(El
  */
 
 } // end thrust
-
-#include <thrust/iterator/detail/permutation_iterator.inl>
 

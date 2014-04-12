@@ -142,35 +142,156 @@ extern __device__ __device_builtin__ void                   __brkpt(int c = 0);
  * \return 
  * - __saturatef(\p x) returns 0 if \p x < 0.
  * - __saturatef(\p x) returns 1 if \p x > 1.
- * - __saturatef(\p x) returns \p x if \f$0 \le x \le 1\f$.
+ * - __saturatef(\p x) returns \p x if 
+ * \latexonly $0 \le x \le 1$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mn>0</m:mn>
+ *   <m:mo>&#x2264;<!-- ≤ --></m:mo>
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x2264;<!-- ≤ --></m:mo>
+ *   <m:mn>1</m:mn>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  * - __saturatef(NaN) returns 0.
  */
 extern __device__ __device_builtin__ float                  __saturatef(float x);
 /**
  * \ingroup CUDA_MATH_INTRINSIC_INT
- * \brief Calculate \f$|x - y| + z\f$, the sum of absolute difference.
+ * \brief Calculate 
+ * \latexonly $|x - y| + z$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mrow class="MJX-TeXAtom-ORD">
+ *     <m:mo stretchy="false">|</m:mo>
+ *   </m:mrow>
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi>y</m:mi>
+ *   <m:mrow class="MJX-TeXAtom-ORD">
+ *     <m:mo stretchy="false">|</m:mo>
+ *   </m:mrow>
+ *   <m:mo>+</m:mo>
+ *   <m:mi>z</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , the sum of absolute difference.
  *
- * Calculate \f$|x - y| + z\f$, the 32-bit sum of the third argument \p z plus and the absolute 
+ * Calculate 
+ * \latexonly $|x - y| + z$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mrow class="MJX-TeXAtom-ORD">
+ *     <m:mo stretchy="false">|</m:mo>
+ *   </m:mrow>
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi>y</m:mi>
+ *   <m:mrow class="MJX-TeXAtom-ORD">
+ *     <m:mo stretchy="false">|</m:mo>
+ *   </m:mrow>
+ *   <m:mo>+</m:mo>
+ *   <m:mi>z</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , the 32-bit sum of the third argument \p z plus and the absolute 
  * value of the difference between the first argument, \p x, and second 
  * argument, \p y.
  * 
  * Inputs \p x and \p y are signed 32-bit integers, input \p z is 
  * a 32-bit unsigned integer.
  *
- * \return Returns \f$|x - y| + z\f$.
+ * \return Returns 
+ * \latexonly $|x - y| + z$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mrow class="MJX-TeXAtom-ORD">
+ *     <m:mo stretchy="false">|</m:mo>
+ *   </m:mrow>
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi>y</m:mi>
+ *   <m:mrow class="MJX-TeXAtom-ORD">
+ *     <m:mo stretchy="false">|</m:mo>
+ *   </m:mrow>
+ *   <m:mo>+</m:mo>
+ *   <m:mi>z</m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  */
 extern __device__ __device_builtin__ unsigned int           __sad(int x, int y, unsigned int z);
 /**
  * \ingroup CUDA_MATH_INTRINSIC_INT
- * \brief Calculate \f$|x - y| + z\f$, the sum of absolute difference.
+ * \brief Calculate 
+ * \latexonly $|x - y| + z$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mrow class="MJX-TeXAtom-ORD">
+ *     <m:mo stretchy="false">|</m:mo>
+ *   </m:mrow>
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi>y</m:mi>
+ *   <m:mrow class="MJX-TeXAtom-ORD">
+ *     <m:mo stretchy="false">|</m:mo>
+ *   </m:mrow>
+ *   <m:mo>+</m:mo>
+ *   <m:mi>z</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , the sum of absolute difference.
  *
- * Calculate \f$|x - y| + z\f$, the 32-bit sum of the third argument \p z plus and the absolute 
+ * Calculate 
+ * \latexonly $|x - y| + z$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mrow class="MJX-TeXAtom-ORD">
+ *     <m:mo stretchy="false">|</m:mo>
+ *   </m:mrow>
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi>y</m:mi>
+ *   <m:mrow class="MJX-TeXAtom-ORD">
+ *     <m:mo stretchy="false">|</m:mo>
+ *   </m:mrow>
+ *   <m:mo>+</m:mo>
+ *   <m:mi>z</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , the 32-bit sum of the third argument \p z plus and the absolute 
  * value of the difference between the first argument, \p x, and second 
  * argument, \p y.
  * 
  * Inputs \p x, \p y, and \p z are unsigned 32-bit integers.
  * 
- * \return Returns \f$|x - y| + z\f$.
+ * \return Returns 
+ * \latexonly $|x - y| + z$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mrow class="MJX-TeXAtom-ORD">
+ *     <m:mo stretchy="false">|</m:mo>
+ *   </m:mrow>
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi>y</m:mi>
+ *   <m:mrow class="MJX-TeXAtom-ORD">
+ *     <m:mo stretchy="false">|</m:mo>
+ *   </m:mrow>
+ *   <m:mo>+</m:mo>
+ *   <m:mi>z</m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  */
 extern __device__ __device_builtin__ unsigned int           __usad(unsigned int x, unsigned int y, unsigned int z);
 /**
@@ -213,8 +334,70 @@ extern __device__ __device_builtin__ float                  fdividef(float x, fl
  * Calculate the fast approximate division of \p x by \p y.
  *
  * \return Returns \p x / \p y.
- * - __fdividef(\f$\infty\f$, \p y) returns NaN for \f$2^{126} < y < 2^{128}\f$.
- * - __fdividef(\p x, \p y) returns 0 for \f$2^{126} < y < 2^{128}\f$ and \f$x \ne \infty\f$.
+ * - __fdividef(
+ * \latexonly $\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p y) returns NaN for 
+ * \latexonly $2^{126} < y < 2^{128}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msup>
+ *     <m:mn>2</m:mn>
+ *     <m:mrow class="MJX-TeXAtom-ORD">
+ *       <m:mn>126</m:mn>
+ *     </m:mrow>
+ *   </m:msup>
+ *   <m:mo>&lt;</m:mo>
+ *   <m:mi>y</m:mi>
+ *   <m:mo>&lt;</m:mo>
+ *   <m:msup>
+ *     <m:mn>2</m:mn>
+ *     <m:mrow class="MJX-TeXAtom-ORD">
+ *       <m:mn>128</m:mn>
+ *     </m:mrow>
+ *   </m:msup>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - __fdividef(\p x, \p y) returns 0 for 
+ * \latexonly $2^{126} < y < 2^{128}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msup>
+ *     <m:mn>2</m:mn>
+ *     <m:mrow class="MJX-TeXAtom-ORD">
+ *       <m:mn>126</m:mn>
+ *     </m:mrow>
+ *   </m:msup>
+ *   <m:mo>&lt;</m:mo>
+ *   <m:mi>y</m:mi>
+ *   <m:mo>&lt;</m:mo>
+ *   <m:msup>
+ *     <m:mn>2</m:mn>
+ *     <m:mrow class="MJX-TeXAtom-ORD">
+ *       <m:mn>128</m:mn>
+ *     </m:mrow>
+ *   </m:msup>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  and 
+ * \latexonly $x \ne \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x2260;<!-- ≠ --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_single_intrinsic
  */
@@ -231,7 +414,7 @@ extern __device__ __device_builtin__ double                 fdivide(double x, do
  * \note_accuracy_single_intrinsic
  * \note Input and output in the denormal range is flushed to sign preserving 0.0.
  */
-extern __device__ __device_builtin__ float                  __sinf(float x) __THROW;
+extern __device__ __device_builtin__ __cudart_builtin__ float                  __sinf(float x) __THROW;
 /**
  * \ingroup CUDA_MATH_INTRINSIC_SINGLE
  * \brief Calculate the fast approximate cosine of the input argument.
@@ -243,7 +426,7 @@ extern __device__ __device_builtin__ float                  __sinf(float x) __TH
  * \note_accuracy_single_intrinsic
  * \note Input and output in the denormal range is flushed to sign preserving 0.0.
  */
-extern __device__ __device_builtin__ float                  __cosf(float x) __THROW;
+extern __device__ __device_builtin__ __cudart_builtin__ float                  __cosf(float x) __THROW;
 /**
  * \ingroup CUDA_MATH_INTRINSIC_SINGLE
  * \brief Calculate the fast approximate tangent of the input argument.
@@ -257,7 +440,7 @@ extern __device__ __device_builtin__ float                  __cosf(float x) __TH
  * by ::__cosf(). Denormal input and output are flushed to sign-preserving 
  * 0.0 at each step of the computation.
  */
-extern __device__ __device_builtin__ float                  __tanf(float x) __THROW;
+extern __device__ __device_builtin__ __cudart_builtin__ float                  __tanf(float x) __THROW;
 /**
  * \ingroup CUDA_MATH_INTRINSIC_SINGLE
  * \brief Calculate the fast approximate of sine and cosine of the first input argument.
@@ -272,80 +455,230 @@ extern __device__ __device_builtin__ float                  __tanf(float x) __TH
  * \note_accuracy_single_intrinsic
  * \note Denorm input/output is flushed to sign preserving 0.0.
  */
-extern __device__ __device_builtin__ void                   __sincosf(float x, float *sptr, float *cptr) __THROW;
+extern __device__ __device_builtin__ __cudart_builtin__ void                   __sincosf(float x, float *sptr, float *cptr) __THROW;
 /**
  * \ingroup CUDA_MATH_INTRINSIC_SINGLE
- * \brief Calculate the fast approximate base \f$e\f$ exponential of the input argument.
+ * \brief Calculate the fast approximate base 
+ * \latexonly $e$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>e</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  exponential of the input argument.
  *
- * Calculate the fast approximate base \f$e\f$ exponential of the input argument \p x, \f$e^x\f$.
+ * Calculate the fast approximate base 
+ * \latexonly $e$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>e</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  exponential of the input argument \p x, 
+ * \latexonly $e^x$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msup>
+ *     <m:mi>e</m:mi>
+ *     <m:mi>x</m:mi>
+ *   </m:msup>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
- * \return Returns an approximation to \f$e^x\f$.
+ * \return Returns an approximation to 
+ * \latexonly $e^x$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msup>
+ *     <m:mi>e</m:mi>
+ *     <m:mi>x</m:mi>
+ *   </m:msup>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_single_intrinsic
  * \note Most input and output values around denormal range are flushed to sign preserving 0.0.
  */
-extern __device__ __device_builtin__ float                  __expf(float x) __THROW;
+extern __device__ __device_builtin__ __cudart_builtin__ float                  __expf(float x) __THROW;
 /**
  * \ingroup CUDA_MATH_INTRINSIC_SINGLE
  * \brief Calculate the fast approximate base 10 exponential of the input argument.
  *
- * Calculate the fast approximate base 10 exponential of the input argument \p x, \f$10^x\f$.
+ * Calculate the fast approximate base 10 exponential of the input argument \p x, 
+ * \latexonly $10^x$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msup>
+ *     <m:mn>10</m:mn>
+ *     <m:mi>x</m:mi>
+ *   </m:msup>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
- * \return Returns an approximation to \f$10^x\f$.
+ * \return Returns an approximation to 
+ * \latexonly $10^x$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msup>
+ *     <m:mn>10</m:mn>
+ *     <m:mi>x</m:mi>
+ *   </m:msup>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_single_intrinsic
  * \note Most input and output values around denormal range are flushed to sign preserving 0.0.
  */
-extern __device__ __device_builtin__ float                  __exp10f(float x) __THROW;
+extern __device__ __device_builtin__ __cudart_builtin__ float                  __exp10f(float x) __THROW;
 /**
  * \ingroup CUDA_MATH_INTRINSIC_SINGLE
  * \brief Calculate the fast approximate base 2 logarithm of the input argument.
  *
  * Calculate the fast approximate base 2 logarithm of the input argument \p x.
  *
- * \return Returns an approximation to \f$\log_2(x)\f$.
+ * \return Returns an approximation to 
+ * \latexonly $\log_2(x)$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msub>
+ *     <m:mi>log</m:mi>
+ *     <m:mn>2</m:mn>
+ *   </m:msub>
+ *   <m:mo>&#x2061;<!-- ⁡ --></m:mo>
+ *   <m:mo stretchy="false">(</m:mo>
+ *   <m:mi>x</m:mi>
+ *   <m:mo stretchy="false">)</m:mo>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_single_intrinsic
  * \note Input and output in the denormal range is flushed to sign preserving 0.0.
  */
-extern __device__ __device_builtin__ float                  __log2f(float x) __THROW;
+extern __device__ __device_builtin__ __cudart_builtin__ float                  __log2f(float x) __THROW;
 /**
  * \ingroup CUDA_MATH_INTRINSIC_SINGLE
  * \brief Calculate the fast approximate base 10 logarithm of the input argument.
  *
  * Calculate the fast approximate base 10 logarithm of the input argument \p x.
  *
- * \return Returns an approximation to \f$\log_{10}(x)\f$.
+ * \return Returns an approximation to 
+ * \latexonly $\log_{10}(x)$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msub>
+ *     <m:mi>log</m:mi>
+ *     <m:mrow class="MJX-TeXAtom-ORD">
+ *       <m:mn>10</m:mn>
+ *     </m:mrow>
+ *   </m:msub>
+ *   <m:mo>&#x2061;<!-- ⁡ --></m:mo>
+ *   <m:mo stretchy="false">(</m:mo>
+ *   <m:mi>x</m:mi>
+ *   <m:mo stretchy="false">)</m:mo>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_single_intrinsic
  * \note Most input and output values around denormal range are flushed to sign preserving 0.0.
  */
-extern __device__ __device_builtin__ float                  __log10f(float x) __THROW;
+extern __device__ __device_builtin__ __cudart_builtin__ float                  __log10f(float x) __THROW;
 /**
  * \ingroup CUDA_MATH_INTRINSIC_SINGLE
- * \brief Calculate the fast approximate base \f$e\f$ logarithm of the input argument.
+ * \brief Calculate the fast approximate base 
+ * \latexonly $e$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>e</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  logarithm of the input argument.
  *
- * Calculate the fast approximate base \f$e\f$ logarithm of the input argument \p x.
+ * Calculate the fast approximate base 
+ * \latexonly $e$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>e</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  logarithm of the input argument \p x.
  *
- * \return Returns an approximation to \f$\log_e(x)\f$.
+ * \return Returns an approximation to 
+ * \latexonly $\log_e(x)$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msub>
+ *     <m:mi>log</m:mi>
+ *     <m:mi>e</m:mi>
+ *   </m:msub>
+ *   <m:mo>&#x2061;<!-- ⁡ --></m:mo>
+ *   <m:mo stretchy="false">(</m:mo>
+ *   <m:mi>x</m:mi>
+ *   <m:mo stretchy="false">)</m:mo>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_single_intrinsic
  * \note Most input and output values around denormal range are flushed to sign preserving 0.0.
  */
-extern __device__ __device_builtin__ float                  __logf(float x) __THROW;
+extern __device__ __device_builtin__ __cudart_builtin__ float                  __logf(float x) __THROW;
 /**
  * \ingroup CUDA_MATH_INTRINSIC_SINGLE
- * \brief Calculate the fast approximate of \f$x^y\f$.
+ * \brief Calculate the fast approximate of 
+ * \latexonly $x^y$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msup>
+ *     <m:mi>x</m:mi>
+ *     <m:mi>y</m:mi>
+ *   </m:msup>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * Calculate the fast approximate of \p x, the first input argument, 
- * raised to the power of \p y, the second input argument, \f$x^y\f$.
+ * raised to the power of \p y, the second input argument, 
+ * \latexonly $x^y$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msup>
+ *     <m:mi>x</m:mi>
+ *     <m:mi>y</m:mi>
+ *   </m:msup>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
- * \return Returns an approximation to \f$x^y\f$.
+ * \return Returns an approximation to 
+ * \latexonly $x^y$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msup>
+ *     <m:mi>x</m:mi>
+ *     <m:mi>y</m:mi>
+ *   </m:msup>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_single_intrinsic
  * \note Most input and output values around denormal range are flushed to sign preserving 0.0.
  */
-extern __device__ __device_builtin__ float                  __powf(float x, float y) __THROW;
+extern __device__ __device_builtin__ __cudart_builtin__ float                  __powf(float x, float y) __THROW;
 /**
  * \ingroup CUDA_MATH_INTRINSIC_CAST
  * \brief Convert a float to a signed integer in round-to-nearest-even mode.
@@ -702,6 +1035,54 @@ extern __device__ __device_builtin__ float                  __fadd_ru(float x, f
 extern __device__ __device_builtin__ float                  __fadd_rd(float x, float y);
 /**
  * \ingroup CUDA_MATH_INTRINSIC_SINGLE
+ * \brief Subtract two floating point values in round-to-nearest-even mode.
+ * 
+ * Compute the difference of \p x and \p y in round-to-nearest-even rounding mode.
+ *
+ * \return Returns \p x - \p y.
+ *
+ * \note_accuracy_single
+ * \note_nofma
+ */
+extern __device__ __device_builtin__ float                  __fsub_rn(float x, float y);
+/**
+ * \ingroup CUDA_MATH_INTRINSIC_SINGLE
+ * \brief Subtract two floating point values in round-towards-zero mode.
+ * 
+ * Compute the difference of \p x and \p y in round-towards-zero mode.
+ *
+ * \return Returns \p x - \p y.
+ *
+ * \note_accuracy_single
+ * \note_nofma
+ */
+extern __device__ __device_builtin__ float                  __fsub_rz(float x, float y);
+/**
+ * \ingroup CUDA_MATH_INTRINSIC_SINGLE
+ * \brief Subtract two floating point values in round-up mode.
+ * 
+ * Compute the difference of \p x and \p y in round-up (to positive infinity) mode.
+ *
+ * \return Returns \p x - \p y.
+ *
+ * \note_accuracy_single
+ * \note_nofma
+ */
+extern __device__ __device_builtin__ float                  __fsub_ru(float x, float y);
+/**
+ * \ingroup CUDA_MATH_INTRINSIC_SINGLE
+ * \brief Subtract two floating point values in round-down mode.
+ * 
+ * Compute the difference of \p x and \p y in round-down (to negative infinity) mode.
+ *
+ * \return Returns \p x - \p y.
+ *
+ * \note_accuracy_single
+ * \note_nofma
+ */
+extern __device__ __device_builtin__ float                  __fsub_rd(float x, float y);
+/**
+ * \ingroup CUDA_MATH_INTRINSIC_SINGLE
  * \brief Multiply two floating point values in round-to-nearest-even mode.
  * 
  * Compute the product of \p x and \p y in round-to-nearest-even mode.
@@ -750,156 +1131,911 @@ extern __device__ __device_builtin__ float                  __fmul_ru(float x, f
 extern __device__ __device_builtin__ float                  __fmul_rd(float x, float y);
 /**
  * \ingroup CUDA_MATH_INTRINSIC_SINGLE
- * \brief Compute \f$x \times y + z\f$ as a single operation, in round-to-nearest-even mode.
+ * \brief Compute 
+ * \latexonly $x \times y + z$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x00D7;<!-- × --></m:mo>
+ *   <m:mi>y</m:mi>
+ *   <m:mo>+</m:mo>
+ *   <m:mi>z</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  as a single operation, in round-to-nearest-even mode.
  * 
- * Computes the value of \f$x \times y + z\f$ as a single ternary operation, rounding the
+ * Computes the value of 
+ * \latexonly $x \times y + z$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x00D7;<!-- × --></m:mo>
+ *   <m:mi>y</m:mi>
+ *   <m:mo>+</m:mo>
+ *   <m:mi>z</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  as a single ternary operation, rounding the
  * result once in round-to-nearest-even mode.
  *
- * \return Returns the rounded value of \f$x \times y + z\f$ as a single operation.
- * - fmaf(\f$\pm \infty\f$, \f$\pm 0\f$, \p z) returns NaN.
- * - fmaf(\f$\pm 0\f$, \f$\pm \infty\f$, \p z) returns NaN.
- * - fmaf(\p x, \p y, \f$-\infty\f$) returns NaN if \f$x \times y\f$ is an exact \f$+\infty\f$.
- * - fmaf(\p x, \p y, \f$+\infty\f$) returns NaN if \f$x \times y\f$ is an exact \f$-\infty\f$.
+ * \return Returns the rounded value of 
+ * \latexonly $x \times y + z$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x00D7;<!-- × --></m:mo>
+ *   <m:mi>y</m:mi>
+ *   <m:mo>+</m:mo>
+ *   <m:mi>z</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  as a single operation.
+ * - fmaf(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p z) returns NaN.
+ * - fmaf(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p z) returns NaN.
+ * - fmaf(\p x, \p y, 
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns NaN if 
+ * \latexonly $x \times y$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x00D7;<!-- × --></m:mo>
+ *   <m:mi>y</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  is an exact 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - fmaf(\p x, \p y, 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns NaN if 
+ * \latexonly $x \times y$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x00D7;<!-- × --></m:mo>
+ *   <m:mi>y</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  is an exact 
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_single
  */
 extern __device__ __device_builtin__ float                  __fmaf_rn(float x, float y, float z);
 /**
  * \ingroup CUDA_MATH_INTRINSIC_SINGLE
- * \brief Compute \f$x \times y + z\f$ as a single operation, in round-towards-zero mode.
+ * \brief Compute 
+ * \latexonly $x \times y + z$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x00D7;<!-- × --></m:mo>
+ *   <m:mi>y</m:mi>
+ *   <m:mo>+</m:mo>
+ *   <m:mi>z</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  as a single operation, in round-towards-zero mode.
  * 
- * Computes the value of \f$x \times y + z\f$ as a single ternary operation, rounding the
+ * Computes the value of 
+ * \latexonly $x \times y + z$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x00D7;<!-- × --></m:mo>
+ *   <m:mi>y</m:mi>
+ *   <m:mo>+</m:mo>
+ *   <m:mi>z</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  as a single ternary operation, rounding the
  * result once in round-towards-zero mode.
  *
- * \return Returns the rounded value of \f$x \times y + z\f$ as a single operation.
- * - fmaf(\f$\pm \infty\f$, \f$\pm 0\f$, \p z) returns NaN.
- * - fmaf(\f$\pm 0\f$, \f$\pm \infty\f$, \p z) returns NaN.
- * - fmaf(\p x, \p y, \f$-\infty\f$) returns NaN if \f$x \times y\f$ is an exact \f$+\infty\f$.
- * - fmaf(\p x, \p y, \f$+\infty\f$) returns NaN if \f$x \times y\f$ is an exact \f$-\infty\f$.
+ * \return Returns the rounded value of 
+ * \latexonly $x \times y + z$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x00D7;<!-- × --></m:mo>
+ *   <m:mi>y</m:mi>
+ *   <m:mo>+</m:mo>
+ *   <m:mi>z</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  as a single operation.
+ * - fmaf(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p z) returns NaN.
+ * - fmaf(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p z) returns NaN.
+ * - fmaf(\p x, \p y, 
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns NaN if 
+ * \latexonly $x \times y$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x00D7;<!-- × --></m:mo>
+ *   <m:mi>y</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  is an exact 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - fmaf(\p x, \p y, 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns NaN if 
+ * \latexonly $x \times y$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x00D7;<!-- × --></m:mo>
+ *   <m:mi>y</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  is an exact 
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_single
  */
 extern __device__ __device_builtin__ float                  __fmaf_rz(float x, float y, float z);
 /**
  * \ingroup CUDA_MATH_INTRINSIC_SINGLE
- * \brief Compute \f$x \times y + z\f$ as a single operation, in round-up mode.
+ * \brief Compute 
+ * \latexonly $x \times y + z$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x00D7;<!-- × --></m:mo>
+ *   <m:mi>y</m:mi>
+ *   <m:mo>+</m:mo>
+ *   <m:mi>z</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  as a single operation, in round-up mode.
  * 
- * Computes the value of \f$x \times y + z\f$ as a single ternary operation, rounding the
+ * Computes the value of 
+ * \latexonly $x \times y + z$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x00D7;<!-- × --></m:mo>
+ *   <m:mi>y</m:mi>
+ *   <m:mo>+</m:mo>
+ *   <m:mi>z</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  as a single ternary operation, rounding the
  * result once in round-up (to positive infinity) mode.
  *
- * \return Returns the rounded value of \f$x \times y + z\f$ as a single operation.
- * - fmaf(\f$\pm \infty\f$, \f$\pm 0\f$, \p z) returns NaN.
- * - fmaf(\f$\pm 0\f$, \f$\pm \infty\f$, \p z) returns NaN.
- * - fmaf(\p x, \p y, \f$-\infty\f$) returns NaN if \f$x \times y\f$ is an exact \f$+\infty\f$.
- * - fmaf(\p x, \p y, \f$+\infty\f$) returns NaN if \f$x \times y\f$ is an exact \f$-\infty\f$.
+ * \return Returns the rounded value of 
+ * \latexonly $x \times y + z$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x00D7;<!-- × --></m:mo>
+ *   <m:mi>y</m:mi>
+ *   <m:mo>+</m:mo>
+ *   <m:mi>z</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  as a single operation.
+ * - fmaf(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p z) returns NaN.
+ * - fmaf(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p z) returns NaN.
+ * - fmaf(\p x, \p y, 
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns NaN if 
+ * \latexonly $x \times y$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x00D7;<!-- × --></m:mo>
+ *   <m:mi>y</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  is an exact 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - fmaf(\p x, \p y, 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns NaN if 
+ * \latexonly $x \times y$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x00D7;<!-- × --></m:mo>
+ *   <m:mi>y</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  is an exact 
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_single
  */
 extern __device__ __device_builtin__ float                  __fmaf_ru(float x, float y, float z);
 /**
  * \ingroup CUDA_MATH_INTRINSIC_SINGLE
- * \brief Compute \f$x \times y + z\f$ as a single operation, in round-down mode.
+ * \brief Compute 
+ * \latexonly $x \times y + z$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x00D7;<!-- × --></m:mo>
+ *   <m:mi>y</m:mi>
+ *   <m:mo>+</m:mo>
+ *   <m:mi>z</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  as a single operation, in round-down mode.
  * 
- * Computes the value of \f$x \times y + z\f$ as a single ternary operation, rounding the
+ * Computes the value of 
+ * \latexonly $x \times y + z$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x00D7;<!-- × --></m:mo>
+ *   <m:mi>y</m:mi>
+ *   <m:mo>+</m:mo>
+ *   <m:mi>z</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  as a single ternary operation, rounding the
  * result once in round-down (to negative infinity) mode.
  *
- * \return Returns the rounded value of \f$x \times y + z\f$ as a single operation.
- * - fmaf(\f$\pm \infty\f$, \f$\pm 0\f$, \p z) returns NaN.
- * - fmaf(\f$\pm 0\f$, \f$\pm \infty\f$, \p z) returns NaN.
- * - fmaf(\p x, \p y, \f$-\infty\f$) returns NaN if \f$x \times y\f$ is an exact \f$+\infty\f$.
- * - fmaf(\p x, \p y, \f$+\infty\f$) returns NaN if \f$x \times y\f$ is an exact \f$-\infty\f$.
+ * \return Returns the rounded value of 
+ * \latexonly $x \times y + z$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x00D7;<!-- × --></m:mo>
+ *   <m:mi>y</m:mi>
+ *   <m:mo>+</m:mo>
+ *   <m:mi>z</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  as a single operation.
+ * - fmaf(
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , 
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p z) returns NaN.
+ * - fmaf(
+ * \latexonly $\pm 0$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mn>0</m:mn>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , 
+ * \latexonly $\pm \infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x00B1;<!-- ± --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * , \p z) returns NaN.
+ * - fmaf(\p x, \p y, 
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns NaN if 
+ * \latexonly $x \times y$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x00D7;<!-- × --></m:mo>
+ *   <m:mi>y</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  is an exact 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ * - fmaf(\p x, \p y, 
+ * \latexonly $+\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>+</m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ * ) returns NaN if 
+ * \latexonly $x \times y$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mi>x</m:mi>
+ *   <m:mo>&#x00D7;<!-- × --></m:mo>
+ *   <m:mi>y</m:mi>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  is an exact 
+ * \latexonly $-\infty$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mo>&#x2212;<!-- − --></m:mo>
+ *   <m:mi mathvariant="normal">&#x221E;<!-- ∞ --></m:mi>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_single
  */
 extern __device__ __device_builtin__ float                  __fmaf_rd(float x, float y, float z);
 /**
  * \ingroup CUDA_MATH_INTRINSIC_SINGLE
- * \brief Compute \f$\frac{1}{x}\f$ in round-to-nearest-even mode.
+ * \brief Compute 
+ * \latexonly $\frac{1}{x}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mfrac>
+ *     <m:mn>1</m:mn>
+ *     <m:mi>x</m:mi>
+ *   </m:mfrac>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  in round-to-nearest-even mode.
  * 
  * Compute the reciprocal of \p x in round-to-nearest-even mode.
  *
- * \return Returns \f$\frac{1}{x}\f$.
+ * \return Returns 
+ * \latexonly $\frac{1}{x}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mfrac>
+ *     <m:mn>1</m:mn>
+ *     <m:mi>x</m:mi>
+ *   </m:mfrac>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_single
  */
 extern __device__ __device_builtin__ float                  __frcp_rn(float x);
 /**
  * \ingroup CUDA_MATH_INTRINSIC_SINGLE
- * \brief Compute \f$\frac{1}{x}\f$ in round-towards-zero mode.
+ * \brief Compute 
+ * \latexonly $\frac{1}{x}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mfrac>
+ *     <m:mn>1</m:mn>
+ *     <m:mi>x</m:mi>
+ *   </m:mfrac>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  in round-towards-zero mode.
  * 
  * Compute the reciprocal of \p x in round-towards-zero mode.
  *
- * \return Returns \f$\frac{1}{x}\f$.
+ * \return Returns 
+ * \latexonly $\frac{1}{x}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mfrac>
+ *     <m:mn>1</m:mn>
+ *     <m:mi>x</m:mi>
+ *   </m:mfrac>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_single
  */
 extern __device__ __device_builtin__ float                  __frcp_rz(float x);
 /**
  * \ingroup CUDA_MATH_INTRINSIC_SINGLE
- * \brief Compute \f$\frac{1}{x}\f$ in round-up mode.
+ * \brief Compute 
+ * \latexonly $\frac{1}{x}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mfrac>
+ *     <m:mn>1</m:mn>
+ *     <m:mi>x</m:mi>
+ *   </m:mfrac>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  in round-up mode.
  * 
  * Compute the reciprocal of \p x in round-up (to positive infinity) mode.
  *
- * \return Returns \f$\frac{1}{x}\f$.
+ * \return Returns 
+ * \latexonly $\frac{1}{x}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mfrac>
+ *     <m:mn>1</m:mn>
+ *     <m:mi>x</m:mi>
+ *   </m:mfrac>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_single
  */
 extern __device__ __device_builtin__ float                  __frcp_ru(float x);
 /**
  * \ingroup CUDA_MATH_INTRINSIC_SINGLE
- * \brief Compute \f$\frac{1}{x}\f$ in round-down mode.
+ * \brief Compute 
+ * \latexonly $\frac{1}{x}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mfrac>
+ *     <m:mn>1</m:mn>
+ *     <m:mi>x</m:mi>
+ *   </m:mfrac>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  in round-down mode.
  * 
  * Compute the reciprocal of \p x in round-down (to negative infinity) mode.
  *
- * \return Returns \f$\frac{1}{x}\f$.
+ * \return Returns 
+ * \latexonly $\frac{1}{x}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mfrac>
+ *     <m:mn>1</m:mn>
+ *     <m:mi>x</m:mi>
+ *   </m:mfrac>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_single
  */
 extern __device__ __device_builtin__ float                  __frcp_rd(float x);
 /**
  * \ingroup CUDA_MATH_INTRINSIC_SINGLE
- * \brief Compute \f$\sqrt{x}\f$ in round-to-nearest-even mode.
+ * \brief Compute 
+ * \latexonly $\sqrt{x}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msqrt>
+ *     <m:mi>x</m:mi>
+ *   </m:msqrt>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  in round-to-nearest-even mode.
  * 
  * Compute the square root of \p x in round-to-nearest-even mode.
  *
- * \return Returns \f$\sqrt{x}\f$.
+ * \return Returns 
+ * \latexonly $\sqrt{x}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msqrt>
+ *     <m:mi>x</m:mi>
+ *   </m:msqrt>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_single
  */
 extern __device__ __device_builtin__ float                  __fsqrt_rn(float x);
 /**
  * \ingroup CUDA_MATH_INTRINSIC_SINGLE
- * \brief Compute \f$\sqrt{x}\f$ in round-towards-zero mode.
+ * \brief Compute 
+ * \latexonly $\sqrt{x}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msqrt>
+ *     <m:mi>x</m:mi>
+ *   </m:msqrt>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  in round-towards-zero mode.
  * 
  * Compute the square root of \p x in round-towards-zero mode.
  *
- * \return Returns \f$\sqrt{x}\f$.
+ * \return Returns 
+ * \latexonly $\sqrt{x}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msqrt>
+ *     <m:mi>x</m:mi>
+ *   </m:msqrt>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_single
  */
 extern __device__ __device_builtin__ float                  __fsqrt_rz(float x);
 /**
  * \ingroup CUDA_MATH_INTRINSIC_SINGLE
- * \brief Compute \f$\sqrt{x}\f$ in round-up mode.
+ * \brief Compute 
+ * \latexonly $\sqrt{x}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msqrt>
+ *     <m:mi>x</m:mi>
+ *   </m:msqrt>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  in round-up mode.
  * 
  * Compute the square root of \p x in round-up (to positive infinity) mode.
  *
- * \return Returns \f$\sqrt{x}\f$.
+ * \return Returns 
+ * \latexonly $\sqrt{x}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msqrt>
+ *     <m:mi>x</m:mi>
+ *   </m:msqrt>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_single
  */
 extern __device__ __device_builtin__ float                  __fsqrt_ru(float x);
 /**
  * \ingroup CUDA_MATH_INTRINSIC_SINGLE
- * \brief Compute \f$\sqrt{x}\f$ in round-down mode.
+ * \brief Compute 
+ * \latexonly $\sqrt{x}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msqrt>
+ *     <m:mi>x</m:mi>
+ *   </m:msqrt>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  in round-down mode.
  * 
  * Compute the square root of \p x in round-down (to negative infinity) mode.
  *
- * \return Returns \f$\sqrt{x}\f$.
+ * \return Returns 
+ * \latexonly $\sqrt{x}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:msqrt>
+ *     <m:mi>x</m:mi>
+ *   </m:msqrt>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
  *
  * \note_accuracy_single
  */
 extern __device__ __device_builtin__ float                  __fsqrt_rd(float x);
+/**
+ * \ingroup CUDA_MATH_INTRINSIC_SINGLE
+ * \brief Compute
+ * \latexonly $1/\sqrt{x}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mn>1</m:mn>
+ *   <m:mrow class="MJX-TeXAtom-ORD">
+ *     <m:mo>/</m:mo>
+ *   </m:mrow>
+ *   <m:msqrt>
+ *     <m:mi>x</m:mi>
+ *   </m:msqrt>
+ * </m:math>
+ * </d4p_MathML>
+ * \endxmlonly
+ *  in round-to-nearest-even mode.
+ * 
+ * Compute the reciprocal square root of \p x in round-to-nearest-even mode.
+ *
+ * \return Returns
+ * \latexonly $1/\sqrt{x}$ \endlatexonly
+ * \xmlonly
+ * <d4p_MathML outputclass="xmlonly">
+ * <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+ *   <m:mn>1</m:mn>
+ *   <m:mrow class="MJX-TeXAtom-ORD">
+ *     <m:mo>/</m:mo>
+ *   </m:mrow>
+ *   <m:msqrt>
+ *     <m:mi>x</m:mi>
+ *   </m:msqrt>
+ * </m:math>
+ * </d4p_MathML>\endxmlonly.
+ *
+ * \note_accuracy_single
+ */
+extern __device__ __device_builtin__ float                  __frsqrt_rn(float x);
 /**
  * \ingroup CUDA_MATH_INTRINSIC_SINGLE
  * \brief Divide two floating point values in round-to-nearest-even mode.
@@ -1029,24 +2165,70 @@ extern __device__ __device_builtin__ unsigned long long int __brevll(unsigned lo
  *
  * The input bytes are indexed as follows:
  * <pre>
- * input[0] = x<0:7>   input[1] = x<8:15>
- * input[2] = x<16:23> input[3] = x<24:31>
- * input[4] = y<0:7>   input[5] = y<8:15>
- * input[6] = y<16:23> input[7] = y<24:31>
+ * input[0] = x<7:0>   input[1] = x<15:8>
+ * input[2] = x<23:16> input[3] = x<31:24>
+ * input[4] = y<7:0>   input[5] = y<15:8>
+ * input[6] = y<23:16> input[7] = y<31:24>
  * </pre>
- * The selector indices are stored in 4-bit nibbles (with the upper 16-bits of the selector not being used):
+ * The selector indices are as follows (the upper 16-bits of the selector are not used):
  * <pre>
- * selector[0] = s<0:3>  selector[1] = s<4:7>
- * selector[2] = s<8:11> selector[3] = s<12:15>
+ * selector[0] = s<2:0>  selector[1] = s<6:4>
+ * selector[2] = s<10:8> selector[3] = s<14:12>
  * </pre>
  * \return The returned value r is computed to be:
  * <tt>result[n] := input[selector[n]]</tt>
  * where <tt>result[n]</tt> is the nth byte of r.
  */
 extern __device__ __device_builtin__ unsigned int           __byte_perm(unsigned int x, unsigned int y, unsigned int s);
+/**
+ * \ingroup CUDA_MATH_INTRINSIC_INT
+ * \brief Compute average of signed input arguments, avoiding overflow
+ * in the intermediate sum.
+ *
+ * Compute average of signed input arguments \p x and \p y 
+ * as ( \p x + \p y ) >> 1, avoiding overflow in the intermediate sum.
+ *
+ * \return Returns a signed integer value representing the signed 
+ * average value of the two inputs.
+ */
 extern __device__ __device_builtin__ int                    __hadd(int, int);
+/**
+ * \ingroup CUDA_MATH_INTRINSIC_INT
+ * \brief Compute rounded average of signed input arguments, avoiding
+ * overflow in the intermediate sum.
+ *
+ * Compute average of signed input arguments \p x and \p y 
+ * as ( \p x + \p y + 1 ) >> 1, avoiding overflow in the intermediate
+ * sum.
+ *
+ * \return Returns a signed integer value representing the signed 
+ * rounded average value of the two inputs.
+ */
 extern __device__ __device_builtin__ int                    __rhadd(int, int);
+/**
+ * \ingroup CUDA_MATH_INTRINSIC_INT
+ * \brief Compute average of unsigned input arguments, avoiding overflow
+ * in the intermediate sum.
+ *
+ * Compute average of unsigned input arguments \p x and \p y 
+ * as ( \p x + \p y ) >> 1, avoiding overflow in the intermediate sum.
+ *
+ * \return Returns an unsigned integer value representing the unsigned 
+ * average value of the two inputs.
+ */
 extern __device__ __device_builtin__ unsigned int           __uhadd(unsigned int, unsigned int);
+/**
+ * \ingroup CUDA_MATH_INTRINSIC_INT
+ * \brief Compute rounded average of unsigned input arguments, avoiding
+ * overflow in the intermediate sum.
+ *
+ * Compute average of unsigned input arguments \p x and \p y 
+ * as ( \p x + \p y + 1 ) >> 1, avoiding overflow in the intermediate
+ * sum.
+ *
+ * \return Returns an unsigned integer value representing the unsigned 
+ * rounded average value of the two inputs.
+ */
 extern __device__ __device_builtin__ unsigned int           __urhadd(unsigned int, unsigned int);
 
 #if !defined(__CUDA_ARCH__) || __CUDA_ARCH__ >= 130
@@ -1240,6 +2422,1498 @@ static __inline__ __device__ float uint2float(unsigned int a, enum cudaRoundMode
 
 #elif defined(__CUDABE__)
 
+#if defined(__CUDANVVM__)
+
+/*******************************************************************************
+*                                                                              *
+* SYNCHRONIZATION FUNCTIONS                                                    *
+*                                                                              *
+*******************************************************************************/
+static __forceinline__ int __syncthreads_count(int predicate)
+{
+  return __nvvm_bar0_popc(predicate);
+}
+
+static __forceinline__ int __syncthreads_and(int predicate)
+{
+  return __nvvm_bar0_and(predicate);
+}
+
+static __forceinline__ int __syncthreads_or(int predicate)
+{
+  return __nvvm_bar0_or(predicate);
+}
+
+/*******************************************************************************
+*                                                                              *
+* MEMORY FENCE FUNCTIONS                                                       *
+*                                                                              *
+*******************************************************************************/
+static __forceinline__ void __threadfence_block()
+{
+  __nvvm_membar_cta();
+}
+
+static __forceinline__ void __threadfence()
+{
+  __nvvm_membar_gl();
+}
+
+static __forceinline__ void __threadfence_system()
+{
+  __nvvm_membar_sys();
+}
+
+/*******************************************************************************
+*                                                                              *
+* VOTE FUNCTIONS                                                               *
+*                                                                              *
+*******************************************************************************/
+static __forceinline__ int __all(int a)
+{
+  int result;
+  asm __volatile__ ("{ \n\t"
+        ".reg .pred \t%%p1; \n\t"
+        ".reg .pred \t%%p2; \n\t"
+        "setp.ne.u32 \t%%p1, %1, 0; \n\t"
+        "vote.all.pred \t%%p2, %%p1; \n\t"
+        "selp.s32 \t%0, 1, 0, %%p2; \n\t"
+        "}" : "=r"(result) : "r"(a));
+  return result;
+}
+
+static __forceinline__ int __any(int a)
+{
+  int result;
+  asm __volatile__ ("{ \n\t"
+        ".reg .pred \t%%p1; \n\t"
+        ".reg .pred \t%%p2; \n\t"
+        "setp.ne.u32 \t%%p1, %1, 0; \n\t"
+        "vote.any.pred \t%%p2, %%p1; \n\t"
+        "selp.s32 \t%0, 1, 0, %%p2; \n\t"
+        "}" : "=r"(result) : "r"(a));
+  return result;
+}
+
+static __forceinline__ int __ballot(int a)
+{
+  int result;
+  asm __volatile__ ("{ \n\t"
+        ".reg .pred \t%%p1; \n\t"
+        "setp.ne.u32 \t%%p1, %1, 0; \n\t"
+        "vote.ballot.b32 \t%0, %%p1; \n\t"
+        "}" : "=r"(result) : "r"(a));
+  return result;
+}
+
+/*******************************************************************************
+*                                                                              *
+* MISCELLANEOUS FUNCTIONS                                                      *
+*                                                                              *
+*******************************************************************************/
+static __forceinline__ void __brkpt()
+{
+  asm __volatile__ ("brkpt;");
+}
+
+static __forceinline__ int clock()
+{
+  int r;
+  asm __volatile__ ("mov.u32 \t%0, %%clock;" : "=r"(r));
+  return r;
+}
+
+static __forceinline__ long long clock64()
+{
+  long long z;
+  asm __volatile__ ("mov.u64 \t%0, %%clock64;" : "=l"(z));
+  return z;
+}
+    
+#define __prof_trigger(X) asm __volatile__ ("pmevent \t" #X ";")
+
+static __forceinline__ unsigned int __pm0(void)
+{
+  unsigned int r;
+  asm("mov.u32 \t%0, %%pm0;" : "=r"(r));
+  return r;
+}
+
+static __forceinline__ unsigned int __pm1(void)
+{
+  unsigned int r;
+  asm("mov.u32 \t%0, %%pm1;" : "=r"(r));
+  return r;
+}
+
+static __forceinline__ unsigned int __pm2(void)
+{
+  unsigned int r;
+  asm("mov.u32 \t%0, %%pm2;" : "=r"(r));
+  return r;
+}
+
+static __forceinline__ unsigned int __pm3(void)
+{
+  unsigned int r;
+  asm("mov.u32 \t%0, %%pm3;" : "=r"(r));
+  return r;
+}
+
+static __forceinline__ void __trap(void)
+{
+  asm __volatile__ ("trap;");
+}
+
+static __forceinline__ void* memcpy(void *dest, const void *src, size_t n)
+{
+  __nvvm_memcpy((unsigned char *)dest, (unsigned char *)src, n, 
+                /*alignment=*/ 1);
+  return dest;
+}
+
+static __forceinline__ void* memset(void *dest, int c, size_t n)
+{
+  __nvvm_memset((unsigned char *)dest, (unsigned char)c, n, 
+                /*alignment=*/1);
+  return dest;
+}
+
+/*******************************************************************************
+*                                                                              *
+* MATH FUNCTIONS                                                               *
+*                                                                              *
+*******************************************************************************/
+static __forceinline__ int __clz(int x)
+{
+  return __nv_clz(x);
+}
+
+static __forceinline__ int __clzll(long long x)
+{
+  return __nv_clzll(x);
+}
+
+static __forceinline__ int __popc(int x)
+{
+  return __nv_popc(x);
+}
+
+static __forceinline__ int __popcll(long long x)
+{
+  return __nv_popcll(x);
+}
+
+static __forceinline__ unsigned int __byte_perm(unsigned int a,
+                                                unsigned int b,
+                                                unsigned int c)
+{
+  return __nv_byte_perm(a, b, c);
+}
+
+/*******************************************************************************
+*                                                                              *
+* INTEGER MATH FUNCTIONS                                                       *
+*                                                                              *
+*******************************************************************************/
+static __forceinline__ int min(int x, int y)
+{
+  return __nv_min(x, y);
+}
+
+static __forceinline__ unsigned int umin(unsigned int x, unsigned int y)
+{
+  return __nv_umin(x, y);
+}
+    
+static __forceinline__ long long llmin(long long x, long long y)
+{
+  return __nv_llmin(x, y);
+}
+
+static __forceinline__ unsigned long long ullmin(unsigned long long x,
+                                                 unsigned long long y)
+{
+  return __nv_ullmin(x, y);
+}
+    
+static __forceinline__ int max(int x, int y)
+{
+  return __nv_max(x, y);
+}
+
+static __forceinline__ unsigned int umax(unsigned int x, unsigned int y)
+{
+  return __nv_umax(x, y);
+}
+    
+static __forceinline__ long long llmax(long long x, long long y)
+{
+  return __nv_llmax(x, y);
+}
+
+static __forceinline__ unsigned long long ullmax(unsigned long long x,
+                                                 unsigned long long y)
+{
+  return __nv_ullmax(x, y);
+}
+
+static __forceinline__ int __mulhi(int x, int y)
+{
+  return __nv_mulhi(x, y);
+}
+
+static __forceinline__ unsigned int __umulhi(unsigned int x, unsigned int y)
+{
+  return __nv_umulhi(x, y);
+}
+
+static __forceinline__ long long __mul64hi(long long x, long long y)
+{
+  return __nv_mul64hi(x, y);
+}
+
+static __forceinline__ unsigned long long __umul64hi(unsigned long long x,
+                                                     unsigned long long y)
+{
+  return __nv_umul64hi(x, y);
+}
+
+static __forceinline__ int __mul24(int x, int y)
+{
+  return __nv_mul24(x, y);
+}
+
+static __forceinline__ unsigned int __umul24(unsigned int x, unsigned int y)
+{
+  return __nv_umul24(x, y);
+}
+
+static __forceinline__ unsigned int __brev(unsigned int x)
+{
+  return __nv_brev(x);
+}
+    
+static __forceinline__ unsigned long long __brevll(unsigned long long x)
+{
+  return __nv_brevll(x);
+}
+    
+static __forceinline__ int __sad(int x, int y, int z)
+{
+  return __nv_sad(x, y, z);
+}
+
+static __forceinline__ unsigned int __usad(unsigned int x,
+                                           unsigned int y,
+                                           unsigned int z)
+{
+  return __nv_usad(x, y, z);
+}
+
+static __forceinline__ int abs(int x)
+{
+  return __nv_abs(x);
+}
+
+static __forceinline__ long labs(long x)
+{
+#if defined(__LP64__)
+  return __nv_llabs((long long) x);
+#else /* __LP64__ */
+  return __nv_abs((int) x);
+#endif /* __LP64__ */
+}
+
+static __forceinline__ long long llabs(long long x)
+{
+  return __nv_llabs(x);
+}
+
+/*******************************************************************************
+*                                                                              *
+* FP MATH FUNCTIONS                                                            *
+*                                                                              *
+*******************************************************************************/
+static __forceinline__ float floorf(float f)
+{
+  return __nv_floorf(f);
+}
+
+static __forceinline__ double floor(double f)
+{
+  return __nv_floor(f);
+}
+
+static __forceinline__ float fabsf(float f)
+{
+  return __nv_fabsf(f);
+}
+
+static __forceinline__ double fabs(double f)
+{
+  return __nv_fabs(f);
+}
+
+static __forceinline__ double __rcp64h(double d)
+{
+  return __nv_rcp64h(d);
+}
+
+static __forceinline__ float fminf(float x, float y)
+{
+  return __nv_fminf(x, y);
+}
+
+static __forceinline__ float fmaxf(float x, float y)
+{
+  return __nv_fmaxf(x, y);
+}
+
+static __forceinline__ float rsqrtf(float x)
+{
+  return __nv_rsqrtf(x);
+}
+
+static __forceinline__ double fmin(double x, double y)
+{
+  return __nv_fmin(x, y);
+}
+
+static __forceinline__ double fmax(double x, double y)
+{
+  return __nv_fmax(x, y);
+}
+
+static __forceinline__ double rsqrt(double x)
+{
+  return __nv_rsqrt(x);
+}
+
+static __forceinline__ double ceil(double x)
+{
+  return __nv_ceil(x);
+}
+
+static __forceinline__ double trunc(double x)
+{
+  return __nv_trunc(x);
+}
+
+static __forceinline__ float exp2f(float x)
+{
+  return __nv_exp2f(x);
+}
+
+static __forceinline__ float truncf(float x)
+{
+  return __nv_truncf(x);
+}
+
+static __forceinline__ float ceilf(float x)
+{
+  return __nv_ceilf(x);
+}
+
+static __forceinline__ float __saturatef(float x)
+{
+  return __nv_saturatef(x);
+}
+
+/*******************************************************************************
+*                                                                              *
+* FMAF                                                                         *
+*                                                                              *
+*******************************************************************************/
+static __forceinline__ float __fmaf_rn(float x, float y, float z)
+{
+  return __nv_fmaf_rn(x, y, z);
+}
+
+static __forceinline__ float __fmaf_rz(float x, float y, float z)
+{
+  return __nv_fmaf_rz(x, y, z);
+}
+
+static __forceinline__ float __fmaf_rd(float x, float y, float z)
+{
+  return __nv_fmaf_rd(x, y, z);
+}
+
+static __forceinline__ float __fmaf_ru(float x, float y, float z)
+{
+  return __nv_fmaf_ru(x, y, z);
+}
+
+/*******************************************************************************
+*                                                                              *
+* FMAF_IEEE                                                                    *
+*                                                                              *
+*******************************************************************************/
+static __forceinline__ float __fmaf_ieee_rn(float x, float y, float z)
+{
+  return __nv_fmaf_ieee_rn(x, y, z);
+}
+
+static __forceinline__ float __fmaf_ieee_rz(float x, float y, float z)
+{
+  return __nv_fmaf_ieee_rz(x, y, z);
+}
+
+static __forceinline__ float __fmaf_ieee_rd(float x, float y, float z)
+{
+  return __nv_fmaf_ieee_rd(x, y, z);
+}
+
+static __forceinline__ float __fmaf_ieee_ru(float x, float y, float z)
+{
+  return __nv_fmaf_ieee_ru(x, y, z);
+}
+
+/*******************************************************************************
+*                                                                              *
+* FMA                                                                          *
+*                                                                              *
+*******************************************************************************/
+static __forceinline__ double __fma_rn(double x, double y, double z)
+{
+  return __nv_fma_rn(x, y, z);
+}
+
+static __forceinline__ double __fma_rz(double x, double y, double z)
+{
+  return __nv_fma_rz(x, y, z);
+}
+
+static __forceinline__ double __fma_rd(double x, double y, double z)
+{
+  return __nv_fma_rd(x, y, z);
+}
+
+static __forceinline__ double __fma_ru(double x, double y, double z)
+{
+  return __nv_fma_ru(x, y, z);
+}
+
+static __forceinline__ float __fdividef(float x, float y)
+{
+  return __nv_fast_fdividef(x, y);
+}
+
+/*******************************************************************************
+*                                                                              *
+* FDIV                                                                         *
+*                                                                              *
+*******************************************************************************/
+static __forceinline__ float __fdiv_rn(float x, float y)
+{
+  return __nv_fdiv_rn(x, y);
+}
+
+static __forceinline__ float __fdiv_rz(float x, float y)
+{
+  return __nv_fdiv_rz(x, y);
+}
+
+static __forceinline__ float __fdiv_rd(float x, float y)
+{
+  return __nv_fdiv_rd(x, y);
+}
+
+static __forceinline__ float __fdiv_ru(float x, float y)
+{
+  return __nv_fdiv_ru(x, y);
+}
+
+/*******************************************************************************
+*                                                                              *
+* FRCP                                                                         *
+*                                                                              *
+*******************************************************************************/
+static __forceinline__ float __frcp_rn(float x)
+{
+  return __nv_frcp_rn(x);
+}
+
+static __forceinline__ float __frcp_rz(float x)
+{
+  return __nv_frcp_rz(x);
+}
+
+static __forceinline__ float __frcp_rd(float x)
+{
+  return __nv_frcp_rd(x);
+}
+
+static __forceinline__ float __frcp_ru(float x)
+{
+  return __nv_frcp_ru(x);
+}
+
+/*******************************************************************************
+*                                                                              *
+* FSQRT                                                                        *
+*                                                                              *
+*******************************************************************************/
+static __forceinline__ float __fsqrt_rn(float x)
+{
+  return __nv_fsqrt_rn(x);
+}
+
+static __forceinline__ float __fsqrt_rz(float x)
+{
+  return __nv_fsqrt_rz(x);
+}
+
+static __forceinline__ float __fsqrt_rd(float x)
+{
+  return __nv_fsqrt_rd(x);
+}
+
+static __forceinline__ float __fsqrt_ru(float x)
+{
+  return __nv_fsqrt_ru(x);
+}
+
+/*******************************************************************************
+*                                                                              *
+* DDIV                                                                         *
+*                                                                              *
+*******************************************************************************/
+static __forceinline__ double __ddiv_rn(double x, double y)
+{
+  return __nv_ddiv_rn(x, y);
+}
+
+static __forceinline__ double __ddiv_rz(double x, double y)
+{
+  return __nv_ddiv_rz(x, y);
+}
+
+static __forceinline__ double __ddiv_rd(double x, double y)
+{
+  return __nv_ddiv_rd(x, y);
+}
+
+static __forceinline__ double __ddiv_ru(double x, double y)
+{
+  return __nv_ddiv_ru(x, y);
+}
+
+/*******************************************************************************
+*                                                                              *
+* DRCP                                                                         *
+*                                                                              *
+*******************************************************************************/
+static __forceinline__ double __drcp_rn(double x)
+{
+  return __nv_drcp_rn(x);
+}
+
+static __forceinline__ double __drcp_rz(double x)
+{
+  return __nv_drcp_rz(x);
+}
+
+static __forceinline__ double __drcp_rd(double x)
+{
+  return __nv_drcp_rd(x);
+}
+
+static __forceinline__ double __drcp_ru(double x)
+{
+  return __nv_drcp_ru(x);
+}
+
+/*******************************************************************************
+*                                                                              *
+* DSQRT                                                                        *
+*                                                                              *
+*******************************************************************************/
+static __forceinline__ double __dsqrt_rn(double x)
+{
+  return __nv_dsqrt_rn(x);
+}
+
+static __forceinline__ double __dsqrt_rz(double x)
+{
+  return __nv_dsqrt_rz(x);
+}
+
+static __forceinline__ double __dsqrt_rd(double x)
+{
+  return __nv_dsqrt_rd(x);
+}
+
+static __forceinline__ double __dsqrt_ru(double x)
+{
+  return __nv_dsqrt_ru(x);
+}
+
+static __forceinline__ float sqrtf(float x)
+{
+  return __nv_sqrtf(x);
+}
+
+static __forceinline__ double sqrt(double x)
+{
+  return __nv_sqrt(x);
+}
+
+/*******************************************************************************
+*                                                                              *
+* DADD                                                                         *
+*                                                                              *
+*******************************************************************************/
+static __forceinline__ double __dadd_rn(double x, double y)
+{
+  return __nv_dadd_rn(x, y);
+}
+
+static __forceinline__ double __dadd_rz(double x, double y)
+{
+  return __nv_dadd_rz(x, y);
+}
+
+static __forceinline__ double __dadd_rd(double x, double y)
+{
+  return __nv_dadd_rd(x, y);
+}
+
+static __forceinline__ double __dadd_ru(double x, double y)
+{
+  return __nv_dadd_ru(x, y);
+}
+
+/*******************************************************************************
+*                                                                              *
+* DMUL                                                                         *
+*                                                                              *
+*******************************************************************************/
+static __forceinline__ double __dmul_rn(double x, double y)
+{
+  return __nv_dmul_rn(x, y);
+}
+
+static __forceinline__ double __dmul_rz(double x, double y)
+{
+  return __nv_dmul_rz(x, y);
+}
+
+static __forceinline__ double __dmul_rd(double x, double y)
+{
+  return __nv_dmul_rd(x, y);
+}
+
+static __forceinline__ double __dmul_ru(double x, double y)
+{
+  return __nv_dmul_ru(x, y);
+}
+
+/*******************************************************************************
+*                                                                              *
+* FADD                                                                         *
+*                                                                              *
+*******************************************************************************/
+static __forceinline__ float __fadd_rd(float x, float y)
+{
+  return __nv_fadd_rd(x, y);
+}
+
+static __forceinline__ float __fadd_ru(float x, float y)
+{
+  return __nv_fadd_ru(x, y);
+}
+
+static __forceinline__ float __fadd_rn(float x, float y)
+{
+  return __nv_fadd_rn(x, y);
+}
+
+static __forceinline__ float __fadd_rz(float x, float y)
+{
+  return __nv_fadd_rz(x, y);
+}
+
+/*******************************************************************************
+*                                                                              *
+* FMUL                                                                         *
+*                                                                              *
+*******************************************************************************/
+static __forceinline__ float __fmul_rd(float x, float y)
+{
+  return __nv_fmul_rd(x, y);
+}
+
+static __forceinline__ float __fmul_ru(float x, float y)
+{
+  return __nv_fmul_ru(x, y);
+}
+
+static __forceinline__ float __fmul_rn(float x, float y)
+{
+  return __nv_fmul_rn(x, y);
+}
+
+static __forceinline__ float __fmul_rz(float x, float y)
+{
+  return __nv_fmul_rz(x, y);
+}
+
+/*******************************************************************************
+*                                                                              *
+* CONVERSION FUNCTIONS                                                         *
+*                                                                              *
+*******************************************************************************/
+/* double to float */
+static __forceinline__ float __double2float_rn(double d)
+{
+  return __nv_double2float_rn(d);
+}
+
+static __forceinline__ float __double2float_rz(double d)
+{
+  return __nv_double2float_rz(d);
+}
+
+static __forceinline__ float __double2float_rd(double d)
+{
+  return __nv_double2float_rd(d);
+}
+
+static __forceinline__ float __double2float_ru(double d)
+{
+  return __nv_double2float_ru(d);
+}
+    
+/* double to int */
+static __forceinline__ int __double2int_rn(double d)
+{
+  return __nv_double2int_rn(d);
+}
+
+static __forceinline__ int __double2int_rz(double d)
+{
+  return __nv_double2int_rz(d);
+}
+
+static __forceinline__ int __double2int_rd(double d)
+{
+  return __nv_double2int_rd(d);
+}
+
+static __forceinline__ int __double2int_ru(double d)
+{
+  return __nv_double2int_ru(d);
+}
+
+/* double to uint */
+static __forceinline__ unsigned int __double2uint_rn(double d)
+{
+  return __nv_double2uint_rn(d);
+}
+
+static __forceinline__ unsigned int __double2uint_rz(double d)
+{
+  return __nv_double2uint_rz(d);
+}
+
+static __forceinline__ unsigned int __double2uint_rd(double d)
+{
+  return __nv_double2uint_rd(d);
+}
+
+static __forceinline__ unsigned int __double2uint_ru(double d)
+{
+  return __nv_double2uint_ru(d);
+}
+
+/* int to double */
+static __forceinline__ double __int2double_rn(int i)
+{
+  return __nv_int2double_rn(i);
+}
+
+/* uint to double */
+static __forceinline__ double __uint2double_rn(unsigned int i)
+{
+  return __nv_uint2double_rn(i);
+}
+
+/* float to int */
+static __forceinline__ int __float2int_rn(float in)
+{
+  return __nv_float2int_rn(in);
+}
+
+static __forceinline__ int __float2int_rz(float in)
+{
+  return __nv_float2int_rz(in);
+}
+
+static __forceinline__ int __float2int_rd(float in)
+{
+  return __nv_float2int_rd(in);
+}
+
+static __forceinline__ int __float2int_ru(float in)
+{
+  return __nv_float2int_ru(in);
+}
+
+/* float to uint */
+static __forceinline__ unsigned int __float2uint_rn(float in)
+{
+  return __nv_float2uint_rn(in);
+}
+
+static __forceinline__ unsigned int __float2uint_rz(float in)
+{
+  return __nv_float2uint_rz(in);
+}
+
+static __forceinline__ unsigned int __float2uint_rd(float in)
+{
+  return __nv_float2uint_rd(in);
+}
+
+static __forceinline__ unsigned int __float2uint_ru(float in)
+{
+  return __nv_float2uint_ru(in);
+}
+
+/* int to float */
+static __forceinline__ float __int2float_rn(int in)
+{
+  return __nv_int2float_rn(in);
+}
+
+static __forceinline__ float __int2float_rz(int in)
+{
+  return __nv_int2float_rz(in);
+}
+
+static __forceinline__ float __int2float_rd(int in)
+{
+  return __nv_int2float_rd(in);
+}
+
+static __forceinline__ float __int2float_ru(int in)
+{
+  return __nv_int2float_ru(in);
+}
+
+/* unsigned int to float */
+static __forceinline__ float __uint2float_rn(unsigned int in)
+{
+  return __nv_uint2float_rn(in);
+}
+
+static __forceinline__ float __uint2float_rz(unsigned int in)
+{
+  return __nv_uint2float_rz(in);
+}
+
+static __forceinline__ float __uint2float_rd(unsigned int in)
+{
+  return __nv_uint2float_rd(in);
+}
+
+static __forceinline__ float __uint2float_ru(unsigned int in)
+{
+  return __nv_uint2float_ru(in);
+}
+
+/* hiloint vs double */
+static __forceinline__ double __hiloint2double(int a, int b)
+{
+  return __nv_hiloint2double(a, b);
+}
+
+static __forceinline__ int __double2loint(double d)
+{
+  return __nv_double2loint(d);
+}
+
+static __forceinline__ int __double2hiint(double d)
+{
+  return __nv_double2hiint(d);
+}
+
+/* float to long long */
+static __forceinline__ long long __float2ll_rn(float f)
+{
+  return __nv_float2ll_rn(f);
+}
+
+static __forceinline__ long long __float2ll_rz(float f)
+{
+  return __nv_float2ll_rz(f);
+}
+
+static __forceinline__ long long __float2ll_rd(float f)
+{
+  return __nv_float2ll_rd(f);
+}
+
+static __forceinline__ long long __float2ll_ru(float f)
+{
+  return __nv_float2ll_ru(f);
+}
+
+/* float to unsigned long long */
+static __forceinline__ unsigned long long __float2ull_rn(float f)
+{
+  return __nv_float2ull_rn(f);
+}
+
+static __forceinline__ unsigned long long __float2ull_rz(float f)
+{
+  return __nv_float2ull_rz(f);
+}
+
+static __forceinline__ unsigned long long __float2ull_rd(float f)
+{
+  return __nv_float2ull_rd(f);
+}
+
+static __forceinline__ unsigned long long __float2ull_ru(float f)
+{
+  return __nv_float2ull_ru(f);
+}
+
+/* double to long long */
+static __forceinline__ long long __double2ll_rn(double f)
+{
+  return __nv_double2ll_rn(f);
+}
+
+static __forceinline__ long long __double2ll_rz(double f)
+{
+  return __nv_double2ll_rz(f);
+}
+
+static __forceinline__ long long __double2ll_rd(double f)
+{
+  return __nv_double2ll_rd(f);
+}
+
+static __forceinline__ long long __double2ll_ru(double f)
+{
+  return __nv_double2ll_ru(f);
+}
+
+/* double to unsigned long long */
+static __forceinline__ unsigned long long __double2ull_rn(double f)
+{
+  return __nv_double2ull_rn(f);
+}
+
+static __forceinline__ unsigned long long __double2ull_rz(double f)
+{
+  return __nv_double2ull_rz(f);
+}
+
+static __forceinline__ unsigned long long __double2ull_rd(double f)
+{
+  return __nv_double2ull_rd(f);
+}
+
+static __forceinline__ unsigned long long __double2ull_ru(double f)
+{
+  return __nv_double2ull_ru(f);
+}
+
+/* long long to float */
+static __forceinline__ float __ll2float_rn(long long l)
+{
+  return __nv_ll2float_rn(l);
+}
+
+static __forceinline__ float __ll2float_rz(long long l)
+{
+  return __nv_ll2float_rz(l);
+}
+
+static __forceinline__ float __ll2float_rd(long long l)
+{
+  return __nv_ll2float_rd(l);
+}
+
+static __forceinline__ float __ll2float_ru(long long l)
+{
+  return __nv_ll2float_ru(l);
+}
+
+/* unsigned long long to float */
+static __forceinline__ float __ull2float_rn(unsigned long long l)
+{
+  return __nv_ull2float_rn(l);
+}
+
+static __forceinline__ float __ull2float_rz(unsigned long long l)
+{
+  return __nv_ull2float_rz(l);
+}
+
+static __forceinline__ float __ull2float_rd(unsigned long long l)
+{
+  return __nv_ull2float_rd(l);
+}
+
+static __forceinline__ float __ull2float_ru(unsigned long long l)
+{
+  return __nv_ull2float_ru(l);
+}
+
+/* long long to double */
+static __forceinline__ double __ll2double_rn(long long l)
+{
+  return __nv_ll2double_rn(l);
+}
+
+static __forceinline__ double __ll2double_rz(long long l)
+{
+  return __nv_ll2double_rz(l);
+}
+
+static __forceinline__ double __ll2double_rd(long long l)
+{
+  return __nv_ll2double_rd(l);
+}
+
+static __forceinline__ double __ll2double_ru(long long l)
+{
+  return __nv_ll2double_ru(l);
+}
+
+/* unsigned long long to double */
+static __forceinline__ double __ull2double_rn(unsigned long long l)
+{
+  return __nv_ull2double_rn(l);
+}
+
+static __forceinline__ double __ull2double_rz(unsigned long long l)
+{
+  return __nv_ull2double_rz(l);
+}
+
+static __forceinline__ double __ull2double_rd(unsigned long long l)
+{
+  return __nv_ull2double_rd(l);
+}
+
+static __forceinline__ double __ull2double_ru(unsigned long long l)
+{
+  return __nv_ull2double_ru(l);
+}
+
+static __forceinline__ unsigned short __float2half_rn(float f)
+{
+  return __nv_float2half_rn(f);
+}
+
+static __forceinline__ float __half2float(unsigned short h)
+{
+  return __nv_half2float(h);
+}
+
+static __forceinline__ float __int_as_float(int x)
+{
+  return __nv_int_as_float(x);
+}
+
+static __forceinline__ int __float_as_int(float x)
+{
+  return __nv_float_as_int(x);
+}
+    
+static __forceinline__ double __longlong_as_double(long long x)
+{
+  return __nv_longlong_as_double(x);
+}
+
+static __forceinline__ long long  __double_as_longlong (double x)
+{
+  return __nv_double_as_longlong(x);
+}
+
+/*******************************************************************************
+*                                                                              *
+* DEVICE IMPLEMENTATIONS FOR FUNCTIONS WITH BUILTIN NVOPENCC OPERATIONS        *
+*                                                                              *
+*******************************************************************************/
+
+static __forceinline__ float __sinf(float a)
+{
+  return __nv_fast_sinf(a);
+}
+
+static __forceinline__ float __cosf(float a)
+{
+  return __nv_fast_cosf(a);
+}
+
+static __forceinline__ float __log2f(float a)
+{
+  return __nv_fast_log2f(a);
+}
+
+/*******************************************************************************
+*                                                                              *
+* DEVICE IMPLEMENTATIONS FOR FUNCTIONS WITHOUT BUILTIN NVOPENCC OPERATIONS     *
+*                                                                              *
+*******************************************************************************/
+
+static __forceinline__ float __tanf(float a)
+{
+  return __nv_fast_tanf(a);
+}
+
+static __forceinline__ void __sincosf(float a, float *sptr, float *cptr)
+{
+  __nv_fast_sincosf(a, sptr, cptr);
+}
+
+static __forceinline__ float __expf(float a)
+{
+  return __nv_fast_expf(a);
+}
+
+static __forceinline__ float __exp10f(float a)
+{
+  return __nv_fast_exp10f(a);
+}
+
+static __forceinline__ float __log10f(float a)
+{
+  return __nv_fast_log10f(a);
+}
+
+static __forceinline__ float __logf(float a)
+{
+  return __nv_fast_logf(a);
+}
+
+static __forceinline__ float __powf(float a, float b)
+{
+  return __nv_fast_powf(a, b);
+}
+
+static __forceinline__ float fdividef(float a, float b)
+{
+#if defined(__USE_FAST_MATH__) && !defined(__CUDA_PREC_DIV)
+  return __nv_fast_fdividef(a, b);
+#else /* __USE_FAST_MATH__ && !__CUDA_PREC_DIV */
+  return a / b;
+#endif /* __USE_FAST_MATH__ && !__CUDA_PREC_DIV */
+}
+
+static __forceinline__ double fdivide(double a, double b)
+{
+  return a / b;
+}
+
+/*
+  According to Boolean algebra:
+
+       (a | b) = (a & b) + (a ^ b)
+  <==> (a & b) = (a | b) - (a ^ b) 
+
+  When adding a + b, a & b represents the carry bit vector, while a ^ b 
+  represents the sum bit vector. Thus:
+
+  a + b = 2 * (a & b) + (a ^ b)               (I)
+
+        = 2 * ((a | b) - (a ^ b)) + (a ^ b)
+ 
+        = 2 * (a | b) - (a ^ b)               (II)
+
+  Compare HAKMEM #23 at http://home.pipeline.com/~hbaker1/hakmem/hakmem.html
+
+  hadd(a, b) is (a + b) / 2 rounded to negative infinity, whereas rhadd(a, b)
+  is (a + b) / 2 rounded to positive infinity. The two terms 2 * (a & b) and 
+  2 * (a | b) are even, so don't influence the rounding when dividing by two. 
+  So the rounding must be via the sum bit term. Computing (a ^ b) / 2 by right
+  shifting rounds this term to negative infinity. This means we need to base
+  hadd() on formula (I), but rhadd() on formula(II). This results in
+
+  hadd(a,b)  = (a & b) + ((a ^ b) >> 1)
+  rhadd(a,b) = (a | b) - ((a ^ b) >> 1)
+*/
+static __forceinline__ int __hadd(int a, int b)
+{
+  return __nv_hadd(a, b);
+}
+
+static __forceinline__ int __rhadd(int a, int b)
+{
+  return __nv_rhadd(a, b);
+}
+
+static __forceinline__ unsigned int __uhadd(unsigned int a, unsigned int b)
+{
+  return __nv_uhadd(a, b);
+}
+
+static __forceinline__ unsigned int __urhadd(unsigned int a, unsigned int b)
+{
+  return __nv_urhadd(a, b);
+}
+
+static __forceinline__ float __fsub_rn (float a, float b)
+{
+  return __nv_fsub_rn(a, b);
+}
+
+static __forceinline__ float __fsub_rz (float a, float b)
+{
+  return __nv_fsub_rz(a, b);
+}
+
+static __forceinline__ float __fsub_rd (float a, float b)
+{
+  return __nv_fsub_rd(a, b);
+}
+
+static __forceinline__ float __fsub_ru (float a, float b)
+{
+  return __nv_fsub_ru(a, b);
+}
+
+static __forceinline__ float __frsqrt_rn (float a)
+{
+  return __nv_frsqrt_rn(a);
+}
+
+static __forceinline__ int __ffs(int a)
+{
+  return __nv_ffs(a);
+}
+
+static __forceinline__ int __ffsll(long long int a)
+{
+  return __nv_ffsll(a);
+}
+
+/*******************************************************************************
+*                                                                              *
+* ATOMIC OPERATIONS                                                            *
+*                                                                              *
+*******************************************************************************/
+static __forceinline__
+int __iAtomicAdd(int *p, int val)
+{
+  return __nvvm_atom_add_gen_i((volatile int *)p, val);
+}
+
+static __forceinline__
+unsigned int __uAtomicAdd(unsigned int *p, unsigned int val)
+{
+  return __nvvm_atom_add_gen_i((volatile int *)p, (int)val);
+}
+
+static __forceinline__
+unsigned long long __ullAtomicAdd(unsigned long long *p, unsigned long long val)
+{
+  return __nvvm_atom_add_gen_ll((volatile long long *)p, (long long)val);
+}
+
+static __forceinline__
+float __fAtomicAdd(float *p, float val)
+{
+  return __nvvm_atom_add_gen_f((volatile float *)p, val);
+}
+
+static __forceinline__
+int __iAtomicExch(int *p, int val)
+{
+  return __nvvm_atom_xchg_gen_i((volatile int *)p, val);
+}
+
+static __forceinline__
+unsigned int __uAtomicExch(unsigned int *p, unsigned int val)
+{
+  return __nvvm_atom_xchg_gen_i((volatile int *)p, (int)val);
+}
+
+static __forceinline__
+unsigned long long __ullAtomicExch(unsigned long long *p,
+                                   unsigned long long val)
+{
+  return __nvvm_atom_xchg_gen_ll((volatile long long *)p, (long long)val);
+}
+
+static __forceinline__
+float __fAtomicExch(float *p, float val)
+{
+  int old = __nvvm_atom_xchg_gen_i((volatile int *)p, __float_as_int(val));
+  return __int_as_float(old);
+}
+
+static __forceinline__
+int __iAtomicMin(int *p, int val)
+{
+  return __nvvm_atom_min_gen_i((volatile int *)p, val);
+}
+
+static __forceinline__
+long long __illAtomicMin(long long *p, long long val)
+{
+  return __nvvm_atom_min_gen_ll((volatile long long *)p, val);
+}
+
+static __forceinline__
+unsigned int __uAtomicMin(unsigned int *p, unsigned int val)
+{
+  return __nvvm_atom_min_gen_ui((volatile unsigned int *)p, val);
+}
+
+static __forceinline__
+unsigned long long __ullAtomicMin(unsigned long long *p, unsigned long long val)
+{
+  return __nvvm_atom_min_gen_ull((volatile unsigned long long *)p, val);
+}
+
+static __forceinline__
+int __iAtomicMax(int *p, int val)
+{
+  return __nvvm_atom_max_gen_i((volatile int *)p, val);
+}
+
+static __forceinline__
+long long __illAtomicMax(long long *p, long long val)
+{
+  return __nvvm_atom_max_gen_ll((volatile long long *)p, val);
+}
+
+static __forceinline__
+unsigned int __uAtomicMax(unsigned int *p, unsigned int val)
+{
+  return __nvvm_atom_max_gen_ui((unsigned int *)p, val);
+}
+
+static __forceinline__
+unsigned long long __ullAtomicMax(unsigned long long *p, unsigned long long val)
+{
+  return __nvvm_atom_max_gen_ull((volatile unsigned long long *)p, val);
+}
+
+static __forceinline__
+unsigned int __uAtomicInc(unsigned int *p, unsigned int val)
+{
+  return __nvvm_atom_inc_gen_ui((unsigned int *)p, val);
+}
+
+static __forceinline__
+unsigned int __uAtomicDec(unsigned int *p, unsigned int val)
+{
+  return __nvvm_atom_dec_gen_ui((unsigned int *)p, val);
+}
+
+static __forceinline__
+int __iAtomicCAS(int *p, int compare, int val)
+{
+  return __nvvm_atom_cas_gen_i((int *)p, compare, val);
+}
+
+static __forceinline__
+unsigned int __uAtomicCAS(unsigned int *p, unsigned int compare,
+                          unsigned int val)
+{
+  return (unsigned int)__nvvm_atom_cas_gen_i((volatile int *)p,
+                                             (int)compare,
+                                             (int)val);
+}
+
+static __forceinline__
+unsigned long long int __ullAtomicCAS(unsigned long long int *p,
+                                      unsigned long long int compare,
+                                      unsigned long long int val)
+{
+  return
+    (unsigned long long int)__nvvm_atom_cas_gen_ll((volatile long long int *)p,
+                                                   (long long int)compare,
+                                                   (long long int)val);
+}
+
+static __forceinline__
+int __iAtomicAnd(int *p, int val)
+{
+  return __nvvm_atom_and_gen_i((volatile int *)p, val);
+}
+
+static __forceinline__
+long long int __llAtomicAnd(long long int *p, long long int val)
+{
+  return __nvvm_atom_and_gen_ll((volatile long long int *)p, (long long)val);
+}
+
+static __forceinline__
+unsigned int __uAtomicAnd(unsigned int *p, unsigned int val)
+{
+  return (unsigned int)__nvvm_atom_and_gen_i((volatile int *)p, (int)val);
+}
+
+static __forceinline__
+unsigned long long int __ullAtomicAnd(unsigned long long int *p,
+                                      unsigned long long int val)
+{
+  return __nvvm_atom_and_gen_ll((volatile long long int *)p, (long long)val);
+}
+
+static __forceinline__
+int __iAtomicOr(int *p, int val)
+{
+  return __nvvm_atom_or_gen_i((volatile int *)p, val);
+}
+
+static __forceinline__
+long long int __llAtomicOr(long long int *p, long long int val)
+{
+  return __nvvm_atom_or_gen_ll((volatile long long int *)p, (long long)val);
+}
+
+static __forceinline__
+unsigned int __uAtomicOr(unsigned int *p, unsigned int val)
+{
+  return (unsigned int)__nvvm_atom_or_gen_i((volatile int *)p, (int)val);
+}
+
+static __forceinline__
+unsigned long long int __ullAtomicOr(unsigned long long int *p,
+                                     unsigned long long int val)
+{
+  return __nvvm_atom_or_gen_ll((volatile long long int *)p, (long long)val);
+}
+
+static __forceinline__
+int __iAtomicXor(int *p, int val)
+{
+  return __nvvm_atom_xor_gen_i((volatile int *)p, val);
+}
+
+static __forceinline__
+long long int __llAtomicXor(long long int *p, long long int val)
+{
+  return __nvvm_atom_xor_gen_ll((volatile long long int *)p, (long long)val);
+}
+
+static __forceinline__
+unsigned int __uAtomicXor(unsigned int *p, unsigned int val)
+{
+  return (unsigned int)__nvvm_atom_xor_gen_i((volatile int *)p, (int)val);
+}
+
+static __forceinline__
+unsigned long long int __ullAtomicXor(unsigned long long int *p,
+                                      unsigned long long int val)
+{
+  return __nvvm_atom_xor_gen_ll((volatile long long int *)p, (long long)val);
+}
+
+#else /* __CUDANVVM__ */
+
 /*******************************************************************************
 *                                                                              *
 * DEVICE IMPLEMENTATIONS FOR FUNCTIONS WITH BUILTIN NVOPENCC OPERATIONS        *
@@ -1377,6 +4051,310 @@ static __forceinline__ unsigned int __urhadd(unsigned int a, unsigned int b)
   return (a | b) - ((a ^ b) >> 1);
 }
 
+static __forceinline__ float __fsub_rn (float a, float b)
+{
+  float res;
+#if defined(__CUDA_FTZ)
+  asm ("sub.rn.ftz.f32 %0, %1, %2;" : "=f"(res) : "f"(a), "f" (b));
+#else
+  asm ("sub.rn.f32 %0, %1, %2;" : "=f"(res) : "f"(a), "f" (b));
+#endif
+  return res;
+}
+
+static __forceinline__ float __fsub_rz (float a, float b)
+{
+  float res;
+#if defined(__CUDA_FTZ)
+  asm ("sub.rz.ftz.f32 %0, %1, %2;" : "=f"(res) : "f"(a), "f" (b));
+#else
+  asm ("sub.rz.f32 %0, %1, %2;" : "=f"(res) : "f"(a), "f" (b));
+#endif
+  return res;
+}
+
+static __forceinline__ float __fsub_rd (float a, float b)
+{
+#if __CUDA_ARCH__ >= 200
+  float res;
+#if defined(__CUDA_FTZ)
+  asm ("sub.rm.ftz.f32 %0, %1, %2;" : "=f"(res) : "f"(a), "f" (b));
+#else
+  asm ("sub.rm.f32 %0, %1, %2;" : "=f"(res) : "f"(a), "f" (b));
+#endif
+  return res;
+#else /* __CUDA_ARCH__ >= 200 */
+  unsigned int expo_x, expo_y;
+  unsigned int xxi, yyi, temp;
+    
+  xxi = __float_as_int(a);
+  yyi = __float_as_int(b);
+  yyi = yyi ^ 0x80000000;
+
+  /* make bigger operand the augend */
+  expo_y = yyi << 1;
+  if (expo_y > (xxi << 1)) {
+    expo_y = xxi;
+    xxi    = yyi;
+    yyi    = expo_y;
+  }
+    
+  temp = 0xff;
+  expo_x = temp & (xxi >> 23);
+  expo_x = expo_x - 1;
+  expo_y = temp & (yyi >> 23);
+  expo_y = expo_y - 1;
+    
+  if ((expo_x <= 0xFD) && 
+      (expo_y <= 0xFD)) {
+        
+    expo_y = expo_x - expo_y;
+    if (expo_y > 25) {
+      expo_y = 31;
+    }
+    temp = xxi ^ yyi;
+    xxi = xxi & ~0x7f000000;
+    xxi = xxi |  0x00800000;
+    yyi = yyi & ~0xff000000;
+    yyi = yyi |  0x00800000;
+        
+    if ((int)temp < 0) {
+      /* signs differ, effective subtraction */
+      temp = 32 - expo_y;
+      temp = (expo_y) ? (yyi << temp) : 0;
+      temp = (unsigned int)(-((int)temp));
+      xxi = xxi - (yyi >> expo_y) - (temp ? 1 : 0);
+      if (xxi & 0x00800000) {
+        if (expo_x <= 0xFD) {
+          xxi = xxi & ~0x00800000; /* lop off integer bit */
+          xxi = (xxi + (expo_x << 23)) + 0x00800000;
+          xxi += (temp && (xxi & 0x80000000));
+          return __int_as_float(xxi);
+        }
+      } else {
+        if ((temp | (xxi << 1)) == 0) {
+          /* operands cancelled, resulting in a clean zero */
+          xxi = 0x80000000;
+          return __int_as_float(xxi);
+        }
+        /* normalize result */
+        yyi = xxi & 0x80000000;
+        do {
+          xxi = (xxi << 1) | (temp >> 31);
+          temp <<= 1;
+          expo_x--;
+        } while (!(xxi & 0x00800000));
+        xxi = xxi | yyi;
+      }
+    } else {
+      /* signs are the same, effective addition */
+      temp = 32 - expo_y;
+      temp = (expo_y) ? (yyi << temp) : 0;
+      xxi = xxi + (yyi >> expo_y);
+      if (!(xxi & 0x01000000)) {
+        if (expo_x <= 0xFD) {
+          expo_y = xxi & 1;
+          xxi = xxi + (expo_x << 23);
+          xxi += (temp && (xxi & 0x80000000));
+          return __int_as_float(xxi);
+        }
+      } else {
+        /* normalize result */
+        temp = (xxi << 31) | (temp >> 1);
+        xxi = ((xxi & 0x80000000) | (xxi >> 1)) & ~0x40000000;
+        expo_x++;
+      }
+    }
+    if (expo_x <= 0xFD) {
+      xxi += (temp && (xxi & 0x80000000));
+      xxi = xxi + (expo_x << 23);
+      return __int_as_float(xxi);
+    }
+    if ((int)expo_x >= 254) {
+      /* overflow: return infinity or largest normal */
+      temp = xxi & 0x80000000;
+      xxi = (temp ? 0xFF800000 : 0x7f7fffff);
+      return __int_as_float(xxi);
+    }
+    /* underflow: zero */
+    xxi = xxi & 0x80000000;
+    return __int_as_float(xxi);
+  } else {
+    a = a - b;
+    xxi = xxi ^ yyi;
+    if ((a == 0.0f) && ((int)xxi < 0)) a = __int_as_float(0x80000000);
+    return a;
+  }
+#endif /* __CUDA_ARCH__ >= 200 */
+}
+
+static __forceinline__ float __fsub_ru (float a, float b)
+{
+#if __CUDA_ARCH__ >= 200
+  float res;
+#if defined(__CUDA_FTZ)
+  asm ("sub.rp.ftz.f32 %0, %1, %2;" : "=f"(res) : "f"(a), "f" (b));
+#else
+  asm ("sub.rp.f32 %0, %1, %2;" : "=f"(res) : "f"(a), "f" (b));
+#endif
+  return res;
+#else /* __CUDA_ARCH__ >= 200 */
+  unsigned int expo_x, expo_y;
+  unsigned int xxi, yyi, temp;
+    
+  xxi = __float_as_int(a);
+  yyi = __float_as_int(b);
+  yyi = yyi ^ 0x80000000;
+
+  /* make bigger operand the augend */
+  expo_y = yyi << 1;
+  if (expo_y > (xxi << 1)) {
+    expo_y = xxi;
+    xxi    = yyi;
+    yyi    = expo_y;
+  }
+    
+  temp = 0xff;
+  expo_x = temp & (xxi >> 23);
+  expo_x = expo_x - 1;
+  expo_y = temp & (yyi >> 23);
+  expo_y = expo_y - 1;
+    
+  if ((expo_x <= 0xFD) && 
+      (expo_y <= 0xFD)) {
+        
+    expo_y = expo_x - expo_y;
+    if (expo_y > 25) {
+      expo_y = 31;
+    }
+    temp = xxi ^ yyi;
+    xxi = xxi & ~0x7f000000;
+    xxi = xxi |  0x00800000;
+    yyi = yyi & ~0xff000000;
+    yyi = yyi |  0x00800000;
+        
+    if ((int)temp < 0) {
+      /* signs differ, effective subtraction */
+      temp = 32 - expo_y;
+      temp = (expo_y) ? (yyi << temp) : 0;
+      temp = (unsigned int)(-((int)temp));
+      xxi = xxi - (yyi >> expo_y) - (temp ? 1 : 0);
+      if (xxi & 0x00800000) {
+        if (expo_x <= 0xFD) {
+          xxi = (xxi + (expo_x << 23));
+          xxi += (temp && !(xxi & 0x80000000));
+          return __int_as_float(xxi);
+        }
+      } else {
+        if ((temp | (xxi << 1)) == 0) {
+          /* operands cancelled, resulting in a clean zero */
+          xxi = 0;
+          return __int_as_float(xxi);
+        }
+        /* normalize result */
+        yyi = xxi & 0x80000000;
+        do {
+          xxi = (xxi << 1) | (temp >> 31);
+          temp <<= 1;
+          expo_x--;
+        } while (!(xxi & 0x00800000));
+        xxi = xxi | yyi;
+      }
+    } else {
+      /* signs are the same, effective addition */
+      temp = 32 - expo_y;
+      temp = (expo_y) ? (yyi << temp) : 0;
+      xxi = xxi + (yyi >> expo_y);
+      if (!(xxi & 0x01000000)) {
+        if (expo_x <= 0xFD) {
+          xxi = xxi + (expo_x << 23);
+          xxi += (temp && !(xxi & 0x80000000));
+          return __int_as_float(xxi);
+        }
+      } else {
+        /* normalize result */
+        temp = (xxi << 31) | (temp >> 1);
+        xxi = ((xxi & 0x80000000) | (xxi >> 1)) & ~0x40000000;
+        expo_x++;
+      }
+    }
+    if (expo_x <= 0xFD) {
+      xxi += (temp && !(xxi & 0x80000000));
+      xxi = xxi + (expo_x << 23);
+      return __int_as_float(xxi);
+    }
+    if ((int)expo_x >= 254) {
+      /* overflow: return infinity or largest normal */
+      temp = xxi & 0x80000000;
+      xxi = (temp ? 0xff7fffff : 0x7F800000);
+      return __int_as_float(xxi);
+    }
+    /* underflow: zero */
+    xxi = xxi & 0x80000000;
+    return __int_as_float(xxi);
+  } else {
+    return a - b;
+  }
+#endif /* __CUDA_ARCH__ >= 200 */
+}
+
+static __forceinline__ float __frsqrt_rn (float a)
+{
+#if __CUDA_ARCH__ >= 200
+  float y, h, l, e;
+  int i, t;
+
+#if !defined(__CUDA_FTZ)
+  float aa = fabsf (a);
+  if (aa < 1.175494351e-38f) a = a * 16777216.0f;  /* 2^24 */
+#endif /* !defined(__CUDA_FTZ) */
+  i = __float_as_int (a);
+  if (((unsigned)i - 0x00800000U) < 0x7f000000U) {
+    t = (__float_as_int (a) & 0x00ffffff) | 0x3f000000;
+    a = __int_as_float (t);
+    t = t - i;
+#if !defined(__CUDA_FTZ)
+    if (aa < 1.175494351e-38f) t = t + (24 << 23);
+#endif /* !defined(__CUDA_FTZ) */
+    asm ("rsqrt.approx.ftz.f32 %0, %1;" : "=f"(y) : "f"(a));
+    h = y * y;
+    l = __fmaf_rn (y, y, -h);
+    e = __fmaf_rn (l, -a, __fmaf_rn (h, -a, 1.0f));
+    /* Round as shown in Peter Markstein, "IA-64 and Elementary Functions" */
+    y = __fmaf_rn (__fmaf_rn (0.375f, e, 0.5f), e * y, y);
+    asm ("shr.s32 %0, %0, 1;" : "+r"(t));
+    a = __int_as_float (__float_as_int (y) + t);
+  } else {
+    asm ("rsqrt.approx.ftz.f32 %0, %1;" : "=f"(a) : "f"(a));
+  }
+#else /* __CUDA_ARCH__ >= 200 */
+  unsigned int e, i;
+  unsigned int s, x;
+  unsigned long long int prod1, prod2;
+
+  i = __float_as_int (a);
+  if (((unsigned)i - 0x00800000U) < 0x7f000000U) {
+    x = (i & 0x00ffffff) | 0x00800000;
+    x = x << (7 - ((i >> 23) & 1));
+    i = __float_as_int (rsqrtf (__int_as_float (i | 1)));
+    e = (i & 0x7f800000) - 0x00800000;
+    i = (i & 0x00ffffff) | 0x00800000;
+    i = i << 6;
+    s = __umulhi (i, i);
+    s = 0x06000000 - __umulhi (x, s);
+    i = __umulhi (s, i);
+    s = 2 * i;
+    asm ("mul.wide.u32 %0, %1, %2;" : "=l"(prod1) : "r"(s), "r"(x));
+    prod1 = prod1 * (i + 1);
+    if ((long long int)(prod1 + x) < 0) i++;
+    a = __int_as_float (i + e);
+  } else {
+    a = rsqrtf (a);
+  }
+#endif /* __CUDA_ARCH__ >= 200 */
+  return a;
+}
+
 #if __CUDA_ARCH__ < 200
 
 static __forceinline__ float __frcp_rn (float x)
@@ -1510,31 +4488,27 @@ static __forceinline__ float __frcp_ru (float x)
 static __forceinline__ float __fsqrt_rn (float radicand)
 {
   unsigned int expo, argi;
-  unsigned int s, f, x;
+  unsigned int f, x;
 
   argi = __float_as_int(radicand);
   expo = argi >> 23;
-  expo = expo & 0xff;
   f = expo - 1;
 
-  if ((argi <= 0x80000000) && (f <= 0xFD)) {
+  if (f <= 0xFD) {
     x = (argi << 8) | 0x80000000;
     x = x >> (expo & 1);
     argi = (((__float_as_int(rsqrtf(__int_as_float(
               __float_as_int(radicand)|1)))&0x00ffffff)|0x00800000)<<7);
     /* second NR iteration */
-    s = __umulhi(argi,argi);
-    f = 0x30000000 - __umulhi(x,s);
+    f = __umulhi(argi,argi);
+    f = 0x30000000 - __umulhi(x,f);
     argi = __umulhi(f,argi);
     /* compute sqrt_rn(x) as x * 1/sqrt_rn(x) */
     argi = __umulhi(x,argi);
     argi = argi >> 3;
     x = (x << 16) - (argi * argi);
     /* round to nearest based on remainder; tie case impossible */
-    f = x - (2 * argi + 1);
-    if ((int)f < 0) f = (unsigned)(-(int)f);
-    if ((int)x < 0) x = (unsigned)(-(int)x);
-    if (f < x) argi ++;
+    if ((int)x > (int)argi) argi++;
     argi = argi + (((expo + 125) & ~0x1) << 22);
     return __int_as_float(argi);
   }
@@ -1548,10 +4522,9 @@ static __forceinline__ float __fsqrt_rz (float radicand)
 
   argi = __float_as_int(radicand);
   expo = argi >> 23;
-  expo = expo & 0xff;
   f = expo - 1;
 
-  if ((argi <= 0x80000000) && (f <= 0xFD)) {
+  if (f <= 0xFD) {
     x = (argi << 8) | 0x80000000;
     x = x >> (expo & 1);
     argi = (((__float_as_int(rsqrtf(__int_as_float(
@@ -1579,10 +4552,9 @@ static __forceinline__ float __fsqrt_ru (float radicand)
 
   argi = __float_as_int(radicand);
   expo = argi >> 23;
-  expo = expo & 0xff;
   f = expo - 1;
 
-  if ((argi <= 0x80000000) && (f <= 0xFD)) {
+  if (f <= 0xFD) {
     x = (argi << 8) | 0x80000000;
     x = x >> (expo & 1);
     argi = (((__float_as_int(rsqrtf(__int_as_float(
@@ -1609,10 +4581,9 @@ static __forceinline__ float __fsqrt_rd (float radicand)
 
   argi = __float_as_int(radicand);
   expo = argi >> 23;
-  expo = expo & 0xff;
   f = expo - 1;
 
-  if ((argi <= 0x80000000) && (f <= 0xFD)) {
+  if (f <= 0xFD) {
     x = (argi << 8) | 0x80000000;
     x = x >> (expo & 1);
     argi = (((__float_as_int(rsqrtf(__int_as_float(
@@ -1658,7 +4629,7 @@ static __forceinline__ float __fdiv_rn (float dividend, float divisor)
     f = (unsigned)-(int)__umulhi (y, r << 1);
     r = __umulhi (f, r << 1);
     /* produce quotient */
-    prod = ((unsigned long long)x) * (r << 1);
+    asm ("mul.wide.u32 %0, %1, %2;" : "=l"(prod) : "r"(x), "r"(r << 1));
     /* normalize mantissa */
     if (((int)((prod >> 32) << 8)) > 0) {
       expo_res--;
@@ -1671,7 +4642,7 @@ static __forceinline__ float __fdiv_rn (float dividend, float divisor)
     if (expo_res <= 0xFD) {
       int rem0, rem1, inc;
       /* round mantissa to nearest even */
-      prod = ((unsigned long long)y) * r;
+      asm ("mul.wide.u32 %0, %1, %2;" : "=l"(prod) : "r"(y), "r"(r));
       x = x << (23 + ((prod >> 32) >> 15));
       rem1 = x - (unsigned)(prod & 0xffffffff);
       rem0 = rem1 - y;
@@ -1686,7 +4657,7 @@ static __forceinline__ float __fdiv_rn (float dividend, float divisor)
     } else {
       /* underflow, may still round to normal */
       int rem0, rem1, inc;
-      prod = ((unsigned long long)y) * r;
+      asm ("mul.wide.u32 %0, %1, %2;" : "=l"(prod) : "r"(y), "r"(r));
       x = x << (23 + ((prod >> 32) >> 15));
       rem1 = x - (unsigned)(prod & 0xffffffff);
       rem0 = rem1 - y;
@@ -1728,7 +4699,7 @@ static __forceinline__ float __fdiv_rz (float dividend, float divisor)
     f = (unsigned)-(int)__umulhi (y, r << 1);
     r = __umulhi (f, r << 1);
     /* produce quotient */
-    prod = ((unsigned long long)x) * (r << 1);
+    asm ("mul.wide.u32 %0, %1, %2;" : "=l"(prod) : "r"(x), "r"(r << 1));
     /* normalize mantissa */
     if (((int)((prod >> 32) << 8)) > 0) {
       expo_res--;
@@ -1741,7 +4712,7 @@ static __forceinline__ float __fdiv_rz (float dividend, float divisor)
     if (expo_res <= 0xFD) {
       /* result is a normal */
       int rem1;
-      prod = ((unsigned long long)y) * r;
+      asm ("mul.wide.u32 %0, %1, %2;" : "=l"(prod) : "r"(y), "r"(r));
       x = x << (23 + ((prod >> 32) >> 15));
       rem1 = x - (unsigned)(prod & 0xffffffff);
       if (rem1 < 0) r--;
@@ -1755,7 +4726,7 @@ static __forceinline__ float __fdiv_rz (float dividend, float divisor)
     } else {
       /* underflow: result is smallest normal or zero */
       int rem1;
-      prod = ((unsigned long long)y) * r;
+      asm ("mul.wide.u32 %0, %1, %2;" : "=l"(prod) : "r"(y), "r"(r));
       x = x << (23 + ((prod >> 32) >> 15));
       rem1 = x - (unsigned)(prod & 0xffffffff);
       if (rem1 < 0) r--;
@@ -1796,7 +4767,7 @@ static __forceinline__ float __fdiv_ru (float dividend, float divisor)
     f = (unsigned)-(int)__umulhi (y, r << 1);
     r = __umulhi (f, r << 1);
     /* produce quotient */
-    prod = ((unsigned long long)x) * (r << 1);
+    asm ("mul.wide.u32 %0, %1, %2;" : "=l"(prod) : "r"(x), "r"(r << 1));
     /* normalize mantissa */
     if (((int)((prod >> 32) << 8)) > 0) {
       expo_res--;
@@ -1809,7 +4780,7 @@ static __forceinline__ float __fdiv_ru (float dividend, float divisor)
     if (expo_res <= 0xFD) {
       /* result is a normal */
       int rem1;
-      prod = ((unsigned long long)y) * r;
+      asm ("mul.wide.u32 %0, %1, %2;" : "=l"(prod) : "r"(y), "r"(r));
       x = x << (23 + ((prod >> 32) >> 15));
       rem1 = x - (unsigned)(prod & 0xffffffff);
       if ((rem1 < 0) &&  (sign)) r--;
@@ -1824,7 +4795,7 @@ static __forceinline__ float __fdiv_ru (float dividend, float divisor)
     } else {
       /* underflow: result is smallest normal or zero */
       int rem1;
-      prod = ((unsigned long long)y) * r;
+      asm ("mul.wide.u32 %0, %1, %2;" : "=l"(prod) : "r"(y), "r"(r));
       x = x << (23 + ((prod >> 32) >> 15));
       rem1 = x - (unsigned)(prod & 0xffffffff);
       if ((rem1 < 0) &&  (sign)) r--;
@@ -1866,7 +4837,7 @@ static __forceinline__ float __fdiv_rd (float dividend, float divisor)
     f = (unsigned)-(int)__umulhi (y, r << 1);
     r = __umulhi (f, r << 1);
     /* produce quotient */
-    prod = ((unsigned long long)x) * (r << 1);
+    asm ("mul.wide.u32 %0, %1, %2;" : "=l"(prod) : "r"(x), "r"(r << 1));
     /* normalize mantissa */
     if (((int)((prod >> 32) << 8)) > 0) {
       expo_res--;
@@ -1879,7 +4850,7 @@ static __forceinline__ float __fdiv_rd (float dividend, float divisor)
     if (expo_res <= 0xFD) {
       /* result is a normal */
       int rem1;
-      prod = ((unsigned long long)y) * r;
+      asm ("mul.wide.u32 %0, %1, %2;" : "=l"(prod) : "r"(y), "r"(r));
       x = x << (23 + ((prod >> 32) >> 15));
       rem1 = x - (unsigned)(prod & 0xffffffff);
       if ((rem1 < 0) && (!sign)) r--;
@@ -1894,7 +4865,7 @@ static __forceinline__ float __fdiv_rd (float dividend, float divisor)
     } else {
       /* underflow: result is smallest normal or zero */
       int rem1;
-      prod = ((unsigned long long)y) * r;
+      asm ("mul.wide.u32 %0, %1, %2;" : "=l"(prod) : "r"(y), "r"(r));
       x = x << (23 + ((prod >> 32) >> 15));
       rem1 = x - (unsigned)(prod & 0xffffffff);
       if ((rem1 < 0) && (!sign)) r--;
@@ -2002,13 +4973,9 @@ static __forceinline__ float __fadd_ru (float a, float b)
       xxi = (temp ? 0xff7fffff : 0x7F800000);
       return __int_as_float(xxi);
     }
-    /* underflow: zero or smallest normal */
-    yyi = xxi &  0x80000000;
-    xxi = xxi & ~0xff000000;
-    expo_x = (unsigned int)(-((int)expo_x));
-    xxi = (xxi >> expo_x);
-    if ((expo_x > 25) || (xxi != 0x00800000)) xxi = 0;
-    return __int_as_float(yyi | xxi);
+    /* underflow: zero */
+    xxi = xxi & 0x80000000;
+    return __int_as_float(xxi);
   } else {
     return a + b;
   }
@@ -2107,13 +5074,9 @@ static __forceinline__ float __fadd_rd (float a, float b)
       xxi = (temp ? 0xFF800000 : 0x7f7fffff);
       return __int_as_float(xxi);
     }
-    /* underflow: zero or smallest normal */
-    yyi = xxi &  0x80000000;
-    xxi = xxi & ~0xff000000;
-    expo_x = (unsigned int)(-((int)expo_x));
-    xxi = (xxi >> expo_x);
-    if ((expo_x > 25) || (xxi != 0x00800000)) xxi = 0;
-    return __int_as_float(yyi | xxi);
+    /* underflow: zero */
+    xxi = xxi & 0x80000000;
+    return __int_as_float(xxi);
   } else {
     a = a + b;
     xxi = xxi ^ yyi;
@@ -2146,7 +5109,7 @@ static __forceinline__ float __fmul_ru (float a, float b)
     xxi = xxi | 0x00800000;
     yyi = yyi | 0x80000000;
     /* compute product */
-    product = ((unsigned long long)xxi) * yyi;
+    asm ("mul.wide.u32 %0, %1, %2;" : "=l"(product) : "r"(xxi), "r"(yyi));
     expo_x = expo_x - 127 + 2;
     expo_y = expo_y & 0x80000000;
     xxi = (unsigned int)(product >> 32);
@@ -2204,7 +5167,7 @@ static __forceinline__ float __fmul_rd (float a, float b)
     xxi = xxi | 0x00800000;
     yyi = yyi | 0x80000000;
     /* compute product */
-    product = ((unsigned long long)xxi) * yyi;
+    asm ("mul.wide.u32 %0, %1, %2;" : "=l"(product) : "r"(xxi), "r"(yyi));
     expo_x = expo_x - 127 + 2;
     expo_y = expo_y & 0x80000000;
     xxi = (unsigned int)(product >> 32);
@@ -2383,7 +5346,7 @@ static __forceinline__ float __fmaf_rn (float a, float b, float c)
   xx = xx | 0x00800000;
   yy = yy | 0x80000000;
 
-  product = ((unsigned long long)xx) * yy;
+  asm ("mul.wide.u32 %0, %1, %2;" : "=l"(product) : "r"(xx), "r"(yy));
   xx = (unsigned)(product >> 32);
   yy = (unsigned)(product & 0xffffffff);
 
@@ -2658,7 +5621,7 @@ static __forceinline__ float __fmaf_rz (float a, float b, float c)
   xx = xx | 0x00800000;
   yy = yy | 0x80000000;
 
-  product = ((unsigned long long)xx) * yy;
+  asm ("mul.wide.u32 %0, %1, %2;" : "=l"(product) : "r"(xx), "r"(yy));
   xx = (unsigned)(product >> 32);
   yy = (unsigned)(product & 0xffffffff);
 
@@ -2922,7 +5885,7 @@ static __forceinline__ float __fmaf_ru (float a, float b, float c)
   xx = xx | 0x00800000;
   yy = yy | 0x80000000;
 
-  product = ((unsigned long long)xx) * yy;
+  asm ("mul.wide.u32 %0, %1, %2;" : "=l"(product) : "r"(xx), "r"(yy));
   xx = (unsigned)(product >> 32);
   yy = (unsigned)(product & 0xffffffff);
 
@@ -3191,7 +6154,7 @@ static __forceinline__ float __fmaf_rd (float a, float b, float c)
   xx = xx | 0x00800000;
   yy = yy | 0x80000000;
 
-  product = ((unsigned long long)xx) * yy;
+  asm ("mul.wide.u32 %0, %1, %2;" : "=l"(product) : "r"(xx), "r"(yy));
   xx = (unsigned)(product >> 32);
   yy = (unsigned)(product & 0xffffffff);
 
@@ -3407,6 +6370,8 @@ static __forceinline__ int __ffsll(long long int a)
   return 64 - __clzll(a & -a);
 }
 
+#endif /* __CUDANVVM__ */
+
 #endif /* __cplusplus && __CUDACC__ */
 
 /*******************************************************************************
@@ -3419,9 +6384,15 @@ static __forceinline__ int __ffsll(long long int a)
 #include "sm_12_atomic_functions.h"
 #include "sm_13_double_functions.h"
 #include "sm_20_atomic_functions.h"
+#include "sm_32_atomic_functions.h"
+#include "sm_35_atomic_functions.h"
 #include "sm_20_intrinsics.h"
 #include "sm_30_intrinsics.h"
+#include "sm_32_intrinsics.h"
+#include "sm_35_intrinsics.h"
 #include "surface_functions.h"
 #include "texture_fetch_functions.h"
+#include "texture_indirect_functions.h"
+#include "surface_indirect_functions.h"
 
 #endif /* !__DEVICE_FUNCTIONS_H__ */

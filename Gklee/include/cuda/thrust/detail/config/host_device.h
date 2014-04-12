@@ -15,14 +15,14 @@
  */
 
 /*! \file host_device.h
- *  \brief Defines __host__ and __device__
+ *  \brief Defines __host__ and __device__ and other CUDA-isms
  */
 
 #pragma once
 
 #include <thrust/detail/config.h>
 
-#if THRUST_DEVICE_BACKEND == THRUST_DEVICE_BACKEND_CUDA
+#if THRUST_DEVICE_SYSTEM == THRUST_DEVICE_SYSTEM_CUDA
 
 #include <host_defines.h>
 

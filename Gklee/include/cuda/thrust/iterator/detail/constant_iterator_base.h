@@ -30,7 +30,7 @@ namespace detail
 
 template<typename Value,
          typename Incrementable,
-         typename Space>
+         typename System>
   struct constant_iterator_base
 {
   typedef Value              value_type;
@@ -42,26 +42,23 @@ template<typename Value,
   // *(iter + i)
   typedef value_type         reference;
 
-  typedef const value_type * pointer;
-
   // the incrementable type is int unless otherwise specified
-  typedef typename thrust::experimental::detail::ia_dflt_help<
+  typedef typename thrust::detail::ia_dflt_help<
     Incrementable,
     thrust::detail::identity_<int>
   >::type incrementable;
 
   typedef typename thrust::counting_iterator<
     incrementable,
-    Space,
+    System,
     thrust::random_access_traversal_tag
   > base_iterator;
 
-  typedef typename thrust::experimental::iterator_adaptor<
-    constant_iterator<Value, Incrementable, Space>,
+  typedef typename thrust::iterator_adaptor<
+    constant_iterator<Value, Incrementable, System>,
     base_iterator,
-    pointer,
-    value_type,
-    typename thrust::iterator_space<base_iterator>::type,
+    value_type, // XXX we may need to pass const value_type here as boost counting_iterator does
+    typename thrust::iterator_system<base_iterator>::type,
     typename thrust::iterator_traversal<base_iterator>::type,
     reference
   > type;

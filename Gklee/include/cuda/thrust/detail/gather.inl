@@ -19,14 +19,66 @@
  *  \brief Inline file for gather.h.
  */
 
+#include <thrust/gather.h>
 #include <thrust/iterator/iterator_traits.h>
-#include <thrust/iterator/permutation_iterator.h>
-
-#include <thrust/transform.h>
-#include <thrust/functional.h>
+#include <thrust/system/detail/generic/select_system.h>
+#include <thrust/system/detail/generic/gather.h>
+#include <thrust/system/detail/adl/gather.h>
 
 namespace thrust
 {
+
+
+template<typename DerivedPolicy,
+         typename InputIterator,
+         typename RandomAccessIterator,
+         typename OutputIterator>
+  OutputIterator gather(const thrust::detail::execution_policy_base<DerivedPolicy> &exec,
+                        InputIterator                                               map_first,
+                        InputIterator                                               map_last,
+                        RandomAccessIterator                                        input_first,
+                        OutputIterator                                              result)
+{
+  using thrust::system::detail::generic::gather;
+  return gather(thrust::detail::derived_cast(thrust::detail::strip_const(exec)), map_first, map_last, input_first, result);
+} // end gather()
+
+
+template<typename DerivedPolicy,
+         typename InputIterator1,
+         typename InputIterator2,
+         typename RandomAccessIterator,
+         typename OutputIterator>
+  OutputIterator gather_if(const thrust::detail::execution_policy_base<DerivedPolicy> &exec,
+                           InputIterator1                                              map_first,
+                           InputIterator1                                              map_last,
+                           InputIterator2                                              stencil,
+                           RandomAccessIterator                                        input_first,
+                           OutputIterator                                              result)
+{
+  using thrust::system::detail::generic::gather_if;
+  return gather_if(thrust::detail::derived_cast(thrust::detail::strip_const(exec)), map_first, map_last, stencil, input_first, result);
+} // end gather_if()
+
+
+template<typename DerivedPolicy,
+         typename InputIterator1,
+         typename InputIterator2,
+         typename RandomAccessIterator,
+         typename OutputIterator,
+         typename Predicate>
+  OutputIterator gather_if(const thrust::detail::execution_policy_base<DerivedPolicy> &exec,
+                           InputIterator1                                              map_first,
+                           InputIterator1                                              map_last,
+                           InputIterator2                                              stencil,
+                           RandomAccessIterator                                        input_first,
+                           OutputIterator                                              result,
+                           Predicate                                                   pred)
+{
+  using thrust::system::detail::generic::gather_if;
+  return gather_if(thrust::detail::derived_cast(thrust::detail::strip_const(exec)), map_first, map_last, stencil, input_first, result, pred);
+} // end gather_if()
+
 
 template<typename InputIterator,
          typename RandomAccessIterator,
@@ -36,10 +88,17 @@ template<typename InputIterator,
                         RandomAccessIterator input_first,
                         OutputIterator       result)
 {
-  return thrust::transform(thrust::make_permutation_iterator(input_first, map_first),
-                           thrust::make_permutation_iterator(input_first, map_last),
-                           result,
-                           thrust::identity<typename thrust::iterator_value<RandomAccessIterator>::type>());
+  using thrust::system::detail::generic::select_system;
+
+  typedef typename thrust::iterator_system<InputIterator>::type        System1; 
+  typedef typename thrust::iterator_system<RandomAccessIterator>::type System2; 
+  typedef typename thrust::iterator_system<OutputIterator>::type       System3; 
+
+  System1 system1;
+  System2 system2;
+  System3 system3;
+
+  return thrust::gather(select_system(system1,system2,system3), map_first, map_last, input_first, result);
 } // end gather()
 
 
@@ -53,13 +112,19 @@ template<typename InputIterator1,
                            RandomAccessIterator input_first,
                            OutputIterator       result)
 {
-  typedef typename thrust::iterator_value<InputIterator2>::type StencilType;
-  return thrust::gather_if(map_first,
-                           map_last,
-                           stencil,
-                           input_first,
-                           result,
-                           thrust::identity<StencilType>());
+  using thrust::system::detail::generic::select_system;
+
+  typedef typename thrust::iterator_system<InputIterator1>::type       System1; 
+  typedef typename thrust::iterator_system<InputIterator2>::type       System2; 
+  typedef typename thrust::iterator_system<RandomAccessIterator>::type System3; 
+  typedef typename thrust::iterator_system<OutputIterator>::type       System4; 
+
+  System1 system1;
+  System2 system2;
+  System3 system3;
+  System4 system4;
+
+  return thrust::gather_if(select_system(system1,system2,system3,system4), map_first, map_last, stencil, input_first, result);
 } // end gather_if()
 
 
@@ -75,14 +140,21 @@ template<typename InputIterator1,
                            OutputIterator       result,
                            Predicate            pred)
 {
-  typedef typename thrust::iterator_value<RandomAccessIterator>::type InputType;
-  return thrust::transform_if(thrust::make_permutation_iterator(input_first, map_first),
-                              thrust::make_permutation_iterator(input_first, map_last),
-                              stencil,
-                              result,
-                              thrust::identity<InputType>(),
-                              pred);
+  using thrust::system::detail::generic::select_system;
+
+  typedef typename thrust::iterator_system<InputIterator1>::type       System1; 
+  typedef typename thrust::iterator_system<InputIterator2>::type       System2; 
+  typedef typename thrust::iterator_system<RandomAccessIterator>::type System3; 
+  typedef typename thrust::iterator_system<OutputIterator>::type       System4; 
+
+  System1 system1;
+  System2 system2;
+  System3 system3;
+  System4 system4;
+
+  return thrust::gather_if(select_system(system1,system2,system3,system4), map_first, map_last, stencil, input_first, result, pred);
 } // end gather_if()
+
 
 } // end namespace thrust
 

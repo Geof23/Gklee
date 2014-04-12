@@ -213,6 +213,16 @@ static __forceinline__ void sincos(double a, double *sptr, double *cptr)
   *cptr = (double)fc;
 }
 
+static __forceinline__ void sincospi(double a, double *sptr, double *cptr)
+{
+  float fs, fc;
+
+  sincospif((float)a, &fs, &fc);
+
+  *sptr = (double)fs;
+  *cptr = (double)fc;
+}
+
 static __forceinline__ double tan(double a)
 {
   return (double)tanf((float)a);
@@ -371,6 +381,16 @@ static __forceinline__ double erfc(double a)
 static __forceinline__ double erfcinv(double a)
 {
   return (double)erfcinvf((float)a);
+}
+
+static __forceinline__ double normcdfinv(double a)
+{
+  return (double)normcdfinvf((float)a);
+}
+
+static __forceinline__ double normcdf(double a)
+{
+  return (double)normcdff((float)a);
 }
 
 static __forceinline__ double erfcx(double a)

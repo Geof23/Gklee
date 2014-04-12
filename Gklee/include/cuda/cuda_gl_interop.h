@@ -59,7 +59,11 @@
 
 #else /* __APPLE__ */
 
+#if __ANDROID__
+#include <GLES/gl.h>
+#else
 #include <GL/gl.h>
+#endif
 
 #endif /* __APPLE__ */
 
@@ -112,6 +116,8 @@ enum cudaGLDeviceList
  * ::cudaSuccess,
  * ::cudaErrorNoDevice,
  * ::cudaErrorUnknown
+ *
+ * \note This function is not supported on Mac OS X.
  * \notefnerr
  *
  * \sa 
@@ -121,34 +127,6 @@ enum cudaGLDeviceList
  * ::cudaGraphicsResourceGetMappedPointer 
  */
 extern __host__ cudaError_t CUDARTAPI cudaGLGetDevices(unsigned int *pCudaDeviceCount, int *pCudaDevices, unsigned int cudaDeviceCount, enum cudaGLDeviceList deviceList);
-
-/**
- * \brief Sets a CUDA device to use OpenGL interoperability
- *
- * Records the calling thread's current OpenGL context as the 
- * OpenGL context to use for OpenGL interoperability with the CUDA 
- * device \p device and sets \p device as the current device for the 
- * calling host thread.
- *
- * If \p device has already been initialized then this call will fail 
- * with the error ::cudaErrorSetOnActiveProcess.  In this case it is 
- * necessary to reset \p device using ::cudaDeviceReset() before 
- * OpenGL interoperability on \p device may be enabled.
- *
- * \param device - Device to use for OpenGL interoperability
- *
- * \return
- * ::cudaSuccess,
- * ::cudaErrorInvalidDevice,
- * ::cudaErrorSetOnActiveProcess
- * \notefnerr
- *
- * \sa ::cudaGLRegisterBufferObject, ::cudaGLMapBufferObject,
- * ::cudaGLUnmapBufferObject, ::cudaGLUnregisterBufferObject,
- * ::cudaGLMapBufferObjectAsync, ::cudaGLUnmapBufferObjectAsync,
- * ::cudaDeviceReset
- */
-extern __host__ cudaError_t CUDARTAPI cudaGLSetGLDevice(int device);
 
 /**
  * \brief Register an OpenGL texture or renderbuffer object
@@ -201,7 +179,6 @@ extern __host__ cudaError_t CUDARTAPI cudaGLSetGLDevice(int device);
  * \notefnerr
  *
  * \sa 
- * ::cudaGLSetGLDevice
  * ::cudaGraphicsUnregisterResource,
  * ::cudaGraphicsMapResources, 
  * ::cudaGraphicsSubResourceGetMappedArray
@@ -239,7 +216,6 @@ extern __host__ cudaError_t CUDARTAPI cudaGraphicsGLRegisterImage(struct cudaGra
  * \notefnerr
  *
  * \sa 
- * ::cudaGLSetGLDevice, 
  * ::cudaGraphicsUnregisterResource,
  * ::cudaGraphicsMapResources,
  * ::cudaGraphicsResourceGetMappedPointer
@@ -264,13 +240,15 @@ typedef void* HGPUNV;
  * ::cudaSuccess
  * \notefnerr
  *
- * \sa WGL_NV_gpu_affinity, ::cudaGLSetGLDevice
+ * \sa WGL_NV_gpu_affinity
  */
 extern __host__ cudaError_t CUDARTAPI cudaWGLGetDevice(int *device, HGPUNV hGpu);
 #endif
 
+/** @} */ /* END CUDART_OPENGL */
+
 /**
- * \defgroup CUDART_OPENGL_DEPRECATED OpenGL Interoperability [DEPRECATED]
+ * \addtogroup CUDART_OPENGL_DEPRECATED OpenGL Interoperability [DEPRECATED]
  * This section describes deprecated OpenGL interoperability functionality.
  *
  * @{
@@ -285,6 +263,27 @@ enum cudaGLMapFlags
   cudaGLMapFlagsReadOnly     = 1,  /**< CUDA kernels will not write to this resource */
   cudaGLMapFlagsWriteDiscard = 2   /**< CUDA kernels will only write to and will not read from this resource */
 };
+
+/**
+ * \brief Sets a CUDA device to use OpenGL interoperability
+ *
+ * \deprecated This function is deprecated as of CUDA 5.0. 
+ *
+ * This function is deprecated and should no longer be used.  It is
+ * no longer necessary to associate a CUDA device with an OpenGL
+ * context in order to achieve maximum interoperability performance.
+ *
+ * \param device - Device to use for OpenGL interoperability
+ *
+ * \return
+ * ::cudaSuccess,
+ * ::cudaErrorInvalidDevice,
+ * ::cudaErrorSetOnActiveProcess
+ * \notefnerr
+ *
+ * \sa ::cudaGraphicsGLRegisterBuffer, ::cudaGraphicsGLRegisterImage
+ */
+extern __host__ cudaError_t CUDARTAPI cudaGLSetGLDevice(int device);
 
 /**
  * \brief Registers a buffer object for access by CUDA
@@ -481,8 +480,6 @@ extern __host__ cudaError_t CUDARTAPI cudaGLMapBufferObjectAsync(void **devPtr, 
 extern __host__ cudaError_t CUDARTAPI cudaGLUnmapBufferObjectAsync(GLuint bufObj, cudaStream_t stream);
 
 /** @} */ /* END CUDART_OPENGL_DEPRECATED */
-
-/** @} */ /* END CUDART_OPENGL */
 
 #if defined(__cplusplus)
 }

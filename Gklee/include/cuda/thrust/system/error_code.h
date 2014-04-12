@@ -34,7 +34,7 @@ namespace system
 {
 
 
-/*! \addtogroup system
+/*! \addtogroup system_diagnostics
  *  \{
  */
 
@@ -133,12 +133,14 @@ enum errc_t
   too_many_links                     = detail::emlink,
   too_many_symbolic_link_levels      = detail::eloop,
   value_too_large                    = detail::eoverflow,
-  wrong_protocol_type                = detail::eprototype,
+  wrong_protocol_type                = detail::eprototype
 }; // end errc_t
 
 } // end namespace errc
 
 
+/*! Specialization of \p is_error_condition_enum for \p errc::errc_t
+ */
 template<> struct is_error_condition_enum<errc::errc_t> : public thrust::detail::true_type {};
 
 
@@ -489,7 +491,7 @@ inline bool operator!=(const error_condition &lhs, const error_code &rhs);
  */
 inline bool operator!=(const error_condition &lhs, const error_condition &rhs);
 
-/*! \} // end system
+/*! \} // end system_diagnostics
  */
 
 

@@ -19,19 +19,20 @@
  *  \brief Inline file for advance.h
  */
 
-#include <thrust/iterator/iterator_traits.h>
-#include <thrust/detail/dispatch/advance.h>
+#include <thrust/detail/config.h>
+#include <thrust/advance.h>
+#include <thrust/system/detail/generic/advance.h>
 
 namespace thrust
 {
 
+
 template <typename InputIterator, typename Distance>
 void advance(InputIterator& i, Distance n)
 {
-    // dispatch on space
-    thrust::detail::dispatch::advance(i, n,
-            typename thrust::iterator_space<InputIterator>::type());
-} // end distance()
+  thrust::system::detail::generic::advance(i, n);
+} // end advance()
+
 
 } // end namespace thrust
 

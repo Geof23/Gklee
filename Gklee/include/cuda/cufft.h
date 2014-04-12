@@ -82,13 +82,18 @@ typedef enum cufftResult_t {
   CUFFT_EXEC_FAILED    = 0x6,
   CUFFT_SETUP_FAILED   = 0x7,
   CUFFT_INVALID_SIZE   = 0x8,
-  CUFFT_UNALIGNED_DATA = 0x9
+  CUFFT_UNALIGNED_DATA = 0x9,
+  CUFFT_INCOMPLETE_PARAMETER_LIST = 0xA,
+  CUFFT_INVALID_DEVICE = 0xB,
+  CUFFT_PARSE_ERROR = 0xC,
+  CUFFT_NO_WORKSPACE = 0xD
 } cufftResult;
+
+#define MAX_CUFFT_ERROR 0xE
+
     
 // CUFFT defines and supports the following data types
 
-// cufftHandle is a handle type used to store and access CUFFT plans.
-typedef unsigned int cufftHandle;
 
 // cufftReal is a single-precision, floating-point real data type.
 // cufftDoubleReal is a double-precision, real data type.
@@ -146,6 +151,15 @@ typedef enum cufftCompatibility_t {
 
 #define CUFFT_COMPATIBILITY_DEFAULT   CUFFT_COMPATIBILITY_FFTW_PADDING
 
+//
+// structure definition used by the shim between old and new APIs
+//
+#define MAX_SHIM_RANK 3
+
+// cufftHandle is a handle type used to store and access CUFFT plans.
+typedef int cufftHandle;
+
+
 cufftResult CUFFTAPI cufftPlan1d(cufftHandle *plan, 
                                  int nx, 
                                  cufftType type, 
@@ -166,8 +180,82 @@ cufftResult CUFFTAPI cufftPlanMany(cufftHandle *plan,
                                    int *onembed, int ostride, int odist,
                                    cufftType type,
                                    int batch);
+                                   
+cufftResult CUFFTAPI cufftMakePlan1d(cufftHandle plan, 
+                                     int nx, 
+                                     cufftType type, 
+                                     int batch, /* deprecated - use cufftPlanMany */
+                                     size_t *workSize);
 
-cufftResult CUFFTAPI cufftDestroy(cufftHandle plan);
+cufftResult CUFFTAPI cufftMakePlan2d(cufftHandle plan, 
+                                     int nx, int ny,
+                                     cufftType type,
+                                     size_t *workSize);
+
+cufftResult CUFFTAPI cufftMakePlan3d(cufftHandle plan, 
+                                     int nx, int ny, int nz, 
+                                     cufftType type,
+                                     size_t *workSize);
+
+cufftResult CUFFTAPI cufftMakePlanMany(cufftHandle plan,
+                                       int rank,
+                                       int *n,
+                                       int *inembed, int istride, int idist,
+                                       int *onembed, int ostride, int odist,
+                                       cufftType type,
+                                       int batch,
+                                       size_t *workSize);
+                                   
+cufftResult CUFFTAPI cufftEstimate1d(int nx, 
+                                     cufftType type, 
+                                     int batch, /* deprecated - use cufftPlanMany */
+                                     size_t *workSize);
+
+cufftResult CUFFTAPI cufftEstimate2d(int nx, int ny,
+                                     cufftType type,
+                                     size_t *workSize);
+
+cufftResult CUFFTAPI cufftEstimate3d(int nx, int ny, int nz, 
+                                     cufftType type,
+                                     size_t *workSize);
+
+cufftResult CUFFTAPI cufftEstimateMany(int rank,
+                                       int *n,
+                                       int *inembed, int istride, int idist,
+                                       int *onembed, int ostride, int odist,
+                                       cufftType type,
+                                       int batch,
+                                       size_t *workSize);
+                                     
+cufftResult CUFFTAPI cufftCreate(cufftHandle * cufftHandle);                                     
+
+cufftResult CUFFTAPI cufftGetSize1d(cufftHandle handle, 
+                                    int nx, 
+                                    cufftType type, 
+                                    int batch, 
+                                    size_t *workSize );
+                                                                         
+cufftResult CUFFTAPI cufftGetSize2d(cufftHandle handle, 
+                                    int nx, int ny,
+                                    cufftType type,
+                                    size_t *workSize);
+
+cufftResult CUFFTAPI cufftGetSize3d(cufftHandle handle,
+                                    int nx, int ny, int nz, 
+                                    cufftType type,
+                                    size_t *workSize);
+
+cufftResult CUFFTAPI cufftGetSizeMany(cufftHandle handle, 
+                                      int rank, int *n,
+                                      int *inembed, int istride, int idist,
+                                      int *onembed, int ostride, int odist,
+                                      cufftType type, int batch, size_t *workArea);
+                                     
+cufftResult CUFFTAPI cufftGetSize(cufftHandle handle, size_t *workSize);
+                                               
+cufftResult CUFFTAPI cufftSetWorkArea(cufftHandle plan, void *workArea);
+
+cufftResult CUFFTAPI cufftSetAutoAllocation(cufftHandle plan, int autoAllocate);
 
 cufftResult CUFFTAPI cufftExecC2C(cufftHandle plan, 
                                   cufftComplex *idata,
@@ -200,6 +288,8 @@ cufftResult CUFFTAPI cufftSetStream(cufftHandle plan,
 
 cufftResult CUFFTAPI cufftSetCompatibilityMode(cufftHandle plan,
                                                cufftCompatibility mode);
+
+cufftResult CUFFTAPI cufftDestroy(cufftHandle plan);
 
 cufftResult CUFFTAPI cufftGetVersion(int *version);
 

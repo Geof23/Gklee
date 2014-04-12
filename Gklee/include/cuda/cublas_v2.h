@@ -54,15 +54,23 @@
 
 #if !defined(CUBLAS_V2_H_)
 #define CUBLAS_V2_H_
+
+#undef CUBLASAPI
+#ifdef __CUDACC__
+#define CUBLASAPI __host__ __device__
+#else
+#define CUBLASAPI
+#endif
+
 #include "cublas_api.h"
 
-#define cublasCreate          cublasCreate_v2
-#define cublasDestroy         cublasDestroy_v2
-#define cublasGetVersion      cublasGetVersion_v2
-#define cublasSetStream       cublasSetStream_v2
-#define cublasGetStream       cublasGetStream_v2
-#define cublasGetPointerMode  cublasGetPointerMode_v2
-#define cublasSetPointerMode  cublasSetPointerMode_v2
+#define cublasCreate         cublasCreate_v2
+#define cublasDestroy        cublasDestroy_v2
+#define cublasGetVersion     cublasGetVersion_v2
+#define cublasSetStream      cublasSetStream_v2
+#define cublasGetStream      cublasGetStream_v2
+#define cublasGetPointerMode cublasGetPointerMode_v2
+#define cublasSetPointerMode cublasSetPointerMode_v2
 
 /* Blas3 Routines   */
 
@@ -178,6 +186,8 @@
 
 #define cublasSsymv          cublasSsymv_v2
 #define cublasDsymv          cublasDsymv_v2
+#define cublasCsymv          cublasCsymv_v2
+#define cublasZsymv          cublasZsymv_v2
 #define cublasChemv          cublasChemv_v2
 #define cublasZhemv          cublasZhemv_v2
 
@@ -201,6 +211,8 @@
 
 #define cublasSsyr           cublasSsyr_v2
 #define cublasDsyr           cublasDsyr_v2
+#define cublasCsyr           cublasCsyr_v2
+#define cublasZsyr           cublasZsyr_v2
 #define cublasCher           cublasCher_v2
 #define cublasZher           cublasZher_v2
 
@@ -211,6 +223,8 @@
 
 #define cublasSsyr2          cublasSsyr2_v2
 #define cublasDsyr2          cublasDsyr2_v2
+#define cublasCsyr2          cublasCsyr2_v2
+#define cublasZsyr2          cublasZsyr2_v2
 #define cublasCher2          cublasCher2_v2
 #define cublasZher2          cublasZher2_v2
 
@@ -256,7 +270,5 @@
 #define cublasDtrmm          cublasDtrmm_v2
 #define cublasCtrmm          cublasCtrmm_v2
 #define cublasZtrmm          cublasZtrmm_v2
-
-
 
 #endif /* !defined(CUBLAS_V2_H_) */

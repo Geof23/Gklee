@@ -20,31 +20,50 @@
  */
 
 #include <thrust/detail/config.h>
-
-#include <thrust/advance.h>
-#include <thrust/distance.h>
-#include <thrust/detail/copy.h>
-#include <thrust/swap.h>
+#include <thrust/reverse.h>
 #include <thrust/iterator/iterator_traits.h>
-#include <thrust/iterator/reverse_iterator.h>
+#include <thrust/system/detail/generic/select_system.h>
+#include <thrust/system/detail/generic/reverse.h>
+#include <thrust/system/detail/adl/reverse.h>
 
 namespace thrust
 {
+
+
+template<typename DerivedPolicy, typename BidirectionalIterator>
+  void reverse(const thrust::detail::execution_policy_base<DerivedPolicy> &exec,
+               BidirectionalIterator first,
+               BidirectionalIterator last)
+{
+  using thrust::system::detail::generic::reverse;
+  return reverse(thrust::detail::derived_cast(thrust::detail::strip_const(exec)), first, last);
+} // end reverse()
+
+
+template<typename DerivedPolicy, typename BidirectionalIterator, typename OutputIterator>
+  OutputIterator reverse_copy(const thrust::detail::execution_policy_base<DerivedPolicy> &exec,
+                              BidirectionalIterator first,
+                              BidirectionalIterator last,
+                              OutputIterator result)
+{
+  using thrust::system::detail::generic::reverse_copy;
+  return reverse_copy(thrust::detail::derived_cast(thrust::detail::strip_const(exec)), first, last, result);
+} // end reverse_copy()
+
 
 template<typename BidirectionalIterator>
   void reverse(BidirectionalIterator first,
                BidirectionalIterator last)
 {
-  typedef typename thrust::iterator_difference<BidirectionalIterator>::type difference_type;
+  using thrust::system::detail::generic::select_system;
 
-  // find the midpoint of [first,last)
-  difference_type N = thrust::distance(first, last);
-  BidirectionalIterator mid(first);
-  thrust::advance(mid, N / 2);
+  typedef typename thrust::iterator_system<BidirectionalIterator>::type System;
 
-  // swap elements of [first,mid) with [last - 1, mid)
-  thrust::swap_ranges(first, mid, thrust::make_reverse_iterator(last));
+  System system;
+
+  return thrust::reverse(select_system(system), first, last);
 } // end reverse()
+
 
 template<typename BidirectionalIterator,
          typename OutputIterator>
@@ -52,10 +71,17 @@ template<typename BidirectionalIterator,
                               BidirectionalIterator last,
                               OutputIterator result)
 {
-  return thrust::copy(thrust::make_reverse_iterator(last),
-                      thrust::make_reverse_iterator(first),
-                      result);
+  using thrust::system::detail::generic::select_system;
+
+  typedef typename thrust::iterator_system<BidirectionalIterator>::type System1;
+  typedef typename thrust::iterator_system<OutputIterator>::type        System2;
+
+  System1 system1;
+  System2 system2;
+
+  return thrust::reverse_copy(select_system(system1,system2), first, last, result);
 } // end reverse_copy()
+
 
 } // end thrust
 

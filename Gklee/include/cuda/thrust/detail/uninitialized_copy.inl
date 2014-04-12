@@ -21,11 +21,35 @@
 
 #include <thrust/uninitialized_copy.h>
 #include <thrust/iterator/iterator_traits.h>
-#include <thrust/iterator/detail/minimum_space.h>
-#include <thrust/detail/dispatch/uninitialized_copy.h>
+#include <thrust/system/detail/generic/select_system.h>
+#include <thrust/system/detail/generic/uninitialized_copy.h>
+#include <thrust/system/detail/adl/uninitialized_copy.h>
 
 namespace thrust
 {
+
+
+template<typename DerivedPolicy, typename InputIterator, typename ForwardIterator>
+  ForwardIterator uninitialized_copy(const thrust::detail::execution_policy_base<DerivedPolicy> &exec,
+                                     InputIterator first,
+                                     InputIterator last,
+                                     ForwardIterator result)
+{
+  using thrust::system::detail::generic::uninitialized_copy;
+  return uninitialized_copy(thrust::detail::derived_cast(thrust::detail::strip_const(exec)), first, last, result);
+} // end uninitialized_copy()
+
+
+template<typename DerivedPolicy, typename InputIterator, typename Size, typename ForwardIterator>
+  ForwardIterator uninitialized_copy_n(const thrust::detail::execution_policy_base<DerivedPolicy> &exec,
+                                       InputIterator first,
+                                       Size n,
+                                       ForwardIterator result)
+{
+  using thrust::system::detail::generic::uninitialized_copy_n;
+  return uninitialized_copy_n(thrust::detail::derived_cast(thrust::detail::strip_const(exec)), first, n, result);
+} // end uninitialized_copy_n()
+
 
 template<typename InputIterator,
          typename ForwardIterator>
@@ -33,14 +57,37 @@ template<typename InputIterator,
                                      InputIterator last,
                                      ForwardIterator result)
 {
-  typedef typename iterator_space<InputIterator>::type Space1;
-  typedef typename iterator_space<ForwardIterator>::type Space2;
+  using thrust::system::detail::generic::select_system;
 
-  typedef typename thrust::detail::minimum_space<Space1,Space2>::type MinSpace;
+  typedef typename thrust::iterator_system<InputIterator>::type   System1;
+  typedef typename thrust::iterator_system<ForwardIterator>::type System2;
 
-  // dispatch on space
-  return detail::dispatch::uninitialized_copy(first, last, result, MinSpace());
+  System1 system1;
+  System2 system2;
+
+  return thrust::uninitialized_copy(select_system(system1,system2), first, last, result);
 } // end uninitialized_copy()
 
+
+template<typename InputIterator,
+         typename Size,
+         typename ForwardIterator>
+  ForwardIterator uninitialized_copy_n(InputIterator first,
+                                       Size n,
+                                       ForwardIterator result)
+{
+  using thrust::system::detail::generic::select_system;
+
+  typedef typename thrust::iterator_system<InputIterator>::type   System1;
+  typedef typename thrust::iterator_system<ForwardIterator>::type System2;
+
+  System1 system1;
+  System2 system2;
+
+  return thrust::uninitialized_copy_n(select_system(system1,system2), first, n, result);
+} // end uninitialized_copy_n()
+
+
 } // end thrust
+
 

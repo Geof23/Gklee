@@ -19,38 +19,27 @@
  *  \brief Inline file for swap_ranges.h.
  */
 
-#include <thrust/tuple.h>
-#include <thrust/iterator/zip_iterator.h>
-#include <thrust/detail/internal_functional.h>
-#include <thrust/for_each.h>
+#include <thrust/swap.h>
+#include <thrust/iterator/iterator_traits.h>
+#include <thrust/system/detail/generic/select_system.h>
+#include <thrust/system/detail/generic/swap_ranges.h>
+#include <thrust/system/detail/adl/swap_ranges.h>
 
 namespace thrust
 {
 
-namespace detail
+
+template<typename DerivedPolicy,
+         typename ForwardIterator1,
+         typename ForwardIterator2>
+  ForwardIterator2 swap_ranges(const thrust::detail::execution_policy_base<DerivedPolicy> &exec,
+                               ForwardIterator1 first1,
+                               ForwardIterator1 last1,
+                               ForwardIterator2 first2)
 {
-
-// XXX define this here rather than in internal_functional.h
-// to avoid circular dependence between swap.h & internal_functional.h
-struct swap_pair_elements
-{
-  template <typename Tuple>
-  __host__ __device__
-  void operator()(Tuple t)
-  {
-    // use unqualified swap to allow ADL to catch any user-defined swap
-    using thrust::swap;
-    swap(thrust::get<0>(t), thrust::get<1>(t));
-  }
-}; // end swap_pair_elements
-
-
-
-// XXX WAR circular #inclusion problems with this forward declaration
-template<typename I, typename F>
-I for_each(I, I, F);
-
-} // end detail
+  using thrust::system::detail::generic::swap_ranges;
+  return swap_ranges(thrust::detail::derived_cast(thrust::detail::strip_const(exec)), first1, last1, first2);
+} // end swap_ranges()
 
 
 template<typename ForwardIterator1,
@@ -59,14 +48,17 @@ template<typename ForwardIterator1,
                                ForwardIterator1 last1,
                                ForwardIterator2 first2)
 {
-  typedef thrust::tuple<ForwardIterator1,ForwardIterator2> IteratorTuple;
-  typedef thrust::zip_iterator<IteratorTuple>              ZipIterator;
+  using thrust::system::detail::generic::select_system;
 
-  ZipIterator result = thrust::detail::for_each(thrust::make_zip_iterator(thrust::make_tuple(first1, first2)),
-                                                thrust::make_zip_iterator(thrust::make_tuple(last1,  first2)),
-                                                detail::swap_pair_elements());
-  return thrust::get<1>(result.get_iterator_tuple());
+  typedef typename thrust::iterator_system<ForwardIterator1>::type System1;
+  typedef typename thrust::iterator_system<ForwardIterator2>::type System2;
+
+  System1 system1;
+  System2 system2;
+
+  return thrust::swap_ranges(select_system(system1,system2), first1, last1, first2);
 } // end swap_ranges()
+
 
 } // end namespace thrust
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 1993-2012 NVIDIA Corporation.  All rights reserved.
+ * Copyright 1993-2013 NVIDIA Corporation.  All rights reserved.
  *
  * NOTICE TO LICENSEE:
  *
@@ -179,9 +179,14 @@ cusparseDiagType_t CUSPARSEAPI cusparseGetMatDiagType(const cusparseMatDescr_t d
 cusparseStatus_t CUSPARSEAPI cusparseSetMatIndexBase(cusparseMatDescr_t descrA, cusparseIndexBase_t base);
 cusparseIndexBase_t CUSPARSEAPI cusparseGetMatIndexBase(const cusparseMatDescr_t descrA);
 
-/* sparse traingular solve */
+/* sparse triangular solve */
 cusparseStatus_t CUSPARSEAPI cusparseCreateSolveAnalysisInfo(cusparseSolveAnalysisInfo_t *info);
 cusparseStatus_t CUSPARSEAPI cusparseDestroySolveAnalysisInfo(cusparseSolveAnalysisInfo_t info);
+cusparseStatus_t CUSPARSEAPI cusparseGetLevelInfo(cusparseHandle_t handle, 
+                                                  cusparseSolveAnalysisInfo_t info, 
+                                                  int *nlevels, 
+                                                  int **levelPtr, 
+                                                  int **levelInd);
 
 /* hybrid (HYB) format */
 cusparseStatus_t CUSPARSEAPI cusparseCreateHybMat(cusparseHybMat_t *hybA);
@@ -485,6 +490,153 @@ cusparseStatus_t CUSPARSEAPI cusparseZhybmv(cusparseHandle_t handle,
                                             const cuDoubleComplex *beta,
                                             cuDoubleComplex *y);
     
+/* Description: Matrix-vector multiplication  y = alpha * op(A) * x  + beta * y, 
+   where A is a sparse matrix in BSR storage format, x and y are dense vectors. */
+cusparseStatus_t CUSPARSEAPI cusparseSbsrmv(cusparseHandle_t handle,
+                                            cusparseDirection_t dirA,
+                                            cusparseOperation_t transA,
+                                            int mb,
+                                            int nb,
+                                            int nnzb,
+                                            const float *alpha,
+                                            const cusparseMatDescr_t descrA,
+                                            const float *bsrValA,
+                                            const int *bsrRowPtrA,
+                                            const int *bsrColIndA,
+                                            int  blockDim,
+                                            const float *x,
+                                            const float *beta,
+                                            float *y);
+
+cusparseStatus_t CUSPARSEAPI cusparseDbsrmv(cusparseHandle_t handle,
+                                            cusparseDirection_t dirA,
+                                            cusparseOperation_t transA,
+                                            int mb,
+                                            int nb,
+                                            int nnzb,
+                                            const double *alpha,
+                                            const cusparseMatDescr_t descrA,
+                                            const double *bsrValA,
+                                            const int *bsrRowPtrA,
+                                            const int *bsrColIndA,
+                                            int  blockDim,
+                                            const double *x,
+                                            const double *beta,
+                                            double *y);
+
+cusparseStatus_t CUSPARSEAPI cusparseCbsrmv(cusparseHandle_t handle,
+                                            cusparseDirection_t dirA,
+                                            cusparseOperation_t transA,
+                                            int mb,
+                                            int nb,
+                                            int nnzb,
+                                            const cuComplex *alpha,
+                                            const cusparseMatDescr_t descrA,
+                                            const cuComplex *bsrValA,
+                                            const int *bsrRowPtrA,
+                                            const int *bsrColIndA,
+                                            int  blockDim,
+                                            const cuComplex *x,
+                                            const cuComplex *beta,
+                                            cuComplex *y);
+
+cusparseStatus_t CUSPARSEAPI cusparseZbsrmv(cusparseHandle_t handle,
+                                            cusparseDirection_t dirA,
+                                            cusparseOperation_t transA,
+                                            int mb,
+                                            int nb,
+                                            int nnzb,
+                                            const cuDoubleComplex *alpha,
+                                            const cusparseMatDescr_t descrA,
+                                            const cuDoubleComplex *bsrValA,
+                                            const int *bsrRowPtrA,
+                                            const int *bsrColIndA,
+                                            int  blockDim,
+                                            const cuDoubleComplex *x,
+                                            const cuDoubleComplex *beta,
+                                            cuDoubleComplex *y);
+
+/* Description: Matrix-vector multiplication  y = alpha * op(A) * x  + beta * y, 
+   where A is a sparse matrix in extended BSR storage format, x and y are dense 
+   vectors. */
+cusparseStatus_t CUSPARSEAPI cusparseSbsrxmv(cusparseHandle_t handle,
+                                             cusparseDirection_t dirA,
+                                             cusparseOperation_t transA,
+                                             int sizeOfMask,
+                                             int mb,
+                                             int nb,
+                                             int nnzb,
+                                             const float *alpha,
+                                             const cusparseMatDescr_t descrA,
+                                             const float *bsrValA,
+                                             const int *bsrMaskPtrA,
+                                             const int *bsrRowPtrA,
+                                             const int *bsrEndPtrA,
+                                             const int *bsrColIndA,
+                                             int  blockDim,
+                                             const float *x,
+                                             const float *beta,
+                                             float *y);
+
+
+cusparseStatus_t CUSPARSEAPI cusparseDbsrxmv(cusparseHandle_t handle,
+                                             cusparseDirection_t dirA,
+                                             cusparseOperation_t transA,
+                                             int sizeOfMask,
+                                             int mb,
+                                             int nb,
+                                             int nnzb,
+                                             const double *alpha,
+                                             const cusparseMatDescr_t descrA,
+                                             const double *bsrValA,
+                                             const int *bsrMaskPtrA,
+                                             const int *bsrRowPtrA,
+                                             const int *bsrEndPtrA,
+                                             const int *bsrColIndA,
+                                             int  blockDim,
+                                             const double *x,
+                                             const double *beta,
+                                             double *y);
+    
+cusparseStatus_t CUSPARSEAPI cusparseCbsrxmv(cusparseHandle_t handle,
+                                             cusparseDirection_t dirA,
+                                             cusparseOperation_t transA,
+                                             int sizeOfMask,
+                                             int mb,
+                                             int nb,
+                                             int nnzb,
+                                             const cuComplex *alpha,
+                                             const cusparseMatDescr_t descrA,
+                                             const cuComplex *bsrValA,
+                                             const int *bsrMaskPtrA,
+                                             const int *bsrRowPtrA,
+                                             const int *bsrEndPtrA,
+                                             const int *bsrColIndA,
+                                             int  blockDim,
+                                             const cuComplex *x,
+                                             const cuComplex *beta,
+                                             cuComplex *y);
+
+
+cusparseStatus_t CUSPARSEAPI cusparseZbsrxmv(cusparseHandle_t handle,
+                                             cusparseDirection_t dirA,
+                                             cusparseOperation_t transA,
+                                             int sizeOfMask,
+                                             int mb,
+                                             int nb,
+                                             int nnzb,
+                                             const cuDoubleComplex *alpha,
+                                             const cusparseMatDescr_t descrA,
+                                             const cuDoubleComplex *bsrValA,
+                                             const int *bsrMaskPtrA,
+                                             const int *bsrRowPtrA,
+                                             const int *bsrEndPtrA,
+                                             const int *bsrColIndA,
+                                             int  blockDim,
+                                             const cuDoubleComplex *x,
+                                             const cuDoubleComplex *beta,
+                                             cuDoubleComplex *y);
+
 /* Description: Solution of triangular linear system op(A) * y = alpha * x, 
    where A is a sparse matrix in CSR storage format, x and y are dense vectors. */     
 cusparseStatus_t CUSPARSEAPI cusparseScsrsv_analysis_v2(cusparseHandle_t handle, 
@@ -711,6 +863,80 @@ cusparseStatus_t CUSPARSEAPI cusparseZcsrmm_v2(cusparseHandle_t handle,
                                                cuDoubleComplex *C, 
                                                int ldc);    
 
+
+cusparseStatus_t CUSPARSEAPI cusparseScsrmm2(cusparseHandle_t handle,
+                                            cusparseOperation_t transa,
+                                            cusparseOperation_t transb,
+                                            int m,
+                                            int n,
+                                            int k,
+                                            int nnz,
+                                            const float *alpha,
+                                            const cusparseMatDescr_t descrA,
+                                            const float *csrValA,
+                                            const int *csrRowPtrA,
+                                            const int *csrColIndA,
+                                            const float *B,
+                                            int ldb,
+                                            const float *beta,
+                                            float *C,
+                                            int ldc);
+
+cusparseStatus_t CUSPARSEAPI cusparseDcsrmm2(cusparseHandle_t handle,
+                                            cusparseOperation_t transa,
+                                            cusparseOperation_t transb,
+                                            int m,
+                                            int n,
+                                            int k,
+                                            int nnz,
+                                            const double *alpha,
+                                            const cusparseMatDescr_t descrA,
+                                            const double *csrValA,
+                                            const int *csrRowPtrA,
+                                            const int *csrColIndA,
+                                            const double *B,
+                                            int ldb,
+                                            const double *beta,
+                                            double *C,
+                                            int ldc);
+
+cusparseStatus_t CUSPARSEAPI cusparseCcsrmm2(cusparseHandle_t handle,
+                                            cusparseOperation_t transa,
+                                            cusparseOperation_t transb,
+                                            int m,
+                                            int n,
+                                            int k,
+                                            int nnz,
+                                            const cuComplex *alpha,
+                                            const cusparseMatDescr_t descrA,
+                                            const cuComplex *csrValA,
+                                            const int *csrRowPtrA,
+                                            const int *csrColIndA,
+                                            const cuComplex *B,
+                                            int ldb,
+                                            const cuComplex *beta,
+                                            cuComplex *C,
+                                            int ldc);
+
+cusparseStatus_t CUSPARSEAPI cusparseZcsrmm2(cusparseHandle_t handle,
+                                            cusparseOperation_t transa,
+                                            cusparseOperation_t transb,
+                                            int m,
+                                            int n,
+                                            int k,
+                                            int nnz,
+                                            const cuDoubleComplex *alpha,
+                                            const cusparseMatDescr_t descrA,
+                                            const cuDoubleComplex *csrValA,
+                                            const int *csrRowPtrA,
+                                            const int *csrColIndA,
+                                            const cuDoubleComplex *B,
+                                            int ldb,
+                                            const cuDoubleComplex *beta,
+                                            cuDoubleComplex *C,
+                                            int ldc);
+
+
 /* Description: Solution of triangular linear system op(A) * Y = alpha * X, 
    with multiple right-hand-sides, where A is a sparse matrix in CSR storage 
    format, X and Y are dense and usually tall matrices. */
@@ -815,10 +1041,108 @@ cusparseStatus_t CUSPARSEAPI cusparseZcsrsm_solve(cusparseHandle_t handle,
                                                   cuDoubleComplex *y,
                                                   int ldy);                                                                 
                     
+/* --- Preconditioners --- */ 
+
+/* Description: Compute the incomplete-LU factorization with 0 fill-in (ILU0)
+   based on the information in the opaque structure info that was obtained 
+   from the analysis phase (csrsv_analysis). */
+cusparseStatus_t CUSPARSEAPI cusparseScsrilu0(cusparseHandle_t handle, 
+                                              cusparseOperation_t trans, 
+                                              int m, 
+                                              const cusparseMatDescr_t descrA, 
+                                              float *csrValA_ValM, 
+                                              /* matrix A values are updated inplace 
+                                                 to be the preconditioner M values */
+                                              const int *csrRowPtrA, 
+                                              const int *csrColIndA,
+                                              cusparseSolveAnalysisInfo_t info);
+
+cusparseStatus_t CUSPARSEAPI cusparseDcsrilu0(cusparseHandle_t handle, 
+                                              cusparseOperation_t trans, 
+                                              int m, 
+                                              const cusparseMatDescr_t descrA, 
+                                              double *csrValA_ValM, 
+                                              /* matrix A values are updated inplace 
+                                                 to be the preconditioner M values */
+                                              const int *csrRowPtrA, 
+                                              const int *csrColIndA, 
+                                              cusparseSolveAnalysisInfo_t info);
+
+cusparseStatus_t CUSPARSEAPI cusparseCcsrilu0(cusparseHandle_t handle, 
+                                              cusparseOperation_t trans, 
+                                              int m, 
+                                              const cusparseMatDescr_t descrA, 
+                                              cuComplex *csrValA_ValM, 
+                                              /* matrix A values are updated inplace 
+                                                 to be the preconditioner M values */
+                                              const int *csrRowPtrA, 
+                                              const int *csrColIndA, 
+                                              cusparseSolveAnalysisInfo_t info);
+
+cusparseStatus_t CUSPARSEAPI cusparseZcsrilu0(cusparseHandle_t handle, 
+                                              cusparseOperation_t trans, 
+                                              int m, 
+                                              const cusparseMatDescr_t descrA, 
+                                              cuDoubleComplex *csrValA_ValM, 
+                                              /* matrix A values are updated inplace 
+                                                 to be the preconditioner M values */
+                                              const int *csrRowPtrA, 
+                                              const int *csrColIndA, 
+                                              cusparseSolveAnalysisInfo_t info);
+
+/* Description: Compute the incomplete-Cholesky factorization with 0 fill-in (IC0)
+   based on the information in the opaque structure info that was obtained 
+   from the analysis phase (csrsv_analysis). */
+cusparseStatus_t CUSPARSEAPI cusparseScsric0(cusparseHandle_t handle, 
+                                              cusparseOperation_t trans, 
+                                              int m, 
+                                              const cusparseMatDescr_t descrA,
+                                              float *csrValA_ValM,
+                                              /* matrix A values are updated inplace 
+                                                 to be the preconditioner M values */ 
+                                              const int *csrRowPtrA, 
+                                              const int *csrColIndA,
+                                              cusparseSolveAnalysisInfo_t info);
+
+cusparseStatus_t CUSPARSEAPI cusparseDcsric0(cusparseHandle_t handle, 
+                                              cusparseOperation_t trans, 
+                                              int m, 
+                                              const cusparseMatDescr_t descrA, 
+                                              double *csrValA_ValM, 
+                                              /* matrix A values are updated inplace 
+                                                 to be the preconditioner M values */
+                                              const int *csrRowPtrA, 
+                                              const int *csrColIndA, 
+                                              cusparseSolveAnalysisInfo_t info);
+
+cusparseStatus_t CUSPARSEAPI cusparseCcsric0(cusparseHandle_t handle, 
+                                              cusparseOperation_t trans, 
+                                              int m, 
+                                              const cusparseMatDescr_t descrA, 
+                                              cuComplex *csrValA_ValM, 
+                                              /* matrix A values are updated inplace 
+                                                 to be the preconditioner M values */
+                                              const int *csrRowPtrA, 
+                                              const int *csrColIndA, 
+                                              cusparseSolveAnalysisInfo_t info);
+
+cusparseStatus_t CUSPARSEAPI cusparseZcsric0(cusparseHandle_t handle, 
+                                              cusparseOperation_t trans, 
+                                              int m, 
+                                              const cusparseMatDescr_t descrA, 
+                                              cuDoubleComplex *csrValA_ValM, 
+                                              /* matrix A values are updated inplace 
+                                                 to be the preconditioner M values */
+                                              const int *csrRowPtrA, 
+                                              const int *csrColIndA, 
+                                              cusparseSolveAnalysisInfo_t info);
+
+
 /* Description: Solution of tridiagonal linear system A * B = B, 
    with multiple right-hand-sides. The coefficient matrix A is 
    composed of lower (dl), main (d) and upper (du) diagonals, and 
-   the right-hand-sides B are overwritten with the solution. */
+   the right-hand-sides B are overwritten with the solution. 
+   These routine use pivoting */
 cusparseStatus_t cusparseSgtsv(cusparseHandle_t handle,
                                int m,        
                                int n,        
@@ -854,6 +1178,46 @@ cusparseStatus_t cusparseZgtsv(cusparseHandle_t handle,
                                const cuDoubleComplex *du,
                                cuDoubleComplex *B,     
                                int ldb);
+/* Description: Solution of tridiagonal linear system A * B = B, 
+   with multiple right-hand-sides. The coefficient matrix A is 
+   composed of lower (dl), main (d) and upper (du) diagonals, and 
+   the right-hand-sides B are overwritten with the solution. 
+   These routines do not use pivoting, using a combination of PCR and CR algorithm */                               
+cusparseStatus_t cusparseSgtsv_nopivot(cusparseHandle_t handle,
+                               int m,        
+                               int n,        
+                               const float *dl, 
+                               const float  *d,   
+                               const float *du, 
+                               float *B,    
+                               int ldb);
+                                 
+cusparseStatus_t cusparseDgtsv_nopivot(cusparseHandle_t handle,
+                               int m,        
+                               int n,       
+                               const double *dl,  
+                               const double  *d,   
+                               const double *du, 
+                               double *B,    
+                               int ldb);
+                                                                 
+cusparseStatus_t cusparseCgtsv_nopivot(cusparseHandle_t handle,
+                               int m,        
+                               int n,       
+                               const cuComplex *dl, 
+                               const cuComplex  *d,  
+                               const cuComplex *du, 
+                               cuComplex *B,     
+                               int ldb);
+
+cusparseStatus_t cusparseZgtsv_nopivot(cusparseHandle_t handle,
+                               int m,        
+                               int n,       
+                               const cuDoubleComplex *dl,  
+                               const cuDoubleComplex  *d,  
+                               const cuDoubleComplex *du,
+                               cuDoubleComplex *B,     
+                               int ldb);                               
                                   
 /* Description: Solution of a set of tridiagonal linear systems 
    A * x = x, each with a single right-hand-side. The coefficient 
@@ -897,6 +1261,208 @@ cusparseStatus_t cusparseZgtsvStridedBatch(cusparseHandle_t handle,
                                            int batchCount,
                                            int batchStride);                                        
                                          
+/* --- Extra --- */ 
+
+/* Description: This routine computes a sparse matrix that results from 
+   multiplication of two sparse matrices. */                                              
+cusparseStatus_t CUSPARSEAPI cusparseXcsrgemmNnz(cusparseHandle_t handle,
+                                                 cusparseOperation_t transA, 
+                                                 cusparseOperation_t transB, 
+                                                 int m, 
+                                                 int n, 
+                                                 int k, 
+                                                 const cusparseMatDescr_t descrA,
+                                                 const int nnzA,
+                                                 const int *csrRowPtrA, 
+                                                 const int *csrColIndA,     
+                                                 const cusparseMatDescr_t descrB,
+                                                 const int nnzB,                                                                                              
+                                                 const int *csrRowPtrB, 
+                                                 const int *csrColIndB,  
+                                                 const cusparseMatDescr_t descrC,                                                
+                                                 int *csrRowPtrC, 
+                                                 int *nnzTotalDevHostPtr);                                              
+                                              
+cusparseStatus_t CUSPARSEAPI cusparseScsrgemm(cusparseHandle_t handle,
+                                              cusparseOperation_t transA, 
+                                              cusparseOperation_t transB, 
+                                              int m, 
+                                              int n, 
+                                              int k, 
+                                              const cusparseMatDescr_t descrA,
+                                              const int nnzA,      
+                                              const float *csrValA, 
+                                              const int *csrRowPtrA, 
+                                              const int *csrColIndA,
+                                              const cusparseMatDescr_t descrB,
+                                              const int nnzB,                                                    
+                                              const float *csrValB, 
+                                              const int *csrRowPtrB, 
+                                              const int *csrColIndB,
+                                              const cusparseMatDescr_t descrC, 
+                                              float *csrValC, 
+                                              const int *csrRowPtrC, 
+                                              int *csrColIndC);
+
+cusparseStatus_t CUSPARSEAPI cusparseDcsrgemm(cusparseHandle_t handle,
+                                              cusparseOperation_t transA, 
+                                              cusparseOperation_t transB, 
+                                              int m, 
+                                              int n, 
+                                              int k, 
+                                              const cusparseMatDescr_t descrA,
+                                              int nnzA,      
+                                              const double *csrValA, 
+                                              const int *csrRowPtrA, 
+                                              const int *csrColIndA,
+                                              const cusparseMatDescr_t descrB,
+                                              int nnzB,                                                    
+                                              const double *csrValB, 
+                                              const int *csrRowPtrB, 
+                                              const int *csrColIndB,
+                                              const cusparseMatDescr_t descrC, 
+                                              double *csrValC, 
+                                              const int *csrRowPtrC, 
+                                              int *csrColIndC);
+                                              
+cusparseStatus_t CUSPARSEAPI cusparseCcsrgemm(cusparseHandle_t handle,
+                                              cusparseOperation_t transA, 
+                                              cusparseOperation_t transB, 
+                                              int m, 
+                                              int n, 
+                                              int k, 
+                                              const cusparseMatDescr_t descrA,
+                                              int nnzA,      
+                                              const cuComplex *csrValA, 
+                                              const int *csrRowPtrA, 
+                                              const int *csrColIndA,
+                                              const cusparseMatDescr_t descrB,
+                                              int nnzB,                                                    
+                                              const cuComplex *csrValB, 
+                                              const int *csrRowPtrB, 
+                                              const int *csrColIndB,
+                                              const cusparseMatDescr_t descrC, 
+                                              cuComplex *csrValC, 
+                                              const int *csrRowPtrC, 
+                                              int *csrColIndC); 
+                                              
+cusparseStatus_t CUSPARSEAPI cusparseZcsrgemm(cusparseHandle_t handle,
+                                              cusparseOperation_t transA, 
+                                              cusparseOperation_t transB, 
+                                              int m, 
+                                              int n, 
+                                              int k, 
+                                              const cusparseMatDescr_t descrA,
+                                              int nnzA,      
+                                              const cuDoubleComplex *csrValA, 
+                                              const int *csrRowPtrA, 
+                                              const int *csrColIndA,
+                                              const cusparseMatDescr_t descrB,
+                                              int nnzB,                                                    
+                                              const cuDoubleComplex *csrValB, 
+                                              const int *csrRowPtrB, 
+                                              const int *csrColIndB,
+                                              const cusparseMatDescr_t descrC, 
+                                              cuDoubleComplex *csrValC, 
+                                              const int *csrRowPtrC, 
+                                              int *csrColIndC);
+
+/* Description: This routine computes a sparse matrix that results from 
+   addition of two sparse matrices. */
+cusparseStatus_t CUSPARSEAPI cusparseXcsrgeamNnz(cusparseHandle_t handle,
+                                                 int m,
+                                                 int n,
+                                                 const cusparseMatDescr_t descrA,
+                                                 int nnzA,
+                                                 const int *csrRowPtrA,
+                                                 const int *csrColIndA,
+                                                 const cusparseMatDescr_t descrB,
+                                                 int nnzB,
+                                                 const int *csrRowPtrB,
+                                                 const int *csrColIndB,
+                                                 const cusparseMatDescr_t descrC,
+                                                 int *csrRowPtrC,
+                                                 int *nnzTotalDevHostPtr);
+
+cusparseStatus_t CUSPARSEAPI cusparseScsrgeam(cusparseHandle_t handle,
+                                              int m,
+                                              int n,
+                                              const float *alpha,
+                                              const cusparseMatDescr_t descrA,
+                                              int nnzA,
+                                              const float *csrValA,
+                                              const int *csrRowPtrA,
+                                              const int *csrColIndA,
+                                              const float *beta,
+                                              const cusparseMatDescr_t descrB,
+                                              int nnzB,
+                                              const float *csrValB,
+                                              const int *csrRowPtrB,
+                                              const int *csrColIndB,
+                                              const cusparseMatDescr_t descrC,
+                                              float *csrValC,
+                                              int *csrRowPtrC,
+                                              int *csrColIndC);
+
+cusparseStatus_t CUSPARSEAPI cusparseDcsrgeam(cusparseHandle_t handle,
+                                              int m,
+                                              int n,
+                                              const double *alpha,
+                                              const cusparseMatDescr_t descrA,
+                                              int nnzA,
+                                              const double *csrValA,
+                                              const int *csrRowPtrA,
+                                              const int *csrColIndA,
+                                              const double *beta,
+                                              const cusparseMatDescr_t descrB,
+                                              int nnzB,
+                                              const double *csrValB,
+                                              const int *csrRowPtrB,
+                                              const int *csrColIndB,
+                                              const cusparseMatDescr_t descrC,
+                                              double *csrValC,
+                                              int *csrRowPtrC,
+                                              int *csrColIndC);
+    
+cusparseStatus_t CUSPARSEAPI cusparseCcsrgeam(cusparseHandle_t handle,
+                                              int m,
+                                              int n,
+                                              const cuComplex *alpha,
+                                              const cusparseMatDescr_t descrA,
+                                              int nnzA,
+                                              const cuComplex *csrValA,
+                                              const int *csrRowPtrA,
+                                              const int *csrColIndA,
+                                              const cuComplex *beta,
+                                              const cusparseMatDescr_t descrB,
+                                              int nnzB,
+                                              const cuComplex *csrValB,
+                                              const int *csrRowPtrB,
+                                              const int *csrColIndB,
+                                              const cusparseMatDescr_t descrC,
+                                              cuComplex *csrValC,
+                                              int *csrRowPtrC,
+                                              int *csrColIndC);
+    
+cusparseStatus_t CUSPARSEAPI cusparseZcsrgeam(cusparseHandle_t handle,
+                                              int m,
+                                              int n,
+                                              const cuDoubleComplex *alpha,
+                                              const cusparseMatDescr_t descrA,
+                                              int nnzA,
+                                              const cuDoubleComplex *csrValA,
+                                              const int *csrRowPtrA,
+                                              const int *csrColIndA,
+                                              const cuDoubleComplex *beta,
+                                              const cusparseMatDescr_t descrB,
+                                              int nnzB,
+                                              const cuDoubleComplex *csrValB,
+                                              const int *csrRowPtrB,
+                                              const int *csrColIndB,
+                                              const cusparseMatDescr_t descrC,
+                                              cuDoubleComplex *csrValC,
+                                              int *csrRowPtrC,
+                                              int *csrColIndC);
 
 /* --- Sparse Format Conversion --- */
 
@@ -1312,6 +1878,242 @@ cusparseStatus_t CUSPARSEAPI cusparseZcsr2hyb(cusparseHandle_t handle,
                                               cusparseHybMat_t hybA,
                                               int userEllWidth,
                                               cusparseHybPartition_t partitionType);
+
+/* Description: This routine converts a sparse matrix in HYB storage format
+   to a sparse matrix in CSR storage format. */
+cusparseStatus_t CUSPARSEAPI cusparseShyb2csr(cusparseHandle_t handle,
+                                              const cusparseMatDescr_t descrA,
+                                              const cusparseHybMat_t hybA,
+                                              float *csrValA,
+                                              int *csrRowPtrA,
+                                              int *csrColIndA);
+
+cusparseStatus_t CUSPARSEAPI cusparseDhyb2csr(cusparseHandle_t handle,
+                                              const cusparseMatDescr_t descrA,
+                                              const cusparseHybMat_t hybA,
+                                              double *csrValA,
+                                              int *csrRowPtrA,
+                                              int *csrColIndA);              
+
+cusparseStatus_t CUSPARSEAPI cusparseChyb2csr(cusparseHandle_t handle,
+                                              const cusparseMatDescr_t descrA,
+                                              const cusparseHybMat_t hybA,
+                                              cuComplex *csrValA,
+                                              int *csrRowPtrA,
+                                              int *csrColIndA);
+
+cusparseStatus_t CUSPARSEAPI cusparseZhyb2csr(cusparseHandle_t handle,
+                                              const cusparseMatDescr_t descrA,
+                                              const cusparseHybMat_t hybA,
+                                              cuDoubleComplex *csrValA,
+                                              int *csrRowPtrA,
+                                              int *csrColIndA);
+
+/* Description: This routine converts a sparse matrix in CSC storage format
+   to a sparse matrix in HYB storage format. */
+cusparseStatus_t CUSPARSEAPI cusparseScsc2hyb(cusparseHandle_t handle,
+                                              int m,
+                                              int n,
+                                              const cusparseMatDescr_t descrA,
+                                              const float *cscValA,
+                                              const int *cscRowIndA,
+                                              const int *cscColPtrA,
+                                              cusparseHybMat_t hybA,
+                                              int userEllWidth,
+                                              cusparseHybPartition_t partitionType);
+
+cusparseStatus_t CUSPARSEAPI cusparseDcsc2hyb(cusparseHandle_t handle,
+                                              int m,
+                                              int n,
+                                              const cusparseMatDescr_t descrA,
+                                              const double *cscValA,
+                                              const int *cscRowIndA,
+                                              const int *cscColPtrA,
+                                              cusparseHybMat_t hybA,
+                                              int userEllWidth,
+                                              cusparseHybPartition_t partitionType);
+
+cusparseStatus_t CUSPARSEAPI cusparseCcsc2hyb(cusparseHandle_t handle,
+                                              int m,
+                                              int n,
+                                              const cusparseMatDescr_t descrA,
+                                              const cuComplex *cscValA,
+                                              const int *cscRowIndA,
+                                              const int *cscColPtrA,
+                                              cusparseHybMat_t hybA,
+                                              int userEllWidth,
+                                              cusparseHybPartition_t partitionType);
+
+cusparseStatus_t CUSPARSEAPI cusparseZcsc2hyb(cusparseHandle_t handle,
+                                              int m,
+                                              int n,
+                                              const cusparseMatDescr_t descrA,
+                                              const cuDoubleComplex *cscValA,
+                                              const int *cscRowIndA,
+                                              const int *cscColPtrA,
+                                              cusparseHybMat_t hybA,
+                                              int userEllWidth,
+                                              cusparseHybPartition_t partitionType);
+
+/* Description: This routine converts a sparse matrix in HYB storage format
+   to a sparse matrix in CSC storage format. */
+cusparseStatus_t CUSPARSEAPI cusparseShyb2csc(cusparseHandle_t handle,
+                                              const cusparseMatDescr_t descrA,
+                                              const cusparseHybMat_t hybA,
+                                              float *cscVal,
+                                              int *cscRowInd,
+                                              int *cscColPtr);
+
+cusparseStatus_t CUSPARSEAPI cusparseDhyb2csc(cusparseHandle_t handle,
+                                              const cusparseMatDescr_t descrA,
+                                              const cusparseHybMat_t hybA,
+                                              double *cscVal,
+                                              int *cscRowInd,
+                                              int *cscColPtr);
+
+cusparseStatus_t CUSPARSEAPI cusparseChyb2csc(cusparseHandle_t handle,
+                                              const cusparseMatDescr_t descrA,
+                                              const cusparseHybMat_t hybA,
+                                              cuComplex *cscVal,
+                                              int *cscRowInd,
+                                              int *cscColPtr);
+
+cusparseStatus_t CUSPARSEAPI cusparseZhyb2csc(cusparseHandle_t handle,
+                                              const cusparseMatDescr_t descrA,
+                                              const cusparseHybMat_t hybA,
+                                              cuDoubleComplex *cscVal,
+                                              int *cscRowInd,
+                                              int *cscColPtr);
+
+/* Description: This routine converts a sparse matrix in CSR storage format
+   to a sparse matrix in BSR storage format. */
+cusparseStatus_t CUSPARSEAPI cusparseXcsr2bsrNnz(cusparseHandle_t handle,
+                                                 cusparseDirection_t dirA,
+                                                 int m,
+                                                 int n,
+                                                 const cusparseMatDescr_t descrA,
+                                                 const int *csrRowPtrA,
+                                                 const int *csrColIndA,
+                                                 int blockDim,
+                                                 const cusparseMatDescr_t descrC,
+                                                 int *bsrRowPtrC,
+                                                 int *nnzTotalDevHostPtr);
+
+cusparseStatus_t CUSPARSEAPI cusparseScsr2bsr(cusparseHandle_t handle,
+                                              cusparseDirection_t dirA,
+                                              int m,
+                                              int n,
+                                              const cusparseMatDescr_t descrA,
+                                              const float *csrValA,
+                                              const int *csrRowPtrA,
+                                              const int *csrColIndA,
+                                              int blockDim,
+                                              const cusparseMatDescr_t descrC,
+                                              float *bsrValC,
+                                              int *bsrRowPtrC,
+                                              int *bsrColIndC);
+
+cusparseStatus_t CUSPARSEAPI cusparseDcsr2bsr(cusparseHandle_t handle,
+                                              cusparseDirection_t dirA,
+                                              int m,
+                                              int n,
+                                              const cusparseMatDescr_t descrA,
+                                              const double *csrValA,
+                                              const int *csrRowPtrA,
+                                              const int *csrColIndA,
+                                              int blockDim,
+                                              const cusparseMatDescr_t descrC,
+                                              double *bsrValC,
+                                              int *bsrRowPtrC,
+                                              int *bsrColIndC);
+
+cusparseStatus_t CUSPARSEAPI cusparseCcsr2bsr(cusparseHandle_t handle,
+                                              cusparseDirection_t dirA,
+                                              int m,
+                                              int n,
+                                              const cusparseMatDescr_t descrA,
+                                              const cuComplex *csrValA,
+                                              const int *csrRowPtrA,
+                                              const int *csrColIndA,
+                                              int blockDim,
+                                              const cusparseMatDescr_t descrC,
+                                              cuComplex *bsrValC,
+                                              int *bsrRowPtrC,
+                                              int *bsrColIndC);
+
+cusparseStatus_t CUSPARSEAPI cusparseZcsr2bsr(cusparseHandle_t handle,
+                                              cusparseDirection_t dirA,
+                                              int m,
+                                              int n,
+                                              const cusparseMatDescr_t descrA,
+                                              const cuDoubleComplex *csrValA,
+                                              const int *csrRowPtrA,
+                                              const int *csrColIndA,
+                                              int blockDim,
+                                              const cusparseMatDescr_t descrC,
+                                              cuDoubleComplex *bsrValC,
+                                              int *bsrRowPtrC,
+                                              int *bsrColIndC);
+
+/* Description: This routine converts a sparse matrix in BSR storage format
+   to a sparse matrix in CSR storage format. */
+cusparseStatus_t CUSPARSEAPI cusparseSbsr2csr(cusparseHandle_t handle,
+                                              cusparseDirection_t dirA,
+                                              int mb,
+                                              int nb,
+                                              const cusparseMatDescr_t descrA,
+                                              const float *bsrValA,
+                                              const int *bsrRowPtrA,
+                                              const int *bsrColIndA,
+                                              int blockDim,
+                                              const cusparseMatDescr_t descrC,
+                                              float *csrValC,
+                                              int *csrRowPtrC,
+                                              int *csrColIndC);
+
+cusparseStatus_t CUSPARSEAPI cusparseDbsr2csr(cusparseHandle_t handle,
+                                              cusparseDirection_t dirA,
+                                              int mb,
+                                              int nb,
+                                              const cusparseMatDescr_t descrA,
+                                              const double *bsrValA,
+                                              const int *bsrRowPtrA,
+                                              const int *bsrColIndA,
+                                              int   blockDim,
+                                              const cusparseMatDescr_t descrC,
+                                              double *csrValC,
+                                              int *csrRowPtrC,
+                                              int *csrColIndC);
+
+cusparseStatus_t CUSPARSEAPI cusparseCbsr2csr(cusparseHandle_t handle,
+                                              cusparseDirection_t dirA,
+                                              int mb,
+                                              int nb,
+                                              const cusparseMatDescr_t descrA,
+                                              const cuComplex *bsrValA,
+                                              const int *bsrRowPtrA,
+                                              const int *bsrColIndA,
+                                              int blockDim,
+                                              const cusparseMatDescr_t descrC,
+                                              cuComplex *csrValC,
+                                              int *csrRowPtrC,
+                                              int *csrColIndC);
+
+cusparseStatus_t CUSPARSEAPI cusparseZbsr2csr(cusparseHandle_t handle,
+                                              cusparseDirection_t dirA,
+                                              int mb,
+                                              int nb,
+                                              const cusparseMatDescr_t descrA,
+                                              const cuDoubleComplex *bsrValA,
+                                              const int *bsrRowPtrA,
+                                              const int *bsrColIndA,
+                                              int blockDim,
+                                              const cusparseMatDescr_t descrC,
+                                              cuDoubleComplex *csrValC,
+                                              int *csrRowPtrC,
+                                              int *csrColIndC);
+
+
 
 /* Define the following symbols for the new API routines to be called without "_v2", 
    in other words, append "_v2" to them in the header file. */

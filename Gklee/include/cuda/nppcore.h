@@ -141,12 +141,11 @@ void
 nppSetStream(cudaStream_t hStream);
 
 
- // Module LabelCoreNPP
-/**@}*/
+/** @} Module LabelCoreNPP */
 
 
 #ifdef __cplusplus
-} // extern "C"
+} /* extern "C" */
 #endif
 
-#endif // NV_NPPCORE_H
+#endif /* NV_NPPCORE_H */

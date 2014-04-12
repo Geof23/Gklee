@@ -16,8 +16,10 @@
 
 #pragma once
 
+#include <thrust/detail/config.h>
 #include <thrust/iterator/counting_iterator.h>
 #include <thrust/iterator/iterator_adaptor.h>
+#include <thrust/iterator/detail/any_assign.h>
 #include <cstddef> // for std::ptrdiff_t
 
 namespace thrust
@@ -29,57 +31,32 @@ template<typename> class discard_iterator;
 namespace detail
 {
 
-// a type which may be assigned any other type
-struct any_assign
-{
-  inline __host__ __device__ any_assign(void)
-  {}
 
-  template<typename T>
-  inline __host__ __device__ any_assign(T)
-  {}
-
-  template<typename T>
-  inline __host__ __device__
-  any_assign &operator=(T)
-  {
-    if(0)
-    {
-      // trick the compiler into silencing "warning: this expression has no effect"
-      int *x = 0;
-      *x = 13;
-    } // end if
-
-    return *this;
-  }
-};
-
-template<typename Space>
+template<typename System>
   struct discard_iterator_base
 {
   // XXX value_type should actually be void
   //     but this interferes with zip_iterator<discard_iterator>
-  typedef any_assign        value_type;
-  typedef any_assign        reference;
-  typedef void              pointer;
-  typedef std::ptrdiff_t    incrementable;
+  typedef any_assign         value_type;
+  typedef any_assign&        reference;
+  typedef std::ptrdiff_t     incrementable;
 
   typedef typename thrust::counting_iterator<
     incrementable,
-    Space,
+    System,
     thrust::random_access_traversal_tag
   > base_iterator;
 
-  typedef typename thrust::experimental::iterator_adaptor<
-    discard_iterator<Space>,
+  typedef typename thrust::iterator_adaptor<
+    discard_iterator<System>,
     base_iterator,
-    pointer,
     value_type,
-    typename thrust::iterator_space<base_iterator>::type,
+    typename thrust::iterator_system<base_iterator>::type,
     typename thrust::iterator_traversal<base_iterator>::type,
     reference
   > type;
 }; // end discard_iterator_base
+
 
 } // end detail
   

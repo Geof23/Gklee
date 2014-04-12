@@ -78,20 +78,17 @@ typedef enum CUoutput_mode_enum
 /**
  * \brief Initialize the profiling.
  *
- * Using this API user can specify the configuration file, output file and
- * output file format. This API is generally used to profile different set of
- * counters/options by looping the kernel launch. \p configFile parameter can
- * be used to select profiling options including profiler counters/options. 
- * Refer the "Command Line Profiler" section in the "Compute Visual
- * Profiler User Guide" for supported profiler options and counters.
+ * Using this API user can initialize the CUDA profiler by specifying
+ * the configuration file, output file and output file format. This
+ * API is generally used to profile different set of counters by
+ * looping the kernel launch. The \p configFile parameter can be used
+ * to select profiling options including profiler counters. Refer to
+ * the "Compute Command Line Profiler User Guide" for supported
+ * profiler options and counters.
  *
- * Configurations defined initially by environment variable settings are overwritten 
- * by cuProfilerInitialize().
- *
- * Limitation: Profiling APIs do not work when the application is running with
- * any profiler tool such as Compute Visual Profiler. User must handle error 
- * ::CUDA_ERROR_PROFILER_DISABLED returned by profiler APIs if application is 
- * likely to be used with any profiler tool. 
+ * Limitation: The CUDA profiler cannot be initialized with this API
+ * if another profiling tool is already active, as indicated by the
+ * ::CUDA_ERROR_PROFILER_DISABLED return code.
  *
  * Typical usage of the profiling APIs is as follows: 
  *
@@ -117,6 +114,7 @@ typedef enum CUoutput_mode_enum
  *
  * \return
  * ::CUDA_SUCCESS,
+ * ::CUDA_ERROR_INVALID_CONTEXT,
  * ::CUDA_ERROR_INVALID_VALUE,
  * ::CUDA_ERROR_PROFILER_DISABLED
  * \notefnerr
@@ -126,23 +124,20 @@ typedef enum CUoutput_mode_enum
 CUresult CUDAAPI cuProfilerInitialize(const char *configFile, const char *outputFile, CUoutput_mode outputMode);
 
 /**
- * \brief Start the profiling.
+ * \brief Enable profiling.
  *
- * This API starts the profiling for a context if it is not started already.
- * Profiling must be initalized using ::cuProfilerInitialize() before calling
- * this API.
+ * Enables profile collection by the active profiling tool for the
+ * current context. If profiling is already enabled, then
+ * cuProfilerStart() has no effect.
  *
- * cuProfilerStart and cuProfilerStop APIs are used to programmatically control
- * the profiling granularity by allowing profiling to be done only on selective
- * pieces of code.
+ * cuProfilerStart and cuProfilerStop APIs are used to
+ * programmatically control the profiling granularity by allowing
+ * profiling to be done only on selective pieces of code.
  * 
  *
  * \return
  * ::CUDA_SUCCESS,
- * ::CUDA_ERROR_INVALID_CONTEXT,
- * ::CUDA_ERROR_PROFILER_DISABLED,
- * ::CUDA_ERROR_PROFILER_ALREADY_STARTED,
- * ::CUDA_ERROR_PROFILER_NOT_INITIALIZED
+ * ::CUDA_ERROR_INVALID_CONTEXT
  * \notefnerr
  *
  * \sa ::cuProfilerInitialize, ::cuProfilerStop
@@ -150,20 +145,19 @@ CUresult CUDAAPI cuProfilerInitialize(const char *configFile, const char *output
 CUresult CUDAAPI cuProfilerStart(void);
 
 /**
- * \brief Stop the profiling.
+ * \brief Disable profiling.
  *
- * This API stops the profiling if it is not stopped already.
+ * Disables profile collection by the active profiling tool for the
+ * current context. If profiling is already disabled, then
+ * cuProfilerStop() has no effect.
  *
- * cuProfilerStart and cuProfilerStop APIs are used to programmatically control
- * the profiling granularity by allowing profiling to be done only on selective
- * pieces of code.
+ * cuProfilerStart and cuProfilerStop APIs are used to
+ * programmatically control the profiling granularity by allowing
+ * profiling to be done only on selective pieces of code.
  *
  * \return
  * ::CUDA_SUCCESS,
- * ::CUDA_ERROR_INVALID_CONTEXT,
- * ::CUDA_ERROR_PROFILER_DISABLED,
- * ::CUDA_ERROR_PROFILER_ALREADY_STOPPED,
- * ::CUDA_ERROR_PROFILER_NOT_INITIALIZED
+ * ::CUDA_ERROR_INVALID_CONTEXT
  * \notefnerr
  *
  * \sa ::cuProfilerInitialize, ::cuProfilerStart

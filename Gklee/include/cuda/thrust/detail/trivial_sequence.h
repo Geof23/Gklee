@@ -25,7 +25,8 @@
 
 #include <thrust/iterator/iterator_traits.h>
 #include <thrust/detail/type_traits.h>
-#include <thrust/detail/uninitialized_array.h>
+#include <thrust/detail/execution_policy.h>
+#include <thrust/detail/temporary_array.h>
 
 namespace thrust
 {
@@ -34,16 +35,16 @@ namespace detail
 {
 
 // never instantiated
-template<typename Iterator, typename is_trivial> struct _trivial_sequence { };
+template<typename Iterator, typename DerivedPolicy, typename is_trivial> struct _trivial_sequence { };
 
 // trivial case
-template<typename Iterator>
-struct _trivial_sequence<Iterator, thrust::detail::true_type>
+template<typename Iterator, typename DerivedPolicy>
+struct _trivial_sequence<Iterator, DerivedPolicy, thrust::detail::true_type>
 {
     typedef Iterator iterator_type;
     Iterator first, last;
 
-    _trivial_sequence(Iterator _first, Iterator _last) : first(_first), last(_last)
+    _trivial_sequence(thrust::execution_policy<DerivedPolicy> &, Iterator _first, Iterator _last) : first(_first), last(_last)
     {
 //        std::cout << "trivial case" << std::endl;
     }
@@ -53,16 +54,16 @@ struct _trivial_sequence<Iterator, thrust::detail::true_type>
 };
 
 // non-trivial case
-template<typename Iterator>
-struct _trivial_sequence<Iterator, thrust::detail::false_type>
+template<typename Iterator, typename DerivedPolicy>
+struct _trivial_sequence<Iterator, DerivedPolicy, thrust::detail::false_type>
 {
-    typedef typename thrust::iterator_space<Iterator>::type iterator_space;
     typedef typename thrust::iterator_value<Iterator>::type iterator_value;
-    typedef typename thrust::detail::uninitialized_array<iterator_value, iterator_space>::iterator iterator_type;
+    typedef typename thrust::detail::temporary_array<iterator_value, DerivedPolicy>::iterator iterator_type;
     
-    thrust::detail::uninitialized_array<iterator_value, iterator_space> buffer;
+    thrust::detail::temporary_array<iterator_value, DerivedPolicy> buffer;
 
-    _trivial_sequence(Iterator first, Iterator last) : buffer(first, last)
+    _trivial_sequence(thrust::execution_policy<DerivedPolicy> &exec, Iterator first, Iterator last)
+      : buffer(exec, first, last)
     {
 //        std::cout << "non-trivial case" << std::endl;
     }
@@ -71,12 +72,13 @@ struct _trivial_sequence<Iterator, thrust::detail::false_type>
     iterator_type end()   { return buffer.end(); }
 };
 
-template <typename Iterator>
-struct trivial_sequence : public detail::_trivial_sequence<Iterator, typename thrust::detail::is_trivial_iterator<Iterator>::type>
+template <typename Iterator, typename DerivedPolicy>
+struct trivial_sequence
+  : detail::_trivial_sequence<Iterator, DerivedPolicy, typename thrust::detail::is_trivial_iterator<Iterator>::type>
 {
-    typedef _trivial_sequence<Iterator, typename thrust::detail::is_trivial_iterator<Iterator>::type> super_t;
+    typedef _trivial_sequence<Iterator, DerivedPolicy, typename thrust::detail::is_trivial_iterator<Iterator>::type> super_t;
 
-    trivial_sequence(Iterator first, Iterator last) : super_t(first, last) { }
+    trivial_sequence(thrust::execution_policy<DerivedPolicy> &exec, Iterator first, Iterator last) : super_t(exec, first, last) { }
 };
 
 } // end namespace detail

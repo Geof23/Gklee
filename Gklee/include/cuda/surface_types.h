@@ -108,6 +108,11 @@ struct __device_builtin__ surfaceReference
     struct cudaChannelFormatDesc channelDesc;
 };
 
+/**
+ * CUDA Surface object
+ */
+typedef __device_builtin__ unsigned long long cudaSurfaceObject_t;
+
 /** @} */
 /** @} */ /* END CUDART_TYPES */
 

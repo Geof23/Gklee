@@ -18,9 +18,10 @@
 
 #include <thrust/detail/config.h>
 #include <thrust/iterator/iterator_traits.h>
-#include <thrust/iterator/detail/minimum_space.h>
+#include <thrust/iterator/detail/minimum_system.h>
 #include <thrust/detail/copy.h>
-#include <thrust/detail/uninitialized_array.h>
+#include <thrust/detail/temporary_array.h>
+#include <thrust/system/cpp/detail/execution_policy.h>
 
 namespace thrust
 {
@@ -64,12 +65,13 @@ namespace dispatch
 {
 
 
-template<typename RandomAccessIterator1,
+template<typename DerivedPolicy,
+         typename RandomAccessIterator1,
          typename RandomAccessIterator2>
-  RandomAccessIterator2 overlapped_copy(RandomAccessIterator1 first,
+  RandomAccessIterator2 overlapped_copy(thrust::system::cpp::detail::execution_policy<DerivedPolicy> &,
+                                        RandomAccessIterator1 first,
                                         RandomAccessIterator1 last,
-                                        RandomAccessIterator2 result,
-                                        thrust::host_space_tag)
+                                        RandomAccessIterator2 result)
 {
   if(first < last && first <= result && result < last)
   {
@@ -89,22 +91,19 @@ template<typename RandomAccessIterator1,
 } // end overlapped_copy()
 
 
-template<typename RandomAccessIterator1,
+template<typename DerivedPolicy,
+         typename RandomAccessIterator1,
          typename RandomAccessIterator2>
-  RandomAccessIterator2 overlapped_copy(RandomAccessIterator1 first,
+  RandomAccessIterator2 overlapped_copy(thrust::execution_policy<DerivedPolicy> &exec,
+                                        RandomAccessIterator1 first,
                                         RandomAccessIterator1 last,
-                                        RandomAccessIterator2 result,
-                                        thrust::device_space_tag)
+                                        RandomAccessIterator2 result)
 {
-  typedef typename thrust::iterator_space<RandomAccessIterator1>::type space1;
-  typedef typename thrust::iterator_space<RandomAccessIterator2>::type space2;
-
-  typedef typename thrust::detail::minimum_space<space1,space2>::type space;
   typedef typename thrust::iterator_value<RandomAccessIterator1>::type value_type;
 
   // make a temporary copy of [first,last), and copy into it first
-  thrust::detail::uninitialized_array<value_type, space> temp(first,last);
-  return thrust::copy(temp.begin(), temp.end(), result);
+  thrust::detail::temporary_array<value_type, DerivedPolicy> temp(exec, first, last);
+  return thrust::copy(exec, temp.begin(), temp.end(), result);
 } // end overlapped_copy()
 
 } // end dispatch
@@ -116,11 +115,15 @@ template<typename RandomAccessIterator1,
                                         RandomAccessIterator1 last,
                                         RandomAccessIterator2 result)
 {
-  return thrust::detail::dispatch::overlapped_copy(first, last, result,
-      typename thrust::detail::minimum_space<
-        typename thrust::iterator_space<RandomAccessIterator1>::type,
-        typename thrust::iterator_space<RandomAccessIterator2>::type
-      >::type());
+  typedef typename thrust::iterator_system<RandomAccessIterator2>::type System1;
+  typedef typename thrust::iterator_system<RandomAccessIterator2>::type System2;
+
+  typedef typename thrust::detail::minimum_system<System1, System2>::type System;
+
+  // XXX presumes System is default constructible
+  System system;
+
+  return thrust::detail::dispatch::overlapped_copy(system, first, last, result);
 } // end overlapped_copy()
 
 } // end detail
