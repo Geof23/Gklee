@@ -1,2 +1,0 @@
-#!/bin/bash 
-llvm-g++ -emit-llvm -O3 -I $FLA_KLEE_HOME_DIR/Gklee/include/klee -I ./ -I $FLA_KLEE_HOME_DIR/Gklee/klee-uclibc/include -I $FLA_KLEE_HOME_DIR/Gklee/uClibc++/include -I $FLA_KLEE_HOME_DIR/Gklee/include/cuda -include klee.h -include cutil.h -o gklee_obj -g $*

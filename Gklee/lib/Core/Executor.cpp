@@ -745,18 +745,19 @@ Executor::fork(ExecutionState &current, ref<Expr> condition, bool isInternal) {
           if (!isInternal
                && success 
                  && res == Solver::Unknown) {
-            if (current.brMeta == TF) // true-false
+            if (current.brMeta.meta == TF) { // true-false 
               res = Solver::True;
-            else if (current.brMeta == FT) // false-true
+            } else if (current.brMeta.meta == FT) { // false-true
               res = Solver::False;
-            else if (current.brMeta == FF) // false-false
+            } else if (current.brMeta.meta == FF) { // false-false
               res = Solver::True;
-            else if (current.brMeta == TFI)
-              res = Solver::False; 
-            else if (current.brMeta == FTI)
+            } else if (current.brMeta.meta == TFI) {
               res = Solver::True; 
+            } else if (current.brMeta.meta == FTI) {
+              res = Solver::False; 
+            }
 
-            current.brMeta = NA;
+            current.brMeta.meta = NA;
           } else {
             if (current.tinfo.is_Atomic_op > 0) {
               if (current.tinfo.is_Atomic_op == 1)
@@ -1740,17 +1741,20 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
       if (RacePrune) { 
         if (bi->hasMetadata()) {
           if (bi->getMetadata("br-true-true"))
-            state.brMeta = TT;
+            state.brMeta.meta = TT;
           else if (bi->getMetadata("br-true-false"))
-            state.brMeta = TF;
+            state.brMeta.meta = TF;
           else if (bi->getMetadata("br-false-true"))
-            state.brMeta = FT;
+            state.brMeta.meta = FT;
           else if (bi->getMetadata("br-false-false"))
-            state.brMeta = FF;
-          else if (bi->getMetadata("br-true-false-ite"))
-            state.brMeta = TFI;
-          else if (bi->getMetadata("br-false-true-ite"))
-            state.brMeta = FTI;
+            state.brMeta.meta = FF;
+          else if (bi->getMetadata("br-true-false-ite")) {
+            state.brMeta.meta = TFI;
+            state.brMeta.inst = i; 
+          } else if (bi->getMetadata("br-false-true-ite")) {
+            state.brMeta.meta = FTI;
+            state.brMeta.inst = i; 
+          }
           //else  
             //std::cout << "other type of meta data" << std::endl;
         }
@@ -4625,10 +4629,12 @@ bool Executor::getSymbolicConfigSolution(ExecutionState &state, ref<Expr> condit
   }
   // if benign = true, race checking ... 
   if (benign) {
-    ref<Expr> eqExpr = EqExpr::create(val1, val2);
-    bool result = false;
-    solver->mustBeTrue(tmp, eqExpr, result); 
-    benign = result;
+    if (val1->getWidth() == val2->getWidth()) {
+      ref<Expr> eqExpr = EqExpr::create(val1, val2);
+      bool result = false;
+      solver->mustBeTrue(tmp, eqExpr, result); 
+      benign = result;
+    }
   }
   delete binding;
   // update the configuration vector of current parametric node ... 

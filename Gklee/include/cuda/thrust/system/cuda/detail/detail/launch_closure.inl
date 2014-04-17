@@ -43,14 +43,16 @@ namespace detail
 
 #if THRUST_DEVICE_COMPILER == THRUST_DEVICE_COMPILER_NVCC
 template<typename Closure>
-__global__ __launch_bounds__(Closure::context_type::ThreadsPerBlock::value, Closure::context_type::BlocksPerMultiprocessor::value)
+//__global__ __launch_bounds__(Closure::context_type::ThreadsPerBlock::value, Closure::context_type::BlocksPerMultiprocessor::value)
+__global__ 
 void launch_closure_by_value(Closure f)
 {
   f();
 }
 
 template<typename Closure>
-__global__ __launch_bounds__(Closure::context_type::ThreadsPerBlock::value, Closure::context_type::BlocksPerMultiprocessor::value)
+//__global__ __launch_bounds__(Closure::context_type::ThreadsPerBlock::value, Closure::context_type::BlocksPerMultiprocessor::value)
+__global__ 
 void launch_closure_by_pointer(const Closure *f)
 {
   // copy to registers

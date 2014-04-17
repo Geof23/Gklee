@@ -84,6 +84,21 @@ enum BranchMeta {
   FTI  // false-true-ite
 };
 
+class BranchInstMeta {
+public:
+  BranchMeta meta;
+  llvm::Instruction *inst;
+
+  BranchInstMeta(BranchMeta _meta, 
+                 llvm::Instruction *_inst)
+  : meta(_meta), 
+    inst(_inst) {} 
+
+  BranchInstMeta(const BranchInstMeta &brMeta) 
+  : meta(brMeta.meta), 
+    inst(brMeta.inst) {} 
+};
+
 class ExecutionState {
 public:
   typedef std::vector<StackFrame> stack_ty;
@@ -104,7 +119,7 @@ public:
   // objects.
   unsigned underConstrained;
   unsigned depth;
-  BranchMeta brMeta;
+  BranchInstMeta brMeta;
   
   // // pc - pointer to current instruction stream
   // KInstIterator pc, prevPC;
@@ -160,7 +175,8 @@ public:
   void removeFnAlias(std::string fn);
   
 private:
-  ExecutionState() : fakeState(false), underConstrained(0), ptreeNode(0) {}
+  ExecutionState() : fakeState(false), underConstrained(0), 
+                     brMeta(NA, NULL), ptreeNode(0) {}
 
 public:
   ExecutionState(KFunction *kf);
