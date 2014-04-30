@@ -32,12 +32,12 @@ if ($cudaFile eq "") {
 }
 
 # Ensure the required environment variables are set 
-if (not exists($ENV{"FLA_KLEE_HOME_DIR"})) {
-  print "FLA_KLEE_HOME_DIR is not set!\n";
+if (not exists($ENV{"KLEE_HOME_DIR"})) {
+  print "KLEE_HOME_DIR is not set!\n";
   exit 0;
 }
 
-my $gkleeHomeDir = $ENV{"FLA_KLEE_HOME_DIR"};
+my $gkleeHomeDir = $ENV{"KLEE_HOME_DIR"};
 my $symbolCmd = "-include $gkleeHomeDir/Gklee/include/klee/klee.h";
 my $headerCmd = "-include $gkleeHomeDir/Gklee/include/klee/gklee.h";
 my $cudaRuntime = "-D__CUDACC__ -I $gkleeHomeDir/Gklee/include/cuda -include cuda_runtime.h";
