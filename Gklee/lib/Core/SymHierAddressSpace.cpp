@@ -1265,7 +1265,7 @@ static bool checkSymTwoAccessRacePureCS(Executor &executor, ExecutionState &stat
     } else { // Different block ...
       typeExpr = Expr::createIsZero(sameBlockExpr);
       fence = fenceRelation(access1, access2, false);
-    } 
+    }
     bool configFulfilled = isCurrentConfigFulfilled(executor, state, configExpr, typeExpr); 
 
     if (configFulfilled && fence) {
