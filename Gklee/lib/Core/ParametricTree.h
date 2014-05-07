@@ -17,16 +17,18 @@ public:
   bool inBranch;
   ref<Expr> inheritExpr;
   bool slotUsed;
+  bool keep;
 
   CorrespondTid(unsigned _rBid, unsigned _rTid, 
                 unsigned _warpNum, bool _syncEncounter, 
                 bool _barrierEncounter, bool _inBranch, 
-                ref<Expr> _inheritExpr, bool _slotUsed = false) : 
+                ref<Expr> _inheritExpr, bool _slotUsed = false, 
+                bool _keep = false) : 
                 rBid(_rBid), rTid(_rTid), warpNum(_warpNum), 
                 syncEncounter(_syncEncounter), 
                 barrierEncounter(_barrierEncounter), 
                 inBranch(_inBranch), inheritExpr(_inheritExpr), 
-                slotUsed(_slotUsed) {}
+                slotUsed(_slotUsed), keep(_keep) {}
 };
 
 class ParaConfig {

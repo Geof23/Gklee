@@ -202,6 +202,10 @@ public:
   void evaluateConstraintAsNewFlow(ExecutionState &state, ParaTree &pTree, 
                                    ref<Expr> &cond, bool flowCreated);
 
+  void evaluateConstraintAsNewFlowUnderRacePrune(ExecutionState &state, ParaTree &pTree, 
+                                                 ref<Expr> &cond, bool flowCreated, 
+                                                 llvm::BranchInst *bi);
+
   bool identifyConditionType(ExecutionState &state, ref<Expr> &cond, 
                              bool &relatedToSym, bool &accum);
  
@@ -331,6 +335,8 @@ private:
   void printFileLine(ExecutionState &state, KInstruction *ki);
 
   void updateParaTreeSet(ExecutionState &state);
+
+  void updateParaTreeSetUnderRacePrune(ExecutionState &state);
 
   void handleEnterGPUMode(ExecutionState &state);
 

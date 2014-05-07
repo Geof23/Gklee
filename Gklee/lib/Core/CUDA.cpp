@@ -455,7 +455,8 @@ void ThreadInfo::incTid() {
   cur_bid = cur_tid / block_size;
 }
 
-static bool allSymbolicThreadsInSetEncounterBarrier(std::vector<CorrespondTid> &cTidSets, std::vector<unsigned> &set) {
+static bool allSymbolicThreadsInSetEncounterBarrier(std::vector<CorrespondTid> &cTidSets, 
+                                                    std::vector<unsigned> &set) {
   for (unsigned i = 0; i < set.size(); i++) {
     unsigned tid = set[i];
     if (!cTidSets[tid].barrierEncounter)
@@ -492,7 +493,6 @@ static void findSymbolicTidFromParaTree(std::vector<CorrespondTid> &cTidSets,
 }
 
 void ThreadInfo::dumpSymExecuteSet() {
-  std::cout << "symExecuteSet: ";
   for (unsigned i = 0; i < symExecuteSet.size(); i++) {
     std::cout << symExecuteSet[i] << " "; 
   }
