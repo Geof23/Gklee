@@ -1,23 +1,17 @@
 #include <stdio.h>
 
 #define  BLOCK 16
-#define  NUM  2048
+#define  NUM 32 
 
 __shared__ unsigned b[NUM];
-
-__device__ void devicetest(unsigned *b) {
-  unsigned sum = 0;
-  for (unsigned i = 0; i < NUM; i++) {
-    sum += b[i]; 
-  }
-  printf("sum: %u \n", sum);
-} 
 
 __global__ void paratest(unsigned * a) {
   unsigned bid = blockIdx.x;
   unsigned tid = threadIdx.x;
 
   b[tid] = a[tid];
+  __syncthreads();
+  
   for (unsigned i = 0; i < 4; i++) {
     if (bid % 2 != 0) {
       if (tid < 1024) {

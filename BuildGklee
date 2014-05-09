@@ -47,6 +47,7 @@ unless (-d "compiler-rt") {
   system("wget http://www.llvm.org/releases/3.2/compiler-rt-3.2.src.tar.gz");
   system("tar -xzvf compiler-rt-3.2.src.tar.gz");
   system("mv compiler-rt-3.2.src compiler-rt");
+  system("rm compiler-rt-3.2.src.tar.gz");
   system("rm compiler-rt-3.2.src");
 }
 

@@ -76,12 +76,19 @@ typedef std::vector<ParaTreeVec> ParaTreeSet;
 
 enum BranchMeta {
   NA, 
-  TT, // true-true
-  TF, // true-false 
-  FT, // false-true
-  FF, // false-false
-  TFI, // true-false-ite
-  FTI  // false-true-ite
+  GG, // G-G
+  SS, // S-S
+  GS, // G-S 
+  SG, // S-G
+  GE, // G-E
+  SE, // S-E
+  EG, // E-G
+  ES, // E-S
+  EE, // E-E
+  GEI, // G-E-ite
+  SEI, // S-E-ite
+  EGI, // E-G-ite
+  ESI  // E-S-ite
 };
 
 class BranchInstMeta {
