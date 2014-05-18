@@ -1,2 +1,0 @@
-#!/bin/bash 
-g++ -O0 -I . -I $FLA_KLEE_HOME_DIR/Gklee/include/klee $FLA_KLEE_HOME_DIR/Gklee/Debug/lib/libkleeRuntest.so -fprofile-arcs -ftest-coverage $*

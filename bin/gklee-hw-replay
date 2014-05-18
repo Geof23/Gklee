@@ -52,11 +52,11 @@ def main():
 
     print "args after parsing are: " + combineArgs
     #make sure environment is set correctly
-    if os.getenv("FLA_KLEE_HOME_DIR") is None:
-        print "Please set FLA_KLEE_HOME_DIR"
+    if os.getenv("KLEE_HOME_DIR") is None:
+        print "Please set KLEE_HOME_DIR"
         sys.exit(1)
     else:
-        kleeHome = os.getenv("FLA_KLEE_HOME_DIR")
+        kleeHome = os.getenv("KLEE_HOME_DIR")
 
     cmdLine = "nvcc " + combineArgs + \
         " -I ./" + \
