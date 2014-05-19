@@ -82,3 +82,10 @@ my $stppath = $cwd . "/Gklee/stp/install";
 my $kleeuclibcpath = $cwd . "/Gklee/klee-uclibc";
 system("./configure --with-llvm=$llvmsrc --with-stp=$stppath --with-uclibc=$kleeuclibcpath --enable-posix-runtime");
 system("make -j4 $cmd");
+
+# Download the Taint Analyser
+chdir("../llvm/projects");
+system("git clone https://github.com/PengPengHub/TaintAnalysis.git");
+chdir("TaintAnalysis");
+system("./configure --with-llvmsrc=$llvmsrc");
+system("make");

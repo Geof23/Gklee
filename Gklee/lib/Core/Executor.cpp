@@ -706,6 +706,9 @@ void Executor::evaluateConstraintAsNewFlowUnderRacePrune(ExecutionState &state, 
          || bi->getMetadata("br-G-G")) {
       // will contribute to the race detection across BIs
       state.cTidSets[idle_tid].keep = true;
+    } else if (bi->getMetadata("br-S-S")) {
+      if (state.cTidSets[cur_tid].keep)
+        state.cTidSets[idle_tid].keep = true;
     }
   } else {
     // Only explore the 'false' flow ... 
@@ -774,19 +777,17 @@ Executor::fork(ExecutionState &current, ref<Expr> condition, bool isInternal) {
           if (!isInternal
                && success 
                  && res == Solver::Unknown) {
-            if (current.brMeta.meta == GG
-                 || current.brMeta.meta == SS
-                   || current.brMeta.meta == GS
-                     || current.brMeta.meta == SG) { // false-true
+            if (current.brMeta.meta == GG) {
               res = Solver::Unknown;
-            } 
-            else if (current.brMeta.meta == GE
-                      || current.brMeta.meta == SE) { // false-false
+              current.cTidSets[current.tinfo.get_cur_tid()].keep = true;
+            } else if (current.brMeta.meta == SS) {
               res = Solver::True;
-            } 
-            else if (current.brMeta.meta == EG
-                      || current.brMeta.meta == ES) { // false-false
+            } else if (current.brMeta.meta == GS) {
+              res = Solver::True;
+              current.cTidSets[current.tinfo.get_cur_tid()].keep = true;
+            } else if (current.brMeta.meta == SG) { 
               res = Solver::False;
+              current.cTidSets[current.tinfo.get_cur_tid()].keep = true;
             }
 
             current.brMeta.meta = NA;
@@ -1776,29 +1777,6 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
             state.brMeta.meta = GS;
           else if (bi->getMetadata("br-S-G"))
             state.brMeta.meta = SG;
-          else if (bi->getMetadata("br-G-E"))
-            state.brMeta.meta = GE;
-          else if (bi->getMetadata("br-S-E"))
-            state.brMeta.meta = SE;
-          else if (bi->getMetadata("br-E-G"))
-            state.brMeta.meta = EG;
-          else if (bi->getMetadata("br-E-S"))
-            state.brMeta.meta = ES;
-          else if (bi->getMetadata("br-E-E"))
-            state.brMeta.meta = EE;
-          else if (bi->getMetadata("br-G-E-ite")) {
-            state.brMeta.meta = GEI;
-            state.brMeta.inst = i; 
-          } else if (bi->getMetadata("br-S-E-ite")) {
-            state.brMeta.meta = SEI;
-            state.brMeta.inst = i; 
-          } else if (bi->getMetadata("br-E-G-ite")) {
-            state.brMeta.meta = EGI;
-            state.brMeta.inst = i; 
-          } else if (bi->getMetadata("br-E-S-ite")) {
-            state.brMeta.meta = ESI;
-            state.brMeta.inst = i; 
-          }
         }
       }
       Executor::StatePair branches = fork(state, cond, false);
@@ -3423,45 +3401,21 @@ bool Executor::forkNewParametricFlowUnderRacePrune(ExecutionState &state,
             success = solver->mayBeTrue(state, cond, result);
             if (result) { // Both 'True' and 'False' flows
               BranchInst *bi = cast<BranchInst>(i);
-              if (bi->hasMetadata()) {
-                if (bi->getMetadata("br-G-E")
-                     || bi->getMetadata("br-S-E")) {
-                  GKLEE_INFO << "'True' path flow feasible in RacePrune mode !" << std::endl;
-                  state.tinfo.sym_tdc_eval = 1;
-                  ParaConfig config(state.tinfo.get_cur_bid(), 
-                                    state.tinfo.get_cur_tid(), 
-                                    cond, 0, 0);
-                  pTree.updateCurrentNodeOnNewConfig(config, TDC);
-                  if (bi->getMetadata("br-G-E")) { 
-                    // will contribute to the race detection across BIs
-                    state.cTidSets[state.tinfo.get_cur_tid()].keep = true;
-                  }
-                } else if (bi->getMetadata("br-E-G")
-                           || bi->getMetadata("br-E-S")) {
-                  GKLEE_INFO << "'False' path flow feasible in RacePrune mode !" << std::endl;
-                  ref<Expr> negateExpr = Expr::createIsZero(cond);
-                  evaluateConstraintAsNewFlow(state, pTree, negateExpr, false);
-                  if (bi->getMetadata("br-E-G")) { 
-                    // will contribute to the race detection across BIs
-                    state.cTidSets[state.tinfo.get_cur_tid()].keep = true;
-                  }
-                } else {
-                  GKLEE_INFO << "'True' path flow feasible in RacePrune mode!" << std::endl;
-                  state.tinfo.sym_tdc_eval = 1;
-                  ParaConfig config(state.tinfo.get_cur_bid(), 
-                                    state.tinfo.get_cur_tid(), 
-                                    cond, 0, 0);
-                  pTree.updateCurrentNodeOnNewConfig(config, TDC);
-                  if (bi->getMetadata("br-G-S")
-                       || bi->getMetadata("br-G-G")) {
-                    // will contribute to the race detection across BIs
-                    state.cTidSets[state.tinfo.get_cur_tid()].keep = true;
-                  }
-                  GKLEE_INFO << "'Else' path flow feasible in RacePrune mode!" << std::endl;
-                  ref<Expr> negateExpr = Expr::createIsZero(cond);
-                  evaluateConstraintAsNewFlowUnderRacePrune(state, pTree, negateExpr, true, bi);
-                } 
+              GKLEE_INFO << "'True' path flow feasible in RacePrune mode!" 
+                         << std::endl;
+              state.tinfo.sym_tdc_eval = 1;
+              ParaConfig config(state.tinfo.get_cur_bid(), 
+                                state.tinfo.get_cur_tid(), 
+                                cond, 0, 0);
+              pTree.updateCurrentNodeOnNewConfig(config, TDC);
+              if (bi->getMetadata("br-G-S")
+                   || bi->getMetadata("br-G-G")) {
+                // will contribute to the race detection across BIs
+                state.cTidSets[state.tinfo.get_cur_tid()].keep = true;
               }
+              GKLEE_INFO << "'Else' path flow feasible in RacePrune mode!" << std::endl;
+              ref<Expr> negateExpr = Expr::createIsZero(cond);
+              evaluateConstraintAsNewFlowUnderRacePrune(state, pTree, negateExpr, true, bi);
             } else { // Only 'False' flow
               GKLEE_INFO << "'True' path flow infeasible in RacePrune mode!" << std::endl;
               GKLEE_INFO << "'Else' path flow feasible in RacePrune mode!" << std::endl;
@@ -3533,17 +3487,33 @@ void Executor::updateParaTreeSet(ExecutionState &state) {
 
 void Executor::updateParaTreeSetUnderRacePrune(ExecutionState &state) {
   ParaTreeVec paraTreeVec;
+  bool firstNonKeep = false;
+  unsigned nonKeep = 0;
+  ref<Expr> orExpr = ConstantExpr::create(1, Expr::Bool);
   for (unsigned i = 0; i < state.cTidSets.size(); i++) {
-    if (i == 1) continue;
-    if (state.cTidSets[i].slotUsed) {
-      if (state.cTidSets[i].keep) {
-        paraTreeVec.push_back(ParaTree());
-        state.tinfo.symParaTreeVec.push_back(i);
-      } else {
-        if (i != 0) state.cTidSets[i].slotUsed = false;
-      } 
-    } else break;
+    if (i != 1) {
+      if (state.cTidSets[i].slotUsed) {
+        if (state.cTidSets[i].keep) {
+          paraTreeVec.push_back(ParaTree());
+          state.tinfo.symParaTreeVec.push_back(i);
+        } else {
+          orExpr = OrExpr::create(orExpr, state.cTidSets[i].inheritExpr);
+          if (!firstNonKeep) {
+            firstNonKeep = true;
+            nonKeep = i;
+            state.cTidSets[i].slotUsed = true;
+            paraTreeVec.push_back(ParaTree());
+            state.tinfo.symParaTreeVec.push_back(i);
+          } else {
+            state.cTidSets[i].slotUsed = false;
+          }
+        } 
+      } else break;
+    }
   }
+
+  if (firstNonKeep) 
+    state.cTidSets[nonKeep].inheritExpr = orExpr; 
 
   if (paraTreeVec.size() == 0) {
     paraTreeVec.push_back(ParaTree());

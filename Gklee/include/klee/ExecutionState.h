@@ -79,16 +79,7 @@ enum BranchMeta {
   GG, // G-G
   SS, // S-S
   GS, // G-S 
-  SG, // S-G
-  GE, // G-E
-  SE, // S-E
-  EG, // E-G
-  ES, // E-S
-  EE, // E-E
-  GEI, // G-E-ite
-  SEI, // S-E-ite
-  EGI, // E-G-ite
-  ESI  // E-S-ite
+  SG  // S-G
 };
 
 class BranchInstMeta {
