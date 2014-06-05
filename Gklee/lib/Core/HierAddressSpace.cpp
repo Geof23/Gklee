@@ -732,23 +732,13 @@ static bool checkRWRacePureCS(Executor &executor, ExecutionState &state,
                 && fenceRelation(*ii, *jj, withinBlock)) {
  	  if (Emacs) AddressSpace::dumpEmacsInfoVect(ii->bid, jj->bid, tid1, tid2, 
                                                      ii->instr, jj->instr, "rw");
-          bool benign = false;
-          if (!checkValuesSame(executor, state, ii->val, jj->val)) {
-            GKLEE_INFO2 << "Under the pure canonical schedule, "
-                        << "thread " << tid1 << " and " << tid2
-	                << " incur a Write-Read race (Actual) on " 
-                        << std::endl;
-          } else {
-            GKLEE_INFO2 << "Under the pure canonical schedule, "
-                        << "thread " << tid1 << " and " << tid2
-	                << " incur a Write-Read race with the same value (Benign) on " 
-                        << std::endl;
-            benign = true;
-          }
+          GKLEE_INFO2 << "Under the pure canonical schedule, "
+                      << "thread " << tid1 << " and " << tid2
+	              << " incur a Write-Read race (Actual) on " 
+                      << std::endl;
           ii->dump(executor, state, raceCond);
 	  jj->dump(executor, state, raceCond);
-          if (benign) return false;
-	  else return true;
+	  return true;
         }
       }
     }
