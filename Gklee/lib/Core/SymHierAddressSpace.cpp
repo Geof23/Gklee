@@ -1004,14 +1004,11 @@ static bool dumpSymRace(Executor &executor, ExecutionState &state,
     bool existRead = !(access1.is_write && access2.is_write);
 
     std::string tmp;
-    if (benign) { 
-      if (existRead)
-        tmp = "incur the (Benign) read-write race";
-      else 
+    if (existRead)
+      tmp = "incur the (Actual) read-write race";
+    else { 
+      if (benign)
         tmp = "incur the (Benign) write-write race";
-    } else { 
-      if (existRead)
-        tmp = "incur the (Actual) read-write race";
       else
         tmp = "incur the (Actual) write-write race";
     }
