@@ -111,57 +111,13 @@ ref<Expr> ConstraintManager::simplifyExpr(ref<Expr> e) const {
   return ExprReplaceVisitor2(equalities).visit(e);
 }
 
-ref<Expr> ConstraintManager::updateExprThroughReplacement(ref<Expr> e, std::map< ref<Expr>, ref<Expr> > equalities) const {
+ref<Expr> ConstraintManager::updateExprThroughReplacement(ref<Expr> e, 
+                                                          std::map< ref<Expr>, ref<Expr> > equalities) const {
   if (isa<ConstantExpr>(e))
     return e;
 
   return ExprReplaceVisitor2(equalities).visit(e);
 }
-
-// void ConstraintManager::addConstraintInternal(ref<Expr> e) {
-//   // rewrite any known equalities 
-
-//   // XXX should profile the effects of this and the overhead.
-//   // traversing the constraints looking for equalities is hardly the
-//   // slowest thing we do, but it is probably nicer to have a
-//   // ConstraintSet ADT which efficiently remembers obvious patterns
-//   // (byte-constant comparison).
-
-//   switch (e->getKind()) {
-//   case Expr::Constant:
-//     assert(cast<ConstantExpr>(e)->isTrue() && 
-//            "attempt to add invalid (false) constraint");
-//     break;
-    
-//     // split to enable finer grained independence and other optimizations
-//   case Expr::And: {
-//     BinaryExpr *be = cast<BinaryExpr>(e);
-//     addConstraintInternal(be->left);
-//     addConstraintInternal(be->right);
-//     break;
-//   }
-
-//   case Expr::Eq: {
-//     BinaryExpr *be = cast<BinaryExpr>(e);
-//     if (isa<ConstantExpr>(be->left)) {
-//       ExprReplaceVisitor visitor(be->right, be->left);
-//       rewriteConstraints(visitor);
-//     }
-//     constraints.push_back(e);
-//     break;
-//   }
-    
-//   default:
-//     constraints.push_back(e);
-//     break;
-//   }
-// }
-
-// void ConstraintManager::addConstraint(ref<Expr> e) {
-//   e = simplifyExpr(e);
-//   addConstraintInternal(e);
-// }
-
 
 // By Guodong
 // Make KLEE not to throw an asseration error in case of 
@@ -207,7 +163,6 @@ void ConstraintManager::addConstraintInternal(ref<Expr> e) {
   }
 
 }
-
 
 void ConstraintManager::addConstraint(ref<Expr> e) {
   e = simplifyExpr(e);

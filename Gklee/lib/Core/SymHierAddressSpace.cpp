@@ -76,7 +76,8 @@ void AddressSpaceUtil::updateBuiltInRelatedConstraint(ExecutionState &state, Con
   equalities.insert(std::make_pair(tidz0, tidz1));
 
   if (expr.get() != NULL) {
-    expr = constr.updateExprThroughReplacement(expr, equalities); 
+    ref<Expr> tmp = constr.updateExprThroughReplacement(expr, equalities); 
+    expr = constr.simplifyExpr(tmp);  
   }
 }
 
