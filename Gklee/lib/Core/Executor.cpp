@@ -3408,9 +3408,9 @@ bool Executor::forkNewParametricFlowUnderRacePrune(ExecutionState &state,
                                 state.tinfo.get_cur_tid(), 
                                 cond, 0, 0);
               pTree.updateCurrentNodeOnNewConfig(config, TDC);
-              if (bi->getMetadata("br-G-S")
-                   || bi->getMetadata("br-G-G")) {
+              if (bi->getMetadata("br-G-G")) {
                 // will contribute to the race detection across BIs
+                //std::cout << "state.tinfo.get_cur_tid() : " << state.tinfo.get_cur_tid() << std::endl;
                 state.cTidSets[state.tinfo.get_cur_tid()].keep = true;
               }
               GKLEE_INFO << "'Else' path flow feasible in RacePrune mode!" << std::endl;
@@ -3434,7 +3434,6 @@ bool Executor::forkNewParametricFlowUnderRacePrune(ExecutionState &state,
       }
       builtInFork = true;
     } else if (accum) {
-      GKLEE_INFO << "Accumulative condition encountered!" << std::endl;
       cond->dump();
       bool isCondBr = determineBranchType(i);
       llvm::BasicBlock *postDom = state.findNearestCommonPostDominator(postDominator, i, isCondBr); 
