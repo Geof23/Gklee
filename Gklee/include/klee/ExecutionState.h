@@ -140,6 +140,8 @@ public:
   HierAddressSpace addressSpace;
 
   // Records the sequence number of explored kernel.. 
+  unsigned forkStateBINum;    // record in which barrier the state is forked, 
+                              // used for collecting time
   unsigned kernelNum; 
   unsigned BINum;
 

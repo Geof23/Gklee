@@ -1000,6 +1000,7 @@ Executor::fork(ExecutionState &current, ref<Expr> condition, bool isInternal) {
     ++stats::forks;
 
     falseState = trueState->branch();
+    falseState->forkStateBINum = falseState->BINum;  
 
     addedStates.insert(falseState);
 
@@ -3929,7 +3930,7 @@ void Executor::concludeExploredTime(ExecutionState &state) {
     std::cout << "path num explored here (symbolic config): " 
               << pathNum << std::endl; 
 
-    unsigned i = 0;
+    unsigned i = (state.forkStateBINum > 0) ? state.forkStateBINum-1 : 0;
     for (; i < state.symTimeVec.size(); i++) {
       std::cout << "<BI: " << i+1 << ", Time: " << state.symTimeVec[i] << ">"
                 << std::endl;
