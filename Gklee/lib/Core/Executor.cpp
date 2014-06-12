@@ -705,6 +705,11 @@ void Executor::evaluateConstraintAsNewFlowUnderRacePrune(ExecutionState &state, 
     if (bi->getMetadata("br-S-G")
          || bi->getMetadata("br-G-G")) {
       // will contribute to the race detection across BIs
+      if (bi->getMetadata("br-G-G"))
+        std::cout << "br-G-G" << std::endl;
+      else 
+        std::cout << "br-S-G" << std::endl;
+
       state.cTidSets[idle_tid].keep = true;
     } else if (bi->getMetadata("br-S-S")) {
       if (state.cTidSets[cur_tid].keep)
@@ -3342,7 +3347,7 @@ bool Executor::forkNewParametricFlowUnderRacePrune(ExecutionState &state,
                                                    KInstruction *ki) {
   Instruction *i = ki->inst;
   ref<Expr> cond = eval(ki, 0, state).value;
-  //std::cout << "cond in forkNewSymbolicFlow: " << std::endl;
+  //std::cout << "cond in forkNewSymbolicFlow in [RacePrune]: " << std::endl;
   //cond->dump();
 
   bool relatedToSym = false;
@@ -3390,35 +3395,40 @@ bool Executor::forkNewParametricFlowUnderRacePrune(ExecutionState &state,
 
         if (success) {
           if (result) { // Only 'True' flow 
-            GKLEE_INFO << "'True' path flow feasible !" << std::endl;
+            GKLEE_INFO << "'True' path flow feasible in [RacePrune] mode!" 
+                       << std::endl;
             state.tinfo.sym_tdc_eval = 1;
             ParaConfig config(state.tinfo.get_cur_bid(), 
                               state.tinfo.get_cur_tid(), 
                               trueExpr, 0, 0);
             pTree.updateCurrentNodeOnNewConfig(config, TDC);
-            GKLEE_INFO << "'Else' path flow infeasible !" << std::endl;
+            GKLEE_INFO << "'Else' path flow infeasible in [RacePrune] mode!" 
+                       << std::endl;
           } else {
             success = solver->mayBeTrue(state, cond, result);
             if (result) { // Both 'True' and 'False' flows
               BranchInst *bi = cast<BranchInst>(i);
-              GKLEE_INFO << "'True' path flow feasible in RacePrune mode!" 
+              GKLEE_INFO << "'True' path flow feasible in [RacePrune] mode!" 
                          << std::endl;
               state.tinfo.sym_tdc_eval = 1;
               ParaConfig config(state.tinfo.get_cur_bid(), 
                                 state.tinfo.get_cur_tid(), 
                                 cond, 0, 0);
               pTree.updateCurrentNodeOnNewConfig(config, TDC);
-              if (bi->getMetadata("br-G-G")) {
+              if (bi->getMetadata("br-G-G")
+                   || bi->getMetadata("br-G-S")) {
                 // will contribute to the race detection across BIs
-                //std::cout << "state.tinfo.get_cur_tid() : " << state.tinfo.get_cur_tid() << std::endl;
                 state.cTidSets[state.tinfo.get_cur_tid()].keep = true;
               }
-              GKLEE_INFO << "'Else' path flow feasible in RacePrune mode!" << std::endl;
+              GKLEE_INFO << "'Else' path flow feasible in [RacePrune] mode!" 
+                         << std::endl;
               ref<Expr> negateExpr = Expr::createIsZero(cond);
               evaluateConstraintAsNewFlowUnderRacePrune(state, pTree, negateExpr, true, bi);
             } else { // Only 'False' flow
-              GKLEE_INFO << "'True' path flow infeasible in RacePrune mode!" << std::endl;
-              GKLEE_INFO << "'Else' path flow feasible in RacePrune mode!" << std::endl;
+              GKLEE_INFO << "'True' path flow infeasible in RacePrune mode!" 
+                         << std::endl;
+              GKLEE_INFO << "'Else' path flow feasible in RacePrune mode!" 
+                         << std::endl;
               evaluateConstraintAsNewFlow(state, pTree, trueExpr, false);
             }
           }
@@ -3492,27 +3502,32 @@ void Executor::updateParaTreeSetUnderRacePrune(ExecutionState &state) {
   for (unsigned i = 0; i < state.cTidSets.size(); i++) {
     if (i != 1) {
       if (state.cTidSets[i].slotUsed) {
+        //std::cout << "slotUsed flow : " << i << std::endl;
         if (state.cTidSets[i].keep) {
+          //std::cout << "keep flow : " << i << std::endl;
           paraTreeVec.push_back(ParaTree());
           state.tinfo.symParaTreeVec.push_back(i);
         } else {
-          orExpr = OrExpr::create(orExpr, state.cTidSets[i].inheritExpr);
           if (!firstNonKeep) {
             firstNonKeep = true;
             nonKeep = i;
             state.cTidSets[i].slotUsed = true;
             paraTreeVec.push_back(ParaTree());
             state.tinfo.symParaTreeVec.push_back(i);
+            orExpr = state.cTidSets[i].inheritExpr;
           } else {
             state.cTidSets[i].slotUsed = false;
+            orExpr = OrExpr::create(orExpr, state.cTidSets[i].inheritExpr);
           }
         } 
       } else break;
     }
   }
 
-  if (firstNonKeep) 
+  if (firstNonKeep) { 
+    orExpr = state.constraints.simplifyExpr(orExpr); 
     state.cTidSets[nonKeep].inheritExpr = orExpr; 
+  }
 
   if (paraTreeVec.size() == 0) {
     paraTreeVec.push_back(ParaTree());
