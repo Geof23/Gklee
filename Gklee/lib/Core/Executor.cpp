@@ -649,6 +649,13 @@ bool Executor::identifyConditionType(ExecutionState &state, ref<Expr> &cond,
     }
   }
 
+  // Roughtly check if the express contains the "const_arr"
+  if (!relatedToSym) {
+    std::stringstream ss;
+    cond->print(ss);
+    if (ss.str().find("const_arr") != std::string::npos)
+      relatedToSym = true;
+  }
   return relatedBuiltin; 
 }
  
@@ -1067,17 +1074,12 @@ Executor::fork(ExecutionState &current, ref<Expr> condition, bool isInternal) {
         if (!isInternal) {
           ParaTree &paraTree = falseState->getCurrentParaTree();
           paraTree.negateNonTDCNodeCond();
-        }
+        } 
       }
     } else {
       addConstraint(*trueState, condition);
       addConstraint(*falseState, Expr::createIsZero(condition));
     }
-    // *** by Guodong
-    //if (PrintCondition) {
-    //std::cerr << "Current Branch Condition:\n";
-    //condition->dump();
-    //}
 
     // Kinda gross, do we even really still want this option?
     if (MaxDepth && MaxDepth<=trueState->depth) {
@@ -1596,8 +1598,8 @@ void ExecutorUtil::copyBackConstraint(ExecutionState &state) {
 }
 
 void ExecutorUtil::copyOutConstraintUnderSymbolic(ExecutionState &state, bool ignoreCur) {
-  if (UseSymbolicConfig)
-    if (state.tinfo.is_GPU_mode) 
+  if (UseSymbolicConfig
+       && state.tinfo.is_GPU_mode)
       copyOutConstraint(state, ignoreCur);
 }
 
@@ -3904,7 +3906,7 @@ void Executor::terminateState(ExecutionState &state) {
 
   traceInfo.empty();
   interpreterHandler->incPathsExplored();
-
+  
   std::set<ExecutionState*>::iterator it = addedStates.find(&state);
   if (it==addedStates.end()) {
     state.setPC(state.getPrevPC());

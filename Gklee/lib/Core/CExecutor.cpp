@@ -861,7 +861,8 @@ void Executor::executeMemoryOperation(ExecutionState &state,
   }
   //std::cout << "execute memory operation ctype: " 
   //          << CUDAUtil::getCTypeStr(ctype) << std::endl;
-  //std::cout << "Address CTYPE: " << CUDAUtil::getCTypeStr(address->ctype) << std::endl;
+  //std::cout << "Address CTYPE: " 
+  //          << CUDAUtil::getCTypeStr(address->ctype) << std::endl;
   unsigned b_t_index = ctype == GPUConfig::LOCAL ? state.tinfo.get_cur_tid() : state.tinfo.get_cur_bid();
 
   if (!addrSpace.resolveOne(state, solver, address, op, success, ctype, b_t_index)) {
@@ -985,7 +986,6 @@ void Executor::executeMemoryOperation(ExecutionState &state,
 
   // we are on an error path (no resolution, multiple resolution, one
   // resolution with out of bounds)
-  
   ResolutionList rl;  
   solver->setTimeout(stpTimeout);
 
