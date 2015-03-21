@@ -14,8 +14,8 @@
 
 #include "klee/Expr.h"
 #include "klee/TimerStatIncrementer.h"
-#include "llvm/Instructions.h"
-#include "llvm/BasicBlock.h"
+#include "llvm/IR/Instructions.h"
+#include "llvm/IR/BasicBlock.h"
 #include "klee/ExecutionState.h"
 
 #include <iostream>

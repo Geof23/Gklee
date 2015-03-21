@@ -19,7 +19,7 @@
 #if LLVM_VERSION_CODE <= LLVM_VERSION(3, 1)
 #include "llvm/Analysis/DebugInfo.h"
 #else
-#include "llvm/DebugInfo.h"
+#include "llvm/IR/DebugInfo.h"
 #endif
 #include <math.h>
 

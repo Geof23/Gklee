@@ -19,20 +19,20 @@
 #undef PACKAGE_TARNAME
 #undef PACKAGE_VERSION
 
-#include "llvm/Module.h"
-#include "llvm/Constants.h"
-#include "llvm/DerivedTypes.h"
-#include "llvm/Instructions.h"
+#include "llvm/IR/Module.h"
+#include "llvm/IR/Constants.h"
+#include "llvm/IR/DerivedTypes.h"
+#include "llvm/IR/Instructions.h"
 #include "llvm/Support/CommandLine.h"
 #if LLVM_VERSION_CODE < LLVM_VERSION(2, 7)
 #include "llvm/ModuleProvider.h"
 #endif
 #if LLVM_VERSION_CODE >= LLVM_VERSION(2, 7)
-#include "llvm/LLVMContext.h"
+#include "llvm/IR/LLVMContext.h"
 #endif
-#include "llvm/ExecutionEngine/JIT.h"
+//#include "llvm/ExecutionEngine/JIT.h"
 #include "llvm/ExecutionEngine/GenericValue.h"
-#include "llvm/Support/CallSite.h"
+#include "llvm/IR/CallSite.h"
 #if LLVM_VERSION_CODE < LLVM_VERSION(2, 9)
 #include "llvm/System/DynamicLibrary.h"
 #else
@@ -99,6 +99,10 @@ ExternalDispatcher::ExternalDispatcher() {
 #endif
 
   std::string error;
+	// Geof: what are we goign to do now?  The old JIT is no longer supported.
+	// we have to use MCJIT (read http://blog.llvm.org/2013/07/kaleidoscope-performance-with-mcjit.html)
+	// which does not do lazy compilation (see 'compileAndRelink...' call below)
+	// we may have to build our externals (I think GKLEE only needs the ucLibc stuff) . . .
 #if LLVM_VERSION_CODE < LLVM_VERSION(2, 7)
   executionEngine = ExecutionEngine::createJIT(MP, &error);
 #else

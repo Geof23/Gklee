@@ -1,8 +1,8 @@
 #include "CUDA.h"
 #include "AddressSpace.h"
 
-#include "llvm/Constants.h"
-#include "llvm/Instruction.h"
+#include "llvm/IR/Constants.h"
+#include "llvm/IR/Instruction.h"
 #include "Memory.h"
 
 #include <iostream>

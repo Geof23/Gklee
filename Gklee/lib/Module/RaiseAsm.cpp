@@ -8,11 +8,12 @@
 //===----------------------------------------------------------------------===//
 
 #include "Passes.h"
+#include "llvm/CodeGen/SelectionDAGISel.h"
 #include "klee/Config/Version.h"
 
-#include "llvm/InlineAsm.h"
+#include "llvm/IR/InlineAsm.h"
 #if LLVM_VERSION_CODE >= LLVM_VERSION(2, 7)
-#include "llvm/LLVMContext.h"
+#include "llvm/IR/LLVMContext.h"
 #endif
 #if LLVM_VERSION_CODE >= LLVM_VERSION(2, 9)
 #include "llvm/Support/raw_ostream.h"
@@ -109,6 +110,8 @@ bool RaiseAsmPass::runOnModule(Module &M) {
     TargetMachine *TM = NativeTarget->createTargetMachine(HostTriple, "");
 #endif
     TLI = TM->getTargetLowering();
+    // SelectionDAGISel sd(*TM);  //hopefully this is safe!  
+    // TLI = sd.getTargetLowering();
   }
 #endif
 

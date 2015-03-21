@@ -1,4 +1,6 @@
 #include <iostream>
+#include <memory>
+#include <system_error>
 
 #include "expr/Lexer.h"
 #include "expr/Parser.h"
@@ -13,7 +15,7 @@
 #include "klee/util/ExprPPrinter.h"
 #include "klee/util/ExprVisitor.h"
 
-#include "llvm/ADT/OwningPtr.h"
+//#include "llvm/ADT/OwningPtr.h"
 #include "llvm/ADT/StringExtras.h"
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/ManagedStatic.h"
@@ -31,7 +33,7 @@
 #include "llvm/System/Signals.h"
 #else
 #include "llvm/Support/Signals.h"
-#include "llvm/Support/system_error.h"
+//#include "llvm/Support/system_error.h"
 #endif
 
 using namespace llvm;
@@ -288,7 +290,8 @@ int main(int argc, char **argv) {
     return 1;
   }
 #else
-  OwningPtr<MemoryBuffer> MB;
+	std::unique_ptr< MemoryBuffer > MB;
+	//OwningPtr<MemoryBuffer> MB;
   error_code ec=MemoryBuffer::getFileOrSTDIN(InputFile.c_str(), MB);
   if (ec) {
     std::cerr << argv[0] << ": error: " << ec.message() << "\n";

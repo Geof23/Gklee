@@ -2,8 +2,8 @@
 #define KLEE_PARAMETRICTREE_H
 
 #include "klee/Expr.h"
-#include "llvm/Instruction.h"
-#include "llvm/BasicBlock.h"
+#include "llvm/IR/Instruction.h"
+#include "llvm/IR/BasicBlock.h"
 
 using namespace klee;
 

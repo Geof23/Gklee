@@ -2,7 +2,7 @@
 #define KLEE_BCCOVERAGE_H
 
 #include "klee/Expr.h"
-#include "llvm/Instructions.h"
+#include "llvm/IR/Instructions.h"
 
 // ****************************************************************************************
 // byte code coverage designed for CUDA kernels

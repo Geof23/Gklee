@@ -22,14 +22,14 @@
 #include "klee/Internal/Support/ModuleUtil.h"
 
 #include "llvm/Bitcode/ReaderWriter.h"
-#include "llvm/Instructions.h"
+#include "llvm/IR/Instructions.h"
 #if LLVM_VERSION_CODE >= LLVM_VERSION(2, 7)
-#include "llvm/LLVMContext.h"
+#include "llvm/IR/LLVMContext.h"
 #endif
-#include "llvm/Module.h"
-#include "llvm/PassManager.h"
-#include "llvm/ValueSymbolTable.h"
-#include "llvm/Support/CallSite.h"
+#include "llvm/IR/Module.h"
+#include "llvm/PassManager.h" //Should this be llvm/*.h?
+#include "llvm/IR/ValueSymbolTable.h"
+#include "llvm/IR/CallSite.h"
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/raw_ostream.h"
 #if LLVM_VERSION_CODE >= LLVM_VERSION(2, 7)
@@ -41,7 +41,7 @@
 #include "llvm/Support/Path.h"
 #endif
 #if LLVM_VERSION_CODE >= LLVM_VERSION(3, 1)
-#include "llvm/DataLayout.h"
+#include "llvm/IR/DataLayout.h"
 #else
 #include "llvm/Target/TargetData.h"
 #endif
@@ -49,6 +49,7 @@
 
 #include <sstream>
 #include <iostream>
+#include <linux/limits.h>
 
 using namespace llvm;
 using namespace klee;
@@ -309,12 +310,17 @@ void KModule::prepare(const Interpreter::ModuleOptions &opts,
   // FIXME: Find a way that we can test programs without requiring
   // this to be linked in, it makes low level debugging much more
   // annoying.
-  llvm::sys::Path path(opts.LibraryDir);
-  path.appendComponent("libkleeRuntimeIntrinsic.bca");
-  module = linkWithLibrary(module, path.c_str());
-  path.eraseComponent();
-  path.appendComponent("libcudaRuntimeIntrinsic.bca");
-  module = linkWithLibrary(module, path.c_str());
+	SmallString< PATH_MAX >base( StringRef( opts.LibraryDir ));
+	//	SmallVectorImpl<char> base( opts.LibraryDir );
+	llvm::sys::path::append( base, "libkleeRuntimeIntrinsic.bca" );
+  // llvm::sys::Path path(opts.LibraryDir);
+  // path.appendComponent("libkleeRuntimeIntrinsic.bca"w);
+  module = linkWithLibrary(module, base.str());
+  // path.eraseComponent();
+  // path.appendComponent("libcudaRuntimeIntrinsic.bca");
+	llvm::sys::path::remove_filename( base );
+	llvm::sys::path::append( base, "libcudaRuntimeIntrinsic.bca" );
+  module = linkWithLibrary(module, base.str());
   // Needs to happen after linking (since ctors/dtors can be modified)
   // and optimization (since global optimization can rewrite lists).
   injectStaticConstructorsAndDestructors(module);

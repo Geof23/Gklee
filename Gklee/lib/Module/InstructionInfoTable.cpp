@@ -9,24 +9,24 @@
 #include "klee/Internal/Module/InstructionInfoTable.h"
 #include "klee/Config/Version.h"
 
-#include "llvm/Function.h"
-#include "llvm/Instructions.h"
-#include "llvm/IntrinsicInst.h"
-#include "llvm/Linker.h"
-#include "llvm/Module.h"
+#include "llvm/IR/Function.h"
+#include "llvm/IR/Instructions.h"
+#include "llvm/IR/IntrinsicInst.h"
+#include "llvm/Linker/Linker.h"
+#include "llvm/IR/Module.h"
 #if LLVM_VERSION_CODE < LLVM_VERSION(2, 8)
 #include "llvm/Assembly/AsmAnnotationWriter.h"
 #else
-#include "llvm/Assembly/AssemblyAnnotationWriter.h"
+#include "llvm/IR/AssemblyAnnotationWriter.h"
 #include "llvm/Support/FormattedStream.h"
 #endif
-#include "llvm/Support/CFG.h"
-#include "llvm/Support/InstIterator.h"
+#include "llvm/IR/CFG.h"
+#include "llvm/IR/InstIterator.h"
 #include "llvm/Support/raw_ostream.h"
 #if LLVM_VERSION_CODE <= LLVM_VERSION(3, 1)
 #include "llvm/Analysis/DebugInfo.h"
 #else
-#include "llvm/DebugInfo.h"
+#include "llvm/IR/DebugInfo.h"
 #endif
 #include "llvm/Analysis/ValueTracking.h"
 

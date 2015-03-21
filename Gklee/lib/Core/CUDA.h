@@ -4,7 +4,7 @@
 #include "ParametricTree.h"
 #include "klee/Expr.h"
 #include "klee/Internal/Module/KInstIterator.h"
-#include "llvm/GlobalValue.h"
+#include "llvm/IR/GlobalValue.h"
 /* #include "llvm/Constants.h" */
 /* #include "llvm/Instruction.h" */
 #include "llvm/Support/CommandLine.h"

@@ -25,13 +25,13 @@
 
 #include "MemoryManager.h"
 
-#include "llvm/Module.h"
+#include "llvm/IR/Module.h"
 #include "llvm/ADT/Twine.h"
 #include "llvm/Support/CommandLine.h"
 #if LLVM_VERSION_CODE <= LLVM_VERSION(3, 1)
 #include "llvm/Analysis/DebugInfo.h"
 #else
-#include "llvm/DebugInfo.h"
+#include "llvm/IR/DebugInfo.h"
 #endif
 
 #include <errno.h>

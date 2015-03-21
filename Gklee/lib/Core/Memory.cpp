@@ -19,9 +19,9 @@
 #include "ObjectHolder.h"
 #include "MemoryManager.h"
 
-#include <llvm/Function.h>
-#include <llvm/Instruction.h>
-#include <llvm/Value.h>
+#include <llvm/IR/Function.h>
+#include <llvm/IR/Instruction.h>
+#include <llvm/IR/Value.h>
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/raw_ostream.h"
 

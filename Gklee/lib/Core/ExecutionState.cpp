@@ -22,7 +22,7 @@
 #else
 #include "llvm/Function.h"
 #endif
-#include "llvm/Instructions.h"
+#include "llvm/IR/Instructions.h"
 #include "llvm/Support/CommandLine.h"
 
 #include <iostream>

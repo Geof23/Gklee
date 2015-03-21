@@ -19,7 +19,7 @@
 #if LLVM_VERSION_CODE <= LLVM_VERSION(3, 1)
 #include "llvm/Analysis/DebugInfo.h"
 #else
-#include "llvm/DebugInfo.h"
+#include "llvm/IR/DebugInfo.h"
 #endif
 #include <math.h>
 
@@ -62,7 +62,9 @@ void Executor::executeAtomicAdd(ExecutionState &state,
       return terminateStateOnExecError(state, "Unsupported fAtomicAdd operation");
 
     llvm::APFloat Res(va->getAPValue());
-    Res.add(APFloat(vb->getAPValue()), APFloat::rmNearestTiesToEven);
+    llvm::APFloat Fb(vb->getAPValue());
+    // Res.add(APFloat(vb->getAPValue()), APFloat::rmNearestTiesToEven);
+    Res.add(Fb, APFloat::rmNearestTiesToEven);
     ref<Expr> tmp = ConstantExpr::alloc(Res);
 
     // Store back to original place 

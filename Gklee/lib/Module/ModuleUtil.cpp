@@ -10,19 +10,20 @@
 #include "klee/Internal/Support/ModuleUtil.h"
 #include "klee/Config/Version.h"
 
-#include "llvm/Function.h"
-#include "llvm/Instructions.h"
-#include "llvm/IntrinsicInst.h"
-#include "llvm/Linker.h"
-#include "llvm/Module.h"
+#include "llvm/IR/Function.h"
+#include "llvm/IR/Instructions.h"
+#include "llvm/IR/IntrinsicInst.h"
+#include "llvm/IR/LLVMContext.h"
+#include "llvm/Linker/Linker.h"
+#include "llvm/IR/Module.h"
 #if LLVM_VERSION_CODE < LLVM_VERSION(2, 8)
 #include "llvm/Assembly/AsmAnnotationWriter.h"
 #else
-#include "llvm/Assembly/AssemblyAnnotationWriter.h"
+#include "llvm/IR/AssemblyAnnotationWriter.h"
 #endif
-#include "llvm/Support/CFG.h"
-#include "llvm/Support/CallSite.h"
-#include "llvm/Support/InstIterator.h"
+#include "llvm/IR/CFG.h"
+#include "llvm/IR/CallSite.h"
+#include "llvm/IR/InstIterator.h"
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/Analysis/ValueTracking.h"
 #if LLVM_VERSION_CODE < LLVM_VERSION(2, 9)
@@ -30,28 +31,54 @@
 #else
 #include "llvm/Support/Path.h"
 #endif
+//#include "llvm/ADT/OwningPtr.h"
+#include "llvm/Support/MemoryBuffer.h"
+#include "llvm/Bitcode/ReaderWriter.h"
+#include "llvm/Support/ErrorOr.h"
 
 #include <map>
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <system_error>
+#include <memory>
 
 using namespace llvm;
 using namespace klee;
 
 Module *klee::linkWithLibrary(Module *module, 
                               const std::string &libraryName) {
-  Linker linker("klee", module, false);
-
-  llvm::sys::Path libraryPath(libraryName);
-  bool native = false;
-    
-  if (linker.LinkInFile(libraryPath, native)) {
+  // Linker linker("klee", module, false);
+  Linker linker(module);
+	//	std::unique_ptr<MemoryBuffer> BufferPtr;
+  // OwningPtr<MemoryBuffer> BufferPtr;
+	auto BufferPtr = MemoryBuffer::getFileOrSTDIN( libraryName );
+	//	std::error_code ec=MemoryBuffer::getFileOrSTDIN( libraryName, BufferPtr );
+  if (std::error_code ec = BufferPtr.getError()) {
+    // klee_error("error loading library '%s': %s", libraryName,
+    //            ec.message().c_str());
+		assert( 0 && ec.message().c_str() );
+  }
+  
+  Module *libModule = getLazyBitcodeModule( BufferPtr, 
+					   getGlobalContext());
+  if (std::error_code ec = libModule->getError()){
+		assert( 0 && ec.message().c_str());
+  if( linker.linkInModule( libModule ) ){
     assert(0 && "linking in library failed!");
   }
+
+  return linker.getModule();
     
-  return linker.releaseModule();
+  // llvm::sys::Path libraryPath(libraryName);
+  // bool native = false;
+    
+  // if (linker.LinkInFile(libraryPath, native)) {
+  //   assert(0 && "linking in library failed!");
+  // }
+    
+  // return linker.releaseModule();
 }
 
 Function *klee::getDirectCallTarget(CallSite cs) {

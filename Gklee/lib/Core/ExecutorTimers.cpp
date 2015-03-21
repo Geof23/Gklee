@@ -20,7 +20,7 @@
 #include "klee/Internal/Module/KModule.h"
 #include "klee/Internal/System/Time.h"
 
-#include "llvm/Function.h"
+#include "llvm/IR/Function.h"
 #include "llvm/Support/CommandLine.h"
 
 #include <unistd.h>

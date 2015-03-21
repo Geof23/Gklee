@@ -373,8 +373,9 @@ public:
     return value.ult(cb.value) ? -1 : 1;
   }
 
-  virtual ref<Expr> rebuild(ref<Expr> kids[]) const { 
+  virtual  ref<Expr> rebuild(klee::ref<Expr> kids[]) const { 
     assert(0 && "rebuild() on ConstantExpr"); 
+    // return (Expr*) this;
     return (Expr*) this;
   }
 

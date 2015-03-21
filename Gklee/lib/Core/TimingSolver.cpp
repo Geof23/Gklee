@@ -157,7 +157,7 @@ TimingSolver::getInitialValues(const ExecutionState& state,
 
 
 
-std::pair< ref<Expr>, ref<Expr> >
-TimingSolver::getRange(const ExecutionState& state, ref<Expr> expr) {
+std::pair< klee::ref<Expr>, klee::ref<Expr> >
+TimingSolver::getRange(const ExecutionState& state, klee::ref<Expr> expr) {
   return solver->getRange(Query(state.constraints, expr));
 }

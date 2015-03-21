@@ -20,12 +20,12 @@
 
 #include "klee/Config/Version.h"
 
-#include "llvm/User.h"
-#include "llvm/DerivedTypes.h"
-#include "llvm/Instructions.h"
+#include "llvm/IR/User.h"
+#include "llvm/IR/DerivedTypes.h"
+#include "llvm/IR/Instructions.h"
 #include "klee/Config/Version.h"
 #if LLVM_VERSION_CODE >= LLVM_VERSION(3, 0)
-#include "llvm/Constants.h"
+#include "llvm/IR/Constants.h"
 #endif
 
 namespace klee {

@@ -119,7 +119,7 @@ bool QueryLoggingSolver::computeValidity(const Query& query,
     return success;
 }
 
-bool QueryLoggingSolver::computeValue(const Query& query, ref<Expr>& result) {
+bool QueryLoggingSolver::computeValue(const Query& query, klee::ref<Expr>& result) {
     Query withFalse = query.withFalse();
     startQuery(query, "Value", &withFalse);
 

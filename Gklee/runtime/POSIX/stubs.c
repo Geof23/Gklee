@@ -18,6 +18,7 @@
 #include <limits.h>
 #include <stdlib.h>
 #include <sys/mman.h>
+#include <sys/resource.h>
 #include <sys/stat.h>
 #include <sys/times.h>
 #include <sys/types.h>

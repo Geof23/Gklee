@@ -17,7 +17,7 @@
 #include "klee/Expr.h"
 #include "klee/Constraints.h"
 #include "klee/Internal/ADT/ImmutableMap.h"
-#include "llvm/Function.h"
+#include "llvm/IR/Function.h"
 #include <set>
 
 namespace llvm {

@@ -137,7 +137,7 @@ bool Solver::mayBeFalse(const Query& query, bool &result) {
   return true;
 }
 
-bool Solver::getValue(const Query& query, ref<ConstantExpr> &result) {
+bool Solver::getValue(const Query& query, klee::ref<ConstantExpr> &result) {
   // Maintain invariants implementation expect.
   if (ConstantExpr *CE = dyn_cast<ConstantExpr>(query.expr)) {
     result = CE;
@@ -145,7 +145,7 @@ bool Solver::getValue(const Query& query, ref<ConstantExpr> &result) {
   }
 
   // FIXME: Push ConstantExpr requirement down.
-  ref<Expr> tmp;
+  klee::ref<Expr> tmp;
   if (!impl->computeValue(query, tmp))
     return false;
   
@@ -167,8 +167,8 @@ Solver::getInitialValues(const Query& query,
   return success;
 }
 
-std::pair< ref<Expr>, ref<Expr> > Solver::getRange(const Query& query) {
-  ref<Expr> e = query.expr;
+std::pair< klee::ref<Expr>, klee::ref<Expr> > Solver::getRange(const Query& query) {
+  klee::ref<Expr> e = query.expr;
   Expr::Width width = e->getWidth();
   uint64_t min, max;
 
@@ -293,7 +293,8 @@ public:
   
   bool computeValidity(const Query&, Solver::Validity &result);
   bool computeTruth(const Query&, bool &isValid);
-  bool computeValue(const Query&, ref<Expr> &result);
+  //  using SolverImpl::computeValue;
+  bool computeValue(const Query&, klee::ref<Expr> &result) override;
   bool computeInitialValues(const Query&,
                             const std::vector<const Array*> &objects,
                             std::vector< std::vector<unsigned char> > &values,
@@ -332,7 +333,7 @@ bool ValidatingSolver::computeValidity(const Query& query,
 }
 
 bool ValidatingSolver::computeValue(const Query& query,
-                                    ref<Expr> &result) {  
+                                    klee::ref<Expr> &result) {  
   bool answer;
 
   if (!solver->impl->computeValue(query, result))
@@ -366,7 +367,7 @@ ValidatingSolver::computeInitialValues(const Query& query,
   if (hasSolution) {
     // Assert the bindings as constraints, and verify that the
     // conjunction of the actual constraints is satisfiable.
-    std::vector< ref<Expr> > bindings;
+    std::vector< klee::ref<Expr> > bindings;
     for (unsigned i = 0; i != values.size(); ++i) {
       const Array *array = objects[i];
       for (unsigned j=0; j<array->size; j++) {
@@ -377,7 +378,7 @@ ValidatingSolver::computeInitialValues(const Query& query,
       }
     }
     ConstraintManager tmp(bindings);
-    ref<Expr> constraints = Expr::createIsZero(query.expr);
+    klee::ref<Expr> constraints = Expr::createIsZero(query.expr);
     for (ConstraintManager::const_iterator it = query.constraints.begin(), 
            ie = query.constraints.end(); it != ie; ++it)
       constraints = AndExpr::create(constraints, *it);
@@ -420,7 +421,7 @@ public:
     // FIXME: We should have stats::queriesFail;
     return false; 
   }
-  bool computeValue(const Query&, ref<Expr> &result) { 
+  bool computeValue(const Query&, klee::ref<Expr> &result) { 
     ++stats::queries;
     ++stats::queryCounterexamples;
     return false; 
@@ -463,7 +464,7 @@ public:
   void setTimeout(double _timeout) { timeout = _timeout; }
 
   bool computeTruth(const Query&, bool &isValid);
-  bool computeValue(const Query&, ref<Expr> &result);
+  bool computeValue(const Query&, klee::ref<Expr> &result);
   bool computeInitialValues(const Query&,
                             const std::vector<const Array*> &objects,
                             std::vector< std::vector<unsigned char> > &values,
@@ -535,7 +536,7 @@ void STPSolver::setTimeout(double timeout) {
 
 char *STPSolverImpl::getConstraintLog(const Query &query) {
   vc_push(vc);
-  for (std::vector< ref<Expr> >::const_iterator it = query.constraints.begin(), 
+  for (std::vector< klee::ref<Expr> >::const_iterator it = query.constraints.begin(), 
          ie = query.constraints.end(); it != ie; ++it)
     vc_assertFormula(vc, builder->construct(*it));
   assert(query.expr == ConstantExpr::alloc(0, Expr::Bool) &&
@@ -564,7 +565,7 @@ bool STPSolverImpl::computeTruth(const Query& query,
 }
 
 bool STPSolverImpl::computeValue(const Query& query,
-                                 ref<Expr> &result) {
+                                 klee::ref<Expr> &result) {
   std::vector<const Array*> objects;
   std::vector< std::vector<unsigned char> > values;
   bool hasSolution;

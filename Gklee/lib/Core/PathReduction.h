@@ -3,7 +3,7 @@
 
 #include "klee/Expr.h"
 #include "klee/ExecutionState.h"
-#include "llvm/Instructions.h"
+#include "llvm/IR/Instructions.h"
 #include "BCCoverage.h"
 
 

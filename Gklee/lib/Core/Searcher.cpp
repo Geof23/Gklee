@@ -26,11 +26,11 @@
 #include "klee/Internal/Support/ModuleUtil.h"
 #include "klee/Internal/System/Time.h"
 
-#include "llvm/Constants.h"
-#include "llvm/Instructions.h"
-#include "llvm/Module.h"
-#include "llvm/Support/CallSite.h"
-#include "llvm/Support/CFG.h"
+#include "llvm/IR/Constants.h"
+#include "llvm/IR/Instructions.h"
+#include "llvm/IR/Module.h"
+#include "llvm/IR/CallSite.h"
+#include "llvm/IR/CFG.h"
 #include "llvm/Support/CommandLine.h"
 
 #include <cassert>

@@ -16,11 +16,11 @@
 //===----------------------------------------------------------------------===//
 
 #include "klee/Config/Version.h"
-#include "llvm/Module.h"
+#include "llvm/IR/Module.h"
 #include "llvm/PassManager.h"
 #include "llvm/Analysis/Passes.h"
 #include "llvm/Analysis/LoopPass.h"
-#include "llvm/Analysis/Verifier.h"
+#include "llvm/IR/Verifier.h"
 #include "llvm/Support/CommandLine.h"
 #if LLVM_VERSION_CODE < LLVM_VERSION(2, 9)
 #include "llvm/System/DynamicLibrary.h"
@@ -28,14 +28,14 @@
 #include "llvm/Support/DynamicLibrary.h"
 #endif
 #if LLVM_VERSION_CODE >= LLVM_VERSION(3, 1)
-#include "llvm/DataLayout.h"
+#include "llvm/IR/DataLayout.h"
 #else
 #include "llvm/Target/TargetData.h"
 #endif
 #include "llvm/Target/TargetMachine.h"
 #include "llvm/Transforms/IPO.h"
 #include "llvm/Transforms/Scalar.h"
-#include "llvm/Support/PassNameParser.h"
+//#include "llvm/Support/PassNameParser.h"
 #include "llvm/Support/PluginLoader.h"
 #include <iostream>
 using namespace llvm;
@@ -123,8 +123,9 @@ static void AddStandardCompilePasses(PassManager &PM) {
   if (!DisableInline)
     addPass(PM, createFunctionInliningPass());   // Inline small functions
   addPass(PM, createArgumentPromotionPass());    // Scalarize uninlined fn args
-
-  addPass(PM, createSimplifyLibCallsPass());     // Library Call Optimizations
+  //this has been obsoleted, handled by instcombine and funcattr passes 
+  // http://lists.cs.uiuc.edu/pipermail/llvm-commits/Week-of-Mon-20130617/178459.html
+  //  addPass(PM, createSimplifyLibCallsPass());     // Library Call Optimizations 
   addPass(PM, createInstructionCombiningPass()); // Cleanup for scalarrepl.
   addPass(PM, createJumpThreadingPass());        // Thread jumps.
   addPass(PM, createCFGSimplificationPass());    // Merge & remove BBs
@@ -184,7 +185,8 @@ void Optimize(Module* M) {
 
   // Add an appropriate TargetData instance for this module...
 #if LLVM_VERSION_CODE >= LLVM_VERSION(3, 1)
-  addPass(Passes, new DataLayout(M));
+  // addPass(Passes, new DataLayout(M));
+  addPass(Passes, new DataLayoutPass()); //hmm this pass looks like a dummy
 #else
   addPass(Passes, new TargetData(M));
 #endif
