@@ -15,14 +15,14 @@ public:
   bool syncEncounter;    // explicit or implicit barrier
   bool barrierEncounter; // only explicit barrier 
   bool inBranch;
-  ref<Expr> inheritExpr;
+  klee::ref<Expr> inheritExpr;
   bool slotUsed;
   bool keep;
 
   CorrespondTid(unsigned _rBid, unsigned _rTid, 
                 unsigned _warpNum, bool _syncEncounter, 
                 bool _barrierEncounter, bool _inBranch, 
-                ref<Expr> _inheritExpr, bool _slotUsed = false, 
+                klee::ref<Expr> _inheritExpr, bool _slotUsed = false, 
                 bool _keep = false) : 
                 rBid(_rBid), rTid(_rTid), warpNum(_warpNum), 
                 syncEncounter(_syncEncounter), 
@@ -35,13 +35,13 @@ class ParaConfig {
 public:
   unsigned sym_bid;
   unsigned sym_tid;
-  ref<Expr> cond;
+  klee::ref<Expr> cond;
   unsigned start;
   unsigned end;
   bool syncEncounter;
   bool postDomEncounter;
 
-  ParaConfig(unsigned _sym_bid, unsigned _sym_tid, ref<Expr> _cond, 
+  ParaConfig(unsigned _sym_bid, unsigned _sym_tid, klee::ref<Expr> _cond, 
              unsigned _start, unsigned _end): 
              sym_bid(_sym_bid), sym_tid(_sym_tid), 
              cond(_cond), start(_start), end(_end) {
@@ -71,8 +71,8 @@ public:
   bool isCondBr;
   bool allSync;
   unsigned whichSuccessor; // which flow is being explored right away 
-  ref<Expr> inheritCond; // condition inherited from this node's parent
-  ref<Expr> tdcCond; // condition only related to TDC  
+  klee::ref<Expr> inheritCond; // condition inherited from this node's parent
+  klee::ref<Expr> tdcCond; // condition only related to TDC  
    
   ParaTreeNode *parent;
   std::vector<ParaConfig> successorConfigVec;
@@ -82,7 +82,7 @@ public:
 
   ParaTreeNode(llvm::Instruction *_brInst, llvm::BasicBlock *_postDom,
                SymBrType _symBrType, bool _isCondBr, bool _allSync, 
-               ref<Expr> _inheritCond, ref<Expr> _tdcCond):
+               klee::ref<Expr> _inheritCond, klee::ref<Expr> _tdcCond):
                brInst(_brInst), postDom(_postDom), 
                symBrType(_symBrType), isCondBr(_isCondBr), 
                allSync(_allSync), inheritCond(_inheritCond), 
@@ -135,7 +135,7 @@ class ParaTree {
     void encounterExplicitBarrier(std::vector<CorrespondTid> &cTidSets, 
                                   unsigned cur_tid);
     void destroyParaTree(ParaTreeNode *node);
-    ref<Expr> getCurrentNodeTDCExpr();
+    klee::ref<Expr> getCurrentNodeTDCExpr();
     void negateNonTDCNodeCond();
     void resetNonTDCNodeCond();
     void dumpAllNodes(ParaTreeNode *node) const;

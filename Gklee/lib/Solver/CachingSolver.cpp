@@ -23,7 +23,7 @@ using namespace klee;
 
 class CachingSolver : public SolverImpl {
 private:
-  ref<Expr> canonicalizeQuery(ref<Expr> originalQuery,
+  klee::ref<Expr> canonicalizeQuery(klee::ref<Expr> originalQuery,
                               bool &negationUsed);
 
   void cacheInsert(const Query& query,
@@ -33,14 +33,14 @@ private:
                    IncompleteSolver::PartialValidity &result);
   
   struct CacheEntry {
-    CacheEntry(const ConstraintManager &c, ref<Expr> q)
+    CacheEntry(const ConstraintManager &c, klee::ref<Expr> q)
       : constraints(c), query(q) {}
 
     CacheEntry(const CacheEntry &ce)
       : constraints(ce.constraints), query(ce.query) {}
     
     ConstraintManager constraints;
-    ref<Expr> query;
+    klee::ref<Expr> query;
 
     bool operator==(const CacheEntry &b) const {
       return constraints==b.constraints && *query.get()==*b.query.get();
@@ -72,7 +72,7 @@ public:
 
   bool computeValidity(const Query&, Solver::Validity &result);
   bool computeTruth(const Query&, bool &isValid);
-  bool computeValue(const Query& query, ref<Expr> &result) {
+  bool computeValue(const Query& query, klee::ref<Expr> &result) {
     return solver->impl->computeValue(query, result);
   }
   bool computeInitialValues(const Query& query,
@@ -88,9 +88,9 @@ public:
 /** @returns the canonical version of the given query.  The reference
     negationUsed is set to true if the original query was negated in
     the canonicalization process. */
-ref<Expr> CachingSolver::canonicalizeQuery(ref<Expr> originalQuery,
+klee::ref<Expr> CachingSolver::canonicalizeQuery(klee::ref<Expr> originalQuery,
                                            bool &negationUsed) {
-  ref<Expr> negatedQuery = Expr::createIsZero(originalQuery);
+  klee::ref<Expr> negatedQuery = Expr::createIsZero(originalQuery);
 
   // select the "smaller" query to the be canonical representation
   if (originalQuery.compare(negatedQuery) < 0) {
@@ -107,7 +107,7 @@ ref<Expr> CachingSolver::canonicalizeQuery(ref<Expr> originalQuery,
 bool CachingSolver::cacheLookup(const Query& query,
                                 IncompleteSolver::PartialValidity &result) {
   bool negationUsed;
-  ref<Expr> canonicalQuery = canonicalizeQuery(query.expr, negationUsed);
+  klee::ref<Expr> canonicalQuery = canonicalizeQuery(query.expr, negationUsed);
 
   CacheEntry ce(query.constraints, canonicalQuery);
   cache_map::iterator it = cache.find(ce);
@@ -126,7 +126,7 @@ bool CachingSolver::cacheLookup(const Query& query,
 void CachingSolver::cacheInsert(const Query& query,
                                 IncompleteSolver::PartialValidity result) {
   bool negationUsed;
-  ref<Expr> canonicalQuery = canonicalizeQuery(query.expr, negationUsed);
+  klee::ref<Expr> canonicalQuery = canonicalizeQuery(query.expr, negationUsed);
 
   CacheEntry ce(query.constraints, canonicalQuery);
   IncompleteSolver::PartialValidity cachedResult = 

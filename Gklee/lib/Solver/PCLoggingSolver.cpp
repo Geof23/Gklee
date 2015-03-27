@@ -26,8 +26,8 @@ private :
                             const Query* falseQuery = 0,
                             const std::vector<const Array*>* objects = 0) {
         
-        const ref<Expr>* evalExprsBegin = 0;
-        const ref<Expr>* evalExprsEnd = 0;
+        const klee::ref<Expr>* evalExprsBegin = 0;
+        const klee::ref<Expr>* evalExprsEnd = 0;
         
         if (0 != falseQuery) {
             evalExprsBegin = &query.expr;

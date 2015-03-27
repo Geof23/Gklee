@@ -56,7 +56,7 @@ using namespace runtime;
 //********************************************************************************************
 
 static bool accessSameMemoryRegion(Executor &, ExecutionState &,
-                                   ref<Expr>, ref<Expr>);
+                                   klee::ref<Expr>, klee::ref<Expr>);
 
 static bool isInSameHalfOrEntireWarp(std::vector<CorrespondTid> &, unsigned, unsigned, 
                                      unsigned, unsigned, unsigned);
@@ -75,7 +75,7 @@ static bool isBothAtomic(const MemoryAccess &access1,
 
 bool AddressSpaceUtil::evaluateQueryMustBeTrue(Executor &executor, 
                                                ExecutionState &state, 
-                                               ref<Expr> &expr, bool &result, 
+                                               klee::ref<Expr> &expr, bool &result, 
                                                bool &unknown) {
   // In this case, result false case includes 'false', 'unknown'
   bool success = executor.solver->mustBeTrue(state, expr, result);
@@ -96,7 +96,7 @@ bool AddressSpaceUtil::evaluateQueryMustBeTrue(Executor &executor,
 }
 
 bool AddressSpaceUtil::evaluateQueryMustBeFalse(Executor &executor, ExecutionState &state, 
-                                                ref<Expr> &expr, bool &result, bool &unknown) {
+                                                klee::ref<Expr> &expr, bool &result, bool &unknown) {
   // In this case, result false case includes 'true', 'unknown'
   bool success = executor.solver->mustBeFalse(state, expr, result); 
 
@@ -179,7 +179,7 @@ void MemoryAccess::dump() const {
 }
 
 void MemoryAccess::dump(Executor &executor, ExecutionState &state, 
-                        ref<Expr> cond) const {
+                        klee::ref<Expr> cond) const {
   std::cout << "[GKLEE] Inst: " << std::endl;
   if (MDNode *N = instr->getMetadata("dbg")) {  // Here I is an LLVM instruction
     extractInstFromSourceCode(N);
@@ -211,7 +211,7 @@ void MemoryAccess::dump(Executor &executor, ExecutionState &state,
     std::cout << mo->address << ", ";
 
   if (!isa<ConstantExpr>(offset)) {
-    ref<Expr> cOffset = binding->evaluate(offset);
+    klee::ref<Expr> cOffset = binding->evaluate(offset);
     cOffset->print(std::cout);
   } else {
     offset->print(std::cout);
@@ -219,7 +219,7 @@ void MemoryAccess::dump(Executor &executor, ExecutionState &state,
 
   std::cout << ":";
   if (!isa<ConstantExpr>(val)) {
-    ref<Expr> cVal = binding->evaluate(val);
+    klee::ref<Expr> cVal = binding->evaluate(val);
     cVal->print(std::cout);
   } else {
     val->print(std::cout);
@@ -285,22 +285,22 @@ AddressSpace &AddressSpace::operator=(const AddressSpace& b) {
 
 // return true if a conflict is found
 bool checkConflictExprs(Executor &executor, ExecutionState &state, 
-                        ref<Expr> &raceCond, unsigned &queryNum, 
-                        ref<Expr> &addr1, Expr::Width width1, 
-                        ref<Expr> &addr2, Expr::Width width2) {
+                        klee::ref<Expr> &raceCond, unsigned &queryNum, 
+                        klee::ref<Expr> &addr1, Expr::Width width1, 
+                        klee::ref<Expr> &addr2, Expr::Width width2) {
   unsigned boffset1 = (width1 - 1) >> 3; 
-  ref<Expr> hbound1 =  boffset1 == 0 ? addr1 : 
+  klee::ref<Expr> hbound1 =  boffset1 == 0 ? addr1 : 
     AddExpr::create(addr1, klee::ConstantExpr::create(boffset1, addr1->getWidth()));
 
   unsigned boffset2 = (width2 - 1) >> 3; 
-  ref<Expr> hbound2 =  boffset2 == 0 ? addr2 : 
+  klee::ref<Expr> hbound2 =  boffset2 == 0 ? addr2 : 
     AddExpr::create(addr2, klee::ConstantExpr::create(boffset2, addr2->getWidth()));
 
-  ref<Expr> expr1 = AndExpr::create(UleExpr::create(addr1, addr2),
+  klee::ref<Expr> expr1 = AndExpr::create(UleExpr::create(addr1, addr2),
 				    UleExpr::create(addr2, hbound1));
-  ref<Expr> expr2 = AndExpr::create(UleExpr::create(addr2, addr1),
+  klee::ref<Expr> expr2 = AndExpr::create(UleExpr::create(addr2, addr1),
 				    UleExpr::create(addr1, hbound2));
-  ref<Expr> expr = OrExpr::create(expr1, expr2);
+  klee::ref<Expr> expr = OrExpr::create(expr1, expr2);
 
   // the fast path
   if (klee::ConstantExpr *CE = dyn_cast<klee::ConstantExpr>(expr)) {
@@ -345,19 +345,19 @@ static bool belongToSameBlockNotSameWarp(const MemoryAccessVec &vec1,
 
 static bool checkVolatileMissing(Executor &executor, ExecutionState &state, 
                                  MemoryAccessVec &readVec, MemoryAccessVec &writeVec, 
-                                 unsigned mark, ref<Expr> &vmCond) {
+                                 unsigned mark, klee::ref<Expr> &vmCond) {
     bool vmissing = false;
     unsigned vmQueryNum = 0;
   
     // check the potential Read-Write sharing first 
     for (MemoryAccessVec::const_iterator ii = writeVec.begin(); ii != writeVec.end(); ii++) {
-      ref<Expr> addr1 = ii->offset;
+      klee::ref<Expr> addr1 = ii->offset;
       unsigned tid1 = ii->tid;
       Expr::Width width1 = ii->width;
       for (MemoryAccessVec::const_iterator jj = readVec.begin(); jj != readVec.end(); jj++) {
         unsigned tid2 = jj->tid;
         if (tid1 != tid2) {
-          ref<Expr> addr2 = jj->offset;
+          klee::ref<Expr> addr2 = jj->offset;
 	  Expr::Width width2 = jj->width;
 	  if (accessSameMemoryRegion(executor, state, ii->mo->getBaseExpr(), jj->mo->getBaseExpr()) &&
               checkConflictExprs(executor, state, vmCond, vmQueryNum, 
@@ -392,7 +392,7 @@ bool AddressSpace::hasVolatileMissing(Executor &executor, ExecutionState &state,
                                       std::vector<InstAccessSet> &instAccessSets, 
                                       std::vector<RefDivRegionSetVec> &divRegionSets, 
                                       std::vector<SameInstVec> &sameInstVecSets, 
-                                      ref<Expr> &vmCond) {
+                                      klee::ref<Expr> &vmCond) {
   MemoryAccessVec tmpReadSet = readSet;
   MemoryAccessVec tmpWriteSet = writeSet;    
 
@@ -464,10 +464,10 @@ bool AddressSpace::hasVolatileMissing(Executor &executor, ExecutionState &state,
 }
 
 static bool checkValuesSame(Executor &executor, ExecutionState &state, 
-                            const ref<Expr> &val1, const ref<Expr> &val2) {
+                            const klee::ref<Expr> &val1, const klee::ref<Expr> &val2) {
   bool result = false;
   bool unknown = false;
-  ref<Expr> expr = EqExpr::create(val1, val2); 
+  klee::ref<Expr> expr = EqExpr::create(val1, val2); 
 
   bool success = AddressSpaceUtil::evaluateQueryMustBeTrue(executor, state, expr, result, unknown);
   if (success) {
@@ -478,7 +478,7 @@ static bool checkValuesSame(Executor &executor, ExecutionState &state,
 
 static bool checkWWRace(Executor &executor, ExecutionState &state, 
                         MemoryAccessVec &vec1, MemoryAccessVec &vec2, 
-                        bool withinwarp, ref<Expr> &raceCond, 
+                        bool withinwarp, klee::ref<Expr> &raceCond, 
                         unsigned &queryNum) {
   if (!accessSameMemoryRegion(executor, state, 
                               vec1.begin()->mo->getBaseExpr(), 
@@ -553,7 +553,7 @@ static bool checkWWRace(Executor &executor, ExecutionState &state,
 
 static bool checkRWRace(Executor &executor, ExecutionState &state, 
                         MemoryAccessVec &vec1, MemoryAccessVec &vec2, 
-                        ref<Expr> &raceCond, unsigned &queryNum) {
+                        klee::ref<Expr> &raceCond, unsigned &queryNum) {
   if (!accessSameMemoryRegion(executor, state, vec1.begin()->mo->getBaseExpr(), 
                               vec2.begin()->mo->getBaseExpr())) 
     return false;
@@ -616,20 +616,20 @@ static bool fenceRelation(const MemoryAccess &access1,
 
 static bool checkWWRacePureCS(Executor &executor, ExecutionState &state, 
                               MemoryAccessVec &vec1, MemoryAccessVec &vec2, 
-                              bool withinBlock, ref<Expr> &raceCond, 
+                              bool withinBlock, klee::ref<Expr> &raceCond, 
                               unsigned &queryNum) {
   if (withinBlock) {
     for (MemoryAccessVec::iterator ii = vec1.begin(); ii != vec1.end(); ii++) {
-      ref<Expr> base1 = ii->mo->getBaseExpr();
-      ref<Expr> offset1 = ii->offset;
+      klee::ref<Expr> base1 = ii->mo->getBaseExpr();
+      klee::ref<Expr> offset1 = ii->offset;
       unsigned tid1 = ii->tid;
       Expr::Width width1 = ii->width;
 
       MemoryAccessVec::iterator jj = ii;
       jj++;
       for (; jj != vec2.end(); jj++) {
-        ref<Expr> base2 = jj->mo->getBaseExpr(); 
-        ref<Expr> offset2 = jj->offset;
+        klee::ref<Expr> base2 = jj->mo->getBaseExpr(); 
+        klee::ref<Expr> offset2 = jj->offset;
         unsigned tid2 = jj->tid;
         Expr::Width width2 = jj->width;
 
@@ -664,14 +664,14 @@ static bool checkWWRacePureCS(Executor &executor, ExecutionState &state,
     }
   } else {
     for (MemoryAccessVec::iterator ii = vec1.begin(); ii != vec1.end(); ii++) {
-      ref<Expr> base1 = ii->mo->getBaseExpr();
-      ref<Expr> offset1 = ii->offset;
+      klee::ref<Expr> base1 = ii->mo->getBaseExpr();
+      klee::ref<Expr> offset1 = ii->offset;
       unsigned tid1 = ii->tid;
       Expr::Width width1 = ii->width;
 
       for (MemoryAccessVec::iterator jj = vec2.begin(); jj != vec2.end(); jj++) {
-        ref<Expr> base2 = jj->mo->getBaseExpr(); 
-        ref<Expr> offset2 = jj->offset;
+        klee::ref<Expr> base2 = jj->mo->getBaseExpr(); 
+        klee::ref<Expr> offset2 = jj->offset;
         unsigned tid2 = jj->tid;
         Expr::Width width2 = jj->width;
 
@@ -710,17 +710,17 @@ static bool checkWWRacePureCS(Executor &executor, ExecutionState &state,
 
 static bool checkRWRacePureCS(Executor &executor, ExecutionState &state, 
                               MemoryAccessVec &vec1, MemoryAccessVec &vec2, 
-                              bool withinBlock, ref<Expr> &raceCond, unsigned &queryNum) {
+                              bool withinBlock, klee::ref<Expr> &raceCond, unsigned &queryNum) {
   // check the Read-Write conflict first 
   for (MemoryAccessVec::iterator ii = vec1.begin(); ii != vec1.end(); ii++) {
-    ref<Expr> base1 = ii->mo->getBaseExpr();
-    ref<Expr> offset1 = ii->offset;
+    klee::ref<Expr> base1 = ii->mo->getBaseExpr();
+    klee::ref<Expr> offset1 = ii->offset;
     unsigned tid1 = ii->tid;
     Expr::Width width1 = ii->width;
 
     for (MemoryAccessVec::iterator jj = vec2.begin(); jj != vec2.end(); jj++) {
-      ref<Expr> base2 = jj->mo->getBaseExpr();
-      ref<Expr> offset2 = jj->offset;
+      klee::ref<Expr> base2 = jj->mo->getBaseExpr();
+      klee::ref<Expr> offset2 = jj->offset;
       unsigned tid2 = jj->tid;
       Expr::Width width2 = jj->width;
 
@@ -878,15 +878,15 @@ bool AddressSpace::checkDivergeBranchRace(Executor &executor, ExecutionState &st
                                           std::vector<InstAccessSet> &accessSets, 
                                           std::vector< std::vector<BranchDivRegionSet> > &warpsBranchDivRegionSets,
                                           std::vector<SameInstVec> &sameInstSets,
-                                          bool isWW, ref<Expr> &raceCond, unsigned &queryNum) {
+                                          bool isWW, klee::ref<Expr> &raceCond, unsigned &queryNum) {
   for (MemoryAccessVec::const_iterator ii = vec1.begin(); ii != vec1.end(); ii++) {
-    ref<Expr> addr1 = AddExpr::create(ii->mo->getBaseExpr(), ii->offset);
+    klee::ref<Expr> addr1 = AddExpr::create(ii->mo->getBaseExpr(), ii->offset);
     unsigned tid1 = ii->tid;
     Expr::Width width1 = ii->width;
 
     for (MemoryAccessVec::const_iterator jj = vec2.begin(); jj != vec2.end(); jj++) {
       if (belongToSameDivergenceRegion(*ii, *jj, cTidSets, warpsBranchDivRegionSets, sameInstSets)) {
-        ref<Expr> addr2 = AddExpr::create(jj->mo->getBaseExpr(), jj->offset);
+        klee::ref<Expr> addr2 = AddExpr::create(jj->mo->getBaseExpr(), jj->offset);
         unsigned tid2 = jj->tid;
         Expr::Width width2 = jj->width;
         if (!isBothAtomic(*ii, *jj)
@@ -985,7 +985,7 @@ void AddressSpace::constructGlobalMemAccessSet(Executor &executor, ExecutionStat
 static bool checkSetRaceInGlobal(Executor &executor, ExecutionState &state, 
                                  std::vector<MemoryAccessVec> &VecSet1, 
                                  std::vector<MemoryAccessVec> &VecSet2, 
-                                 ref<Expr> &raceCond, bool isWW, unsigned &queryNum) {
+                                 klee::ref<Expr> &raceCond, bool isWW, unsigned &queryNum) {
   bool race = false;
 
   for (std::vector<MemoryAccessVec>::iterator ii = VecSet1.begin();
@@ -1012,7 +1012,7 @@ bool AddressSpace::hasRaceInGlobalWithinSameBlockPureCS(Executor &executor, Exec
   for (unsigned i = 0; i < MemAccessSetsPureCS.size(); i++) {
     unsigned size = MemAccessSetsPureCS[i].size();
     if (size > 0) {
-      ref<Expr> cond = ConstantExpr::create(1, Expr::Bool);
+      klee::ref<Expr> cond = ConstantExpr::create(1, Expr::Bool);
       unsigned queryNum = 0;
       unsigned BINum = MemAccessSetsPureCS[i][size-1].biNum;
       if (checkWWRacePureCS(executor, state, MemAccessSetsPureCS[i][size-1].writeSet,
@@ -1045,7 +1045,7 @@ bool AddressSpace::hasRaceInGlobalAcrossBlocksPureCS(Executor &executor, Executi
     for (; jj != MemAccessSetsPureCS.end(); jj++) {
       for (unsigned i = 0; i < (*ii).size(); i++) {
         for (unsigned j = 0; j < (*jj).size(); j++) {
-          ref<Expr> cond = ConstantExpr::create(1, Expr::Bool);
+          klee::ref<Expr> cond = ConstantExpr::create(1, Expr::Bool);
           unsigned num = 0;
           if (checkWWRacePureCS(executor, state, (*ii)[i].writeSet,
                                 (*jj)[j].writeSet, false, cond, num)) {
@@ -1086,8 +1086,8 @@ bool AddressSpace::hasRaceInGlobalWithinSameBlock(Executor &executor, ExecutionS
                                                   std::vector<RefDivRegionSetVec> &divRegionSets, 
                                                   std::vector< std::vector<BranchDivRegionSet> > &warpsBranchDivRegionSets,
                                                   std::vector<SameInstVec> &sameInstVecSets, 
-                                                  ref<Expr> &raceCond, unsigned &queryNum, unsigned BINum) {
-  ref<Expr> expr;
+                                                  klee::ref<Expr> &raceCond, unsigned &queryNum, unsigned BINum) {
+  klee::ref<Expr> expr;
 
   bool race  = false;
   // within a warp first...
@@ -1186,8 +1186,8 @@ bool AddressSpace::hasRaceInGlobalWithinSameBlock(Executor &executor, ExecutionS
 
 bool AddressSpace::hasRaceInGlobalAcrossBlocks(Executor &executor, ExecutionState &state,
                                                std::vector<CorrespondTid> &cTidSets, 
-                                               ref<Expr> &raceCond, unsigned &queryNum) {
-  ref<Expr> expr;
+                                               klee::ref<Expr> &raceCond, unsigned &queryNum) {
+  klee::ref<Expr> expr;
   bool race  = false;
 
   // between different warps across different blocks...
@@ -1236,8 +1236,8 @@ bool AddressSpace::hasRaceInShare(Executor &executor, ExecutionState &state,
                                   std::vector<RefDivRegionSetVec> &divRegionSets, 
                                   std::vector<SameInstVec> &sameInstVecSets, 
                                   std::vector< std::vector<BranchDivRegionSet> > &warpsBranchDivRegionSets,
-                                  ref<Expr> &raceCond, unsigned &queryNum) {
-  ref<Expr> expr;
+                                  klee::ref<Expr> &raceCond, unsigned &queryNum) {
+  klee::ref<Expr> expr;
 
   MemoryAccessVec tmpReadSet = readSet;
   MemoryAccessVec tmpWriteSet = writeSet;
@@ -1378,7 +1378,7 @@ bool AddressSpace::hasRaceInShare(Executor &executor, ExecutionState &state,
 
 // races under pure canonical schedule 
 bool AddressSpace::hasRaceInSharePureCS(Executor &executor, ExecutionState &state, 
-                                        ref<Expr> &raceCond, unsigned &queryNum) {
+                                        klee::ref<Expr> &raceCond, unsigned &queryNum) {
   bool wwRace = false;
   bool rwRace = false;
   // check the Read-Write conflict first 
@@ -1392,7 +1392,7 @@ bool AddressSpace::hasRaceInSharePureCS(Executor &executor, ExecutionState &stat
 // races in all the address spaces
 bool HierAddressSpace::hasRaceInShare(Executor &executor, ExecutionState &state, 
                                       std::vector<CorrespondTid> &cTidSets,
-                                      ref<Expr> &raceCond) {
+                                      klee::ref<Expr> &raceCond) {
   if (GPUConfig::check_level == 0)  // skip checking
     return false;
 
@@ -1422,7 +1422,7 @@ bool HierAddressSpace::hasRaceInShare(Executor &executor, ExecutionState &state,
 // races in the device or CPU address spaces 
 bool HierAddressSpace::hasRaceInGlobal(Executor &executor, ExecutionState &state, 
                                        std::vector<CorrespondTid> &cTidSets, 
-                                       ref<Expr> &raceCond, unsigned BINum, 
+                                       klee::ref<Expr> &raceCond, unsigned BINum, 
                                        bool is_end_GPU_barrier) {
   //unsigned warpsize = 32;
   if (GPUConfig::check_level > 1) {
@@ -1479,8 +1479,8 @@ bool HierAddressSpace::hasRaceInGlobal(Executor &executor, ExecutionState &state
 }
 
 static bool accessSameMemoryRegion(Executor &executor, ExecutionState &state, 
-                                   ref<Expr> baseAddr1, ref<Expr> baseAddr2) {
-  ref<Expr> cond = EqExpr::create(baseAddr1, baseAddr2);
+                                   klee::ref<Expr> baseAddr1, klee::ref<Expr> baseAddr2) {
+  klee::ref<Expr> cond = EqExpr::create(baseAddr1, baseAddr2);
   bool result;
   bool unknown = false;
   bool success = AddressSpaceUtil::evaluateQueryMustBeTrue(executor, state, cond, result, unknown);
@@ -2026,13 +2026,13 @@ ObjectState* HierAddressSpace::getWriteable(const MemoryObject *mo,
 }
 
 void HierAddressSpace::addWrite(const MemoryObject *mo, 
-                                ref<Expr> &offset, ref<Expr> &val, 
+                                klee::ref<Expr> &offset, klee::ref<Expr> &val, 
                                 Expr::Width width, 
                                 unsigned bid, unsigned tid, 
                                 llvm::Instruction *instr, unsigned seqNum, 
                                 bool isAtomic, std::string fence, 
                                 unsigned b_t_index, 
-                                ref<Expr> accessExpr) {
+                                klee::ref<Expr> accessExpr) {
   if (mo->ctype != GPUConfig::LOCAL) {
     if (!mo->is_builtin) {
       getAddressSpace(mo->ctype, b_t_index).writeSet.
@@ -2045,11 +2045,11 @@ void HierAddressSpace::addWrite(const MemoryObject *mo,
 }
 
 void HierAddressSpace::addRead(const MemoryObject* mo, 
-                               ref<Expr> &offset, ref<Expr> &val, 
+                               klee::ref<Expr> &offset, klee::ref<Expr> &val, 
                                Expr::Width width, unsigned bid, unsigned tid, 
                                llvm::Instruction *instr, unsigned seqNum, 
                                bool isAtomic, std::string fence, 
-                               unsigned b_t_index, ref<Expr> accessExpr) {
+                               unsigned b_t_index, klee::ref<Expr> accessExpr) {
   if (mo->ctype != GPUConfig::LOCAL) {
     if (!mo->is_builtin) {
       getAddressSpace(mo->ctype, b_t_index).readSet.
@@ -2072,7 +2072,7 @@ void HierAddressSpace::insertInst(bool is_GPU_mode, unsigned bid, unsigned tid,
 
 //******************************************************************************************
 
-bool HierAddressSpace::resolveOne(const ref<ConstantExpr> &addr, 
+bool HierAddressSpace::resolveOne(const klee::ref<ConstantExpr> &addr, 
 				  ObjectPair &result, 
 				  GPUConfig::CTYPE ctype,
 				  unsigned b_t_index) {
@@ -2081,7 +2081,7 @@ bool HierAddressSpace::resolveOne(const ref<ConstantExpr> &addr,
 
 bool HierAddressSpace::resolveOne(ExecutionState &state,
 				  TimingSolver *solver,
-				  ref<Expr> address,
+				  klee::ref<Expr> address,
 				  ObjectPair &result,
 				  bool &success,
 				  GPUConfig::CTYPE ctype,
@@ -2094,7 +2094,7 @@ bool HierAddressSpace::resolveOne(ExecutionState &state,
 
 bool HierAddressSpace::resolve(ExecutionState &state,
 			       TimingSolver *solver, 
-			       ref<Expr> p, 
+			       klee::ref<Expr> p, 
 			       ResolutionList &rl, 
 			       unsigned maxResolutions,
 			       double timeout,

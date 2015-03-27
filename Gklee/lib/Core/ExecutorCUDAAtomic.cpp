@@ -43,10 +43,10 @@ static inline const llvm::fltSemantics * fpWidthToSemantics(unsigned width) {
 
 void Executor::executeAtomicAdd(ExecutionState &state, 
                                 KInstruction *target, std::string fName, 
-                                std::vector< ref<Expr> > &arguments, 
+                                std::vector< klee::ref<Expr> > &arguments, 
                                 unsigned seqNum) {
   // Load the value from addr
-  ref<Expr> base = arguments[0];
+  klee::ref<Expr> base = arguments[0];
   CallInst *ci = static_cast<CallInst*>(target->inst);
 
   updateCType(state, ci->getArgOperand(0), base, state.tinfo.is_GPU_mode);
@@ -54,8 +54,8 @@ void Executor::executeAtomicAdd(ExecutionState &state,
                          target, seqNum, true);     
 
   if (fName.find("fAtomicAdd") != std::string::npos) {
-    ref<ConstantExpr> va = toConstant(state, atomicRes, "Unsupported fAtomicAdd");
-    ref<ConstantExpr> vb = toConstant(state, arguments[1], "Unsupported fAtomicAdd");
+    klee::ref<ConstantExpr> va = toConstant(state, atomicRes, "Unsupported fAtomicAdd");
+    klee::ref<ConstantExpr> vb = toConstant(state, arguments[1], "Unsupported fAtomicAdd");
      
     if (!fpWidthToSemantics(va->getWidth()) || 
         !fpWidthToSemantics(vb->getWidth()))
@@ -63,7 +63,7 @@ void Executor::executeAtomicAdd(ExecutionState &state,
 
     llvm::APFloat Res(va->getAPValue());
     Res.add(APFloat(vb->getAPValue()), APFloat::rmNearestTiesToEven);
-    ref<Expr> tmp = ConstantExpr::alloc(Res);
+    klee::ref<Expr> tmp = ConstantExpr::alloc(Res);
 
     // Store back to original place 
     executeMemoryOperation(state, true, base, ConstantExpr::alloc(Res), 
@@ -71,7 +71,7 @@ void Executor::executeAtomicAdd(ExecutionState &state,
     bindLocal(target, state, atomicRes);
   } else {
     // Add the value
-    ref<Expr> sumExpr = AddExpr::create(atomicRes, arguments[1]); 
+    klee::ref<Expr> sumExpr = AddExpr::create(atomicRes, arguments[1]); 
     // Store back to original place 
     executeMemoryOperation(state, true, base, sumExpr, 
                            target, seqNum, true);
@@ -82,10 +82,10 @@ void Executor::executeAtomicAdd(ExecutionState &state,
 }
 
 void Executor::executeAtomicExch(ExecutionState &state, KInstruction *target, 
-                                 std::vector< ref<Expr> > &arguments, 
+                                 std::vector< klee::ref<Expr> > &arguments, 
                                  unsigned seqNum) {
   // Load the value from addr
-  ref<Expr> base = arguments[0];
+  klee::ref<Expr> base = arguments[0];
   CallInst *ci = static_cast<CallInst*>(target->inst);     
 
   updateCType(state, ci->getArgOperand(0), base, state.tinfo.is_GPU_mode);
@@ -102,9 +102,9 @@ void Executor::executeAtomicExch(ExecutionState &state, KInstruction *target,
 
 void Executor::compareValue(ExecutionState &state, 
                             KInstruction *target, std::string fName, 
-                            std::vector< ref<Expr> > &arguments,
-                            unsigned seqNum, ref<Expr> base, bool isMin) {
-  ref<Expr> compCond;
+                            std::vector< klee::ref<Expr> > &arguments,
+                            unsigned seqNum, klee::ref<Expr> base, bool isMin) {
+  klee::ref<Expr> compCond;
   if (isMin) {
     if (fName.find("uAtomicMin") != std::string::npos)
       compCond = UleExpr::create(atomicRes, arguments[1]);
@@ -132,10 +132,10 @@ void Executor::compareValue(ExecutionState &state,
  
 void Executor::executeAtomicMin(ExecutionState &state, 
                                 KInstruction *target, std::string fName, 
-                                std::vector< ref<Expr> > &arguments, 
+                                std::vector< klee::ref<Expr> > &arguments, 
                                 unsigned seqNum) {
   // Load the value from addr
-  ref<Expr> base = arguments[0];
+  klee::ref<Expr> base = arguments[0];
   CallInst *ci = static_cast<CallInst*>(target->inst);     
 
   updateCType(state, ci->getArgOperand(0), base, state.tinfo.is_GPU_mode);
@@ -147,10 +147,10 @@ void Executor::executeAtomicMin(ExecutionState &state,
 
 void Executor::executeAtomicMax(ExecutionState &state, 
                                 KInstruction *target, std::string fName, 
-                                std::vector< ref<Expr> > &arguments, 
+                                std::vector< klee::ref<Expr> > &arguments, 
                                 unsigned seqNum) {
   // Load the value from addr
-  ref<Expr> base = arguments[0];
+  klee::ref<Expr> base = arguments[0];
   CallInst *ci = static_cast<CallInst*>(target->inst);     
 
   updateCType(state, ci->getArgOperand(0), base, state.tinfo.is_GPU_mode);
@@ -161,10 +161,10 @@ void Executor::executeAtomicMax(ExecutionState &state,
 }
 
 void Executor::executeAtomicInc(ExecutionState &state, KInstruction *target, 
-                                std::vector< ref<Expr> > &arguments, 
+                                std::vector< klee::ref<Expr> > &arguments, 
                                 unsigned seqNum) {
   // Load the value from addr
-  ref<Expr> base = arguments[0];
+  klee::ref<Expr> base = arguments[0];
   CallInst *ci = static_cast<CallInst*>(target->inst);     
 
   updateCType(state, ci->getArgOperand(0), base, state.tinfo.is_GPU_mode);
@@ -172,9 +172,9 @@ void Executor::executeAtomicInc(ExecutionState &state, KInstruction *target,
                          target, seqNum, true);     
 
   // old >= val 
-  ref<Expr> compCond = UgeExpr::create(atomicRes, arguments[1]);
-  ref<Expr> zeroExpr = klee::ConstantExpr::create(0, arguments[1]->getWidth());
-  ref<Expr> oneExpr = klee::ConstantExpr::create(1, arguments[1]->getWidth());
+  klee::ref<Expr> compCond = UgeExpr::create(atomicRes, arguments[1]);
+  klee::ref<Expr> zeroExpr = klee::ConstantExpr::create(0, arguments[1]->getWidth());
+  klee::ref<Expr> oneExpr = klee::ConstantExpr::create(1, arguments[1]->getWidth());
 
   Executor::StatePair branches = fork(state, compCond, true); 
   if (branches.first) {
@@ -192,10 +192,10 @@ void Executor::executeAtomicInc(ExecutionState &state, KInstruction *target,
 
 void Executor::executeAtomicDec(ExecutionState &state, 
                                 KInstruction *target, 
-                                std::vector< ref<Expr> > &arguments, 
+                                std::vector< klee::ref<Expr> > &arguments, 
                                 unsigned seqNum) {
   // Load the value from addr
-  ref<Expr> base = arguments[0];
+  klee::ref<Expr> base = arguments[0];
   CallInst *ci = static_cast<CallInst*>(target->inst);     
 
   updateCType(state, ci->getArgOperand(0), base, state.tinfo.is_GPU_mode);
@@ -203,9 +203,9 @@ void Executor::executeAtomicDec(ExecutionState &state,
                          target, seqNum, true);     
 
   // (old == 0) | (old > val) 
-  ref<Expr> zeroExpr = klee::ConstantExpr::create(0, arguments[1]->getWidth());
-  ref<Expr> oneExpr = klee::ConstantExpr::create(1, arguments[1]->getWidth());
-  ref<Expr> compCond = OrExpr::create(EqExpr::create(atomicRes, zeroExpr),
+  klee::ref<Expr> zeroExpr = klee::ConstantExpr::create(0, arguments[1]->getWidth());
+  klee::ref<Expr> oneExpr = klee::ConstantExpr::create(1, arguments[1]->getWidth());
+  klee::ref<Expr> compCond = OrExpr::create(EqExpr::create(atomicRes, zeroExpr),
                                       UgtExpr::create(atomicRes, arguments[1]));
 
   Executor::StatePair branches = fork(state, compCond, true); 
@@ -223,10 +223,10 @@ void Executor::executeAtomicDec(ExecutionState &state,
 }
 
 void Executor::executeAtomicCAS(ExecutionState &state, KInstruction *target, 
-                                std::vector< ref<Expr> > &arguments, 
+                                std::vector< klee::ref<Expr> > &arguments, 
                                 unsigned seqNum) {
   // Load the value from addr
-  ref<Expr> base = arguments[0];
+  klee::ref<Expr> base = arguments[0];
   CallInst *ci = static_cast<CallInst*>(target->inst);     
 
   updateCType(state, ci->getArgOperand(0), base, state.tinfo.is_GPU_mode);
@@ -234,7 +234,7 @@ void Executor::executeAtomicCAS(ExecutionState &state, KInstruction *target,
                          target, seqNum, true);     
    
   // old == compare 
-  ref<Expr> compCond = EqExpr::create(atomicRes, arguments[1]);
+  klee::ref<Expr> compCond = EqExpr::create(atomicRes, arguments[1]);
 
   state.tinfo.is_Atomic_op = 1;
   Executor::StatePair branches = fork(state, compCond, true); 
@@ -253,17 +253,17 @@ void Executor::executeAtomicCAS(ExecutionState &state, KInstruction *target,
 
 void Executor::executeAtomicBitWise(ExecutionState &state, 
                                     KInstruction *target, std::string fName,
-                                    std::vector< ref<Expr> > &arguments, 
+                                    std::vector< klee::ref<Expr> > &arguments, 
                                     unsigned seqNum) {
   // Load the value from addr
-  ref<Expr> base = arguments[0];
+  klee::ref<Expr> base = arguments[0];
   CallInst *ci = static_cast<CallInst*>(target->inst);     
 
   updateCType(state, ci->getArgOperand(0), base, state.tinfo.is_GPU_mode);
   executeMemoryOperation(state, false, base, 0, 
                          target, seqNum, true);     
 
-  ref<Expr> Res;
+  klee::ref<Expr> Res;
   if (fName.find("And") != std::string::npos)
     Res = AndExpr::create(atomicRes, arguments[1]);
   else if (fName.find("Or") != std::string::npos)
@@ -278,7 +278,7 @@ void Executor::executeAtomicBitWise(ExecutionState &state,
 
 bool Executor::executeCUDAAtomic(ExecutionState &state,
                                  KInstruction *target, std::string fName,
-                                 std::vector< ref<Expr> > &arguments, 
+                                 std::vector< klee::ref<Expr> > &arguments, 
                                  unsigned seqNum) {
   bool intrinsicFound = true;
 

@@ -24,7 +24,7 @@ namespace klee {
 
 namespace expr {
   // These are the language types we manipulate.
-  typedef ref<Expr> ExprHandle;
+  typedef klee::ref<Expr> ExprHandle;
   typedef UpdateList VersionHandle;
   
   /// Identifier - Wrapper for a uniqued string.

@@ -45,25 +45,25 @@ namespace klee {
       stpSolver->setTimeout(t);
     }
 
-    bool evaluate(const ExecutionState&, ref<Expr>, Solver::Validity &result);
+    bool evaluate(const ExecutionState&, klee::ref<Expr>, Solver::Validity &result);
 
-    bool mustBeTrue(const ExecutionState&, ref<Expr>, bool &result);
+    bool mustBeTrue(const ExecutionState&, klee::ref<Expr>, bool &result);
 
-    bool mustBeFalse(const ExecutionState&, ref<Expr>, bool &result);
+    bool mustBeFalse(const ExecutionState&, klee::ref<Expr>, bool &result);
 
-    bool mayBeTrue(const ExecutionState&, ref<Expr>, bool &result);
+    bool mayBeTrue(const ExecutionState&, klee::ref<Expr>, bool &result);
 
-    bool mayBeFalse(const ExecutionState&, ref<Expr>, bool &result);
+    bool mayBeFalse(const ExecutionState&, klee::ref<Expr>, bool &result);
 
-    bool getValue(const ExecutionState &, ref<Expr> expr, 
-			  ref<ConstantExpr> &result);
+    bool getValue(const ExecutionState &, klee::ref<Expr> expr, 
+			  klee::ref<ConstantExpr> &result);
 
     bool getInitialValues(const ExecutionState&, 
 				  const std::vector<const Array*> &objects,
 				  std::vector< std::vector<unsigned char> > &result);
 
-    std::pair< ref<Expr>, ref<Expr> > 
-    getRange(const ExecutionState&, ref<Expr> query);
+    std::pair< klee::ref<Expr>, klee::ref<Expr> > 
+    getRange(const ExecutionState&, klee::ref<Expr> query);
 
   };
 

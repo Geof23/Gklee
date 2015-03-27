@@ -51,7 +51,7 @@ namespace klee
 		printExit();
 	}
 
-	void ExprSMTLIBLetPrinter::scan(const ref<Expr>& e)
+	void ExprSMTLIBLetPrinter::scan(const klee::ref<Expr>& e)
 	{
 		if(isa<ConstantExpr>(e))
 			return; //we don't need to scan simple constants
@@ -97,7 +97,7 @@ namespace klee
 	{
 		//Assign a number to each binding that will be used
 		unsigned int counter=0;
-		for(set<ref<Expr> >::const_iterator i=twoOrMoreEO.begin();
+		for(set<klee::ref<Expr> >::const_iterator i=twoOrMoreEO.begin();
 				i!= twoOrMoreEO.end(); ++i)
 		{
 			bindings.insert(std::make_pair(*i,counter));
@@ -105,9 +105,9 @@ namespace klee
 		}
 	}
 
-	void ExprSMTLIBLetPrinter::printExpression(const ref<Expr>& e, ExprSMTLIBPrinter::SMTLIB_SORT expectedSort)
+	void ExprSMTLIBLetPrinter::printExpression(const klee::ref<Expr>& e, ExprSMTLIBPrinter::SMTLIB_SORT expectedSort)
 	{
-		map<const ref<Expr>,unsigned int>::const_iterator i= bindings.find(e);
+		map<const klee::ref<Expr>,unsigned int>::const_iterator i= bindings.find(e);
 
 		if(disablePrintedAbbreviations || i == bindings.end())
 		{
@@ -156,7 +156,7 @@ namespace klee
 			*p << "( "; p->pushIndent();
 
 			//Print each binding
-			for(map<const ref<Expr>, unsigned int>::const_iterator i= bindings.begin();
+			for(map<const klee::ref<Expr>, unsigned int>::const_iterator i= bindings.begin();
 					i!=bindings.end(); ++i)
 			{
 				printSeperator();
@@ -187,7 +187,7 @@ namespace klee
 		//print out Expressions with abbreviations.
 		unsigned int numberOfItems= query->constraints.size() +1; //+1 for query
 		unsigned int itemsLeft=numberOfItems;
-		vector<ref<Expr> >::const_iterator constraint=query->constraints.begin();
+		vector<klee::ref<Expr> >::const_iterator constraint=query->constraints.begin();
 
 		/* Produce nested (and () () statements. If the constraint set
 		 * is empty then we will only print the "queryAssert".

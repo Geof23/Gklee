@@ -26,8 +26,8 @@ using namespace klee;
 
 // XXX we really want to do some sort of canonicalization of exprs
 // globally so that cases below become simpler
-void ImpliedValue::getImpliedValues(ref<Expr> e,
-                                    ref<ConstantExpr> value,
+void ImpliedValue::getImpliedValues(klee::ref<Expr> e,
+                                    klee::ref<ConstantExpr> value,
                                     ImpliedValueList &results) {
   switch (e->getKind()) {
   case Expr::Constant: {
@@ -187,17 +187,17 @@ void ImpliedValue::getImpliedValues(ref<Expr> e,
   }
 }
     
-void ImpliedValue::checkForImpliedValues(Solver *S, ref<Expr> e, 
-                                         ref<ConstantExpr> value) {
-  std::vector<ref<ReadExpr> > reads;
-  std::map<ref<ReadExpr>, ref<ConstantExpr> > found;
+void ImpliedValue::checkForImpliedValues(Solver *S, klee::ref<Expr> e, 
+                                         klee::ref<ConstantExpr> value) {
+  std::vector<klee::ref<ReadExpr> > reads;
+  std::map<klee::ref<ReadExpr>, klee::ref<ConstantExpr> > found;
   ImpliedValueList results;
 
   getImpliedValues(e, value, results);
 
   for (ImpliedValueList::iterator i = results.begin(), ie = results.end();
        i != ie; ++i) {
-    std::map<ref<ReadExpr>, ref<ConstantExpr> >::iterator it = 
+    std::map<klee::ref<ReadExpr>, klee::ref<ConstantExpr> >::iterator it = 
       found.find(i->first);
     if (it != found.end()) {
       assert(it->second == i->second && "Invalid ImpliedValue!");
@@ -207,10 +207,10 @@ void ImpliedValue::checkForImpliedValues(Solver *S, ref<Expr> e,
   }
 
   findReads(e, false, reads);
-  std::set< ref<ReadExpr> > readsSet(reads.begin(), reads.end());
-  reads = std::vector< ref<ReadExpr> >(readsSet.begin(), readsSet.end());
+  std::set< klee::ref<ReadExpr> > readsSet(reads.begin(), reads.end());
+  reads = std::vector< klee::ref<ReadExpr> >(readsSet.begin(), readsSet.end());
 
-  std::vector<ref<Expr> > assumption;
+  std::vector<klee::ref<Expr> > assumption;
   assumption.push_back(EqExpr::create(e, value));
 
   // obscure... we need to make sure that all the read indices are
@@ -219,7 +219,7 @@ void ImpliedValue::checkForImpliedValues(Solver *S, ref<Expr> e,
   // bounds indices which will not get picked up. this is of utmost
   // importance if we are being backed by the CexCachingSolver.
 
-  for (std::vector< ref<ReadExpr> >::iterator i = reads.begin(), 
+  for (std::vector< klee::ref<ReadExpr> >::iterator i = reads.begin(), 
          ie = reads.end(); i != ie; ++i) {
     ReadExpr *re = i->get();
     assumption.push_back(UltExpr::create(re->index, 
@@ -228,13 +228,13 @@ void ImpliedValue::checkForImpliedValues(Solver *S, ref<Expr> e,
   }
 
   ConstraintManager assume(assumption);
-  for (std::vector< ref<ReadExpr> >::iterator i = reads.begin(), 
+  for (std::vector< klee::ref<ReadExpr> >::iterator i = reads.begin(), 
          ie = reads.end(); i != ie; ++i) {
-    ref<ReadExpr> var = *i;
-    ref<ConstantExpr> possible;
+    klee::ref<ReadExpr> var = *i;
+    klee::ref<ConstantExpr> possible;
     bool success = S->getValue(Query(assume, var), possible);
     assert(success && "FIXME: Unhandled solver failure");    
-    std::map<ref<ReadExpr>, ref<ConstantExpr> >::iterator it = found.find(var);
+    std::map<klee::ref<ReadExpr>, klee::ref<ConstantExpr> >::iterator it = found.find(var);
     bool res;
     success = S->mustBeTrue(Query(assume, EqExpr::create(var, possible)), res);
     assert(success && "FIXME: Unhandled solver failure");    
@@ -245,7 +245,7 @@ void ImpliedValue::checkForImpliedValues(Solver *S, ref<Expr> e,
       }
     } else {
       if (it!=found.end()) {
-        ref<Expr> binding = it->second;
+        klee::ref<Expr> binding = it->second;
         std::cerr << "checkForImpliedValues: " << e  << " = " << value << "\n"
                   << "\t\t implies " << var << " == " << binding
                   << " (error)\n";

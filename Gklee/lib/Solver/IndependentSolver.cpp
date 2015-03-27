@@ -89,8 +89,8 @@ class IndependentElementSet {
 
 public:
   IndependentElementSet() {}
-  IndependentElementSet(ref<Expr> e) {
-    std::vector< ref<ReadExpr> > reads;
+  IndependentElementSet(klee::ref<Expr> e) {
+    std::vector< klee::ref<ReadExpr> > reads;
     findReads(e, /* visitUpdates= */ true, reads);
     for (unsigned i = 0; i != reads.size(); ++i) {
       ReadExpr *re = reads[i].get();
@@ -221,9 +221,9 @@ inline std::ostream &operator<<(std::ostream &os, const IndependentElementSet &i
 
 static 
 IndependentElementSet getIndependentConstraints(const Query& query,
-                                                std::vector< ref<Expr> > &result) {
+                                                std::vector< klee::ref<Expr> > &result) {
   IndependentElementSet eltsClosure(query.expr);
-  std::vector< std::pair<ref<Expr>, IndependentElementSet> > worklist;
+  std::vector< std::pair<klee::ref<Expr>, IndependentElementSet> > worklist;
 
   for (ConstraintManager::const_iterator it = query.constraints.begin(), 
          ie = query.constraints.end(); it != ie; ++it)
@@ -233,8 +233,8 @@ IndependentElementSet getIndependentConstraints(const Query& query,
   bool done = false;
   do {
     done = true;
-    std::vector< std::pair<ref<Expr>, IndependentElementSet> > newWorklist;
-    for (std::vector< std::pair<ref<Expr>, IndependentElementSet> >::iterator
+    std::vector< std::pair<klee::ref<Expr>, IndependentElementSet> > newWorklist;
+    for (std::vector< std::pair<klee::ref<Expr>, IndependentElementSet> >::iterator
            it = worklist.begin(), ie = worklist.end(); it != ie; ++it) {
       if (it->second.intersects(eltsClosure)) {
         if (eltsClosure.add(it->second))
@@ -248,7 +248,7 @@ IndependentElementSet getIndependentConstraints(const Query& query,
   } while (!done);
 
   if (0) {
-    std::set< ref<Expr> > reqset(result.begin(), result.end());
+    std::set< klee::ref<Expr> > reqset(result.begin(), result.end());
     std::cerr << "--\n";
     std::cerr << "Q: " << query.expr << "\n";
     std::cerr << "\telts: " << IndependentElementSet(query.expr) << "\n";
@@ -276,7 +276,7 @@ public:
 
   bool computeTruth(const Query&, bool &isValid);
   bool computeValidity(const Query&, Solver::Validity &result);
-  bool computeValue(const Query&, ref<Expr> &result);
+  bool computeValue(const Query&, klee::ref<Expr> &result);
   bool computeInitialValues(const Query& query,
                             const std::vector<const Array*> &objects,
                             std::vector< std::vector<unsigned char> > &values,
@@ -289,7 +289,7 @@ public:
   
 bool IndependentSolver::computeValidity(const Query& query,
                                         Solver::Validity &result) {
-  std::vector< ref<Expr> > required;
+  std::vector< klee::ref<Expr> > required;
   IndependentElementSet eltsClosure =
     getIndependentConstraints(query, required);
   ConstraintManager tmp(required);
@@ -298,7 +298,7 @@ bool IndependentSolver::computeValidity(const Query& query,
 }
 
 bool IndependentSolver::computeTruth(const Query& query, bool &isValid) {
-  std::vector< ref<Expr> > required;
+  std::vector< klee::ref<Expr> > required;
   IndependentElementSet eltsClosure = 
     getIndependentConstraints(query, required);
   ConstraintManager tmp(required);
@@ -306,8 +306,8 @@ bool IndependentSolver::computeTruth(const Query& query, bool &isValid) {
                                     isValid);
 }
 
-bool IndependentSolver::computeValue(const Query& query, ref<Expr> &result) {
-  std::vector< ref<Expr> > required;
+bool IndependentSolver::computeValue(const Query& query, klee::ref<Expr> &result) {
+  std::vector< klee::ref<Expr> > required;
   IndependentElementSet eltsClosure = 
     getIndependentConstraints(query, required);
   ConstraintManager tmp(required);

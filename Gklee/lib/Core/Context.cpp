@@ -32,14 +32,14 @@ const Context &Context::get() {
   return TheContext;
 }
 
-ref<Expr> Expr::createSExtToPointerWidth(ref<Expr> e) {
+klee::ref<Expr> Expr::createSExtToPointerWidth(klee::ref<Expr> e) {
   return SExtExpr::create(e, Context::get().getPointerWidth());
 }
 
-ref<Expr> Expr::createZExtToPointerWidth(ref<Expr> e) {
+klee::ref<Expr> Expr::createZExtToPointerWidth(klee::ref<Expr> e) {
   return ZExtExpr::create(e, Context::get().getPointerWidth());
 }
 
-ref<ConstantExpr> Expr::createPointer(uint64_t v) {
+klee::ref<ConstantExpr> Expr::createPointer(uint64_t v) {
   return ConstantExpr::create(v, Context::get().getPointerWidth());
 }

@@ -24,7 +24,7 @@ namespace runtime {
 using namespace runtime;
 
 static bool isCurrentConfigFulfilled(Executor &executor, ExecutionState &state, 
-                                     ref<Expr> &configExpr, ref<Expr> &typeExpr) {
+                                     klee::ref<Expr> &configExpr, klee::ref<Expr> &typeExpr) {
   bool result = false;
   state.paraConstraints = state.constraints;
   if (!UnboundConfig)
@@ -38,21 +38,21 @@ static bool isCurrentConfigFulfilled(Executor &executor, ExecutionState &state,
 }
 
 void AddressSpaceUtil::updateBuiltInRelatedConstraint(ExecutionState &state, ConstraintManager &constr, 
-                                                      ref<Expr> &expr) {
-  std::map< ref<Expr>, ref<Expr> > equalities; 
+                                                      klee::ref<Expr> &expr) {
+  std::map< klee::ref<Expr>, klee::ref<Expr> > equalities; 
   // update bid 
   MemoryObject *bo = state.tinfo.block_id_mo;
   std::vector<AddressSpace> &sharedMemories = state.addressSpace.sharedMemories;
 
   ObjectState *bos0 = sharedMemories[0].findNonConstantObject(bo);
-  ref<Expr> bidx0 = bos0->read(0, Expr::Int32);     
-  ref<Expr> bidy0 = bos0->read(4, Expr::Int32);     
-  ref<Expr> bidz0 = bos0->read(8, Expr::Int32);     
+  klee::ref<Expr> bidx0 = bos0->read(0, Expr::Int32);     
+  klee::ref<Expr> bidy0 = bos0->read(4, Expr::Int32);     
+  klee::ref<Expr> bidz0 = bos0->read(8, Expr::Int32);     
 
   ObjectState *bos1 = sharedMemories[1].findNonConstantObject(bo);
-  ref<Expr> bidx1 = bos1->read(0, Expr::Int32);     
-  ref<Expr> bidy1 = bos1->read(4, Expr::Int32);     
-  ref<Expr> bidz1 = bos1->read(8, Expr::Int32);     
+  klee::ref<Expr> bidx1 = bos1->read(0, Expr::Int32);     
+  klee::ref<Expr> bidy1 = bos1->read(4, Expr::Int32);     
+  klee::ref<Expr> bidz1 = bos1->read(8, Expr::Int32);     
 
   equalities.insert(std::make_pair(bidx0, bidx1));
   equalities.insert(std::make_pair(bidy0, bidy1));
@@ -62,21 +62,21 @@ void AddressSpaceUtil::updateBuiltInRelatedConstraint(ExecutionState &state, Con
   MemoryObject *mo = state.tinfo.thread_id_mo;
   std::vector<AddressSpace> &localMemories = state.addressSpace.localMemories;
   ObjectState *tos0 = localMemories[0].findNonConstantObject(mo);
-  ref<Expr> tidx0 = tos0->read(0, Expr::Int32);
-  ref<Expr> tidy0 = tos0->read(4, Expr::Int32);
-  ref<Expr> tidz0 = tos0->read(8, Expr::Int32);
+  klee::ref<Expr> tidx0 = tos0->read(0, Expr::Int32);
+  klee::ref<Expr> tidy0 = tos0->read(4, Expr::Int32);
+  klee::ref<Expr> tidz0 = tos0->read(8, Expr::Int32);
 
   ObjectState *tos1 = localMemories[1].findNonConstantObject(mo);
-  ref<Expr> tidx1 = tos1->read(0, Expr::Int32);
-  ref<Expr> tidy1 = tos1->read(4, Expr::Int32);
-  ref<Expr> tidz1 = tos1->read(8, Expr::Int32);
+  klee::ref<Expr> tidx1 = tos1->read(0, Expr::Int32);
+  klee::ref<Expr> tidy1 = tos1->read(4, Expr::Int32);
+  klee::ref<Expr> tidz1 = tos1->read(8, Expr::Int32);
 
   equalities.insert(std::make_pair(tidx0, tidx1));
   equalities.insert(std::make_pair(tidy0, tidy1));
   equalities.insert(std::make_pair(tidz0, tidz1));
 
   if (expr.get() != NULL) {
-    ref<Expr> tmp = constr.updateExprThroughReplacement(expr, equalities); 
+    klee::ref<Expr> tmp = constr.updateExprThroughReplacement(expr, equalities); 
     expr = constr.simplifyExpr(tmp);  
   }
 }
@@ -147,66 +147,66 @@ static inline bool existThreadInSet(std::set<unsigned> &set, unsigned tid) {
   return found != set.end();
 }
 
-ref<Expr> AddressSpaceUtil::constructSameBlockExpr(ExecutionState &state, Expr::Width width) {
+klee::ref<Expr> AddressSpaceUtil::constructSameBlockExpr(ExecutionState &state, Expr::Width width) {
   MemoryObject *mo = state.tinfo.block_id_mo;
   ObjectState *bos1 = state.addressSpace.sharedMemories[0].findNonConstantObject(mo);
   // bid x ...
-  ref<Expr> bidx1 = bos1->read(0, width);
+  klee::ref<Expr> bidx1 = bos1->read(0, width);
   // bid y ...
-  ref<Expr> bidy1 = bos1->read(4, width);
+  klee::ref<Expr> bidy1 = bos1->read(4, width);
   // bid z ...
-  ref<Expr> bidz1 = bos1->read(8, width);
+  klee::ref<Expr> bidz1 = bos1->read(8, width);
 
   ObjectState *bos2 = state.addressSpace.sharedMemories[1].findNonConstantObject(mo);
   // bid x ...
-  ref<Expr> bidx2 = bos2->read(0, width);
+  klee::ref<Expr> bidx2 = bos2->read(0, width);
   // bid y ...
-  ref<Expr> bidy2 = bos2->read(4, width);
+  klee::ref<Expr> bidy2 = bos2->read(4, width);
   // bid z ...
-  ref<Expr> bidz2 = bos2->read(8, width);
+  klee::ref<Expr> bidz2 = bos2->read(8, width);
 
-  ref<Expr> result = AndExpr::create(AndExpr::create(EqExpr::create(bidx1, bidx2), 
+  klee::ref<Expr> result = AndExpr::create(AndExpr::create(EqExpr::create(bidx1, bidx2), 
                                                      EqExpr::create(bidy1, bidy2)), 
                                      EqExpr::create(bidz1, bidz2));   
   return result;
 }
 
-ref<Expr> AddressSpaceUtil::constructSameThreadExpr(ExecutionState &state, Expr::Width width) {
+klee::ref<Expr> AddressSpaceUtil::constructSameThreadExpr(ExecutionState &state, Expr::Width width) {
   MemoryObject *mo = state.tinfo.thread_id_mo;
   ObjectState *tos1 = state.addressSpace.localMemories[0].findNonConstantObject(mo);
   // tid x ...
-  ref<Expr> tidx1 = tos1->read(0, width);
+  klee::ref<Expr> tidx1 = tos1->read(0, width);
   // tid y ...
-  ref<Expr> tidy1 = tos1->read(4, width);
+  klee::ref<Expr> tidy1 = tos1->read(4, width);
   // tid z ...
-  ref<Expr> tidz1 = tos1->read(8, width);
+  klee::ref<Expr> tidz1 = tos1->read(8, width);
 
   ObjectState *tos2 = state.addressSpace.localMemories[1].findNonConstantObject(mo);
   // tid x ...
-  ref<Expr> tidx2 = tos2->read(0, width);
+  klee::ref<Expr> tidx2 = tos2->read(0, width);
   // tid y ...
-  ref<Expr> tidy2 = tos2->read(4, width);
+  klee::ref<Expr> tidy2 = tos2->read(4, width);
   // tid z ...
-  ref<Expr> tidz2 = tos2->read(8, width);
+  klee::ref<Expr> tidz2 = tos2->read(8, width);
 
-  ref<Expr> result = AndExpr::create(AndExpr::create(EqExpr::create(tidx1, tidx2), 
+  klee::ref<Expr> result = AndExpr::create(AndExpr::create(EqExpr::create(tidx1, tidx2), 
                                                      EqExpr::create(tidy1, tidy2)), 
                                      EqExpr::create(tidz1, tidz2));   
   return result;
 }
 
-ref<Expr> AddressSpaceUtil::constructRealThreadNumConstraint(ExecutionState &state, unsigned tid,
+klee::ref<Expr> AddressSpaceUtil::constructRealThreadNumConstraint(ExecutionState &state, unsigned tid,
                                                              Expr::Width width) {
   MemoryObject *mo = state.tinfo.thread_id_mo;
   ObjectState *os = state.addressSpace.localMemories[tid].findNonConstantObject(mo);
   // tid x ...
-  ref<Expr> tidx = os->read(0, width);
+  klee::ref<Expr> tidx = os->read(0, width);
   // tid y ...
-  ref<Expr> tidy = os->read(4, width);
+  klee::ref<Expr> tidy = os->read(4, width);
   // tid z ...
-  ref<Expr> tidz = os->read(8, width);
+  klee::ref<Expr> tidz = os->read(8, width);
 
-  ref<Expr> bs0, bs1;
+  klee::ref<Expr> bs0, bs1;
   if (!UnboundConfig) {
     bs0 = klee::ConstantExpr::create(GPUConfig::SymBlockSize[0], Expr::Int32); 
     bs1 = klee::ConstantExpr::create(GPUConfig::SymBlockSize[1], Expr::Int32); 
@@ -219,48 +219,48 @@ ref<Expr> AddressSpaceUtil::constructRealThreadNumConstraint(ExecutionState &sta
     bs1 = bdimos->read(4, Expr::Int32); 
   }
 
-  ref<Expr> part1 = AddExpr::create(MulExpr::create(bs1, tidz), tidy);
-  ref<Expr> part2 = MulExpr::create(bs0, part1);
-  ref<Expr> part3 = AddExpr::create(part2, tidx); 
+  klee::ref<Expr> part1 = AddExpr::create(MulExpr::create(bs1, tidz), tidy);
+  klee::ref<Expr> part2 = MulExpr::create(bs0, part1);
+  klee::ref<Expr> part3 = AddExpr::create(part2, tidx); 
   return part3;
 }
 
 // construct the RW or WW conflict constraint ...
-ref<Expr> symCheckConflictExprs(ref<Expr> &addr1, Expr::Width width1, 
-                                ref<Expr> &addr2, Expr::Width width2) {
+klee::ref<Expr> symCheckConflictExprs(klee::ref<Expr> &addr1, Expr::Width width1, 
+                                klee::ref<Expr> &addr2, Expr::Width width2) {
   unsigned boffset1 = (width1 - 1) >> 3; 
-  ref<Expr> hbound1 =  boffset1 == 0 ? addr1 : 
+  klee::ref<Expr> hbound1 =  boffset1 == 0 ? addr1 : 
     AddExpr::create(addr1, klee::ConstantExpr::create(boffset1, addr1->getWidth()));
 
   unsigned boffset2 = (width2 - 1) >> 3; 
-  ref<Expr> hbound2 =  boffset2 == 0 ? addr2 : 
+  klee::ref<Expr> hbound2 =  boffset2 == 0 ? addr2 : 
     AddExpr::create(addr2, klee::ConstantExpr::create(boffset2, addr2->getWidth()));
 
-  ref<Expr> expr1 = AndExpr::create(UleExpr::create(addr1, addr2),
+  klee::ref<Expr> expr1 = AndExpr::create(UleExpr::create(addr1, addr2),
 				    UleExpr::create(addr2, hbound1));
-  ref<Expr> expr2 = AndExpr::create(UleExpr::create(addr2, addr1),
+  klee::ref<Expr> expr2 = AndExpr::create(UleExpr::create(addr2, addr1),
 				    UleExpr::create(addr1, hbound2));
-  ref<Expr> expr = OrExpr::create(expr1, expr2);
+  klee::ref<Expr> expr = OrExpr::create(expr1, expr2);
  
   return expr;
 }
 
 // construct the condition: 
 // (B_1 == B_2) && (t_1 != t_2) && (t_1/32 == t_2/32)
-ref<Expr> AddressSpaceUtil::threadSameWarpConstraint(ExecutionState &state, unsigned warpsize) {
-  ref<Expr> sameTidExpr = AddressSpaceUtil::constructSameThreadExpr(state, Expr::Int32);
+klee::ref<Expr> AddressSpaceUtil::threadSameWarpConstraint(ExecutionState &state, unsigned warpsize) {
+  klee::ref<Expr> sameTidExpr = AddressSpaceUtil::constructSameThreadExpr(state, Expr::Int32);
 
-  ref<Expr> tConstr1 = AddressSpaceUtil::constructRealThreadNumConstraint(state, 0, Expr::Int32);
-  ref<Expr> tConstr2 = AddressSpaceUtil::constructRealThreadNumConstraint(state, 1, Expr::Int32);
-  ref<Expr> warpSizeExpr = klee::ConstantExpr::create(warpsize, Expr::Int32);
-  ref<Expr> tidExpr1 = UDivExpr::create(tConstr1, warpSizeExpr); 
-  ref<Expr> tidExpr2 = UDivExpr::create(tConstr2, warpSizeExpr);
+  klee::ref<Expr> tConstr1 = AddressSpaceUtil::constructRealThreadNumConstraint(state, 0, Expr::Int32);
+  klee::ref<Expr> tConstr2 = AddressSpaceUtil::constructRealThreadNumConstraint(state, 1, Expr::Int32);
+  klee::ref<Expr> warpSizeExpr = klee::ConstantExpr::create(warpsize, Expr::Int32);
+  klee::ref<Expr> tidExpr1 = UDivExpr::create(tConstr1, warpSizeExpr); 
+  klee::ref<Expr> tidExpr2 = UDivExpr::create(tConstr2, warpSizeExpr);
 
-  ref<Expr> sameWarpExpr = AndExpr::create(Expr::createIsZero(sameTidExpr), 
+  klee::ref<Expr> sameWarpExpr = AndExpr::create(Expr::createIsZero(sameTidExpr), 
                                            EqExpr::create(tidExpr1, tidExpr2)); 
 
   if (GPUConfig::num_blocks > 1) {
-    ref<Expr> sameBidExpr = AddressSpaceUtil::constructSameBlockExpr(state, Expr::Int32);
+    klee::ref<Expr> sameBidExpr = AddressSpaceUtil::constructSameBlockExpr(state, Expr::Int32);
     sameWarpExpr = AndExpr::create(sameBidExpr, sameWarpExpr);
   } 
 
@@ -269,17 +269,17 @@ ref<Expr> AddressSpaceUtil::threadSameWarpConstraint(ExecutionState &state, unsi
 
 // construct the condition :
 // (B_1 == B_2) && (t_1/32 != t_2/32)
-ref<Expr> AddressSpaceUtil::threadSameBlockDiffWarpConstraint(ExecutionState &state, unsigned warpsize) {
-  ref<Expr> tConstr1 = AddressSpaceUtil::constructRealThreadNumConstraint(state, 0, Expr::Int32);
-  ref<Expr> tConstr2 = AddressSpaceUtil::constructRealThreadNumConstraint(state, 1, Expr::Int32);
-  ref<Expr> warpSizeExpr = klee::ConstantExpr::create(warpsize, Expr::Int32);
-  ref<Expr> tidExpr1 = UDivExpr::create(tConstr1, warpSizeExpr); 
-  ref<Expr> tidExpr2 = UDivExpr::create(tConstr2, warpSizeExpr);
+klee::ref<Expr> AddressSpaceUtil::threadSameBlockDiffWarpConstraint(ExecutionState &state, unsigned warpsize) {
+  klee::ref<Expr> tConstr1 = AddressSpaceUtil::constructRealThreadNumConstraint(state, 0, Expr::Int32);
+  klee::ref<Expr> tConstr2 = AddressSpaceUtil::constructRealThreadNumConstraint(state, 1, Expr::Int32);
+  klee::ref<Expr> warpSizeExpr = klee::ConstantExpr::create(warpsize, Expr::Int32);
+  klee::ref<Expr> tidExpr1 = UDivExpr::create(tConstr1, warpSizeExpr); 
+  klee::ref<Expr> tidExpr2 = UDivExpr::create(tConstr2, warpSizeExpr);
 
-  ref<Expr> diffWarpExpr = NeExpr::create(tidExpr1, tidExpr2);
+  klee::ref<Expr> diffWarpExpr = NeExpr::create(tidExpr1, tidExpr2);
 
   if (GPUConfig::num_blocks > 1) {
-    ref<Expr> sameBlockExpr = AddressSpaceUtil::constructSameBlockExpr(state, Expr::Int32);
+    klee::ref<Expr> sameBlockExpr = AddressSpaceUtil::constructSameBlockExpr(state, Expr::Int32);
     diffWarpExpr = AndExpr::create(sameBlockExpr, diffWarpExpr);
   }
 
@@ -288,13 +288,13 @@ ref<Expr> AddressSpaceUtil::threadSameBlockDiffWarpConstraint(ExecutionState &st
 
 // construct the condition :
 // (B_1 != B_2)
-ref<Expr> AddressSpaceUtil::threadDiffBlockConstraint(ExecutionState &state) {
-  ref<Expr> sameBlockExpr = AddressSpaceUtil::constructSameBlockExpr(state, Expr::Int32);
+klee::ref<Expr> AddressSpaceUtil::threadDiffBlockConstraint(ExecutionState &state) {
+  klee::ref<Expr> sameBlockExpr = AddressSpaceUtil::constructSameBlockExpr(state, Expr::Int32);
   return Expr::createIsZero(sameBlockExpr);
 }
 
 static void dumpSymBankConflict(Executor &executor, ExecutionState &state, 
-                                ref<Expr> &bcCond, 
+                                klee::ref<Expr> &bcCond, 
                                 MemoryAccess &access1, MemoryAccess &access2) {
   bool benign = false;
   std::vector<SymBlockID_t> symBlockIDs;
@@ -306,7 +306,7 @@ static void dumpSymBankConflict(Executor &executor, ExecutionState &state,
   symThreadIDs.push_back(SymThreadID_t(0, 0, 0));
   symThreadIDs.push_back(SymThreadID_t(0, 0, 0));
   
-  std::vector< ref<Expr> > offsetVec, cOffsetVec;
+  std::vector< klee::ref<Expr> > offsetVec, cOffsetVec;
   offsetVec.push_back(access1.offset); 
   offsetVec.push_back(access2.offset); 
 
@@ -342,19 +342,19 @@ static void dumpSymBankConflict(Executor &executor, ExecutionState &state,
 static bool symCheckWriteBankConflictExprsCap1x(Executor &executor, ExecutionState &state, 
                                                 MemoryAccess &access1, MemoryAccess &access2,
                                                 unsigned BankNum, ThreadInfo &tinfo) {
-  ref<Expr> addr1 = access1.offset;
-  ref<Expr> addr2 = access2.offset;
+  klee::ref<Expr> addr1 = access1.offset;
+  klee::ref<Expr> addr2 = access2.offset;
 
-  ref<Expr> bankSize = klee::ConstantExpr::create(BankNum * 4, addr1->getWidth());
-  ref<Expr> wordSize = klee::ConstantExpr::create(4, addr1->getWidth());
-  ref<Expr> a1 = UDivExpr::create(URemExpr::create(addr1, bankSize), wordSize);
-  ref<Expr> a2 = UDivExpr::create(URemExpr::create(addr2, bankSize), wordSize);
-  ref<Expr> expr = EqExpr::create(a1, a2);
+  klee::ref<Expr> bankSize = klee::ConstantExpr::create(BankNum * 4, addr1->getWidth());
+  klee::ref<Expr> wordSize = klee::ConstantExpr::create(4, addr1->getWidth());
+  klee::ref<Expr> a1 = UDivExpr::create(URemExpr::create(addr1, bankSize), wordSize);
+  klee::ref<Expr> a2 = UDivExpr::create(URemExpr::create(addr2, bankSize), wordSize);
+  klee::ref<Expr> expr = EqExpr::create(a1, a2);
 
   // Determine whether the offset expression is related to 
   // Symbolic values ...
-  ref<Expr> configExpr = AndExpr::create(access1.accessCondExpr, access2.accessCondExpr);
-  ref<Expr> tRelationExpr = AddressSpaceUtil::threadSameWarpConstraint(state, BankNum); 
+  klee::ref<Expr> configExpr = AndExpr::create(access1.accessCondExpr, access2.accessCondExpr);
+  klee::ref<Expr> tRelationExpr = AddressSpaceUtil::threadSameWarpConstraint(state, BankNum); 
   bool configFulfilled = isCurrentConfigFulfilled(executor, state, configExpr, tRelationExpr); 
 
   if (configFulfilled) {
@@ -376,14 +376,14 @@ static bool symCheckWriteBankConflictExprsCap1x(Executor &executor, ExecutionSta
 static bool symCheckReadBankConflictExprsCap1x(Executor &executor, ExecutionState &state, 
                                                MemoryAccess &access1, MemoryAccess access2,
                                                unsigned BankNum, ThreadInfo &tinfo) {
-  ref<Expr> addr1 = access1.offset; 
-  ref<Expr> addr2 = access2.offset; 
+  klee::ref<Expr> addr1 = access1.offset; 
+  klee::ref<Expr> addr2 = access2.offset; 
 
-  ref<Expr> origEq = EqExpr::create(addr1, addr2);
+  klee::ref<Expr> origEq = EqExpr::create(addr1, addr2);
   // Determine whether the offset expression is related to 
   // Symbolic values ...
-  ref<Expr> configExpr = AndExpr::create(access1.accessCondExpr, access2.accessCondExpr);
-  ref<Expr> tRelationExpr = AddressSpaceUtil::threadSameWarpConstraint(state, BankNum);
+  klee::ref<Expr> configExpr = AndExpr::create(access1.accessCondExpr, access2.accessCondExpr);
+  klee::ref<Expr> tRelationExpr = AddressSpaceUtil::threadSameWarpConstraint(state, BankNum);
   bool configFulfilled = isCurrentConfigFulfilled(executor, state, configExpr, tRelationExpr); 
 
   if (configFulfilled) {
@@ -397,13 +397,13 @@ static bool symCheckReadBankConflictExprsCap1x(Executor &executor, ExecutionStat
       }
     }
 
-    ref<Expr> tmpExpr = NeExpr::create(addr1, addr2);
-    ref<Expr> bankSize = klee::ConstantExpr::create(BankNum * 4, addr1->getWidth());
-    ref<Expr> wordSize = klee::ConstantExpr::create(4, addr1->getWidth());
-    ref<Expr> a1 = UDivExpr::create(URemExpr::create(addr1, bankSize), wordSize);
-    ref<Expr> a2 = UDivExpr::create(URemExpr::create(addr2, bankSize), wordSize);
-    ref<Expr> expr = EqExpr::create(a1, a2);
-    ref<Expr> andExpr = AndExpr::create(tmpExpr, expr);
+    klee::ref<Expr> tmpExpr = NeExpr::create(addr1, addr2);
+    klee::ref<Expr> bankSize = klee::ConstantExpr::create(BankNum * 4, addr1->getWidth());
+    klee::ref<Expr> wordSize = klee::ConstantExpr::create(4, addr1->getWidth());
+    klee::ref<Expr> a1 = UDivExpr::create(URemExpr::create(addr1, bankSize), wordSize);
+    klee::ref<Expr> a2 = UDivExpr::create(URemExpr::create(addr2, bankSize), wordSize);
+    klee::ref<Expr> expr = EqExpr::create(a1, a2);
+    klee::ref<Expr> andExpr = AndExpr::create(tmpExpr, expr);
   
     success = executor.solver->mustBeFalse(state, andExpr, result);
     if (success) {
@@ -448,19 +448,19 @@ static bool checkSymBankConflictCap1x(Executor &executor, ExecutionState &state,
 static bool symCheckBankConflictExprsCap2x(Executor &executor, ExecutionState &state, 
                                            MemoryAccess &access1, MemoryAccess &access2, 
                                            unsigned BankNum, ThreadInfo &tinfo) {
-  ref<Expr> addr1 = access1.offset; 
-  ref<Expr> addr2 = access2.offset; 
+  klee::ref<Expr> addr1 = access1.offset; 
+  klee::ref<Expr> addr2 = access2.offset; 
 
   // Eliminate the same word ...
-  ref<Expr> wordSize = klee::ConstantExpr::create(4, addr1->getWidth());
-  ref<Expr> a1 = UDivExpr::create(addr1, wordSize);
-  ref<Expr> a2 = UDivExpr::create(addr2, wordSize);
-  ref<Expr> expr = EqExpr::create(a1, a2);
+  klee::ref<Expr> wordSize = klee::ConstantExpr::create(4, addr1->getWidth());
+  klee::ref<Expr> a1 = UDivExpr::create(addr1, wordSize);
+  klee::ref<Expr> a2 = UDivExpr::create(addr2, wordSize);
+  klee::ref<Expr> expr = EqExpr::create(a1, a2);
 
   // Determine whether the offset expression is related to 
   // Symbolic values ...
-  ref<Expr> configExpr = AndExpr::create(access1.accessCondExpr, access2.accessCondExpr);
-  ref<Expr> tRelationExpr = AddressSpaceUtil::threadSameWarpConstraint(state, BankNum); 
+  klee::ref<Expr> configExpr = AndExpr::create(access1.accessCondExpr, access2.accessCondExpr);
+  klee::ref<Expr> tRelationExpr = AddressSpaceUtil::threadSameWarpConstraint(state, BankNum); 
   bool configFulfilled = isCurrentConfigFulfilled(executor, state, configExpr, tRelationExpr);
 
   if (configFulfilled) {
@@ -474,11 +474,11 @@ static bool symCheckBankConflictExprsCap2x(Executor &executor, ExecutionState &s
         return false; // broadcast ...
       }
 
-    ref<Expr> tmpExpr = NeExpr::create(a1, a2);
-    ref<Expr> bankSize = klee::ConstantExpr::create(BankNum * 4, addr1->getWidth());
-    ref<Expr> b1 = UDivExpr::create(URemExpr::create(addr1, bankSize), wordSize);
-    ref<Expr> b2 = UDivExpr::create(URemExpr::create(addr2, bankSize), wordSize);
-    ref<Expr> andExpr = AndExpr::create(tmpExpr, EqExpr::create(b1, b2));
+    klee::ref<Expr> tmpExpr = NeExpr::create(a1, a2);
+    klee::ref<Expr> bankSize = klee::ConstantExpr::create(BankNum * 4, addr1->getWidth());
+    klee::ref<Expr> b1 = UDivExpr::create(URemExpr::create(addr1, bankSize), wordSize);
+    klee::ref<Expr> b2 = UDivExpr::create(URemExpr::create(addr2, bankSize), wordSize);
+    klee::ref<Expr> andExpr = AndExpr::create(tmpExpr, EqExpr::create(b1, b2));
 
     success = executor.solver->mayBeTrue(state, andExpr, result);
     if (success) {
@@ -558,7 +558,7 @@ bool AddressSpace::hasSymBankConflict(Executor &executor, ExecutionState &state,
 }
 
 static void dumpSymMemoryNonCoalescing(Executor &executor, ExecutionState &state, 
-                                       ref<Expr> &expr, 
+                                       klee::ref<Expr> &expr, 
                                        MemoryAccess &access1, MemoryAccess &access2,
                                        unsigned capability) {
   bool benign = false;
@@ -571,7 +571,7 @@ static void dumpSymMemoryNonCoalescing(Executor &executor, ExecutionState &state
   symThreadIDs.push_back(SymThreadID_t(0, 0, 0));
   symThreadIDs.push_back(SymThreadID_t(0, 0, 0));
   
-  std::vector< ref<Expr> > offsetVec, cOffsetVec;
+  std::vector< klee::ref<Expr> > offsetVec, cOffsetVec;
   offsetVec.push_back(access1.offset); 
   offsetVec.push_back(access2.offset); 
 
@@ -619,15 +619,15 @@ static bool symCheckMemoryAccessOutOfSegBound(Executor &executor, ExecutionState
                                               unsigned segSize, unsigned threadSize, 
                                               unsigned capability) {
   bool outOfBound = false;
-  ref<Expr> addr1 = access1.offset; 
-  ref<Expr> addr2 = access2.offset; 
+  klee::ref<Expr> addr1 = access1.offset; 
+  klee::ref<Expr> addr2 = access2.offset; 
 
-  ref<Expr> segExpr = klee::ConstantExpr::create(segSize, addr1->getWidth());
-  ref<Expr> expr = EqExpr::create(UDivExpr::create(addr1, segExpr), 
+  klee::ref<Expr> segExpr = klee::ConstantExpr::create(segSize, addr1->getWidth());
+  klee::ref<Expr> expr = EqExpr::create(UDivExpr::create(addr1, segExpr), 
                                   UDivExpr::create(addr2, segExpr));
   
-  ref<Expr> configExpr = AndExpr::create(access1.accessCondExpr, access2.accessCondExpr);
-  ref<Expr> tThreadExpr = AddressSpaceUtil::threadSameWarpConstraint(state, threadSize);
+  klee::ref<Expr> configExpr = AndExpr::create(access1.accessCondExpr, access2.accessCondExpr);
+  klee::ref<Expr> tThreadExpr = AddressSpaceUtil::threadSameWarpConstraint(state, threadSize);
   bool configFulfilled = isCurrentConfigFulfilled(executor, state, configExpr, tThreadExpr); 
 
   if (configFulfilled) {
@@ -636,7 +636,7 @@ static bool symCheckMemoryAccessOutOfSegBound(Executor &executor, ExecutionState
     bool success = executor.solver->mustBeTrue(state, expr, result);
     if (success) {
       if (!result) {
-        ref<Expr> tmpExpr = Expr::createIsZero(expr);
+        klee::ref<Expr> tmpExpr = Expr::createIsZero(expr);
         dumpSymMemoryNonCoalescing(executor, state, tmpExpr, 
                                    access1, access2, capability);
         outOfBound = true;
@@ -680,19 +680,19 @@ static bool symCheckMemoryCoalescingCap0(Executor &executor, ExecutionState &sta
     }
 
     // violation of the sequential rule ... 
-    ref<Expr> segSizeExpr = klee::ConstantExpr::create(segSize, rwSet[i].offset->getWidth());
-    ref<Expr> remExpr = URemExpr::create(rwSet[i].offset, segSizeExpr);
-    ref<Expr> idxExpr = UDivExpr::create(remExpr, klee::ConstantExpr::create(wordsize, rwSet[i].offset->getWidth()));
-    ref<Expr> tidExpr = AddressSpaceUtil::constructRealThreadNumConstraint(state, rwSet[i].tid, rwSet[i].offset->getWidth());  
-    ref<Expr> remTidExpr = URemExpr::create(tidExpr, klee::ConstantExpr::create(threadNum, rwSet[i].offset->getWidth()));
-    ref<Expr> cond = EqExpr::create(remTidExpr, idxExpr);
+    klee::ref<Expr> segSizeExpr = klee::ConstantExpr::create(segSize, rwSet[i].offset->getWidth());
+    klee::ref<Expr> remExpr = URemExpr::create(rwSet[i].offset, segSizeExpr);
+    klee::ref<Expr> idxExpr = UDivExpr::create(remExpr, klee::ConstantExpr::create(wordsize, rwSet[i].offset->getWidth()));
+    klee::ref<Expr> tidExpr = AddressSpaceUtil::constructRealThreadNumConstraint(state, rwSet[i].tid, rwSet[i].offset->getWidth());  
+    klee::ref<Expr> remTidExpr = URemExpr::create(tidExpr, klee::ConstantExpr::create(threadNum, rwSet[i].offset->getWidth()));
+    klee::ref<Expr> cond = EqExpr::create(remTidExpr, idxExpr);
 
     bool result = false;
     bool success = executor.solver->mustBeTrue(state, remTidExpr, result);
     if (success) {
       if (!result) { 
         hasMC = false;
-        ref<Expr> tmpExpr = Expr::createIsZero(remTidExpr);
+        klee::ref<Expr> tmpExpr = Expr::createIsZero(remTidExpr);
         dumpSymMemoryNonCoalescing(executor, state, tmpExpr, rwSet[i], tmpAccess, 0);
         break;
       }
@@ -809,8 +809,8 @@ bool AddressSpace::hasSymMemoryCoalescingCap2(Executor &executor, ExecutionState
 }
 
 static bool accessSameMemoryRegion(Executor &executor, ExecutionState &state, 
-                                   ref<Expr> &addr1, ref<Expr> &addr2) {
-  ref<Expr> cond = EqExpr::create(addr1, addr2);
+                                   klee::ref<Expr> &addr1, klee::ref<Expr> &addr2) {
+  klee::ref<Expr> cond = EqExpr::create(addr1, addr2);
   bool result = false;
   bool success = executor.solver->mustBeTrue(state, cond, result);
   if (success) return result;
@@ -818,7 +818,7 @@ static bool accessSameMemoryRegion(Executor &executor, ExecutionState &state,
 }
 
 static void dumpSymVolatileMissing(Executor &executor, ExecutionState &state, 
-                                   ref<Expr> &expr, 
+                                   klee::ref<Expr> &expr, 
                                    MemoryAccess &access1, MemoryAccess &access2,
                                    unsigned mark) {
   bool benign = false;
@@ -831,7 +831,7 @@ static void dumpSymVolatileMissing(Executor &executor, ExecutionState &state,
   symThreadIDs.push_back(SymThreadID_t(0, 0, 0));
   symThreadIDs.push_back(SymThreadID_t(0, 0, 0));
   
-  std::vector< ref<Expr> > offsetVec, cOffsetVec;
+  std::vector< klee::ref<Expr> > offsetVec, cOffsetVec;
   offsetVec.push_back(access1.offset); 
   offsetVec.push_back(access2.offset); 
 
@@ -883,14 +883,14 @@ static bool symCheckVolatileMissing(Executor &executor, ExecutionState &state,
                                     unsigned mark) {
   bool vmissing = false;
 
-  ref<Expr> baseAddr1 = access1.mo->getBaseExpr();
-  ref<Expr> baseAddr2 = access2.mo->getBaseExpr();
+  klee::ref<Expr> baseAddr1 = access1.mo->getBaseExpr();
+  klee::ref<Expr> baseAddr2 = access2.mo->getBaseExpr();
 
   if (accessSameMemoryRegion(executor, state, baseAddr1, baseAddr2)) {
-    ref<Expr> conflictExpr = symCheckConflictExprs(access1.offset, access2.width, 
+    klee::ref<Expr> conflictExpr = symCheckConflictExprs(access1.offset, access2.width, 
                                                    access2.offset, access2.width);
-    ref<Expr> configExpr = AndExpr::create(access1.accessCondExpr, access2.accessCondExpr);
-    ref<Expr> sameWarpExpr = AddressSpaceUtil::threadSameWarpConstraint(state, GPUConfig::warpsize);  
+    klee::ref<Expr> configExpr = AndExpr::create(access1.accessCondExpr, access2.accessCondExpr);
+    klee::ref<Expr> sameWarpExpr = AddressSpaceUtil::threadSameWarpConstraint(state, GPUConfig::warpsize);  
 
     bool configFulfilled = isCurrentConfigFulfilled(executor, state, configExpr, sameWarpExpr); 
     if (configFulfilled) {
@@ -974,7 +974,7 @@ static bool fenceRelation(const MemoryAccess &access1,
 }
 
 static bool dumpSymRace(Executor &executor, ExecutionState &state, 
-                        ref<Expr> &conflictExpr, bool benign, 
+                        klee::ref<Expr> &conflictExpr, bool benign, 
                         MemoryAccess &access1, MemoryAccess &access2, 
                         unsigned BI1, unsigned BI2) {
   std::vector<SymBlockID_t> symBlockIDs;
@@ -986,7 +986,7 @@ static bool dumpSymRace(Executor &executor, ExecutionState &state,
   symThreadIDs.push_back(SymThreadID_t(0, 0, 0));
   symThreadIDs.push_back(SymThreadID_t(0, 0, 0));
    
-  std::vector< ref<Expr> > offsetVec, cOffsetVec;
+  std::vector< klee::ref<Expr> > offsetVec, cOffsetVec;
   offsetVec.push_back(access1.offset); 
   offsetVec.push_back(access2.offset); 
 
@@ -1051,13 +1051,13 @@ static bool checkSymTwoAccessRace(Executor &executor, ExecutionState &state,
                                   unsigned BI1, unsigned BI2) {
   bool hasRace = false;
 
-  ref<Expr> baseAddr1 = access1.mo->getBaseExpr(); 
-  ref<Expr> baseAddr2 = access2.mo->getBaseExpr(); 
+  klee::ref<Expr> baseAddr1 = access1.mo->getBaseExpr(); 
+  klee::ref<Expr> baseAddr2 = access2.mo->getBaseExpr(); 
 
   if (!isBothAtomic(access1, access2)
        && accessSameMemoryRegion(executor, state, baseAddr1, baseAddr2)) {
-    ref<Expr> configExpr = AndExpr::create(access1.accessCondExpr, access2.accessCondExpr);
-    ref<Expr> typeExpr;
+    klee::ref<Expr> configExpr = AndExpr::create(access1.accessCondExpr, access2.accessCondExpr);
+    klee::ref<Expr> typeExpr;
     if (type == 0) 
       typeExpr = AddressSpaceUtil::threadSameWarpConstraint(state, GPUConfig::warpsize);
     else if (type == 1)
@@ -1077,7 +1077,7 @@ static bool checkSymTwoAccessRace(Executor &executor, ExecutionState &state,
       //GKLEE_INFO << "access2 offset: " << std::endl;
       //access2.offset->dump();
 
-      ref<Expr> conflictExpr = symCheckConflictExprs(access1.offset, access1.width, 
+      klee::ref<Expr> conflictExpr = symCheckConflictExprs(access1.offset, access1.width, 
                                                      access2.offset, access2.width);
       bool success = executor.solver->mustBeFalse(state, conflictExpr, result); 
       if (success) {
@@ -1248,14 +1248,14 @@ static bool checkSymTwoAccessRacePureCS(Executor &executor, ExecutionState &stat
                                         unsigned BI1, unsigned BI2) {
   bool hasRace = false;
 
-  ref<Expr> baseAddr1 = access1.mo->getBaseExpr(); 
-  ref<Expr> baseAddr2 = access2.mo->getBaseExpr(); 
+  klee::ref<Expr> baseAddr1 = access1.mo->getBaseExpr(); 
+  klee::ref<Expr> baseAddr2 = access2.mo->getBaseExpr(); 
   if (!isBothAtomic(access1, access2)
        && accessSameMemoryRegion(executor, state, baseAddr1, baseAddr2)) {
-    ref<Expr> configExpr = AndExpr::create(access1.accessCondExpr, access2.accessCondExpr);
-    ref<Expr> typeExpr;
-    ref<Expr> sameBlockExpr = AddressSpaceUtil::constructSameBlockExpr(state, Expr::Int32);
-    ref<Expr> sameTidExpr = AddressSpaceUtil::constructSameThreadExpr(state, Expr::Int32);
+    klee::ref<Expr> configExpr = AndExpr::create(access1.accessCondExpr, access2.accessCondExpr);
+    klee::ref<Expr> typeExpr;
+    klee::ref<Expr> sameBlockExpr = AddressSpaceUtil::constructSameBlockExpr(state, Expr::Int32);
+    klee::ref<Expr> sameTidExpr = AddressSpaceUtil::constructSameThreadExpr(state, Expr::Int32);
     bool fence = false;
     if (type == 0) { // Same block ...
       typeExpr = AndExpr::create(sameBlockExpr, Expr::createIsZero(sameTidExpr));
@@ -1276,7 +1276,7 @@ static bool checkSymTwoAccessRacePureCS(Executor &executor, ExecutionState &stat
       //GKLEE_INFO << "access2 offset: " << std::endl;
       //access2.offset->dump();
 
-      ref<Expr> conflictExpr = symCheckConflictExprs(access1.offset, access1.width, 
+      klee::ref<Expr> conflictExpr = symCheckConflictExprs(access1.offset, access1.width, 
                                                      access2.offset, access2.width);
       bool success = executor.solver->mustBeFalse(state, conflictExpr, result); 
       if (success) {
@@ -1739,17 +1739,17 @@ bool HierAddressSpace::hasSymRaceInGlobal(Executor &executor, ExecutionState &st
 }
 
 static bool determineTwoFlowInSameBlock(Executor &executor, ExecutionState &state, 
-                                        ref<Expr> exp1, ref<Expr> exp2) {
+                                        klee::ref<Expr> exp1, klee::ref<Expr> exp2) {
   ExecutionState tmp(state); 
   ConstraintManager constr;
-  ref<Expr> tExp2 = exp2;
+  klee::ref<Expr> tExp2 = exp2;
   AddressSpaceUtil::updateBuiltInRelatedConstraint(tmp, constr, tExp2);
 
-  ref<Expr> exp = AndExpr::create(exp1, tExp2);
+  klee::ref<Expr> exp = AndExpr::create(exp1, tExp2);
   if (!isa<klee::ConstantExpr>(exp)) 
     tmp.addConstraint(exp);
 
-  ref<Expr> diffBlockExpr = AddressSpaceUtil::threadDiffBlockConstraint(tmp);
+  klee::ref<Expr> diffBlockExpr = AddressSpaceUtil::threadDiffBlockConstraint(tmp);
   bool result = false;
   bool success = executor.solver->mustBeTrue(state, diffBlockExpr, result);
 

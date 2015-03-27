@@ -172,10 +172,10 @@ namespace klee {
 			const Query* query;
 
 			///Determine the SMTLIBv2 sort of the expression
-			SMTLIB_SORT getSort(const ref<Expr>& e);
+			SMTLIB_SORT getSort(const klee::ref<Expr>& e);
 
 			///Print an expression but cast it to a particular SMTLIBv2 sort first.
-			void printCastToSort(const ref<Expr>& e, ExprSMTLIBPrinter::SMTLIB_SORT sort);
+			void printCastToSort(const klee::ref<Expr>& e, ExprSMTLIBPrinter::SMTLIB_SORT sort);
 
 			//Resets various internal objects for a new query
 			virtual void reset();
@@ -209,16 +209,16 @@ namespace klee {
 			virtual void printExit();
 
 			///Print a Constant in the format specified by the current "Constant Display Mode"
-			void printConstant(const ref<ConstantExpr>& e);
+			void printConstant(const klee::ref<ConstantExpr>& e);
 
 			///Recursively print expression
 			/// \param e is the expression to print
 			/// \param expectedSort is the sort we want. If "e" is not of the right type a cast will be performed.
-			virtual void printExpression(const ref<Expr>& e, ExprSMTLIBPrinter::SMTLIB_SORT expectedSort);
+			virtual void printExpression(const klee::ref<Expr>& e, ExprSMTLIBPrinter::SMTLIB_SORT expectedSort);
 
 			///Scan Expression recursively for Arrays in expressions. Found arrays are added to
 			/// the usedArrays vector.
-			virtual void scan(const ref<Expr>& e);
+			virtual void scan(const klee::ref<Expr>& e);
 
 			/* Rules of recursion for "Special Expression handlers" and printSortArgsExpr()
 			 *
@@ -230,27 +230,27 @@ namespace klee {
 			 */
 
 			//Special Expression handlers
-			virtual void printReadExpr(const ref<ReadExpr>& e);
-			virtual void printExtractExpr(const ref<ExtractExpr>& e);
-			virtual void printCastExpr(const ref<CastExpr>& e);
-			virtual void printNotEqualExpr(const ref<NeExpr>& e);
-			virtual void printSelectExpr(const ref<SelectExpr>& e, ExprSMTLIBPrinter::SMTLIB_SORT s);
+			virtual void printReadExpr(const klee::ref<ReadExpr>& e);
+			virtual void printExtractExpr(const klee::ref<ExtractExpr>& e);
+			virtual void printCastExpr(const klee::ref<CastExpr>& e);
+			virtual void printNotEqualExpr(const klee::ref<NeExpr>& e);
+			virtual void printSelectExpr(const klee::ref<SelectExpr>& e, ExprSMTLIBPrinter::SMTLIB_SORT s);
 
 			//For the set of operators that take sort "s" arguments
-			virtual void printSortArgsExpr(const ref<Expr>& e, ExprSMTLIBPrinter::SMTLIB_SORT s);
+			virtual void printSortArgsExpr(const klee::ref<Expr>& e, ExprSMTLIBPrinter::SMTLIB_SORT s);
 
 			///For the set of operators that come in two sorts (e.g. (and () ()) (bvand () ()) )
 			///These are and,xor,or,not
 			/// \param e the Expression to print
 			/// \param s the sort of the expression we want
-			virtual void printLogicalOrBitVectorExpr(const ref<Expr>& e, ExprSMTLIBPrinter::SMTLIB_SORT s);
+			virtual void printLogicalOrBitVectorExpr(const klee::ref<Expr>& e, ExprSMTLIBPrinter::SMTLIB_SORT s);
 
 			///Recursively prints updatesNodes
 			virtual void printUpdatesAndArray(const UpdateNode* un, const Array* root);
 
 			///This method does the translation between Expr classes and SMTLIBv2 keywords
 			/// \return A C-string of the SMTLIBv2 keyword
-			virtual const char* getSMTLIBKeyword(const ref<Expr>& e);
+			virtual const char* getSMTLIBKeyword(const klee::ref<Expr>& e);
 
 			virtual void printSeperator();
 

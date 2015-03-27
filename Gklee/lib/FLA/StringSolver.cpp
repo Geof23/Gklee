@@ -39,9 +39,9 @@ bool StrConstraint::concretizeLengths(std::vector<const Array*>& objects,
       var->setArrayLength(values[i][0]);
     }
     
-    ref<Expr> e1 = StrExpr::createValueRead(arr, arr->size * 8);
+    klee::ref<Expr> e1 = StrExpr::createValueRead(arr, arr->size * 8);
 
-    ref<Expr> e2 = ConstantExpr::create(values[i][0], Expr::Int8);
+    klee::ref<Expr> e2 = ConstantExpr::create(values[i][0], Expr::Int8);
     for (unsigned j = 1; j < values[i].size(); j++) {
       e2 = ConcatExpr::create(e2, ConstantExpr::create(values[i][j], Expr::Int8));
     }
@@ -84,7 +84,7 @@ void StringSolver:: printAssignments( const std::vector<const Array*>& objects,
 }
 
 
-bool StringSolver::solveExpr(ref<Expr> expr, std::vector<const Array*>& objects, 
+bool StringSolver::solveExpr(klee::ref<Expr> expr, std::vector<const Array*>& objects, 
 			     std::vector< std::vector<unsigned char> >& values) {
   ConstraintManager constraints;
   constraints.addConstraint(expr);
@@ -93,7 +93,7 @@ bool StringSolver::solveExpr(ref<Expr> expr, std::vector<const Array*>& objects,
 }
 
 
-bool StringSolver::solveExpr(ConstraintManager &constr, ref<Expr> expr, 
+bool StringSolver::solveExpr(ConstraintManager &constr, klee::ref<Expr> expr, 
 			     std::vector<const Array*>& objects, 
 			     std::vector< std::vector<unsigned char> >& values) {
   Query qr(constr, expr);
@@ -101,7 +101,7 @@ bool StringSolver::solveExpr(ConstraintManager &constr, ref<Expr> expr,
 }
 
 
-bool StringSolver::evaluate(const ExecutionState& state, ref<Expr> expr,
+bool StringSolver::evaluate(const ExecutionState& state, klee::ref<Expr> expr,
 			    Solver::Validity &result) {
 
   // Fast path, to avoid timer and OS overhead.
@@ -115,7 +115,7 @@ bool StringSolver::evaluate(const ExecutionState& state, ref<Expr> expr,
 #endif
 
   StrConstraint constr(state.constraints, stpSolver);
-  ref<Expr> len_exp = StrConstraint::makeLengthConstraint(constr, expr);
+  klee::ref<Expr> len_exp = StrConstraint::makeLengthConstraint(constr, expr);
 
 #ifdef FLA_DEBUG
   KLEE_INFO2 << "the length constraint: \n ";
@@ -174,7 +174,7 @@ bool StringSolver::evaluate(const ExecutionState& state, ref<Expr> expr,
   
   KLEE_INFO2 << "the resolved expression: \n ";
   // solve the string expression
-  ref<Expr> str_exp = StrConstraint::makeStrConstraint(constr, expr);
+  klee::ref<Expr> str_exp = StrConstraint::makeStrConstraint(constr, expr);
     
   objects.clear();
   values.clear();
@@ -239,10 +239,10 @@ StringSolver::getInitialValues(const ExecutionState& state,
   KLEE_INFO2 << "StringSolver: getInitialValues \n";
 #endif
   
-  ref<Expr> expr = ConstantExpr::create(1, Expr::Bool);
+  klee::ref<Expr> expr = ConstantExpr::create(1, Expr::Bool);
 
   StrConstraint constr(state.constraints, stpSolver);
-  ref<Expr> len_exp = StrConstraint::makeLengthConstraint(constr, expr);
+  klee::ref<Expr> len_exp = StrConstraint::makeLengthConstraint(constr, expr);
 
 #ifdef FLA_DEBUG
   KLEE_INFO2 << "the length constraint: \n ";
@@ -279,7 +279,7 @@ StringSolver::getInitialValues(const ExecutionState& state,
   constr.concretizeLengths(objects, values);
 
   // build the string expression
-  ref<Expr> str_exp = StrConstraint::makeStrConstraint(constr, expr);
+  klee::ref<Expr> str_exp = StrConstraint::makeStrConstraint(constr, expr);
 
 #ifdef FLA_DEBUG
   KLEE_INFO2 << "the constraint of the string expression: \n ";
@@ -332,8 +332,8 @@ StringSolver::getInitialValues(const ExecutionState& state,
 }
 
 
-bool StringSolver::getValue(const ExecutionState& state, ref<Expr> expr, 
-                            ref<ConstantExpr> &result) {
+bool StringSolver::getValue(const ExecutionState& state, klee::ref<Expr> expr, 
+                            klee::ref<ConstantExpr> &result) {
 
   // Fast path, to avoid timer and OS overhead.
   if (ConstantExpr *CE = dyn_cast<ConstantExpr>(expr)) {
@@ -346,7 +346,7 @@ bool StringSolver::getValue(const ExecutionState& state, ref<Expr> expr,
 #endif
 
   StrConstraint constr(state.constraints, stpSolver);
-  ref<Expr> len_exp = StrConstraint::makeLengthConstraint(constr, expr);
+  klee::ref<Expr> len_exp = StrConstraint::makeLengthConstraint(constr, expr);
   
   std::vector<const Array*> objects;
   for (std::set<const Array*>::iterator ii = constr.symlens.begin(); 
@@ -377,7 +377,7 @@ bool StringSolver::getValue(const ExecutionState& state, ref<Expr> expr,
   constr.concretizeLengths(objects, values);
 
   // build the string expression
-  ref<Expr> str_exp = StrConstraint::makeStrConstraint(constr, expr);
+  klee::ref<Expr> str_exp = StrConstraint::makeStrConstraint(constr, expr);
 
   // solve the string expression
   objects.clear();
@@ -408,25 +408,25 @@ bool StringSolver::getValue(const ExecutionState& state, ref<Expr> expr,
 }
 
 
-bool StringSolver::mustBeTrue(const ExecutionState& state, ref<Expr> expr, 
+bool StringSolver::mustBeTrue(const ExecutionState& state, klee::ref<Expr> expr, 
                               bool &result) {
   std::cout << "StringSover:: mustBeTrue \n";
   return TimingSolver::mustBeTrue(state, expr, result);
 }
 
 
-bool StringSolver::mustBeFalse(const ExecutionState& state, ref<Expr> expr, 
+bool StringSolver::mustBeFalse(const ExecutionState& state, klee::ref<Expr> expr, 
                               bool &result) {
   std::cout << "StringSover:: mustBeFalse \n";  
   return TimingSolver::mustBeFalse(state, expr, result);
 }
 
-bool StringSolver::mayBeTrue(const ExecutionState& state, ref<Expr> expr, 
+bool StringSolver::mayBeTrue(const ExecutionState& state, klee::ref<Expr> expr, 
                               bool &result) {  
   return TimingSolver::mayBeTrue(state, expr, result);
 }
 
-bool StringSolver::mayBeFalse(const ExecutionState& state, ref<Expr> expr, 
+bool StringSolver::mayBeFalse(const ExecutionState& state, klee::ref<Expr> expr, 
                               bool &result) {
   std::cout << "StringSover:: mayBeFalse \n";  
   return TimingSolver::mayBeFalse(state, expr, result);

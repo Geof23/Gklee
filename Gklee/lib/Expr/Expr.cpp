@@ -37,7 +37,7 @@ namespace {
 
 unsigned Expr::count = 0;
 
-ref<Expr> Expr::createTempRead(const Array *array, Expr::Width w) {
+klee::ref<Expr> Expr::createTempRead(const Array *array, Expr::Width w) {
   UpdateList ul(array, 0);
 
   switch (w) {
@@ -210,7 +210,7 @@ unsigned NotExpr::computeHash() {
   return hashValue;
 }
 
-ref<Expr> Expr::createFromKind(Kind k, std::vector<CreateArg> args) {
+klee::ref<Expr> Expr::createFromKind(Kind k, std::vector<CreateArg> args) {
   unsigned numArgs = args.size();
   (void) numArgs;
 
@@ -298,11 +298,11 @@ void Expr::printWidth(std::ostream &os, Width width) {
   }
 }
 
-ref<Expr> Expr::createImplies(ref<Expr> hyp, ref<Expr> conc) {
+klee::ref<Expr> Expr::createImplies(klee::ref<Expr> hyp, klee::ref<Expr> conc) {
   return OrExpr::create(Expr::createIsZero(hyp), conc);
 }
 
-ref<Expr> Expr::createIsZero(ref<Expr> e) {
+klee::ref<Expr> Expr::createIsZero(klee::ref<Expr> e) {
   return EqExpr::create(e, ConstantExpr::create(0, e->getWidth()));
 }
 
@@ -317,7 +317,7 @@ void Expr::dump() const {
 
 /***/
 
-ref<Expr> ConstantExpr::fromMemory(void *address, Width width) {
+klee::ref<Expr> ConstantExpr::fromMemory(void *address, Width width) {
   switch (width) {
   case  Expr::Bool: return ConstantExpr::create(*(( uint8_t*) address), width);
   case  Expr::Int8: return ConstantExpr::create(*(( uint8_t*) address), width);
@@ -351,7 +351,7 @@ void ConstantExpr::toString(std::string &Res, unsigned radix) const {
   Res = value.toString(radix, false);
 }
 
-ref<ConstantExpr> ConstantExpr::Concat(const ref<ConstantExpr> &RHS) {
+klee::ref<ConstantExpr> ConstantExpr::Concat(const klee::ref<ConstantExpr> &RHS) {
   Expr::Width W = getWidth() + RHS->getWidth();
   APInt Tmp(value);
 #if LLVM_VERSION_CODE <= LLVM_VERSION(2, 8)
@@ -365,121 +365,121 @@ ref<ConstantExpr> ConstantExpr::Concat(const ref<ConstantExpr> &RHS) {
   return ConstantExpr::alloc(Tmp);
 }
 
-ref<ConstantExpr> ConstantExpr::Extract(unsigned Offset, Width W) {
+klee::ref<ConstantExpr> ConstantExpr::Extract(unsigned Offset, Width W) {
   return ConstantExpr::alloc(APInt(value.ashr(Offset)).zextOrTrunc(W));
 }
 
-ref<ConstantExpr> ConstantExpr::ZExt(Width W) {
+klee::ref<ConstantExpr> ConstantExpr::ZExt(Width W) {
   return ConstantExpr::alloc(APInt(value).zextOrTrunc(W));
 }
 
-ref<ConstantExpr> ConstantExpr::SExt(Width W) {
+klee::ref<ConstantExpr> ConstantExpr::SExt(Width W) {
   return ConstantExpr::alloc(APInt(value).sextOrTrunc(W));
 }
 
-ref<ConstantExpr> ConstantExpr::Add(const ref<ConstantExpr> &RHS) {
+klee::ref<ConstantExpr> ConstantExpr::Add(const klee::ref<ConstantExpr> &RHS) {
   return ConstantExpr::alloc(value + RHS->value);
 }
 
-ref<ConstantExpr> ConstantExpr::Neg() {
+klee::ref<ConstantExpr> ConstantExpr::Neg() {
   return ConstantExpr::alloc(-value);
 }
 
-ref<ConstantExpr> ConstantExpr::Sub(const ref<ConstantExpr> &RHS) {
+klee::ref<ConstantExpr> ConstantExpr::Sub(const klee::ref<ConstantExpr> &RHS) {
   return ConstantExpr::alloc(value - RHS->value);
 }
 
-ref<ConstantExpr> ConstantExpr::Mul(const ref<ConstantExpr> &RHS) {
+klee::ref<ConstantExpr> ConstantExpr::Mul(const klee::ref<ConstantExpr> &RHS) {
   return ConstantExpr::alloc(value * RHS->value);
 }
 
-ref<ConstantExpr> ConstantExpr::UDiv(const ref<ConstantExpr> &RHS) {
+klee::ref<ConstantExpr> ConstantExpr::UDiv(const klee::ref<ConstantExpr> &RHS) {
   return ConstantExpr::alloc(value.udiv(RHS->value));
 }
 
-ref<ConstantExpr> ConstantExpr::SDiv(const ref<ConstantExpr> &RHS) {
+klee::ref<ConstantExpr> ConstantExpr::SDiv(const klee::ref<ConstantExpr> &RHS) {
   return ConstantExpr::alloc(value.sdiv(RHS->value));
 }
 
-ref<ConstantExpr> ConstantExpr::URem(const ref<ConstantExpr> &RHS) {
+klee::ref<ConstantExpr> ConstantExpr::URem(const klee::ref<ConstantExpr> &RHS) {
   return ConstantExpr::alloc(value.urem(RHS->value));
 }
 
-ref<ConstantExpr> ConstantExpr::SRem(const ref<ConstantExpr> &RHS) {
+klee::ref<ConstantExpr> ConstantExpr::SRem(const klee::ref<ConstantExpr> &RHS) {
   return ConstantExpr::alloc(value.srem(RHS->value));
 }
 
-ref<ConstantExpr> ConstantExpr::And(const ref<ConstantExpr> &RHS) {
+klee::ref<ConstantExpr> ConstantExpr::And(const klee::ref<ConstantExpr> &RHS) {
   return ConstantExpr::alloc(value & RHS->value);
 }
 
-ref<ConstantExpr> ConstantExpr::Or(const ref<ConstantExpr> &RHS) {
+klee::ref<ConstantExpr> ConstantExpr::Or(const klee::ref<ConstantExpr> &RHS) {
   return ConstantExpr::alloc(value | RHS->value);
 }
 
-ref<ConstantExpr> ConstantExpr::Xor(const ref<ConstantExpr> &RHS) {
+klee::ref<ConstantExpr> ConstantExpr::Xor(const klee::ref<ConstantExpr> &RHS) {
   return ConstantExpr::alloc(value ^ RHS->value);
 }
 
-ref<ConstantExpr> ConstantExpr::Shl(const ref<ConstantExpr> &RHS) {
+klee::ref<ConstantExpr> ConstantExpr::Shl(const klee::ref<ConstantExpr> &RHS) {
   return ConstantExpr::alloc(value.shl(RHS->value));
 }
 
-ref<ConstantExpr> ConstantExpr::LShr(const ref<ConstantExpr> &RHS) {
+klee::ref<ConstantExpr> ConstantExpr::LShr(const klee::ref<ConstantExpr> &RHS) {
   return ConstantExpr::alloc(value.lshr(RHS->value));
 }
 
-ref<ConstantExpr> ConstantExpr::AShr(const ref<ConstantExpr> &RHS) {
+klee::ref<ConstantExpr> ConstantExpr::AShr(const klee::ref<ConstantExpr> &RHS) {
   return ConstantExpr::alloc(value.ashr(RHS->value));
 }
 
-ref<ConstantExpr> ConstantExpr::Not() {
+klee::ref<ConstantExpr> ConstantExpr::Not() {
   return ConstantExpr::alloc(~value);
 }
 
-ref<ConstantExpr> ConstantExpr::Eq(const ref<ConstantExpr> &RHS) {
+klee::ref<ConstantExpr> ConstantExpr::Eq(const klee::ref<ConstantExpr> &RHS) {
   return ConstantExpr::alloc(value == RHS->value, Expr::Bool);
 }
 
-ref<ConstantExpr> ConstantExpr::Ne(const ref<ConstantExpr> &RHS) {
+klee::ref<ConstantExpr> ConstantExpr::Ne(const klee::ref<ConstantExpr> &RHS) {
   return ConstantExpr::alloc(value != RHS->value, Expr::Bool);
 }
 
-ref<ConstantExpr> ConstantExpr::Ult(const ref<ConstantExpr> &RHS) {
+klee::ref<ConstantExpr> ConstantExpr::Ult(const klee::ref<ConstantExpr> &RHS) {
   return ConstantExpr::alloc(value.ult(RHS->value), Expr::Bool);
 }
 
-ref<ConstantExpr> ConstantExpr::Ule(const ref<ConstantExpr> &RHS) {
+klee::ref<ConstantExpr> ConstantExpr::Ule(const klee::ref<ConstantExpr> &RHS) {
   return ConstantExpr::alloc(value.ule(RHS->value), Expr::Bool);
 }
 
-ref<ConstantExpr> ConstantExpr::Ugt(const ref<ConstantExpr> &RHS) {
+klee::ref<ConstantExpr> ConstantExpr::Ugt(const klee::ref<ConstantExpr> &RHS) {
   return ConstantExpr::alloc(value.ugt(RHS->value), Expr::Bool);
 }
 
-ref<ConstantExpr> ConstantExpr::Uge(const ref<ConstantExpr> &RHS) {
+klee::ref<ConstantExpr> ConstantExpr::Uge(const klee::ref<ConstantExpr> &RHS) {
   return ConstantExpr::alloc(value.uge(RHS->value), Expr::Bool);
 }
 
-ref<ConstantExpr> ConstantExpr::Slt(const ref<ConstantExpr> &RHS) {
+klee::ref<ConstantExpr> ConstantExpr::Slt(const klee::ref<ConstantExpr> &RHS) {
   return ConstantExpr::alloc(value.slt(RHS->value), Expr::Bool);
 }
 
-ref<ConstantExpr> ConstantExpr::Sle(const ref<ConstantExpr> &RHS) {
+klee::ref<ConstantExpr> ConstantExpr::Sle(const klee::ref<ConstantExpr> &RHS) {
   return ConstantExpr::alloc(value.sle(RHS->value), Expr::Bool);
 }
 
-ref<ConstantExpr> ConstantExpr::Sgt(const ref<ConstantExpr> &RHS) {
+klee::ref<ConstantExpr> ConstantExpr::Sgt(const klee::ref<ConstantExpr> &RHS) {
   return ConstantExpr::alloc(value.sgt(RHS->value), Expr::Bool);
 }
 
-ref<ConstantExpr> ConstantExpr::Sge(const ref<ConstantExpr> &RHS) {
+klee::ref<ConstantExpr> ConstantExpr::Sge(const klee::ref<ConstantExpr> &RHS) {
   return ConstantExpr::alloc(value.sge(RHS->value), Expr::Bool);
 }
 
 /***/
 
-ref<Expr>  NotOptimizedExpr::create(ref<Expr> src) {
+klee::ref<Expr>  NotOptimizedExpr::create(klee::ref<Expr> src) {
   return NotOptimizedExpr::alloc(src);
 }
 
@@ -500,7 +500,7 @@ unsigned Array::computeHash() {
 
 /***/
 
-ref<Expr> ReadExpr::create(const UpdateList &ul, ref<Expr> index) {
+klee::ref<Expr> ReadExpr::create(const UpdateList &ul, klee::ref<Expr> index) {
   // rollback index when possible... 
 
   // XXX this doesn't really belong here... there are basically two
@@ -511,7 +511,7 @@ ref<Expr> ReadExpr::create(const UpdateList &ul, ref<Expr> index) {
 
   const UpdateNode *un = ul.head;
   for (; un; un=un->next) {
-    ref<Expr> cond = EqExpr::create(index, un->index);
+    klee::ref<Expr> cond = EqExpr::create(index, un->index);
     
     if (ConstantExpr *CE = dyn_cast<ConstantExpr>(cond)) {
       if (CE->isTrue())
@@ -528,7 +528,7 @@ int ReadExpr::compareContents(const Expr &b) const {
   return updates.compare(static_cast<const ReadExpr&>(b).updates);
 }
 
-ref<Expr> SelectExpr::create(ref<Expr> c, ref<Expr> t, ref<Expr> f) {
+klee::ref<Expr> SelectExpr::create(klee::ref<Expr> c, klee::ref<Expr> t, klee::ref<Expr> f) {
   Expr::Width kt = t->getWidth();
 
   assert(c->getWidth()==Bool && "type mismatch");
@@ -559,7 +559,7 @@ ref<Expr> SelectExpr::create(ref<Expr> c, ref<Expr> t, ref<Expr> f) {
 
 /***/
 
-ref<Expr> ConcatExpr::create(const ref<Expr> &l, const ref<Expr> &r) {
+klee::ref<Expr> ConcatExpr::create(const klee::ref<Expr> &l, const klee::ref<Expr> &r) {
   Expr::Width w = l->getWidth() + r->getWidth();
   
   // Fold concatenation of constants.
@@ -583,35 +583,35 @@ ref<Expr> ConcatExpr::create(const ref<Expr> &l, const ref<Expr> &r) {
 }
 
 /// Shortcut to concat N kids.  The chain returned is unbalanced to the right
-ref<Expr> ConcatExpr::createN(unsigned n_kids, const ref<Expr> kids[]) {
+klee::ref<Expr> ConcatExpr::createN(unsigned n_kids, const klee::ref<Expr> kids[]) {
   assert(n_kids > 0);
   if (n_kids == 1)
     return kids[0];
   
-  ref<Expr> r = ConcatExpr::create(kids[n_kids-2], kids[n_kids-1]);
+  klee::ref<Expr> r = ConcatExpr::create(kids[n_kids-2], kids[n_kids-1]);
   for (int i=n_kids-3; i>=0; i--)
     r = ConcatExpr::create(kids[i], r);
   return r;
 }
 
 /// Shortcut to concat 4 kids.  The chain returned is unbalanced to the right
-ref<Expr> ConcatExpr::create4(const ref<Expr> &kid1, const ref<Expr> &kid2,
-                              const ref<Expr> &kid3, const ref<Expr> &kid4) {
+klee::ref<Expr> ConcatExpr::create4(const klee::ref<Expr> &kid1, const klee::ref<Expr> &kid2,
+                              const klee::ref<Expr> &kid3, const klee::ref<Expr> &kid4) {
   return ConcatExpr::create(kid1, ConcatExpr::create(kid2, ConcatExpr::create(kid3, kid4)));
 }
 
 /// Shortcut to concat 8 kids.  The chain returned is unbalanced to the right
-ref<Expr> ConcatExpr::create8(const ref<Expr> &kid1, const ref<Expr> &kid2,
-			      const ref<Expr> &kid3, const ref<Expr> &kid4,
-			      const ref<Expr> &kid5, const ref<Expr> &kid6,
-			      const ref<Expr> &kid7, const ref<Expr> &kid8) {
+klee::ref<Expr> ConcatExpr::create8(const klee::ref<Expr> &kid1, const klee::ref<Expr> &kid2,
+			      const klee::ref<Expr> &kid3, const klee::ref<Expr> &kid4,
+			      const klee::ref<Expr> &kid5, const klee::ref<Expr> &kid6,
+			      const klee::ref<Expr> &kid7, const klee::ref<Expr> &kid8) {
   return ConcatExpr::create(kid1, ConcatExpr::create(kid2, ConcatExpr::create(kid3, 
 			      ConcatExpr::create(kid4, ConcatExpr::create4(kid5, kid6, kid7, kid8)))));
 }
 
 /***/
 
-ref<Expr> ExtractExpr::create(ref<Expr> expr, unsigned off, Width w) {
+klee::ref<Expr> ExtractExpr::create(klee::ref<Expr> expr, unsigned off, Width w) {
   unsigned kw = expr->getWidth();
   assert(w > 0 && off + w <= kw && "invalid extract");
   
@@ -641,7 +641,7 @@ ref<Expr> ExtractExpr::create(ref<Expr> expr, unsigned off, Width w) {
 
 /***/
 
-ref<Expr> NotExpr::create(const ref<Expr> &e) {
+klee::ref<Expr> NotExpr::create(const klee::ref<Expr> &e) {
   if (ConstantExpr *CE = dyn_cast<ConstantExpr>(e))
     return CE->Not();
   
@@ -651,7 +651,7 @@ ref<Expr> NotExpr::create(const ref<Expr> &e) {
 
 /***/
 
-ref<Expr> ZExtExpr::create(const ref<Expr> &e, Width w) {
+klee::ref<Expr> ZExtExpr::create(const klee::ref<Expr> &e, Width w) {
   unsigned kBits = e->getWidth();
   if (w == kBits) {
     return e;
@@ -664,7 +664,7 @@ ref<Expr> ZExtExpr::create(const ref<Expr> &e, Width w) {
   }
 }
 
-ref<Expr> SExtExpr::create(const ref<Expr> &e, Width w) {
+klee::ref<Expr> SExtExpr::create(const klee::ref<Expr> &e, Width w) {
   unsigned kBits = e->getWidth();
   if (w == kBits) {
     return e;
@@ -679,15 +679,15 @@ ref<Expr> SExtExpr::create(const ref<Expr> &e, Width w) {
 
 /***/
 
-static ref<Expr> AndExpr_create(Expr *l, Expr *r);
-static ref<Expr> XorExpr_create(Expr *l, Expr *r);
+static klee::ref<Expr> AndExpr_create(Expr *l, Expr *r);
+static klee::ref<Expr> XorExpr_create(Expr *l, Expr *r);
 
-static ref<Expr> EqExpr_createPartial(Expr *l, const ref<ConstantExpr> &cr);
-static ref<Expr> AndExpr_createPartialR(const ref<ConstantExpr> &cl, Expr *r);
-static ref<Expr> SubExpr_createPartialR(const ref<ConstantExpr> &cl, Expr *r);
-static ref<Expr> XorExpr_createPartialR(const ref<ConstantExpr> &cl, Expr *r);
+static klee::ref<Expr> EqExpr_createPartial(Expr *l, const klee::ref<ConstantExpr> &cr);
+static klee::ref<Expr> AndExpr_createPartialR(const klee::ref<ConstantExpr> &cl, Expr *r);
+static klee::ref<Expr> SubExpr_createPartialR(const klee::ref<ConstantExpr> &cl, Expr *r);
+static klee::ref<Expr> XorExpr_createPartialR(const klee::ref<ConstantExpr> &cl, Expr *r);
 
-static ref<Expr> AddExpr_createPartialR(const ref<ConstantExpr> &cl, Expr *r) {
+static klee::ref<Expr> AddExpr_createPartialR(const klee::ref<ConstantExpr> &cl, Expr *r) {
   Expr::Width type = cl->getWidth();
 
   if (type==Expr::Bool) {
@@ -707,10 +707,10 @@ static ref<Expr> AddExpr_createPartialR(const ref<ConstantExpr> &cl, Expr *r) {
     }
   }
 }
-static ref<Expr> AddExpr_createPartial(Expr *l, const ref<ConstantExpr> &cr) {
+static klee::ref<Expr> AddExpr_createPartial(Expr *l, const klee::ref<ConstantExpr> &cr) {
   return AddExpr_createPartialR(cr, l);
 }
-static ref<Expr> AddExpr_create(Expr *l, Expr *r) {
+static klee::ref<Expr> AddExpr_create(Expr *l, Expr *r) {
   Expr::Width type = l->getWidth();
 
   if (type == Expr::Bool) {
@@ -735,7 +735,7 @@ static ref<Expr> AddExpr_create(Expr *l, Expr *r) {
   }  
 }
 
-static ref<Expr> SubExpr_createPartialR(const ref<ConstantExpr> &cl, Expr *r) {
+static klee::ref<Expr> SubExpr_createPartialR(const klee::ref<ConstantExpr> &cl, Expr *r) {
   Expr::Width type = cl->getWidth();
 
   if (type==Expr::Bool) {
@@ -753,12 +753,12 @@ static ref<Expr> SubExpr_createPartialR(const ref<ConstantExpr> &cl, Expr *r) {
     }
   }
 }
-static ref<Expr> SubExpr_createPartial(Expr *l, const ref<ConstantExpr> &cr) {
+static klee::ref<Expr> SubExpr_createPartial(Expr *l, const klee::ref<ConstantExpr> &cr) {
   // l - c => l + (-c)
   return AddExpr_createPartial(l, 
                                ConstantExpr::alloc(0, cr->getWidth())->Sub(cr));
 }
-static ref<Expr> SubExpr_create(Expr *l, Expr *r) {
+static klee::ref<Expr> SubExpr_create(Expr *l, Expr *r) {
   Expr::Width type = l->getWidth();
 
   if (type == Expr::Bool) {
@@ -785,7 +785,7 @@ static ref<Expr> SubExpr_create(Expr *l, Expr *r) {
   }  
 }
 
-static ref<Expr> MulExpr_createPartialR(const ref<ConstantExpr> &cl, Expr *r) {
+static klee::ref<Expr> MulExpr_createPartialR(const klee::ref<ConstantExpr> &cl, Expr *r) {
   Expr::Width type = cl->getWidth();
 
   if (type == Expr::Bool) {
@@ -798,10 +798,10 @@ static ref<Expr> MulExpr_createPartialR(const ref<ConstantExpr> &cl, Expr *r) {
     return MulExpr::alloc(cl, r);
   }
 }
-static ref<Expr> MulExpr_createPartial(Expr *l, const ref<ConstantExpr> &cr) {
+static klee::ref<Expr> MulExpr_createPartial(Expr *l, const klee::ref<ConstantExpr> &cr) {
   return MulExpr_createPartialR(cr, l);
 }
-static ref<Expr> MulExpr_create(Expr *l, Expr *r) {
+static klee::ref<Expr> MulExpr_create(Expr *l, Expr *r) {
   Expr::Width type = l->getWidth();
   
   if (type == Expr::Bool) {
@@ -811,7 +811,7 @@ static ref<Expr> MulExpr_create(Expr *l, Expr *r) {
   }
 }
 
-static ref<Expr> AndExpr_createPartial(Expr *l, const ref<ConstantExpr> &cr) {
+static klee::ref<Expr> AndExpr_createPartial(Expr *l, const klee::ref<ConstantExpr> &cr) {
   if (cr->isAllOnes()) {
     return l;
   } else if (cr->isZero()) {
@@ -820,14 +820,14 @@ static ref<Expr> AndExpr_createPartial(Expr *l, const ref<ConstantExpr> &cr) {
     return AndExpr::alloc(l, cr);
   }
 }
-static ref<Expr> AndExpr_createPartialR(const ref<ConstantExpr> &cl, Expr *r) {
+static klee::ref<Expr> AndExpr_createPartialR(const klee::ref<ConstantExpr> &cl, Expr *r) {
   return AndExpr_createPartial(r, cl);
 }
-static ref<Expr> AndExpr_create(Expr *l, Expr *r) {
+static klee::ref<Expr> AndExpr_create(Expr *l, Expr *r) {
   return AndExpr::alloc(l, r);
 }
 
-static ref<Expr> OrExpr_createPartial(Expr *l, const ref<ConstantExpr> &cr) {
+static klee::ref<Expr> OrExpr_createPartial(Expr *l, const klee::ref<ConstantExpr> &cr) {
   if (cr->isAllOnes()) {
     return cr;
   } else if (cr->isZero()) {
@@ -836,14 +836,14 @@ static ref<Expr> OrExpr_createPartial(Expr *l, const ref<ConstantExpr> &cr) {
     return OrExpr::alloc(l, cr);
   }
 }
-static ref<Expr> OrExpr_createPartialR(const ref<ConstantExpr> &cl, Expr *r) {
+static klee::ref<Expr> OrExpr_createPartialR(const klee::ref<ConstantExpr> &cl, Expr *r) {
   return OrExpr_createPartial(r, cl);
 }
-static ref<Expr> OrExpr_create(Expr *l, Expr *r) {
+static klee::ref<Expr> OrExpr_create(Expr *l, Expr *r) {
   return OrExpr::alloc(l, r);
 }
 
-static ref<Expr> XorExpr_createPartialR(const ref<ConstantExpr> &cl, Expr *r) {
+static klee::ref<Expr> XorExpr_createPartialR(const klee::ref<ConstantExpr> &cl, Expr *r) {
   if (cl->isZero()) {
     return r;
   } else if (cl->getWidth() == Expr::Bool) {
@@ -853,14 +853,14 @@ static ref<Expr> XorExpr_createPartialR(const ref<ConstantExpr> &cl, Expr *r) {
   }
 }
 
-static ref<Expr> XorExpr_createPartial(Expr *l, const ref<ConstantExpr> &cr) {
+static klee::ref<Expr> XorExpr_createPartial(Expr *l, const klee::ref<ConstantExpr> &cr) {
   return XorExpr_createPartialR(cr, l);
 }
-static ref<Expr> XorExpr_create(Expr *l, Expr *r) {
+static klee::ref<Expr> XorExpr_create(Expr *l, Expr *r) {
   return XorExpr::alloc(l, r);
 }
 
-static ref<Expr> UDivExpr_create(const ref<Expr> &l, const ref<Expr> &r) {
+static klee::ref<Expr> UDivExpr_create(const klee::ref<Expr> &l, const klee::ref<Expr> &r) {
   if (l->getWidth() == Expr::Bool) { // r must be 1
     return l;
   } else{
@@ -868,7 +868,7 @@ static ref<Expr> UDivExpr_create(const ref<Expr> &l, const ref<Expr> &r) {
   }
 }
 
-static ref<Expr> SDivExpr_create(const ref<Expr> &l, const ref<Expr> &r) {
+static klee::ref<Expr> SDivExpr_create(const klee::ref<Expr> &l, const klee::ref<Expr> &r) {
   if (l->getWidth() == Expr::Bool) { // r must be 1
     return l;
   } else{
@@ -876,7 +876,7 @@ static ref<Expr> SDivExpr_create(const ref<Expr> &l, const ref<Expr> &r) {
   }
 }
 
-static ref<Expr> URemExpr_create(const ref<Expr> &l, const ref<Expr> &r) {
+static klee::ref<Expr> URemExpr_create(const klee::ref<Expr> &l, const klee::ref<Expr> &r) {
   if (l->getWidth() == Expr::Bool) { // r must be 1
     return ConstantExpr::create(0, Expr::Bool);
   } else{
@@ -884,7 +884,7 @@ static ref<Expr> URemExpr_create(const ref<Expr> &l, const ref<Expr> &r) {
   }
 }
 
-static ref<Expr> SRemExpr_create(const ref<Expr> &l, const ref<Expr> &r) {
+static klee::ref<Expr> SRemExpr_create(const klee::ref<Expr> &l, const klee::ref<Expr> &r) {
   if (l->getWidth() == Expr::Bool) { // r must be 1
     return ConstantExpr::create(0, Expr::Bool);
   } else{
@@ -892,7 +892,7 @@ static ref<Expr> SRemExpr_create(const ref<Expr> &l, const ref<Expr> &r) {
   }
 }
 
-static ref<Expr> ShlExpr_create(const ref<Expr> &l, const ref<Expr> &r) {
+static klee::ref<Expr> ShlExpr_create(const klee::ref<Expr> &l, const klee::ref<Expr> &r) {
   if (l->getWidth() == Expr::Bool) { // l & !r
     return AndExpr::create(l, Expr::createIsZero(r));
   } else{
@@ -900,7 +900,7 @@ static ref<Expr> ShlExpr_create(const ref<Expr> &l, const ref<Expr> &r) {
   }
 }
 
-static ref<Expr> LShrExpr_create(const ref<Expr> &l, const ref<Expr> &r) {
+static klee::ref<Expr> LShrExpr_create(const klee::ref<Expr> &l, const klee::ref<Expr> &r) {
   if (l->getWidth() == Expr::Bool) { // l & !r
     return AndExpr::create(l, Expr::createIsZero(r));
   } else{
@@ -908,7 +908,7 @@ static ref<Expr> LShrExpr_create(const ref<Expr> &l, const ref<Expr> &r) {
   }
 }
 
-static ref<Expr> AShrExpr_create(const ref<Expr> &l, const ref<Expr> &r) {
+static klee::ref<Expr> AShrExpr_create(const klee::ref<Expr> &l, const klee::ref<Expr> &r) {
   if (l->getWidth() == Expr::Bool) { // l
     return l;
   } else{
@@ -917,7 +917,7 @@ static ref<Expr> AShrExpr_create(const ref<Expr> &l, const ref<Expr> &r) {
 }
 
 #define BCREATE_R(_e_op, _op, partialL, partialR) \
-ref<Expr>  _e_op ::create(const ref<Expr> &l, const ref<Expr> &r) { \
+klee::ref<Expr>  _e_op ::create(const klee::ref<Expr> &l, const klee::ref<Expr> &r) { \
   assert(l->getWidth()==r->getWidth() && "type mismatch");              \
   if (ConstantExpr *cl = dyn_cast<ConstantExpr>(l)) {                   \
     if (ConstantExpr *cr = dyn_cast<ConstantExpr>(r))                   \
@@ -930,7 +930,7 @@ ref<Expr>  _e_op ::create(const ref<Expr> &l, const ref<Expr> &r) { \
 }
 
 #define BCREATE(_e_op, _op) \
-ref<Expr>  _e_op ::create(const ref<Expr> &l, const ref<Expr> &r) { \
+klee::ref<Expr>  _e_op ::create(const klee::ref<Expr> &l, const klee::ref<Expr> &r) { \
   assert(l->getWidth()==r->getWidth() && "type mismatch");          \
   if (ConstantExpr *cl = dyn_cast<ConstantExpr>(l))                 \
     if (ConstantExpr *cr = dyn_cast<ConstantExpr>(r))               \
@@ -953,7 +953,7 @@ BCREATE(LShrExpr, LShr)
 BCREATE(AShrExpr, AShr)
 
 #define CMPCREATE(_e_op, _op) \
-ref<Expr>  _e_op ::create(const ref<Expr> &l, const ref<Expr> &r) { \
+klee::ref<Expr>  _e_op ::create(const klee::ref<Expr> &l, const klee::ref<Expr> &r) { \
   assert(l->getWidth()==r->getWidth() && "type mismatch");              \
   if (ConstantExpr *cl = dyn_cast<ConstantExpr>(l))                     \
     if (ConstantExpr *cr = dyn_cast<ConstantExpr>(r))                   \
@@ -962,7 +962,7 @@ ref<Expr>  _e_op ::create(const ref<Expr> &l, const ref<Expr> &r) { \
 }
 
 #define CMPCREATE_T(_e_op, _op, _reflexive_e_op, partialL, partialR) \
-ref<Expr>  _e_op ::create(const ref<Expr> &l, const ref<Expr> &r) {    \
+klee::ref<Expr>  _e_op ::create(const klee::ref<Expr> &l, const klee::ref<Expr> &r) {    \
   assert(l->getWidth()==r->getWidth() && "type mismatch");             \
   if (ConstantExpr *cl = dyn_cast<ConstantExpr>(l)) {                  \
     if (ConstantExpr *cr = dyn_cast<ConstantExpr>(r))                  \
@@ -976,7 +976,7 @@ ref<Expr>  _e_op ::create(const ref<Expr> &l, const ref<Expr> &r) {    \
 }
   
 
-static ref<Expr> EqExpr_create(const ref<Expr> &l, const ref<Expr> &r) {
+static klee::ref<Expr> EqExpr_create(const klee::ref<Expr> &l, const klee::ref<Expr> &r) {
   if (l == r) {
     return ConstantExpr::alloc(1, Expr::Bool);
   } else {
@@ -989,7 +989,7 @@ static ref<Expr> EqExpr_create(const ref<Expr> &l, const ref<Expr> &r) {
 /// rd a ReadExpr.  If rd is a read into an all-constant array,
 /// returns a disjunction of equalities on the index.  Otherwise,
 /// returns the initial equality expression. 
-static ref<Expr> TryConstArrayOpt(const ref<ConstantExpr> &cl, 
+static klee::ref<Expr> TryConstArrayOpt(const klee::ref<ConstantExpr> &cl, 
 				  ReadExpr *rd) {
   if (rd->updates.root->isSymbolicArray() || rd->updates.getSize())
     return EqExpr_create(cl, rd);
@@ -999,14 +999,14 @@ static ref<Expr> TryConstArrayOpt(const ref<ConstantExpr> &cl,
 
   // for now, just assume standard "flushing" of a concrete array,
   // where the concrete array has one update for each index, in order
-  ref<Expr> res = ConstantExpr::alloc(0, Expr::Bool);
+  klee::ref<Expr> res = ConstantExpr::alloc(0, Expr::Bool);
   for (unsigned i = 0, e = rd->updates.root->size; i != e; ++i) {
     if (cl == rd->updates.root->constantValues[i]) {
       // Arbitrary maximum on the size of disjunction.
       if (++numMatches > 100)
         return EqExpr_create(cl, rd);
       
-      ref<Expr> mayBe = 
+      klee::ref<Expr> mayBe = 
         EqExpr::create(rd->index, ConstantExpr::alloc(i, 
                                                       rd->index->getWidth()));
       res = OrExpr::create(res, mayBe);
@@ -1016,7 +1016,7 @@ static ref<Expr> TryConstArrayOpt(const ref<ConstantExpr> &cl,
   return res;
 }
 
-static ref<Expr> EqExpr_createPartialR(const ref<ConstantExpr> &cl, Expr *r) {  
+static klee::ref<Expr> EqExpr_createPartialR(const klee::ref<ConstantExpr> &cl, Expr *r) {  
   Expr::Width width = cl->getWidth();
 
   Expr::Kind rk = r->getKind();
@@ -1048,7 +1048,7 @@ static ref<Expr> EqExpr_createPartialR(const ref<ConstantExpr> &cl, Expr *r) {
     // (sext(a,T)==c) == (a==c)
     const SExtExpr *see = cast<SExtExpr>(r);
     Expr::Width fromBits = see->src->getWidth();
-    ref<ConstantExpr> trunc = cl->ZExt(fromBits);
+    klee::ref<ConstantExpr> trunc = cl->ZExt(fromBits);
 
     // pathological check, make sure it is possible to
     // sext to this value *from any value*
@@ -1061,7 +1061,7 @@ static ref<Expr> EqExpr_createPartialR(const ref<ConstantExpr> &cl, Expr *r) {
     // (zext(a,T)==c) == (a==c)
     const ZExtExpr *zee = cast<ZExtExpr>(r);
     Expr::Width fromBits = zee->src->getWidth();
-    ref<ConstantExpr> trunc = cl->ZExt(fromBits);
+    klee::ref<ConstantExpr> trunc = cl->ZExt(fromBits);
     
     // pathological check, make sure it is possible to
     // zext to this value *from any value*
@@ -1093,30 +1093,30 @@ static ref<Expr> EqExpr_createPartialR(const ref<ConstantExpr> &cl, Expr *r) {
   return EqExpr_create(cl, r);
 }
 
-static ref<Expr> EqExpr_createPartial(Expr *l, const ref<ConstantExpr> &cr) {  
+static klee::ref<Expr> EqExpr_createPartial(Expr *l, const klee::ref<ConstantExpr> &cr) {  
   return EqExpr_createPartialR(cr, l);
 }
   
-ref<Expr> NeExpr::create(const ref<Expr> &l, const ref<Expr> &r) {
+klee::ref<Expr> NeExpr::create(const klee::ref<Expr> &l, const klee::ref<Expr> &r) {
   return EqExpr::create(ConstantExpr::create(0, Expr::Bool),
                         EqExpr::create(l, r));
 }
 
-ref<Expr> UgtExpr::create(const ref<Expr> &l, const ref<Expr> &r) {
+klee::ref<Expr> UgtExpr::create(const klee::ref<Expr> &l, const klee::ref<Expr> &r) {
   return UltExpr::create(r, l);
 }
-ref<Expr> UgeExpr::create(const ref<Expr> &l, const ref<Expr> &r) {
+klee::ref<Expr> UgeExpr::create(const klee::ref<Expr> &l, const klee::ref<Expr> &r) {
   return UleExpr::create(r, l);
 }
 
-ref<Expr> SgtExpr::create(const ref<Expr> &l, const ref<Expr> &r) {
+klee::ref<Expr> SgtExpr::create(const klee::ref<Expr> &l, const klee::ref<Expr> &r) {
   return SltExpr::create(r, l);
 }
-ref<Expr> SgeExpr::create(const ref<Expr> &l, const ref<Expr> &r) {
+klee::ref<Expr> SgeExpr::create(const klee::ref<Expr> &l, const klee::ref<Expr> &r) {
   return SleExpr::create(r, l);
 }
 
-static ref<Expr> UltExpr_create(const ref<Expr> &l, const ref<Expr> &r) {
+static klee::ref<Expr> UltExpr_create(const klee::ref<Expr> &l, const klee::ref<Expr> &r) {
   Expr::Width t = l->getWidth();
   if (t == Expr::Bool) { // !l && r
     return AndExpr::create(Expr::createIsZero(l), r);
@@ -1125,7 +1125,7 @@ static ref<Expr> UltExpr_create(const ref<Expr> &l, const ref<Expr> &r) {
   }
 }
 
-static ref<Expr> UleExpr_create(const ref<Expr> &l, const ref<Expr> &r) {
+static klee::ref<Expr> UleExpr_create(const klee::ref<Expr> &l, const klee::ref<Expr> &r) {
   if (l->getWidth() == Expr::Bool) { // !(l && !r)
     return OrExpr::create(Expr::createIsZero(l), r);
   } else {
@@ -1133,7 +1133,7 @@ static ref<Expr> UleExpr_create(const ref<Expr> &l, const ref<Expr> &r) {
   }
 }
 
-static ref<Expr> SltExpr_create(const ref<Expr> &l, const ref<Expr> &r) {
+static klee::ref<Expr> SltExpr_create(const klee::ref<Expr> &l, const klee::ref<Expr> &r) {
   if (l->getWidth() == Expr::Bool) { // l && !r
     return AndExpr::create(l, Expr::createIsZero(r));
   } else {
@@ -1141,7 +1141,7 @@ static ref<Expr> SltExpr_create(const ref<Expr> &l, const ref<Expr> &r) {
   }
 }
 
-static ref<Expr> SleExpr_create(const ref<Expr> &l, const ref<Expr> &r) {
+static klee::ref<Expr> SleExpr_create(const klee::ref<Expr> &l, const klee::ref<Expr> &r) {
   if (l->getWidth() == Expr::Bool) { // !(!l && r)
     return OrExpr::create(l, Expr::createIsZero(r));
   } else {

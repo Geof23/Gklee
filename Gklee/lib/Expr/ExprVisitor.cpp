@@ -21,7 +21,7 @@ namespace {
 
 using namespace klee;
 
-ref<Expr> ExprVisitor::visit(const ref<Expr> &e) {
+klee::ref<Expr> ExprVisitor::visit(const klee::ref<Expr> &e) {
   if (!UseVisitorHash || isa<ConstantExpr>(e)) {
     return visitActual(e);
   } else {
@@ -30,14 +30,14 @@ ref<Expr> ExprVisitor::visit(const ref<Expr> &e) {
     if (it!=visited.end()) {
       return it->second;
     } else {
-      ref<Expr> res = visitActual(e);
+      klee::ref<Expr> res = visitActual(e);
       visited.insert(std::make_pair(e, res));
       return res;
     }
   }
 }
 
-ref<Expr> ExprVisitor::visitActual(const ref<Expr> &e) {
+klee::ref<Expr> ExprVisitor::visitActual(const klee::ref<Expr> &e) {
   if (isa<ConstantExpr>(e)) {    
     return e;
   } else {
@@ -96,10 +96,10 @@ ref<Expr> ExprVisitor::visitActual(const ref<Expr> &e) {
       assert(0 && "invalid kind");
     case Action::DoChildren: {  
       bool rebuild = false;
-      ref<Expr> e(&ep), kids[8];
+      klee::ref<Expr> e(&ep), kids[8];
       unsigned count = ep.getNumKids();
       for (unsigned i=0; i<count; i++) {
-        ref<Expr> kid = ep.getKid(i);
+        klee::ref<Expr> kid = ep.getKid(i);
         kids[i] = visit(kid);
         if (kids[i] != kid)
           rebuild = true;

@@ -44,8 +44,8 @@ namespace klee {
       }
     }
     
-    ref<Expr> evaluate(const Array *mo, unsigned index) const;
-    ref<Expr> evaluate(ref<Expr> e);
+    klee::ref<Expr> evaluate(const Array *mo, unsigned index) const;
+    klee::ref<Expr> evaluate(klee::ref<Expr> e);
 
     template<typename InputIterator>
     bool satisfies(InputIterator begin, InputIterator end);
@@ -55,7 +55,7 @@ namespace klee {
     const Assignment &a;
 
   protected:
-    ref<Expr> getInitialValue(const Array &mo, unsigned index) {
+    klee::ref<Expr> getInitialValue(const Array &mo, unsigned index) {
       return a.evaluate(&mo, index);
     }
     
@@ -65,7 +65,7 @@ namespace klee {
 
   /***/
 
-  inline ref<Expr> Assignment::evaluate(const Array *array, 
+  inline klee::ref<Expr> Assignment::evaluate(const Array *array, 
                                         unsigned index) const {
     bindings_ty::const_iterator it = bindings.find(array);
     if (it!=bindings.end() && index<it->second.size()) {
@@ -80,7 +80,7 @@ namespace klee {
     }
   }
 
-  inline ref<Expr> Assignment::evaluate(ref<Expr> e) { 
+  inline klee::ref<Expr> Assignment::evaluate(klee::ref<Expr> e) { 
     AssignmentEvaluator v(*this);
     return v.visit(e); 
   }

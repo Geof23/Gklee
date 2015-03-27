@@ -84,9 +84,9 @@ class PPrinter : public ExprPPrinter {
 public:
   std::set<const Array*> usedArrays;
 private:
-  std::map<ref<Expr>, unsigned> bindings;
+  std::map<klee::ref<Expr>, unsigned> bindings;
   std::map<const UpdateNode*, unsigned> updateBindings;
-  std::set< ref<Expr> > couldPrint, shouldPrint;
+  std::set< klee::ref<Expr> > couldPrint, shouldPrint;
   std::set<const UpdateNode*> couldPrintUpdates, shouldPrintUpdates;
   std::ostream &os;
   unsigned counter;
@@ -96,13 +96,13 @@ private:
 
   /// shouldPrintWidth - Predicate for whether this expression should
   /// be printed with its width.
-  bool shouldPrintWidth(ref<Expr> e) {
+  bool shouldPrintWidth(klee::ref<Expr> e) {
     if (PCAllWidths)
       return true;
     return e->getWidth() != Expr::Bool;
   }
 
-  bool isVerySimple(const ref<Expr> &e) { 
+  bool isVerySimple(const klee::ref<Expr> &e) { 
     return isa<ConstantExpr>(e) || bindings.find(e)!=bindings.end();
   }
 
@@ -112,7 +112,7 @@ private:
 
 
   // document me!
-  bool isSimple(const ref<Expr> &e) { 
+  bool isSimple(const klee::ref<Expr> &e) { 
     if (isVerySimple(e)) {
       return true;
     } else if (const ReadExpr *re = dyn_cast<ReadExpr>(e)) {
@@ -146,7 +146,7 @@ private:
     }
   }
 
-  void scan1(const ref<Expr> &e) {
+  void scan1(const klee::ref<Expr> &e) {
     if (!isa<ConstantExpr>(e)) {
       if (couldPrint.insert(e).second) {
         Expr *ep = e.get();
@@ -222,7 +222,7 @@ private:
     PC << " @ " << updates.root->name;
   }
 
-  void printWidth(PrintContext &PC, ref<Expr> e) {
+  void printWidth(PrintContext &PC, klee::ref<Expr> e) {
     if (!shouldPrintWidth(e))
       return;
 
@@ -236,7 +236,7 @@ private:
   }
 
   
-  bool isReadExprAtOffset(ref<Expr> e, const ReadExpr *base, ref<Expr> offset) {
+  bool isReadExprAtOffset(klee::ref<Expr> e, const ReadExpr *base, klee::ref<Expr> offset) {
     const ReadExpr *re = dyn_cast<ReadExpr>(e.get());
       
     // right now, all Reads are byte reads but some
@@ -261,7 +261,7 @@ private:
   /// returns the base ReadExpr according to \arg stride: first Read
   /// for 1 (MSB), last Read for -1 (LSB).  Otherwise, it returns
   /// null.
-  const ReadExpr* hasOrderedReads(ref<Expr> e, int stride) {
+  const ReadExpr* hasOrderedReads(klee::ref<Expr> e, int stride) {
     assert(e->getKind() == Expr::Concat);
     assert(stride == 1 || stride == -1);
     
@@ -274,8 +274,8 @@ private:
     
     // Get stride expr in proper index width.
     Expr::Width idxWidth = base->index->getWidth();
-    ref<Expr> strideExpr = ConstantExpr::alloc(stride, idxWidth);
-    ref<Expr> offset = ConstantExpr::create(0, idxWidth);
+    klee::ref<Expr> strideExpr = ConstantExpr::alloc(stride, idxWidth);
+    klee::ref<Expr> offset = ConstantExpr::create(0, idxWidth);
     
     e = e->getKid(1);
     
@@ -360,18 +360,18 @@ public:
     shouldPrintUpdates.clear();
   }
 
-  void scan(const ref<Expr> &e) {
+  void scan(const klee::ref<Expr> &e) {
     hasScan = true;
     scan1(e);
   }
 
-  void print(const ref<Expr> &e, unsigned level=0) {
+  void print(const klee::ref<Expr> &e, unsigned level=0) {
     PrintContext PC(os);
     PC.pos = level;
     print(e, PC);
   }
 
-  void printConst(const ref<ConstantExpr> &e, PrintContext &PC, 
+  void printConst(const klee::ref<ConstantExpr> &e, PrintContext &PC, 
                   bool printWidth) {
     if (e->getWidth() == Expr::Bool)
       PC << (e->isTrue() ? "true" : "false");
@@ -395,11 +395,11 @@ public:
     }    
   }
 
-  void print(const ref<Expr> &e, PrintContext &PC, bool printConstWidth=false) {
+  void print(const klee::ref<Expr> &e, PrintContext &PC, bool printConstWidth=false) {
     if (ConstantExpr *CE = dyn_cast<ConstantExpr>(e))
       printConst(CE, PC, printConstWidth);
     else {
-      std::map<ref<Expr>, unsigned>::iterator it = bindings.find(e);
+      std::map<klee::ref<Expr>, unsigned>::iterator it = bindings.find(e);
       if (it!=bindings.end()) {
         PC << 'N' << it->second;
       } else {
@@ -467,7 +467,7 @@ ExprPPrinter *klee::ExprPPrinter::create(std::ostream &os) {
 
 void ExprPPrinter::printOne(std::ostream &os,
                             const char *message, 
-                            const ref<Expr> &e) {
+                            const klee::ref<Expr> &e) {
   PPrinter p(os);
   p.scan(e);
 
@@ -479,7 +479,7 @@ void ExprPPrinter::printOne(std::ostream &os,
   PC.breakLine();
 }
 
-void ExprPPrinter::printSingleExpr(std::ostream &os, const ref<Expr> &e) {
+void ExprPPrinter::printSingleExpr(std::ostream &os, const klee::ref<Expr> &e) {
   PPrinter p(os);
   p.scan(e);
 
@@ -497,9 +497,9 @@ void ExprPPrinter::printConstraints(std::ostream &os,
 
 void ExprPPrinter::printQuery(std::ostream &os,
                               const ConstraintManager &constraints,
-                              const ref<Expr> &q,
-                              const ref<Expr> *evalExprsBegin,
-                              const ref<Expr> *evalExprsEnd,
+                              const klee::ref<Expr> &q,
+                              const klee::ref<Expr> *evalExprsBegin,
+                              const klee::ref<Expr> *evalExprsEnd,
                               const Array * const *evalArraysBegin,
                               const Array * const *evalArraysEnd,
                               bool printArrayDecls) {
@@ -510,7 +510,7 @@ void ExprPPrinter::printQuery(std::ostream &os,
     p.scan(*it);
   p.scan(q);
 
-  for (const ref<Expr> *it = evalExprsBegin; it != evalExprsEnd; ++it)
+  for (const klee::ref<Expr> *it = evalExprsBegin; it != evalExprsEnd; ++it)
     p.scan(*it);
 
   PrintContext PC(os);
@@ -561,7 +561,7 @@ void ExprPPrinter::printQuery(std::ostream &os,
   if (evalExprsBegin != evalExprsEnd) {
     p.printSeparator(PC, q->isFalse(), indent-1);
     PC << '[';
-    for (const ref<Expr> *it = evalExprsBegin; it != evalExprsEnd; ++it) {
+    for (const klee::ref<Expr> *it = evalExprsBegin; it != evalExprsEnd; ++it) {
       p.print(*it, PC, /*printConstWidth*/true);
       if (it + 1 != evalExprsEnd)
         PC.breakLine(indent);

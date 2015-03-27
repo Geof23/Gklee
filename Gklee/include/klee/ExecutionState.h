@@ -183,7 +183,7 @@ public:
 
   // XXX total hack, just used to make a state so solver can
   // use on structure
-  ExecutionState(const std::vector<ref<Expr> > &assumptions);
+  ExecutionState(const std::vector<klee::ref<Expr> > &assumptions);
 
   ExecutionState(const ExecutionState& state);
 
@@ -213,7 +213,7 @@ public:
 
   void addSymbolic(const MemoryObject *mo, const Array *array); 
 
-  void addConstraint(ref<Expr> e) { 
+  void addConstraint(klee::ref<Expr> e) { 
     constraints.addConstraint(e); 
   }
 
@@ -236,8 +236,8 @@ public:
 
   void constructUnboundedBlockEncodedConstraint(unsigned);
   void constructUnboundedThreadEncodedConstraint(unsigned);
-  void constructBlockEncodedConstraint(ref<Expr> &, unsigned);
-  void constructThreadEncodedConstraint(ref<Expr> &, unsigned);
+  void constructBlockEncodedConstraint(klee::ref<Expr> &, unsigned);
+  void constructThreadEncodedConstraint(klee::ref<Expr> &, unsigned);
   
   llvm::BasicBlock* findNearestCommonPostDominator(llvm::PostDominatorTree *, llvm::Instruction *, bool); 
   void addBranchDivRegionSet(llvm::PostDominatorTree *, llvm::Instruction *, bool, unsigned);
@@ -256,7 +256,7 @@ public:
   ParaTreeVec& getCurrentParaTreeVec();
   ParaTree& getCurrentParaTree();
   void dumpStateConstraint();
-  ref<Expr> getTDCCondition(bool ignoreCur = false);
+  klee::ref<Expr> getTDCCondition(bool ignoreCur = false);
 };
 }
 

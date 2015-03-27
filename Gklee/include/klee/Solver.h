@@ -22,14 +22,14 @@ namespace klee {
   struct Query {
   public:
     const ConstraintManager &constraints;
-    ref<Expr> expr;
+    klee::ref<Expr> expr;
 
-    Query(const ConstraintManager& _constraints, ref<Expr> _expr)
+    Query(const ConstraintManager& _constraints, klee::ref<Expr> _expr)
       : constraints(_constraints), expr(_expr) {
     }
 
     /// withExpr - Return a copy of the query with the given expression.
-    Query withExpr(ref<Expr> _expr) const {
+    Query withExpr(klee::ref<Expr> _expr) const {
       return Query(constraints, _expr);
     }
 
@@ -116,7 +116,7 @@ namespace klee {
     /// satisying assignment.
     ///
     /// \return True on success.
-    bool getValue(const Query&, ref<ConstantExpr> &result);
+    bool getValue(const Query&, klee::ref<ConstantExpr> &result);
 
     /// getInitialValues - Compute the initial values for a list of objects.
     ///
@@ -147,7 +147,7 @@ namespace klee {
     ///       mayBeTrue(max == e))
     //
     // FIXME: This should go into a helper class, and should handle failure.
-    virtual std::pair< ref<Expr>, ref<Expr> > getRange(const Query&);
+    virtual std::pair< klee::ref<Expr>, klee::ref<Expr> > getRange(const Query&);
   };
 
   /// STPSolver - A complete solver based on STP.

@@ -58,7 +58,7 @@ namespace {
   public:
     ExprResult() : IsValid(false) {}
     ExprResult(ExprHandle _Value) : IsValid(true), Value(_Value) {}
-    ExprResult(ref<ConstantExpr> _Value) : IsValid(true), Value(_Value.get()) {}
+    ExprResult(klee::ref<ConstantExpr> _Value) : IsValid(true), Value(_Value.get()) {}
     ExprResult(bool _IsValid, ExprHandle _Value) : IsValid(_IsValid), Value(_Value) {}
 
     bool isValid() { 
@@ -413,7 +413,7 @@ DeclResult ParserImpl::ParseArrayDecl() {
   IntegerResult Size;
   TypeResult DomainType;
   TypeResult RangeType;
-  std::vector< ref<ConstantExpr> > Values;
+  std::vector< klee::ref<ConstantExpr> > Values;
 
   ConsumeToken();
   
@@ -757,7 +757,7 @@ ExprResult ParserImpl::ParseExpr(TypeResult ExpectedType) {
     // FIXME: Maybe we should let the symbol table map to invalid
     // entries?
     if (Label && ExpectedType.isValid()) {
-      ref<Expr> Value = Builder->Constant(0, ExpectedType.get());
+      klee::ref<Expr> Value = Builder->Constant(0, ExpectedType.get());
       ExprSymTab.insert(std::make_pair(Label, Value));
     }
     return Res;
@@ -1099,7 +1099,7 @@ ExprResult ParserImpl::ParseBinaryParenExpr(const Token &Name,
   if (!LHS.isValid() || !RHS.isValid())
     return Builder->Constant(0, ResTy);
 
-  ref<Expr> LHS_E = LHS.get(), RHS_E = RHS.get();
+  klee::ref<Expr> LHS_E = LHS.get(), RHS_E = RHS.get();
   if (LHS_E->getWidth() != RHS_E->getWidth()) {
     Error("type widths do not match in binary expression", Name);
     return Builder->Constant(0, ResTy);

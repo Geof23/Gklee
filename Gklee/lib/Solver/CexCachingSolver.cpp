@@ -41,7 +41,7 @@ namespace {
 
 ///
 
-typedef std::set< ref<Expr> > KeyType;
+typedef std::set< klee::ref<Expr> > KeyType;
 
 struct AssignmentLessThan {
   bool operator()(const Assignment *a, const Assignment *b) {
@@ -55,7 +55,7 @@ class CexCachingSolver : public SolverImpl {
 
   Solver *solver;
   
-  MapOfSets<ref<Expr>, Assignment*> cache;
+  MapOfSets<klee::ref<Expr>, Assignment*> cache;
   // memo table
   assignmentsTable_ty assignmentsTable;
 
@@ -77,7 +77,7 @@ public:
   
   bool computeTruth(const Query&, bool &isValid);
   bool computeValidity(const Query&, Solver::Validity &result);
-  bool computeValue(const Query&, ref<Expr> &result);
+  bool computeValue(const Query&, klee::ref<Expr> &result);
   bool computeInitialValues(const Query&,
                             const std::vector<const Array*> &objects,
                             std::vector< std::vector<unsigned char> > &values,
@@ -181,7 +181,7 @@ bool CexCachingSolver::lookupAssignment(const Query &query,
                                         KeyType &key,
                                         Assignment *&result) {
   key = KeyType(query.constraints.begin(), query.constraints.end());
-  ref<Expr> neg = Expr::createIsZero(query.expr);
+  klee::ref<Expr> neg = Expr::createIsZero(query.expr);
   if (ConstantExpr *CE = dyn_cast<ConstantExpr>(neg)) {
     if (CE->isFalse()) {
       result = (Assignment*) 0;
@@ -249,7 +249,7 @@ bool CexCachingSolver::computeValidity(const Query& query,
   if (!getAssignment(query.withFalse(), a))
     return false;
   assert(a && "computeValidity() must have assignment");
-  ref<Expr> q = a->evaluate(query.expr);
+  klee::ref<Expr> q = a->evaluate(query.expr);
   assert(isa<ConstantExpr>(q) && 
          "assignment evaluation did not result in constant");
 
@@ -294,7 +294,7 @@ bool CexCachingSolver::computeTruth(const Query& query,
 }
 
 bool CexCachingSolver::computeValue(const Query& query,
-                                    ref<Expr> &result) {
+                                    klee::ref<Expr> &result) {
   TimerStatIncrementer t(stats::cexCacheTime);
 
   Assignment *a;

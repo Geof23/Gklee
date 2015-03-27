@@ -20,7 +20,7 @@ public:
 
   // evaluate an expression to be True or False
   // if fail then return Unkown
-  bool evaluate(const ExecutionState&, ref<Expr>, Solver::Validity &result);
+  bool evaluate(const ExecutionState&, klee::ref<Expr>, Solver::Validity &result);
 
   // find the value for a satisfiable assignment
   // the main function of the solver
@@ -29,16 +29,16 @@ public:
 			std::vector< std::vector<unsigned char> > &result);
 
   // obtain a possible value of an expression 
-  bool getValue(const ExecutionState& state, ref<Expr> expr, 
+  bool getValue(const ExecutionState& state, klee::ref<Expr> expr, 
 		ref<ConstantExpr> &result);
 
-  bool mustBeTrue(const ExecutionState&, ref<Expr>, bool &result);
+  bool mustBeTrue(const ExecutionState&, klee::ref<Expr>, bool &result);
   
-  bool mustBeFalse(const ExecutionState&, ref<Expr>, bool &result);
+  bool mustBeFalse(const ExecutionState&, klee::ref<Expr>, bool &result);
   
-  bool mayBeTrue(const ExecutionState&, ref<Expr>, bool &result);
+  bool mayBeTrue(const ExecutionState&, klee::ref<Expr>, bool &result);
   
-  bool mayBeFalse(const ExecutionState&, ref<Expr>, bool &result);
+  bool mayBeFalse(const ExecutionState&, klee::ref<Expr>, bool &result);
 
 public:
 
@@ -47,16 +47,16 @@ public:
   void printAssignments(const std::vector<const Array*>& objects, 
 			std::vector< std::vector<unsigned char> >& values);
 
-  bool solveExpr(ref<Expr> expr, std::vector<const Array*>& objects, 
+  bool solveExpr(klee::ref<Expr> expr, std::vector<const Array*>& objects, 
 		 std::vector< std::vector<unsigned char> >& values);
 
 
-  bool solveExpr(ConstraintManager &constr, ref<Expr> expr, 
+  bool solveExpr(ConstraintManager &constr, klee::ref<Expr> expr, 
 		 std::vector<const Array*>& objects, 
 		 std::vector< std::vector<unsigned char> >& values);
   
 
-  bool solveExpr(ConstraintManager &constr, ref<Expr> expr) {
+  bool solveExpr(ConstraintManager &constr, klee::ref<Expr> expr) {
     std::vector<const Array*> objects;
     std::vector< std::vector<unsigned char> > values;
     bool b = solveExpr(constr, expr, objects, values);
@@ -64,7 +64,7 @@ public:
     return b;
   }
 
-  bool solveExpr(ref<Expr> expr) {
+  bool solveExpr(klee::ref<Expr> expr) {
     std::vector<const Array*> objects;
     std::vector< std::vector<unsigned char> > values;
     bool b = solveExpr(expr, objects, values);

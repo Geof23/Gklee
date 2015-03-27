@@ -66,7 +66,7 @@ ObjectState *AddressSpace::getWriteable(const MemoryObject *mo,
 
 /// 
 
-bool AddressSpace::resolveOne(const ref<ConstantExpr> &addr, 
+bool AddressSpace::resolveOne(const klee::ref<ConstantExpr> &addr, 
                               ObjectPair &result) {
 
   uint64_t address = addr->getZExtValue();
@@ -93,7 +93,7 @@ bool AddressSpace::resolveOne(const ref<ConstantExpr> &addr,
 
 bool AddressSpace::resolveOne(ExecutionState &state,
                               TimingSolver *solver,
-                              ref<Expr> address,
+                              klee::ref<Expr> address,
                               ObjectPair &result,
                               bool &success) {
   if (ConstantExpr *CE = dyn_cast<ConstantExpr>(address)) {
@@ -107,7 +107,7 @@ bool AddressSpace::resolveOne(ExecutionState &state,
     //std::cout << "address expr: " << std::endl;
     //address->dump();
 
-    ref<ConstantExpr> cex;
+    klee::ref<ConstantExpr> cex;
     if (!solver->getValue(state, address, cex))
       return false;
     uint64_t example = cex->getZExtValue();
@@ -186,7 +186,7 @@ bool AddressSpace::resolveOne(ExecutionState &state,
 
 bool AddressSpace::resolve(ExecutionState &state,
                            TimingSolver *solver, 
-                           ref<Expr> p, 
+                           klee::ref<Expr> p, 
                            ResolutionList &rl, 
                            unsigned maxResolutions,
                            double timeout) {
@@ -214,7 +214,7 @@ bool AddressSpace::resolve(ExecutionState &state,
     // to hit the fast path with exactly 2 queries). we could also
     // just get this by inspection of the expr.
     
-    ref<ConstantExpr> cex;
+    klee::ref<ConstantExpr> cex;
     if (!solver->getValue(state, p, cex))
       return true;
     uint64_t example = cex->getZExtValue();
@@ -241,7 +241,7 @@ bool AddressSpace::resolve(ExecutionState &state,
         return true;
 
       // XXX I think there is some query wasteage here?
-      ref<Expr> inBounds = mo->getBoundsCheckPointer(p);
+      klee::ref<Expr> inBounds = mo->getBoundsCheckPointer(p);
       bool mayBeTrue;
       if (!solver->mayBeTrue(state, inBounds, mayBeTrue))
         return true;
@@ -284,7 +284,7 @@ bool AddressSpace::resolve(ExecutionState &state,
         break;
       
       // XXX I think there is some query wasteage here?
-      ref<Expr> inBounds = mo->getBoundsCheckPointer(p);
+      klee::ref<Expr> inBounds = mo->getBoundsCheckPointer(p);
       bool mayBeTrue;
       if (!solver->mayBeTrue(state, inBounds, mayBeTrue))
         return true;

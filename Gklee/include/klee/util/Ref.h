@@ -51,13 +51,13 @@ public:
   }
 
   // normal copy constructor
-  ref(const ref<T> &r) : ptr(r.ptr) {
+  ref(const klee::ref<T> &r) : ptr(r.ptr) {
     inc();
   }
 
   // conversion constructor
   template<class U>
-  ref (const ref<U> &r) : ptr(r.ptr) {
+  ref (const klee::ref<U> &r) : ptr(r.ptr) {
     inc();
   }
 
@@ -68,7 +68,7 @@ public:
 
   /* The copy assignment operator must also explicitly be defined,
    * despite a redundant template. */
-  ref<T> &operator= (const ref<T> &r) {
+  klee::ref<T> &operator= (const klee::ref<T> &r) {
     r.inc();
     dec();
     ptr = r.ptr;
@@ -76,7 +76,7 @@ public:
     return *this;
   }
 
-  template<class U> ref<T> &operator= (const ref<U> &r) {
+  template<class U> klee::ref<T> &operator= (const klee::ref<U> &r) {
     r.inc();
     dec();
     ptr = r.ptr;
@@ -107,7 +107,7 @@ public:
 };
 
 template<class T>
-inline std::ostream &operator<<(std::ostream &os, const ref<T> &e) {
+inline std::ostream &operator<<(std::ostream &os, const klee::ref<T> &e) {
   os << *e;
   return os;
 }
@@ -115,11 +115,11 @@ inline std::ostream &operator<<(std::ostream &os, const ref<T> &e) {
 } // end namespace klee
 
 namespace llvm {
-  // simplify_type implementation for ref<>, which allows dyn_cast from on a
-  // ref<> to apply to the wrapper type. Conceptually the result of such a
+  // simplify_type implementation for klee::ref<>, which allows dyn_cast from on a
+  // klee::ref<> to apply to the wrapper type. Conceptually the result of such a
   // dyn_cast should probably be a ref of the casted type, but that breaks the
   // idiom of initializing a variable to the result of a dyn_cast inside an if
-  // condition, or we would have to implement operator(bool) for ref<> with
+  // condition, or we would have to implement operator(bool) for klee::ref<> with
   // isNull semantics, which doesn't seem like a good idea.
 template<typename T>
 struct simplify_type<const ::klee::ref<T> > {

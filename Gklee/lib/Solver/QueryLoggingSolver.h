@@ -64,7 +64,7 @@ public:
     /// implementation of the SolverImpl interface
     bool computeTruth(const Query& query, bool &isValid);
     bool computeValidity(const Query& query, Solver::Validity &result);
-    bool computeValue(const Query& query, ref<Expr> &result);
+    bool computeValue(const Query& query, klee::ref<Expr> &result);
     bool computeInitialValues(const Query& query,
                               const std::vector<const Array*> &objects,
                               std::vector< std::vector<unsigned char> > &values,

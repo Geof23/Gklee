@@ -30,7 +30,7 @@ namespace runtime {
 
 using namespace runtime;
 
-bool TimingSolver::evaluate(const ExecutionState& state, ref<Expr> expr,
+bool TimingSolver::evaluate(const ExecutionState& state, klee::ref<Expr> expr,
                             Solver::Validity &result) {
 
   // Fast path, to avoid timer and OS overhead.
@@ -55,7 +55,7 @@ bool TimingSolver::evaluate(const ExecutionState& state, ref<Expr> expr,
   return success;
 }
 
-bool TimingSolver::mustBeTrue(const ExecutionState& state, ref<Expr> expr, 
+bool TimingSolver::mustBeTrue(const ExecutionState& state, klee::ref<Expr> expr, 
                               bool &result) {
   // Fast path, to avoid timer and OS overhead.
   if (ConstantExpr *CE = dyn_cast<ConstantExpr>(expr)) {
@@ -80,12 +80,12 @@ bool TimingSolver::mustBeTrue(const ExecutionState& state, ref<Expr> expr,
   return success;
 }
 
-bool TimingSolver::mustBeFalse(const ExecutionState& state, ref<Expr> expr,
+bool TimingSolver::mustBeFalse(const ExecutionState& state, klee::ref<Expr> expr,
                                bool &result) {
   return mustBeTrue(state, Expr::createIsZero(expr), result);
 }
 
-bool TimingSolver::mayBeTrue(const ExecutionState& state, ref<Expr> expr, 
+bool TimingSolver::mayBeTrue(const ExecutionState& state, klee::ref<Expr> expr, 
                              bool &result) {
   bool res;
   if (!mustBeFalse(state, expr, res))
@@ -94,7 +94,7 @@ bool TimingSolver::mayBeTrue(const ExecutionState& state, ref<Expr> expr,
   return true;
 }
 
-bool TimingSolver::mayBeFalse(const ExecutionState& state, ref<Expr> expr, 
+bool TimingSolver::mayBeFalse(const ExecutionState& state, klee::ref<Expr> expr, 
                               bool &result) {
   bool res;
   if (!mustBeTrue(state, expr, res))
@@ -103,8 +103,8 @@ bool TimingSolver::mayBeFalse(const ExecutionState& state, ref<Expr> expr,
   return true;
 }
 
-bool TimingSolver::getValue(const ExecutionState& state, ref<Expr> expr, 
-                            ref<ConstantExpr> &result) {
+bool TimingSolver::getValue(const ExecutionState& state, klee::ref<Expr> expr, 
+                            klee::ref<ConstantExpr> &result) {
 
   // Fast path, to avoid timer and OS overhead.
   if (ConstantExpr *CE = dyn_cast<ConstantExpr>(expr)) {
@@ -157,7 +157,7 @@ TimingSolver::getInitialValues(const ExecutionState& state,
 
 
 
-std::pair< ref<Expr>, ref<Expr> >
-TimingSolver::getRange(const ExecutionState& state, ref<Expr> expr) {
+std::pair< klee::ref<Expr>, klee::ref<Expr> >
+TimingSolver::getRange(const ExecutionState& state, klee::ref<Expr> expr) {
   return solver->getRange(Query(state.constraints, expr));
 }

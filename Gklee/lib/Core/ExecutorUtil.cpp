@@ -41,10 +41,10 @@ using namespace llvm;
 
 namespace klee {
 
-  ref<ConstantExpr> Executor::evalConstantExpr(const llvm::ConstantExpr *ce) {
+  klee::ref<ConstantExpr> Executor::evalConstantExpr(const llvm::ConstantExpr *ce) {
     LLVM_TYPE_Q llvm::Type *type = ce->getType();
 
-    ref<ConstantExpr> op1(0), op2(0), op3(0);
+    klee::ref<ConstantExpr> op1(0), op2(0), op3(0);
     int numOperands = ce->getNumOperands();
 
     if (numOperands > 0) { 
@@ -102,11 +102,11 @@ namespace klee {
 
     case Instruction::GetElementPtr: {
 
-      ref<ConstantExpr> base = op1->ZExt(Context::get().getPointerWidth());
+      klee::ref<ConstantExpr> base = op1->ZExt(Context::get().getPointerWidth());
 
       for (gep_type_iterator ii = gep_type_begin(ce), ie = gep_type_end(ce);
            ii != ie; ++ii) {
-        ref<ConstantExpr> addend = 
+        klee::ref<ConstantExpr> addend = 
           ConstantExpr::alloc(0, Context::get().getPointerWidth());
 
         if (LLVM_TYPE_Q StructType *st = dyn_cast<StructType>(*ii)) {
@@ -118,7 +118,7 @@ namespace klee {
                                        Context::get().getPointerWidth());
         } else {
           const SequentialType *set = cast<SequentialType>(*ii);
-          ref<ConstantExpr> index = 
+          klee::ref<ConstantExpr> index = 
             evalConstant(cast<Constant>(ii.getOperand()));
           unsigned elementSize = 
             kmodule->targetData->getTypeStoreSize(set->getElementType());

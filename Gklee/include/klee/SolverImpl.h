@@ -57,7 +57,7 @@ namespace klee {
     /// computeValue - Compute a feasible value for the expression.
     ///
     /// The query expression is guaranteed to be non-constant.
-    virtual bool computeValue(const Query& query, ref<Expr> &result) = 0;
+    virtual bool computeValue(const Query& query, klee::ref<Expr> &result) = 0;
     
     virtual bool computeInitialValues(const Query& query,
                                       const std::vector<const Array*> 

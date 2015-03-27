@@ -418,3 +418,41 @@ diff -urN clang-3.2.src/lib/Sema/SemaOverload.cpp clang/lib/Sema/SemaOverload.cp
        }
  
    // Determine the implicit conversion sequences for each of the
+diff -urN clang-3.2.src/lib/Frontend/InitHeaderSearch.cpp clang/lib/Frontend/InitHeaderSearch.cpp
+--- clang-3.2.src/lib/Frontend/InitHeaderSearch.cpp	2012-10-24 10:19:39.000000000 -0600
++++ clang/lib/Frontend/InitHeaderSearch.cpp	2015-03-25 01:01:56.443611091 -0600
+@@ -28,6 +28,7 @@
+ 
+ #include "clang/Config/config.h" // C_INCLUDE_DIRS
+ 
++
+ using namespace clang;
+ using namespace clang::frontend;
+ 
+@@ -338,7 +339,6 @@
+ AddDefaultCPlusPlusIncludePaths(const llvm::Triple &triple, const HeaderSearchOptions &HSOpts) {
+   llvm::Triple::OSType os = triple.getOS();
+   // FIXME: temporary hack: hard-coded paths.
+-
+   if (triple.isOSDarwin()) {
+     switch (triple.getArch()) {
+     default: break;
+@@ -451,6 +451,18 @@
+   // driver which has the information necessary to do target-specific
+   // selections of default include paths. Each target which moves there will be
+   // exempted from this logic here until we can delete the entire pile of code.
++  //a horrible hack!
++  if( triple.getOS() == llvm::Triple::Linux &&
++      triple.getArch() == llvm::Triple::x86_64 &&
++      triple.getEnvironment() == llvm::Triple::GNU ){
++    AddPath("/usr/include/x86_64-linux-gnu/c++/4.9/",
++	    CXXSystem, true, false, false);
++    AddPath("/usr/include/x86_64-linux-gnu/c++/4.8/",
++	    CXXSystem, true, false, false);
++    AddPath("/usr/include/x86_64-linux-gnu/c++/4.7/",
++	    CXXSystem, true, false, false);
++  }
++
+   switch (triple.getOS()) {
+   default:
+     break; // Everything else continues to use this routine's logic.

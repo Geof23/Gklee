@@ -93,14 +93,14 @@ public:
 
 class AccumMemoryMark {
 public:
-  ref<Expr> soffset;
-  ref<Expr> eoffset;
-  ref<Expr> value;
+  klee::ref<Expr> soffset;
+  klee::ref<Expr> eoffset;
+  klee::ref<Expr> value;
   bool isAccum;
   
-  explicit AccumMemoryMark(ref<Expr> _soffset, 
-                           ref<Expr> _eoffset, 
-                           ref<Expr> _value, 
+  explicit AccumMemoryMark(klee::ref<Expr> _soffset, 
+                           klee::ref<Expr> _eoffset, 
+                           klee::ref<Expr> _value, 
                            bool _isAccum) : soffset(_soffset), 
                                             eoffset(_eoffset),
                                             value(_value), 
@@ -159,11 +159,11 @@ public:
   /// Return a unique constant value for the given expression in the
   /// given state, if it has one (i.e. it provably only has a single
   /// value). Otherwise return the original expression.
-  ref<Expr> toUnique(ExecutionState &state, ref<Expr> &e);
+  klee::ref<Expr> toUnique(ExecutionState &state, klee::ref<Expr> &e);
 
   void bindLocal(KInstruction *target, 
                  ExecutionState &state, 
-                 ref<Expr> value);
+                 klee::ref<Expr> value);
 
   ObjectState *bindObjectInState(ExecutionState &state, 
                                  const MemoryObject *mo,
@@ -183,7 +183,7 @@ public:
   typedef std::vector< std::pair<std::pair<const MemoryObject*, const ObjectState*>, 
                                  ExecutionState*> > ExactResolutionList;
   void resolveExact(ExecutionState &state,
-                    ref<Expr> p,
+                    klee::ref<Expr> p,
                     ExactResolutionList &results,
                     const std::string &name, 
 		    GPUConfig::CTYPE ctype,  
@@ -194,19 +194,19 @@ public:
                              const char *suffix,
                              const llvm::Twine &longMessage="");
 
-  const Cell& evalSharedMemory(ExecutionState &state, ref<Expr> &pointer, 
+  const Cell& evalSharedMemory(ExecutionState &state, klee::ref<Expr> &pointer, 
                                unsigned index);
   const Cell& eval(KInstruction *ki, unsigned index, 
                    ExecutionState &state);
 
   void evaluateConstraintAsNewFlow(ExecutionState &state, ParaTree &pTree, 
-                                   ref<Expr> &cond, bool flowCreated);
+                                   klee::ref<Expr> &cond, bool flowCreated);
 
   void evaluateConstraintAsNewFlowUnderRacePrune(ExecutionState &state, ParaTree &pTree, 
-                                                 ref<Expr> &cond, bool flowCreated, 
+                                                 klee::ref<Expr> &cond, bool flowCreated, 
                                                  llvm::BranchInst *bi);
 
-  bool identifyConditionType(ExecutionState &state, ref<Expr> &cond, 
+  bool identifyConditionType(ExecutionState &state, klee::ref<Expr> &cond, 
                              bool &relatedToSym, bool &accum);
  
   void clearConfigRelatedConstraints(ExecutionState &state);
@@ -222,7 +222,7 @@ private:
                     // need this...
   bool accumStore;
   std::map<llvm::Instruction*, MemoryAccess> accumTaintSet; 
-  ref<Expr> atomicRes;
+  klee::ref<Expr> atomicRes;
   std::set<std::string> kernelSet;     // global function set  
   std::set<std::string> builtInSet;    // builtIn variables set 
   llvm::Function *kernelFunc; 
@@ -262,7 +262,7 @@ private:
 
   /// Map of globals to their bound address. This also includes
   /// globals that have no representative object (i.e. functions).
-  std::map<const llvm::GlobalValue*, ref<ConstantExpr> > globalAddresses;
+  std::map<const llvm::GlobalValue*, klee::ref<ConstantExpr> > globalAddresses;
 
   /// Vector of global base address for shared memory handled as global variables 
   /// to their representative memory object.
@@ -328,7 +328,7 @@ private:
                                     ExecutionState &state);
   
   void updateCType(ExecutionState &state, llvm::Value *value, 
-                   ref<Expr> &base, bool is_GPU_mode);
+                   klee::ref<Expr> &base, bool is_GPU_mode);
 
   void executeInstruction(ExecutionState &state, KInstruction *ki);
 
@@ -377,14 +377,14 @@ private:
   void callExternalFunction(ExecutionState &state,
                             KInstruction *target,
                             llvm::Function *function,
-                            std::vector< ref<Expr> > &arguments);
+                            std::vector< klee::ref<Expr> > &arguments);
 
   // by Guodong
   // process the intrinsic functions generated while compiling C++ programs
   void callIntrinsicFunction(ExecutionState &state,
 			     KInstruction *target,
 			     llvm::Function *function,
-			     std::vector< ref<Expr> > &arguments);
+			     std::vector< klee::ref<Expr> > &arguments);
 
   /// Allocate and bind a new object in a particular state. NOTE: This
   /// function may fork.
@@ -402,7 +402,7 @@ private:
   /// minimum of the size of the old and new objects, with remaining
   /// bytes initialized as specified by zeroMemory.
   void executeAlloc(ExecutionState &state,
-                    ref<Expr> size,
+                    klee::ref<Expr> size,
                     bool isLocal,
                     KInstruction *target,
                     bool zeroMemory=false,
@@ -414,32 +414,32 @@ private:
   /// state to fork and that \ref state cannot be safely accessed
   /// afterwards.
   void executeFree(ExecutionState &state,
-                   ref<Expr> address,
+                   klee::ref<Expr> address,
                    KInstruction *target = 0);
   
   void executeCall(ExecutionState &state, 
                    KInstruction *ki,
                    llvm::Function *f,
-                   std::vector< ref<Expr> > &arguments, 
+                   std::vector< klee::ref<Expr> > &arguments, 
                    unsigned seqNum = 0);
 
-  void executeRaceCondition(ExecutionState &state, ref<Expr> &raceCond);
+  void executeRaceCondition(ExecutionState &state, klee::ref<Expr> &raceCond);
 
-  void executeNoMemoryCoalescing(ExecutionState &state, ref<Expr> &noMCCond);
+  void executeNoMemoryCoalescing(ExecutionState &state, klee::ref<Expr> &noMCCond);
 
-  void executeBankConflict(ExecutionState &state, ref<Expr> &bcCond);
+  void executeBankConflict(ExecutionState &state, klee::ref<Expr> &bcCond);
 
-  void executeVolatileMissing(ExecutionState &state, ref<Expr> &mcCond);
+  void executeVolatileMissing(ExecutionState &state, klee::ref<Expr> &mcCond);
 
-  void updateBaseCType(ExecutionState &state, ref<Expr> &baseAddr);  
+  void updateBaseCType(ExecutionState &state, klee::ref<Expr> &baseAddr);  
                    
-  void dumpTmpOutOfBoundConfig(ExecutionState &state, ref<Expr> boundExpr, ref<Expr> offset);
+  void dumpTmpOutOfBoundConfig(ExecutionState &state, klee::ref<Expr> boundExpr, klee::ref<Expr> offset);
   // do address resolution / object binding / out of bounds checking
   // and perform the operation
   void executeMemoryOperation(ExecutionState &state,
                               bool isWrite,
-                              ref<Expr> address,
-                              ref<Expr> value /* undef if read */,
+                              klee::ref<Expr> address,
+                              klee::ref<Expr> value /* undef if read */,
                               KInstruction *target /* undef if write */,
                               unsigned seqNum = 0,  
                               bool isAtomic = false);
@@ -453,26 +453,26 @@ private:
   /// as one of the results. Note that the output vector may included
   /// NULL pointers for states which were unable to be created.
   void branch(ExecutionState &state, 
-              const std::vector< ref<Expr> > &conditions,
+              const std::vector< klee::ref<Expr> > &conditions,
               std::vector<ExecutionState*> &result);
 
   //bool identifyAccumVariable(ExecutionState &state, const MemoryObject *mo, 
-  //                           ref<Expr> offset, unsigned bytes, ref<Expr> value); 
+  //                           klee::ref<Expr> offset, unsigned bytes, klee::ref<Expr> value); 
 
   // Fork current and return states in which condition holds / does
   // not hold, respectively. One of the states is necessarily the
   // current state, and one of the states may be null.
-  StatePair fork(ExecutionState &current, ref<Expr> condition, bool isInternal);
+  StatePair fork(ExecutionState &current, klee::ref<Expr> condition, bool isInternal);
 
   /// Add the given (boolean) condition as a constraint on state. This
   /// function is a wrapper around the state's addConstraint function
   /// which also manages manages propogation of implied values,
   /// validity checks, and seed patching.
-  void addConstraint(ExecutionState &state, ref<Expr> condition);
+  void addConstraint(ExecutionState &state, klee::ref<Expr> condition);
 
   // Called on [for now] concrete reads, replaces constant with a symbolic
   // Used for testing.
-  ref<Expr> replaceReadWithSymbolic(ExecutionState &state, ref<Expr> e);
+  klee::ref<Expr> replaceReadWithSymbolic(ExecutionState &state, klee::ref<Expr> e);
 
   // construct shared memory successfully. 
   void constructSharedMemory(ExecutionState &state, unsigned bid);
@@ -494,9 +494,9 @@ private:
   void bindArgument(KFunction *kf, 
                     unsigned index,
                     ExecutionState &state,
-                    ref<Expr> value);
+                    klee::ref<Expr> value);
 
-  ref<klee::ConstantExpr> evalConstantExpr(const llvm::ConstantExpr *ce);
+  klee::ref<klee::ConstantExpr> evalConstantExpr(const llvm::ConstantExpr *ce);
 
   /// Return a constant value for the given expression, forcing it to
   /// be constant in the given state by adding a constraint if
@@ -504,19 +504,19 @@ private:
   /// should generally be avoided.
   ///
   /// \param purpose An identify string to printed in case of concretization.
-  ref<klee::ConstantExpr> toConstant(ExecutionState &state, ref<Expr> e, 
+  klee::ref<klee::ConstantExpr> toConstant(ExecutionState &state, klee::ref<Expr> e, 
                                      const char *purpose);
 
-  ref<klee::ConstantExpr> toConstantArguments(ExecutionState &state, 
-                                              ref<Expr> e, 
+  klee::ref<klee::ConstantExpr> toConstantArguments(ExecutionState &state, 
+                                              klee::ref<Expr> e, 
                                               const char *reason);
 
   /// Bind a constant value for e to the given target. NOTE: This
   /// function may fork state if the state has multiple seeds.
-  void executeGetValue(ExecutionState &state, ref<Expr> e, KInstruction *target);
+  void executeGetValue(ExecutionState &state, klee::ref<Expr> e, KInstruction *target);
 
   /// Get textual information regarding a memory address.
-  std::string getAddressInfo(ExecutionState &state, ref<Expr> address) const;
+  std::string getAddressInfo(ExecutionState &state, klee::ref<Expr> address) const;
 
   void concludeExploredTime(ExecutionState &state);
   // remove state from queue and delete
@@ -563,11 +563,11 @@ private:
 
   void handlePointsToObj(ExecutionState &state, 
                          KInstruction *target, 
-                         const std::vector<ref<Expr> > &arguments);
+                         const std::vector<klee::ref<Expr> > &arguments);
 
   void doImpliedValueConcretization(ExecutionState &state,
-                                    ref<Expr> e,
-                                    ref<ConstantExpr> value);
+                                    klee::ref<Expr> e,
+                                    klee::ref<ConstantExpr> value);
 
   /// Add a timer to be executed periodically.
   ///
@@ -588,13 +588,13 @@ public:
   }
 
   // XXX should just be moved out to utility module
-  ref<klee::ConstantExpr> evalConstant(const llvm::Constant *c);
+  klee::ref<klee::ConstantExpr> evalConstant(const llvm::Constant *c);
   
   bool getGPUMode() const {
     return is_GPU_mode;
   }
 
-  ref<Expr> getAtomicRes() const {
+  klee::ref<Expr> getAtomicRes() const {
     return atomicRes;
   }
 
@@ -614,65 +614,65 @@ public:
 
   void executeAtomicAdd(ExecutionState &state, 
                         KInstruction *target, std::string fName, 
-                        std::vector< ref<Expr> > &arguments, 
+                        std::vector< klee::ref<Expr> > &arguments, 
                         unsigned seqNum); 
 
   void executeAtomicExch(ExecutionState &state, KInstruction *target, 
-                         std::vector< ref<Expr> > &arguments, 
+                         std::vector< klee::ref<Expr> > &arguments, 
                          unsigned seqNum); 
 
   void compareValue(ExecutionState &state, 
                     KInstruction *target, std::string fName, 
-                    std::vector< ref<Expr> > &arguments,
+                    std::vector< klee::ref<Expr> > &arguments,
                     unsigned seqNum, 
-                    ref<Expr> base, bool isMin); 
+                    klee::ref<Expr> base, bool isMin); 
 
   void executeAtomicMin(ExecutionState &state, 
                         KInstruction *target, std::string fName, 
-                        std::vector< ref<Expr> > &arguments, 
+                        std::vector< klee::ref<Expr> > &arguments, 
                         unsigned seqNum);
 
   void executeAtomicMax(ExecutionState &state, 
                         KInstruction *target, std::string fName, 
-                        std::vector< ref<Expr> > &arguments, 
+                        std::vector< klee::ref<Expr> > &arguments, 
                         unsigned seqNum); 
 
   void executeAtomicInc(ExecutionState &state, 
                         KInstruction *target, 
-                        std::vector< ref<Expr> > &arguments, 
+                        std::vector< klee::ref<Expr> > &arguments, 
                         unsigned seqNum); 
 
   void executeAtomicDec(ExecutionState &state, 
                         KInstruction *target, 
-                        std::vector< ref<Expr> > &arguments, 
+                        std::vector< klee::ref<Expr> > &arguments, 
                         unsigned seqNum);
 
   void executeAtomicCAS(ExecutionState &state, KInstruction *target, 
-                        std::vector< ref<Expr> > &arguments, 
+                        std::vector< klee::ref<Expr> > &arguments, 
                         unsigned seqNum); 
 
   void executeAtomicBitWise(ExecutionState &state, 
                             KInstruction *target, std::string fName,
-                            std::vector< ref<Expr> > &arguments, 
+                            std::vector< klee::ref<Expr> > &arguments, 
                             unsigned seqNum); 
 
   bool executeCUDAAtomic(ExecutionState &state,
                          KInstruction *target, std::string fName,
-                         std::vector< ref<Expr> > &arguments, 
+                         std::vector< klee::ref<Expr> > &arguments, 
                          unsigned seqNum); 
 
   void executeCUDAIntrinsics(ExecutionState &state, 
                              KInstruction *target,
                              llvm::Function *f, 
-                             std::vector< ref<Expr> > &arguments, 
+                             std::vector< klee::ref<Expr> > &arguments, 
                              unsigned seqNum);
 
-  ref<ConstantExpr> toConstantPublic(ExecutionState &state, 
-                                     ref<Expr> e, 
+  klee::ref<ConstantExpr> toConstantPublic(ExecutionState &state, 
+                                     klee::ref<Expr> e, 
                                      const char *reason);
 
   StatePair forkAsPublic(ExecutionState &current, 
-                         ref<Expr> cond, bool isInternal);
+                         klee::ref<Expr> cond, bool isInternal);
 
   void terminateStateOnExecErrorPublic(ExecutionState &state, 
                                        const llvm::Twine &message, 
@@ -731,25 +731,25 @@ public:
                                 std::string &res,
                                 bool asCVC = false);
 
-  void addConfigConstraint(ExecutionState &state, ref<Expr> condition);
+  void addConfigConstraint(ExecutionState &state, klee::ref<Expr> condition);
 
-  bool getSymbolicConfig(ExecutionState &state, ref<Expr> cond);
+  bool getSymbolicConfig(ExecutionState &state, klee::ref<Expr> cond);
 
   // No need to set it 'virtual'
   bool getSymbolicConfigSolution(ExecutionState &state, 
-                                 ref<Expr> condition,
-                                 std::vector< ref<Expr> > offsetVec, 
-                                 std::vector< ref<Expr> > &cOffsetVec,
-                                 ref<Expr> val1, ref<Expr> val2, bool &benign,
+                                 klee::ref<Expr> condition,
+                                 std::vector< klee::ref<Expr> > offsetVec, 
+                                 std::vector< klee::ref<Expr> > &cOffsetVec,
+                                 klee::ref<Expr> val1, klee::ref<Expr> val2, bool &benign,
                                  std::vector<SymBlockID_t> &symBlockIDs, 
                                  std::vector<SymThreadID_t> &symThreadIDs, 
                                  SymBlockDim_t &symBlockDim);
 
   bool dumpOffsetValue(const ExecutionState &state, 
-                       ref<Expr> offset);
+                       klee::ref<Expr> offset);
 
   bool getConditionSolution(const ExecutionState &state, 
-                            ref<Expr> cond,
+                            klee::ref<Expr> cond,
                             std::vector< 
                             std::pair<std::string,
                             std::vector<unsigned char> > >
@@ -766,7 +766,7 @@ public:
 
 
   // By peng li, for path reduction
-  bool fullyExplore(ExecutionState &current, ref<Expr> condition, PRInfo& info);
+  bool fullyExplore(ExecutionState &current, klee::ref<Expr> condition, PRInfo& info);
 
   Expr::Width getWidthForLLVMType(LLVM_TYPE_Q llvm::Type *type) const;
 };
@@ -781,7 +781,7 @@ class ExecutorUtil {
     static void constructSymConfigEncodedConstraint(ExecutionState &state);
     static void constructSymBlockDimPrecondition(ExecutionState &state);
 
-    static void addConfigConstraint(ExecutionState &state, ref<Expr> condition);
+    static void addConfigConstraint(ExecutionState &state, klee::ref<Expr> condition);
 };
   
 } // End klee namespace

@@ -101,7 +101,7 @@ private:
 
 public:
   ValueRange() : m_min(1),m_max(0) {}
-  ValueRange(const ref<ConstantExpr> &ce) {
+  ValueRange(const klee::ref<ConstantExpr> &ce) {
     // FIXME: Support large widths.
     m_min = m_max = ce->getLimitedValue();
   }
@@ -358,7 +358,7 @@ public:
 
 class CexPossibleEvaluator : public ExprEvaluator {
 protected:
-  ref<Expr> getInitialValue(const Array& array, unsigned index) {
+  klee::ref<Expr> getInitialValue(const Array& array, unsigned index) {
     // If the index is out of range, we cannot assign it a value, since that
     // value cannot be part of the assignment.
     if (index >= array.size)
@@ -379,7 +379,7 @@ public:
 
 class CexExactEvaluator : public ExprEvaluator {
 protected:
-  ref<Expr> getInitialValue(const Array& array, unsigned index) {
+  klee::ref<Expr> getInitialValue(const Array& array, unsigned index) {
     // If the index is out of range, we cannot assign it a value, since that
     // value cannot be part of the assignment.
     if (index >= array.size)
@@ -433,15 +433,15 @@ public:
     return *Entry;
   }
 
-  void propogatePossibleValue(ref<Expr> e, uint64_t value) {
+  void propogatePossibleValue(klee::ref<Expr> e, uint64_t value) {
     propogatePossibleValues(e, CexValueData(value,value));
   }
 
-  void propogateExactValue(ref<Expr> e, uint64_t value) {
+  void propogateExactValue(klee::ref<Expr> e, uint64_t value) {
     propogateExactValues(e, CexValueData(value,value));
   }
 
-  void propogatePossibleValues(ref<Expr> e, CexValueData range) {
+  void propogatePossibleValues(klee::ref<Expr> e, CexValueData range) {
     #ifdef DEBUG
     std::cerr << "propogate: " << range << " for\n" << e << "\n";
     #endif
@@ -782,7 +782,7 @@ public:
     }
   }
 
-  void propogateExactValues(ref<Expr> e, CexValueData range) {
+  void propogateExactValues(klee::ref<Expr> e, CexValueData range) {
     switch (e->getKind()) {
     case Expr::Constant: {
       // FIXME: Assert that range contains this constant.
@@ -922,18 +922,18 @@ public:
     }
   }
 
-  ValueRange evalRangeForExpr(const ref<Expr> &e) {
+  ValueRange evalRangeForExpr(const klee::ref<Expr> &e) {
     CexRangeEvaluator ce(objects);
     return ce.evaluate(e);
   }
 
   /// evaluate - Try to evaluate the given expression using a consistent fixed
   /// value for the current set of possible ranges.
-  ref<Expr> evaluatePossible(ref<Expr> e) {
+  klee::ref<Expr> evaluatePossible(klee::ref<Expr> e) {
     return CexPossibleEvaluator(objects).visit(e);
   }
 
-  ref<Expr> evaluateExact(ref<Expr> e) {
+  klee::ref<Expr> evaluateExact(klee::ref<Expr> e) {
     return CexExactEvaluator(objects).visit(e);
   }
 
@@ -972,7 +972,7 @@ public:
   ~FastCexSolver();
 
   IncompleteSolver::PartialValidity computeTruth(const Query&);  
-  bool computeValue(const Query&, ref<Expr> &result);
+  bool computeValue(const Query&, klee::ref<Expr> &result);
   bool computeInitialValues(const Query&,
                             const std::vector<const Array*> &objects,
                             std::vector< std::vector<unsigned char> > &values,
@@ -1060,7 +1060,7 @@ FastCexSolver::computeTruth(const Query& query) {
   return isValid ? IncompleteSolver::MustBeTrue : IncompleteSolver::MayBeFalse;
 }
 
-bool FastCexSolver::computeValue(const Query& query, ref<Expr> &result) {
+bool FastCexSolver::computeValue(const Query& query, klee::ref<Expr> &result) {
   CexData cd;
 
   bool isValid;
@@ -1075,7 +1075,7 @@ bool FastCexSolver::computeValue(const Query& query, ref<Expr> &result) {
     return false;
   
   // Propogation found a satisfying assignment, evaluate the expression.
-  ref<Expr> value = cd.evaluatePossible(query.expr);
+  klee::ref<Expr> value = cd.evaluatePossible(query.expr);
   
   if (isa<ConstantExpr>(value)) {
     // FIXME: We should be able to make sure this never fails?
@@ -1113,10 +1113,10 @@ FastCexSolver::computeInitialValues(const Query& query,
     data.reserve(array->size);
 
     for (unsigned i=0; i < array->size; i++) {
-      ref<Expr> read = 
+      klee::ref<Expr> read = 
         ReadExpr::create(UpdateList(array, 0),
                          ConstantExpr::create(i, Expr::Int32));
-      ref<Expr> value = cd.evaluatePossible(read);
+      klee::ref<Expr> value = cd.evaluatePossible(read);
       
       if (ConstantExpr *CE = dyn_cast<ConstantExpr>(value)) {
         data.push_back((unsigned char) CE->getZExtValue(8));

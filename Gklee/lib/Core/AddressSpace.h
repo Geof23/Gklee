@@ -45,7 +45,7 @@ namespace klee {
   class MemoryAccess {
   public:
     const MemoryObject* mo;
-    ref<Expr> offset;
+    klee::ref<Expr> offset;
     Expr::Width width;
     unsigned bid;             // block id
     unsigned tid;             // thread id
@@ -54,18 +54,18 @@ namespace klee {
     std::string fence;        // memory operation after memory fence if true
     bool isAtomic;            // atomic memory operation ?
     bool is_write;
-    ref<Expr> accessCondExpr; // the path condition corresponding 
+    klee::ref<Expr> accessCondExpr; // the path condition corresponding 
                               // to this memory access
-    ref<Expr> val;            // written value
+    klee::ref<Expr> val;            // written value
 
-    explicit MemoryAccess(const MemoryObject* _mo, ref<Expr> _offset, 
+    explicit MemoryAccess(const MemoryObject* _mo, klee::ref<Expr> _offset, 
 			  Expr::Width _width, unsigned _bid, unsigned _tid, 
 			  llvm::Instruction *_instr, unsigned _instSeqNum,
                           std::string  _fence,
 			  bool _isAtomic = false, 
 			  bool _is_write = false, 
-			  ref<Expr> _accessCondExpr = NULL, 
-			  ref<Expr> _val = NULL) :
+			  klee::ref<Expr> _accessCondExpr = NULL, 
+			  klee::ref<Expr> _val = NULL) :
       offset(_offset), width(_width), 
       bid(_bid), tid(_tid), instr(_instr), 
       instSeqNum(_instSeqNum), 
@@ -92,7 +92,7 @@ namespace klee {
     void dump() const;
     void dump(Executor &executor, 
               ExecutionState &state, 
-              ref<Expr> cond) const;
+              klee::ref<Expr> cond) const;
   };
   
   typedef ImmutableMap<const MemoryObject*, ObjectHolder, MemoryObjectLT> MemoryMap;
@@ -319,7 +319,7 @@ namespace klee {
 
     /// Resolve address to an ObjectPair in result.
     /// \return true iff an object was found.
-    bool resolveOne(const ref<ConstantExpr> &address, 
+    bool resolveOne(const klee::ref<ConstantExpr> &address, 
                     ObjectPair &result);
 
     /// Resolve address to an ObjectPair in result.
@@ -333,7 +333,7 @@ namespace klee {
     /// \return true iff an object was found at \a address.
     bool resolveOne(ExecutionState &state, 
                     TimingSolver *solver,
-                    ref<Expr> address,
+                    klee::ref<Expr> address,
                     ObjectPair &result,
                     bool &success);
 
@@ -345,7 +345,7 @@ namespace klee {
     /// is non-zero and the search terminated early, or a query timed out).
     bool resolve(ExecutionState &state,
                  TimingSolver *solver,
-                 ref<Expr> address, 
+                 klee::ref<Expr> address, 
                  ResolutionList &rl, 
                  unsigned maxResolutions=0,
                  double timeout=0.);
@@ -401,7 +401,7 @@ namespace klee {
                                 std::vector<InstAccessSet> &, 
                                 std::vector< std::vector<BranchDivRegionSet> > &,
                                 std::vector<SameInstVec> &, 
-                                bool, ref<Expr> &, unsigned &); 
+                                bool, klee::ref<Expr> &, unsigned &); 
 
     void constructGlobalMemAccessSet(Executor &, ExecutionState &, std::vector<CorrespondTid> &,
                                      std::vector<InstAccessSet> &, std::vector<RefDivRegionSetVec> &, 
@@ -409,14 +409,14 @@ namespace klee {
 
     /// check races 
     bool hasRaceInSharePureCS(Executor &, ExecutionState &, 
-                              ref<Expr> &, unsigned &);
+                              klee::ref<Expr> &, unsigned &);
     bool hasRaceInShare(Executor &, ExecutionState &, 
                         std::vector<CorrespondTid> &, 
                         std::vector<InstAccessSet> &, 
                         std::vector<RefDivRegionSetVec> &, 
                         std::vector<SameInstVec> &,
                         std::vector< std::vector<BranchDivRegionSet> > &,
-                        ref<Expr> &, unsigned &);
+                        klee::ref<Expr> &, unsigned &);
     bool hasRaceInGlobalWithinSameBlockPureCS(Executor &, ExecutionState &);
     bool hasRaceInGlobalAcrossBlocksPureCS(Executor &, ExecutionState &);
     bool hasRaceInGlobalWithinSameBlock(Executor &, ExecutionState &, 
@@ -425,10 +425,10 @@ namespace klee {
                                         std::vector<RefDivRegionSetVec> &, 
                                         std::vector< std::vector<BranchDivRegionSet> > &,
                                         std::vector<SameInstVec> &,
-                                        ref<Expr> &, unsigned &, unsigned);
+                                        klee::ref<Expr> &, unsigned &, unsigned);
     bool hasRaceInGlobalAcrossBlocks(Executor &, ExecutionState &, 
                                      std::vector<CorrespondTid> &, 
-                                     ref<Expr> &, unsigned &);
+                                     klee::ref<Expr> &, unsigned &);
     bool hasSymRaceInSharePureCS(Executor &, ExecutionState &);
     bool hasSymRaceInGlobalWithinBlockPureCS(Executor &, ExecutionState &);
     bool hasSymRaceInShare(Executor &, ExecutionState &);
@@ -441,7 +441,7 @@ namespace klee {
                          std::vector<InstAccessSet> &, 
                          std::vector<RefDivRegionSetVec> &, 
                          std::vector<SameInstVec> &, 
-                         ref<Expr> &bcCond, WarpDefVec &bcWDVec, 
+                         klee::ref<Expr> &bcCond, WarpDefVec &bcWDVec, 
                          bool &Consider, unsigned &queryNum);
     bool hasSymBankConflict(Executor &, ExecutionState &, unsigned);
     /// check whether there exist race after __syncthread is removed ..
@@ -451,7 +451,7 @@ namespace klee {
                                  std::vector<CorrespondTid> &, 
                                  std::vector<InstAccessSet> &, 
                                  std::vector<RefDivRegionSetVec> &, 
-                                 std::vector<SameInstVec> &, ref<Expr> &, 
+                                 std::vector<SameInstVec> &, klee::ref<Expr> &, 
                                  WarpDefVec &, bool &, unsigned &);
     bool hasSymMemoryCoalescingCap0(Executor &, ExecutionState &);
     // Check memory coalescing under device capability 1.2 or 1.3 ...
@@ -459,7 +459,7 @@ namespace klee {
                                  std::vector<CorrespondTid> &, 
                                  std::vector<InstAccessSet> &, 
                                  std::vector<RefDivRegionSetVec> &, 
-                                 std::vector<SameInstVec> &, ref<Expr> &, 
+                                 std::vector<SameInstVec> &, klee::ref<Expr> &, 
                                  WarpDefVec &, bool &, unsigned &);
     bool hasSymMemoryCoalescingCap1(Executor &, ExecutionState &);
     // Check memory coalescing under capability 2.x ...
@@ -467,7 +467,7 @@ namespace klee {
                                  std::vector<CorrespondTid> &, 
                                  std::vector<InstAccessSet> &, 
                                  std::vector<RefDivRegionSetVec> &, 
-                                 std::vector<SameInstVec> &, ref<Expr> &, 
+                                 std::vector<SameInstVec> &, klee::ref<Expr> &, 
                                  WarpDefVec &, bool &, unsigned &);
     bool hasSymMemoryCoalescingCap2(Executor &, ExecutionState &);
     /// check volatile missing ... 
@@ -475,7 +475,7 @@ namespace klee {
                             std::vector<CorrespondTid> &, 
                             std::vector<InstAccessSet> &, 
                             std::vector<RefDivRegionSetVec> &, 
-                            std::vector<SameInstVec> &, ref<Expr> &);
+                            std::vector<SameInstVec> &, klee::ref<Expr> &);
     bool hasSymVolatileMissing(Executor &, ExecutionState &);
     /// print out the content of the address space
     void clearGlobalMemoryAccessSets(); 
@@ -513,9 +513,9 @@ namespace klee {
     bool hasNoMC;
     bool hasVM;
 
-    ref<Expr> bcCondComb;
-    ref<Expr> nonMCCondComb;
-    ref<Expr> vmCondComb;
+    klee::ref<Expr> bcCondComb;
+    klee::ref<Expr> nonMCCondComb;
+    klee::ref<Expr> vmCondComb;
 
     std::vector<WarpDefVec> bcWDSet;
     std::vector<WarpDefVec> nomcWDSet;
@@ -542,20 +542,20 @@ namespace klee {
 			      unsigned b_t_index = 0);
 
     // add an element to the write set
-    void addWrite(const MemoryObject *mo, ref<Expr> &offset, 
-                  ref<Expr> &val, Expr::Width width, 
+    void addWrite(const MemoryObject *mo, klee::ref<Expr> &offset, 
+                  klee::ref<Expr> &val, Expr::Width width, 
                   unsigned bid, unsigned tid, 
                   llvm::Instruction *instr, unsigned seqNum,
                   bool isAtomic, std::string fence,
                   unsigned b_t_index = 0, 
-                  ref<Expr> accessExpr = NULL);
+                  klee::ref<Expr> accessExpr = NULL);
     // add an element to the read set
-    void addRead(const MemoryObject *mo, ref<Expr> &offset, 
-                 ref<Expr> &val, Expr::Width width, unsigned bid, unsigned tid, 
+    void addRead(const MemoryObject *mo, klee::ref<Expr> &offset, 
+                 klee::ref<Expr> &val, Expr::Width width, unsigned bid, unsigned tid, 
                  llvm::Instruction *instr, unsigned seqNum,
                  bool isAtomic, std::string fence, 
                  unsigned b_t_index = 0, 
-                 ref<Expr> accessExpr = NULL);
+                 klee::ref<Expr> accessExpr = NULL);
 
     // insert instruction
     void insertInst(bool is_GPU_mode, unsigned bid, unsigned tid, 
@@ -563,7 +563,7 @@ namespace klee {
                     bool isBr, unsigned &seqNum);
     /// Resolve address to an ObjectPair in result.
     /// \return true iff an object was found.
-    bool resolveOne(const ref<ConstantExpr> &address, 
+    bool resolveOne(const klee::ref<ConstantExpr> &address, 
                     ObjectPair &result, 
 		    GPUConfig::CTYPE ctype,  
 		    unsigned b_t_index = 0);
@@ -572,7 +572,7 @@ namespace klee {
     /// \return true iff an object was found at \a address.
     bool resolveOne(ExecutionState &state, 
                     TimingSolver *solver,
-                    ref<Expr> address,
+                    klee::ref<Expr> address,
                     ObjectPair &result,
                     bool &success,
 		    GPUConfig::CTYPE ctype,
@@ -586,7 +586,7 @@ namespace klee {
     /// is non-zero and the search terminated early, or a query timed out).
     bool resolve(ExecutionState &state,
                  TimingSolver *solver,
-                 ref<Expr> address, 
+                 klee::ref<Expr> address, 
                  ResolutionList &rl, 
                  unsigned maxResolutions,
                  double timeout,
@@ -622,10 +622,10 @@ namespace klee {
     
     // check races
     bool hasRaceInShare(Executor &, ExecutionState &, 
-                        std::vector<CorrespondTid> &, ref<Expr> &);
+                        std::vector<CorrespondTid> &, klee::ref<Expr> &);
     bool hasSymRaceInShare(Executor &, ExecutionState &);
     bool hasRaceInGlobal(Executor &, ExecutionState &, 
-                         std::vector<CorrespondTid> &, ref<Expr> &, 
+                         std::vector<CorrespondTid> &, klee::ref<Expr> &, 
                          unsigned, bool);
     bool hasSymRaceInGlobal(Executor &, ExecutionState &, bool);
     void constructGlobalMemAccessSets(Executor &, ExecutionState &, 
@@ -660,8 +660,8 @@ namespace klee {
 
   class AddressSpaceUtil {
     public: 
-      static bool evaluateQueryMustBeTrue(Executor &, ExecutionState &, ref<Expr> &, bool &, bool &);
-      static bool evaluateQueryMustBeFalse(Executor &, ExecutionState &, ref<Expr> &, bool &, bool &);
+      static bool evaluateQueryMustBeTrue(Executor &, ExecutionState &, klee::ref<Expr> &, bool &, bool &);
+      static bool evaluateQueryMustBeFalse(Executor &, ExecutionState &, klee::ref<Expr> &, bool &, bool &);
       static bool isTwoInstIdentical(llvm::Instruction *inst1, llvm::Instruction *inst2); 
       static void constructTmpRWSet(Executor &, ExecutionState &, 
                                     MemoryAccessVec &, MemoryAccessVec &, 
@@ -671,17 +671,17 @@ namespace klee {
                                     std::vector<SameInstVec> &, unsigned);
       static void updateBuiltInRelatedConstraint(ExecutionState &, 
                                                  ConstraintManager &, 
-                                                 ref<Expr> &);
+                                                 klee::ref<Expr> &);
       static void updateMemoryAccess(ExecutionState &, ConstraintManager &, 
                                      MemoryAccess &);
-      static ref<Expr> constructSameBlockExpr(ExecutionState &, Expr::Width); 
-      static ref<Expr> constructSameThreadExpr(ExecutionState &, Expr::Width); 
-      static ref<Expr> constructRealThreadNumConstraint(ExecutionState &, 
+      static klee::ref<Expr> constructSameBlockExpr(ExecutionState &, Expr::Width); 
+      static klee::ref<Expr> constructSameThreadExpr(ExecutionState &, Expr::Width); 
+      static klee::ref<Expr> constructRealThreadNumConstraint(ExecutionState &, 
                                                         unsigned, Expr::Width); 
-      static ref<Expr> threadSameWarpConstraint(ExecutionState &, unsigned); 
-      static ref<Expr> threadSameBlockDiffWarpConstraint(ExecutionState &, 
+      static klee::ref<Expr> threadSameWarpConstraint(ExecutionState &, unsigned); 
+      static klee::ref<Expr> threadSameBlockDiffWarpConstraint(ExecutionState &, 
                                                          unsigned); 
-      static ref<Expr> threadDiffBlockConstraint(ExecutionState &); 
+      static klee::ref<Expr> threadDiffBlockConstraint(ExecutionState &); 
    };
 
 } // End klee namespace

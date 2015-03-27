@@ -490,7 +490,7 @@ ExprHandle STPBuilder::getInitialRead(const Array *root, unsigned index) {
 
 /** if *width_out!=1 then result is a bitvector,
     otherwise it is a bool */
-ExprHandle STPBuilder::construct(ref<Expr> e, int *width_out) {
+ExprHandle STPBuilder::construct(klee::ref<Expr> e, int *width_out) {
   if (!UseConstructHash || isa<ConstantExpr>(e)) {
     return constructActual(e, width_out);
   } else {
@@ -513,7 +513,7 @@ ExprHandle STPBuilder::construct(ref<Expr> e, int *width_out) {
 
 /** if *width_out!=1 then result is a bitvector,
     otherwise it is a bool */
-ExprHandle STPBuilder::constructActual(ref<Expr> e, int *width_out) {
+ExprHandle STPBuilder::constructActual(klee::ref<Expr> e, int *width_out) {
   int width;
   if (!width_out) width_out = &width;
 
@@ -534,7 +534,7 @@ ExprHandle STPBuilder::constructActual(ref<Expr> e, int *width_out) {
     if (*width_out <= 64)
       return bvConst64(*width_out, CE->getZExtValue());
 
-    ref<ConstantExpr> Tmp = CE;
+    klee::ref<ConstantExpr> Tmp = CE;
     ExprHandle Res = bvConst64(64, Tmp->Extract(0, 64)->getZExtValue());
     while (Tmp->getWidth() > 64) {
       Tmp = Tmp->Extract(64, Tmp->getWidth()-64);

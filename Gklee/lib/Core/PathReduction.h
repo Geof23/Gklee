@@ -15,7 +15,7 @@ namespace klee {
 
 // Heuristics for path reduction
 struct Heuristics {
-  typedef std::set< ref<ReadExpr> > ReadSet;
+  typedef std::set< klee::ref<ReadExpr> > ReadSet;
   ReadSet readset;
   ReadSet cur_readset;  
 

@@ -537,7 +537,7 @@ void Executor::transferToBasicBlock(BasicBlock *dst, BasicBlock *src,
 }
 
 void Executor::branch(ExecutionState &state, 
-                      const std::vector< ref<Expr> > &conditions,
+                      const std::vector< klee::ref<Expr> > &conditions,
                       std::vector<ExecutionState*> &result) {
   TimerStatIncrementer timer(stats::forkTime);
   unsigned N = conditions.size();
@@ -577,7 +577,7 @@ void Executor::branch(ExecutionState &state,
       unsigned i;
       ExecutorUtil::copyOutConstraintUnderSymbolic(state);
       for (i=0; i<N; ++i) {
-        ref<ConstantExpr> res;
+        klee::ref<ConstantExpr> res;
         bool success = 
           solver->getValue(state, siit->assignment.evaluate(conditions[i]), 
                            res);
@@ -613,7 +613,7 @@ void Executor::branch(ExecutionState &state,
 
 // True: condition is totally or partially related to built-in variables
 // False: condition is not related to built-in variables  
-bool Executor::identifyConditionType(ExecutionState &state, ref<Expr> &cond, 
+bool Executor::identifyConditionType(ExecutionState &state, klee::ref<Expr> &cond, 
                                      bool &relatedToSym, bool &accum) {
   //std::cout << "condition in identifyConditionType: " << std::endl;
   //cond->dump();
@@ -673,7 +673,7 @@ static unsigned findUnusedThreadSlot(std::vector<CorrespondTid> &cTidSets) {
 }
 
 void Executor::evaluateConstraintAsNewFlow(ExecutionState &state, ParaTree &pTree,
-                                           ref<Expr> &cond, bool flowCreated) {
+                                           klee::ref<Expr> &cond, bool flowCreated) {
   unsigned cur_bid = state.tinfo.get_cur_bid();
   unsigned cur_tid = state.tinfo.get_cur_tid();
 
@@ -696,7 +696,7 @@ void Executor::evaluateConstraintAsNewFlow(ExecutionState &state, ParaTree &pTre
 }
 
 void Executor::evaluateConstraintAsNewFlowUnderRacePrune(ExecutionState &state, ParaTree &pTree,
-                                                         ref<Expr> &cond, bool flowCreated,
+                                                         klee::ref<Expr> &cond, bool flowCreated,
                                                          BranchInst *bi) {
   unsigned cur_bid = state.tinfo.get_cur_bid();
   unsigned cur_tid = state.tinfo.get_cur_tid();
@@ -733,7 +733,7 @@ void Executor::evaluateConstraintAsNewFlowUnderRacePrune(ExecutionState &state, 
 }
 
 Executor::StatePair 
-Executor::fork(ExecutionState &current, ref<Expr> condition, bool isInternal) {
+Executor::fork(ExecutionState &current, klee::ref<Expr> condition, bool isInternal) {
   Solver::Validity res;
   std::map< ExecutionState*, std::vector<SeedInfo> >::iterator it = 
     seedMap.find(&current);
@@ -758,7 +758,7 @@ Executor::fork(ExecutionState &current, ref<Expr> condition, bool isInternal) {
         (MaxStaticCPForkPct<1. &&
          cpn && (cpn->statistics.getValue(stats::solverTime) > 
                  stats::solverTime*MaxStaticCPSolvePct))) {
-      ref<ConstantExpr> value; 
+      klee::ref<ConstantExpr> value; 
       bool success = solver->getValue(current, condition, value);
       assert(success && "FIXME: Unhandled solver failure");
       (void) success;
@@ -903,7 +903,7 @@ Executor::fork(ExecutionState &current, ref<Expr> condition, bool isInternal) {
     // Is seed extension still ok here?
     for (std::vector<SeedInfo>::iterator siit = it->second.begin(), 
            siie = it->second.end(); siit != siie; ++siit) {
-      ref<ConstantExpr> res;
+      klee::ref<ConstantExpr> res;
       bool success = 
         solver->getValue(current, siit->assignment.evaluate(condition), res);
       assert(success && "FIXME: Unhandled solver failure");
@@ -1021,7 +1021,7 @@ Executor::fork(ExecutionState &current, ref<Expr> condition, bool isInternal) {
       std::vector<SeedInfo> &falseSeeds = seedMap[falseState];
       for (std::vector<SeedInfo>::iterator siit = seeds.begin(), 
              siie = seeds.end(); siit != siie; ++siit) {
-        ref<ConstantExpr> res;
+        klee::ref<ConstantExpr> res;
         bool success = 
           solver->getValue(current, siit->assignment.evaluate(condition), res);
         assert(success && "FIXME: Unhandled solver failure");
@@ -1092,7 +1092,7 @@ Executor::fork(ExecutionState &current, ref<Expr> condition, bool isInternal) {
   }
 }
 
-void Executor::addConstraint(ExecutionState &state, ref<Expr> condition) {
+void Executor::addConstraint(ExecutionState &state, klee::ref<Expr> condition) {
   if (ConstantExpr *CE = dyn_cast<ConstantExpr>(condition)) {
     assert(CE->isTrue() && "attempt to add invalid constraint");
     return;
@@ -1125,7 +1125,7 @@ void Executor::addConstraint(ExecutionState &state, ref<Expr> condition) {
                                  ConstantExpr::alloc(1, Expr::Bool));
 }
 
-const Cell& Executor::evalSharedMemory(ExecutionState &state, ref<Expr> &pointer, 
+const Cell& Executor::evalSharedMemory(ExecutionState &state, klee::ref<Expr> &pointer, 
                                        unsigned index) {
   bool findShared = false;
   std::pair<SharedMemoryObject*, MemoryObject*> tmpPair;
@@ -1140,13 +1140,13 @@ const Cell& Executor::evalSharedMemory(ExecutionState &state, ref<Expr> &pointer
            && vit->second->getBTId() == state.tinfo.get_cur_bid()) {
         Solver::Validity res;
         Expr::Width width = vit->first->sharedGLMO->getBaseExpr()->getWidth(); 
-        ref<Expr> pointerZExt = ZExtExpr::create(pointer, width);
-        ref<Expr> geCond = UgeExpr::create(pointerZExt, vit->first->sharedGLMO->getBaseExpr());
+        klee::ref<Expr> pointerZExt = ZExtExpr::create(pointer, width);
+        klee::ref<Expr> geCond = UgeExpr::create(pointerZExt, vit->first->sharedGLMO->getBaseExpr());
         
         // ensure that (address) >= (base addr)
         solver->evaluate(state, geCond, res);
         if (res == Solver::True) {
-          ref<Expr> boundCheckCond = vit->first->sharedGLMO->getBoundsCheckPointer(pointerZExt);
+          klee::ref<Expr> boundCheckCond = vit->first->sharedGLMO->getBoundsCheckPointer(pointerZExt);
           // ensure that (address - base addr) < size
           solver->evaluate(state, boundCheckCond, res);
           if (res == Solver::True) {
@@ -1167,7 +1167,7 @@ const Cell& Executor::evalSharedMemory(ExecutionState &state, ref<Expr> &pointer
     return kmodule->constantTable[index];
   } else {
     // base addr found, the corresponding share address is found too..
-    ref<Expr> shareAddr = AddExpr::create(tmpPair.second->getBaseExpr(), 
+    klee::ref<Expr> shareAddr = AddExpr::create(tmpPair.second->getBaseExpr(), 
                                           tmpPair.first->sharedGLMO->getOffsetExpr(pointer));
     shareAddr->ctype = GPUConfig::SHARED;
     tmpPair.first->glCell->value = shareAddr; 
@@ -1186,7 +1186,7 @@ const Cell& Executor::eval(KInstruction *ki, unsigned index,
   // Determine if this is a constant or not.
   if (vnumber < 0) {
     unsigned index = -vnumber - 2;
-    ref<Expr> addr = (kmodule->constantTable[index]).value;
+    klee::ref<Expr> addr = (kmodule->constantTable[index]).value;
     return evalSharedMemory(state, addr, index);
   } else {
     unsigned index = vnumber;
@@ -1196,21 +1196,21 @@ const Cell& Executor::eval(KInstruction *ki, unsigned index,
 }
 
 void Executor::bindLocal(KInstruction *target, ExecutionState &state, 
-                         ref<Expr> value) {
+                         klee::ref<Expr> value) {
   getDestCell(state, target).value = value;
 }
 
 void Executor::bindArgument(KFunction *kf, unsigned index, 
-                            ExecutionState &state, ref<Expr> value) {
+                            ExecutionState &state, klee::ref<Expr> value) {
   getArgumentCell(state, kf, index).value = value;
 }
 
-ref<Expr> Executor::toUnique(ExecutionState &state, 
-                             ref<Expr> &e) {
-  ref<Expr> result = e;
+klee::ref<Expr> Executor::toUnique(ExecutionState &state, 
+                             klee::ref<Expr> &e) {
+  klee::ref<Expr> result = e;
 
   if (!isa<ConstantExpr>(e)) {
-    ref<ConstantExpr> value;
+    klee::ref<ConstantExpr> value;
     bool isTrue = false;
 
     ExecutorUtil::copyOutConstraintUnderSymbolic(state);
@@ -1232,9 +1232,9 @@ ref<Expr> Executor::toUnique(ExecutionState &state,
 
 /* Concretize the given expression, and return a possible constant value. 
    'reason' is just a documentation string stating the reason for concretization. */
-ref<klee::ConstantExpr> 
+klee::ref<klee::ConstantExpr> 
 Executor::toConstant(ExecutionState &state, 
-                     ref<Expr> e,
+                     klee::ref<Expr> e,
                      const char *reason) {
   e = state.constraints.simplifyExpr(e);
   if (ConstantExpr *CE = dyn_cast<ConstantExpr>(e)) {
@@ -1245,7 +1245,7 @@ Executor::toConstant(ExecutionState &state,
   }
 
   ExecutorUtil::copyOutConstraintUnderSymbolic(state);
-  ref<ConstantExpr> value;
+  klee::ref<ConstantExpr> value;
   bool success = solver->getValue(state, e, value);
   assert(success && "FIXME: Unhandled solver failure");
   (void) success;
@@ -1271,9 +1271,9 @@ Executor::toConstant(ExecutionState &state,
   return value;
 }
 
-ref<klee::ConstantExpr>
+klee::ref<klee::ConstantExpr>
 Executor::toConstantArguments(ExecutionState &state, 
-                              ref<Expr> e, 
+                              klee::ref<Expr> e, 
                               const char *reason) {
   e = state.constraints.simplifyExpr(e);
   if (ConstantExpr *CE = dyn_cast<ConstantExpr>(e)) {
@@ -1284,7 +1284,7 @@ Executor::toConstantArguments(ExecutionState &state,
   }
 
   ExecutorUtil::copyOutConstraintUnderSymbolic(state);
-  ref<ConstantExpr> value;
+  klee::ref<ConstantExpr> value;
   bool success = solver->getValue(state, e, value);
   assert(success && "FIXME: Unhandled solver failure");
   (void) success;
@@ -1307,35 +1307,35 @@ Executor::toConstantArguments(ExecutionState &state,
   return value;
 }
 
-ref<klee::ConstantExpr> 
+klee::ref<klee::ConstantExpr> 
 Executor::toConstantPublic(ExecutionState &state, 
-                           ref<Expr> e,
+                           klee::ref<Expr> e,
                            const char *reason) {
   return toConstant(state, e, reason);
 }
 
 Executor::StatePair 
-Executor::forkAsPublic(ExecutionState &current, ref<Expr> cond, bool isInternal) {
+Executor::forkAsPublic(ExecutionState &current, klee::ref<Expr> cond, bool isInternal) {
   return fork(current, cond, isInternal);
 }  
 
 void Executor::executeGetValue(ExecutionState &state,
-                               ref<Expr> e,
+                               klee::ref<Expr> e,
                                KInstruction *target) {
   e = state.constraints.simplifyExpr(e);
   std::map< ExecutionState*, std::vector<SeedInfo> >::iterator it = 
     seedMap.find(&state);
   if (it==seedMap.end() || isa<ConstantExpr>(e)) {
-    ref<ConstantExpr> value;
+    klee::ref<ConstantExpr> value;
     bool success = solver->getValue(state, e, value);
     assert(success && "FIXME: Unhandled solver failure");
     (void) success;
     bindLocal(target, state, value);
   } else {
-    std::set< ref<Expr> > values;
+    std::set< klee::ref<Expr> > values;
     for (std::vector<SeedInfo>::iterator siit = it->second.begin(), 
            siie = it->second.end(); siit != siie; ++siit) {
-      ref<ConstantExpr> value;
+      klee::ref<ConstantExpr> value;
       bool success = 
         solver->getValue(state, siit->assignment.evaluate(e), value);
       assert(success && "FIXME: Unhandled solver failure");
@@ -1343,8 +1343,8 @@ void Executor::executeGetValue(ExecutionState &state,
       values.insert(value);
     }
     
-    std::vector< ref<Expr> > conditions;
-    for (std::set< ref<Expr> >::iterator vit = values.begin(), 
+    std::vector< klee::ref<Expr> > conditions;
+    for (std::set< klee::ref<Expr> >::iterator vit = values.begin(), 
            vie = values.end(); vit != vie; ++vit)
       conditions.push_back(EqExpr::create(e, *vit));
 
@@ -1352,7 +1352,7 @@ void Executor::executeGetValue(ExecutionState &state,
     branch(state, conditions, branches);
     
     std::vector<ExecutionState*>::iterator bit = branches.begin();
-    for (std::set< ref<Expr> >::iterator vit = values.begin(), 
+    for (std::set< klee::ref<Expr> >::iterator vit = values.begin(), 
            vie = values.end(); vit != vie; ++vit) {
       ExecutionState *es = *bit;
       if (es)
@@ -1452,7 +1452,7 @@ bool ExecutorUtil::isForkInstruction(Instruction *inst) {
   return false;
 }
 
-void Executor::updateBaseCType(ExecutionState &state, ref<Expr> &baseAddr) {
+void Executor::updateBaseCType(ExecutionState &state, klee::ref<Expr> &baseAddr) {
   ExecutorUtil::copyOutConstraintUnderSymbolic(state);
   // First look up the host memory ...
   MemoryMap &hostObj = state.addressSpace.cpuMemory.objects;  
@@ -1461,13 +1461,13 @@ void Executor::updateBaseCType(ExecutionState &state, ref<Expr> &baseAddr) {
     const MemoryObject *mo = oi->first;
     Solver::Validity res;
     Expr::Width width = mo->getBaseExpr()->getWidth();
-    ref<Expr> baseExpr = ZExtExpr::create(baseAddr, width);
-    ref<Expr> ugeExpr = UgeExpr::create(baseExpr, mo->getBaseExpr());
+    klee::ref<Expr> baseExpr = ZExtExpr::create(baseAddr, width);
+    klee::ref<Expr> ugeExpr = UgeExpr::create(baseExpr, mo->getBaseExpr());
 
     // ensure that (adress >= base addr)
     solver->evaluate(state, ugeExpr, res);
     if (res == Solver::True) {
-      ref<Expr> boundCheckCond = mo->getBoundsCheckPointer(baseExpr);
+      klee::ref<Expr> boundCheckCond = mo->getBoundsCheckPointer(baseExpr);
 
       // ensure that (address - base addr) < size
       solver->evaluate(state, boundCheckCond, res);
@@ -1487,13 +1487,13 @@ void Executor::updateBaseCType(ExecutionState &state, ref<Expr> &baseAddr) {
       const MemoryObject *mo = oi->first;
       Solver::Validity res;
       Expr::Width width = mo->getBaseExpr()->getWidth();
-      ref<Expr> baseExpr = ZExtExpr::create(baseAddr, width);
-      ref<Expr> ugeExpr = UgeExpr::create(baseExpr, mo->getBaseExpr());
+      klee::ref<Expr> baseExpr = ZExtExpr::create(baseAddr, width);
+      klee::ref<Expr> ugeExpr = UgeExpr::create(baseExpr, mo->getBaseExpr());
 
       // ensure that (adress >= base addr)
       solver->evaluate(state, ugeExpr, res);
       if (res == Solver::True) {
-        ref<Expr> boundCheckCond = mo->getBoundsCheckPointer(baseExpr);
+        klee::ref<Expr> boundCheckCond = mo->getBoundsCheckPointer(baseExpr);
         // ensure that (address - base addr) < size
         solver->evaluate(state, boundCheckCond, res);
         if (res == Solver::True || res == Solver::Unknown) {
@@ -1513,13 +1513,13 @@ void Executor::updateBaseCType(ExecutionState &state, ref<Expr> &baseAddr) {
       const MemoryObject *mo = oi->first;
       Solver::Validity res;
       Expr::Width width = mo->getBaseExpr()->getWidth();
-      ref<Expr> baseExpr = ZExtExpr::create(baseAddr, width);
-      ref<Expr> ugeExpr = UgeExpr::create(baseExpr, mo->getBaseExpr());
+      klee::ref<Expr> baseExpr = ZExtExpr::create(baseAddr, width);
+      klee::ref<Expr> ugeExpr = UgeExpr::create(baseExpr, mo->getBaseExpr());
 
       // ensure that (adress >= base addr)
       solver->evaluate(state, ugeExpr, res);
       if (res == Solver::True) {
-        ref<Expr> boundCheckCond = mo->getBoundsCheckPointer(baseExpr);
+        klee::ref<Expr> boundCheckCond = mo->getBoundsCheckPointer(baseExpr);
         // ensure that (address - base addr) < size
         solver->evaluate(state, boundCheckCond, res);
         if (res == Solver::True || res == Solver::Unknown) {
@@ -1539,13 +1539,13 @@ void Executor::updateBaseCType(ExecutionState &state, ref<Expr> &baseAddr) {
       const MemoryObject *mo = oi->first;
       Solver::Validity res;
       Expr::Width width = mo->getBaseExpr()->getWidth();
-      ref<Expr> baseExpr = ZExtExpr::create(baseAddr, width);
-      ref<Expr> ugeExpr = UgeExpr::create(baseExpr, mo->getBaseExpr());
+      klee::ref<Expr> baseExpr = ZExtExpr::create(baseAddr, width);
+      klee::ref<Expr> ugeExpr = UgeExpr::create(baseExpr, mo->getBaseExpr());
 
       // ensure that (adress >= base addr)
       solver->evaluate(state, ugeExpr, res);
       if (res == Solver::True) {
-        ref<Expr> boundCheckCond = mo->getBoundsCheckPointer(baseExpr);
+        klee::ref<Expr> boundCheckCond = mo->getBoundsCheckPointer(baseExpr);
         // ensure that (address - base addr) < size
         solver->evaluate(state, boundCheckCond, res);
         if (res == Solver::True || res == Solver::Unknown) {
@@ -1562,14 +1562,14 @@ void Executor::updateBaseCType(ExecutionState &state, ref<Expr> &baseAddr) {
 // useRealGrid argument means the GridSize or SymGridSize will be used
 void ExecutorUtil::constructSymConfigEncodedConstraint(ExecutionState &state) {
   // Two symbolic blocks
-  ref<Expr> blockConstraint;
+  klee::ref<Expr> blockConstraint;
   state.constructBlockEncodedConstraint(blockConstraint, 0);
   addConfigConstraint(state, blockConstraint);
   state.constructBlockEncodedConstraint(blockConstraint, 1);
   addConfigConstraint(state, blockConstraint);
     
   // Two symbolic threads
-  ref<Expr> threadConstraint;
+  klee::ref<Expr> threadConstraint;
   state.constructThreadEncodedConstraint(threadConstraint, 0);
   addConfigConstraint(state, threadConstraint);
   state.constructThreadEncodedConstraint(threadConstraint, 1);
@@ -1589,7 +1589,7 @@ void ExecutorUtil::constructSymBlockDimPrecondition(ExecutionState &state) {
 void ExecutorUtil::copyOutConstraint(ExecutionState &state, bool ignoreCur) {
   state.paraConstraints = state.constraints; 
   constructSymConfigEncodedConstraint(state);
-  ref<Expr> cond = state.getTDCCondition(ignoreCur);
+  klee::ref<Expr> cond = state.getTDCCondition(ignoreCur);
   addConfigConstraint(state, cond);
 }
 
@@ -1609,7 +1609,7 @@ void ExecutorUtil::copyBackConstraintUnderSymbolic(ExecutionState &state) {
       copyBackConstraint(state);
 }
 
-void ExecutorUtil::addConfigConstraint(ExecutionState &state, ref<Expr> condition) {
+void ExecutorUtil::addConfigConstraint(ExecutionState &state, klee::ref<Expr> condition) {
   if (isa<ConstantExpr>(condition))
     return;
 
@@ -1617,7 +1617,7 @@ void ExecutorUtil::addConfigConstraint(ExecutionState &state, ref<Expr> conditio
 }
 
 void Executor::updateCType(ExecutionState &state, llvm::Value* value, 
-                           ref<Expr> &base, bool is_GPU_mode) {
+                           klee::ref<Expr> &base, bool is_GPU_mode) {
   if (base->ctype == GPUConfig::UNKNOWN) {
     if (value) // value != NULL
       base->ctype = CUDAUtil::getUpdatedCType(value, is_GPU_mode);
@@ -1684,7 +1684,7 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
     KInstIterator kcaller = state.getCurStack().back().caller;
     Instruction *caller = kcaller ? kcaller->inst : 0;
     bool isVoidReturn = (ri->getNumOperands() == 0);
-    ref<Expr> result = ConstantExpr::alloc(0, Expr::Bool);
+    klee::ref<Expr> result = ConstantExpr::alloc(0, Expr::Bool);
 
     if (!isVoidReturn) {
       result = eval(ki, 0, state).value;
@@ -1773,7 +1773,7 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
       // FIXME: Find a way that we don't have this hidden dependency.
       assert(bi->getCondition() == bi->getOperand(0) &&
              "Wrong operand index!");
-      ref<Expr> cond = eval(ki, 0, state).value;
+      klee::ref<Expr> cond = eval(ki, 0, state).value;
 
       if (RacePrune) { 
         if (bi->hasMetadata()) {
@@ -1812,7 +1812,7 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
   }
   case Instruction::Switch: {
     SwitchInst *si = cast<SwitchInst>(i);
-    ref<Expr> cond = eval(ki, 0, state).value;
+    klee::ref<Expr> cond = eval(ki, 0, state).value;
     BasicBlock *bb = si->getParent();
 
     cond = toUnique(state, cond);
@@ -1831,17 +1831,17 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
     } else {
       // Preserve ... 
       ExecutorUtil::copyOutConstraintUnderSymbolic(state);
-      std::map<BasicBlock*, ref<Expr> > targets;
-      ref<Expr> isDefault = ConstantExpr::alloc(1, Expr::Bool);
+      std::map<BasicBlock*, klee::ref<Expr> > targets;
+      klee::ref<Expr> isDefault = ConstantExpr::alloc(1, Expr::Bool);
 #if LLVM_VERSION_CODE >= LLVM_VERSION(3, 1)      
       for (SwitchInst::CaseIt i = si->case_begin(), e = si->case_end();
            i != e; ++i) {
-        ref<Expr> value = evalConstant(i.getCaseValue());
+        klee::ref<Expr> value = evalConstant(i.getCaseValue());
 #else
       for (unsigned i=1, cases = si->getNumCases(); i<cases; ++i) {
-        ref<Expr> value = evalConstant(si->getCaseValue(i));
+        klee::ref<Expr> value = evalConstant(si->getCaseValue(i));
 #endif
-        ref<Expr> match = EqExpr::create(cond, value);
+        klee::ref<Expr> match = EqExpr::create(cond, value);
         isDefault = AndExpr::create(isDefault, Expr::createIsZero(match));
         bool result;
         bool success = solver->mayBeTrue(state, match, result);
@@ -1853,7 +1853,7 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
 #else
           BasicBlock *caseSuccessor = si->getSuccessor(i);
 #endif
-          std::map<BasicBlock*, ref<Expr> >::iterator it =
+          std::map<BasicBlock*, klee::ref<Expr> >::iterator it =
             targets.insert(std::make_pair(caseSuccessor,
                            ConstantExpr::alloc(0, Expr::Bool))).first;
           it->second = OrExpr::create(match, it->second);
@@ -1868,8 +1868,8 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
       if (res)
         targets.insert(std::make_pair(si->getDefaultDest(), isDefault));
       
-      std::vector< ref<Expr> > conditions;
-      for (std::map<BasicBlock*, ref<Expr> >::iterator it = 
+      std::vector< klee::ref<Expr> > conditions;
+      for (std::map<BasicBlock*, klee::ref<Expr> >::iterator it = 
              targets.begin(), ie = targets.end();
            it != ie; ++it)
         conditions.push_back(it->second);
@@ -1878,7 +1878,7 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
       branch(state, conditions, branches);
         
       std::vector<ExecutionState*>::iterator bit = branches.begin();
-      for (std::map<BasicBlock*, ref<Expr> >::iterator it = 
+      for (std::map<BasicBlock*, klee::ref<Expr> >::iterator it = 
              targets.begin(), ie = targets.end();
            it != ie; ++it) {
         ExecutionState *es = *bit;
@@ -1914,7 +1914,7 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
       break;
     }
     // evaluate arguments
-    std::vector< ref<Expr> > arguments;
+    std::vector< klee::ref<Expr> > arguments;
     arguments.reserve(numArgs);
 
     for (unsigned j=0; j<numArgs; ++j)
@@ -1934,7 +1934,7 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
 
         // XXX this really needs thought and validation
         unsigned i=0;
-        for (std::vector< ref<Expr> >::iterator
+        for (std::vector< klee::ref<Expr> >::iterator
                ai = arguments.begin(), ie = arguments.end();
              ai != ie; ++ai) {
           Expr::Width to, from = (*ai)->getWidth();
@@ -1958,7 +1958,7 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
 
       executeCall(state, ki, f, arguments, seqNum);
     } else {
-      ref<Expr> v = eval(ki, 0, state).value;
+      klee::ref<Expr> v = eval(ki, 0, state).value;
 
       ExecutionState *free = &state;
       bool hasInvalid = false, first = true;
@@ -1966,7 +1966,7 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
          have already got a value. But in the end the caches should
          handle it for us, albeit with some overhead. */
       do {
-        ref<ConstantExpr> value;
+        klee::ref<ConstantExpr> value;
         bool success = solver->getValue(*free, v, value);
         assert(success && "FIXME: Unhandled solver failure");
         (void) success;
@@ -1998,9 +1998,9 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
   }
   case Instruction::PHI: {
 #if LLVM_VERSION_CODE >= LLVM_VERSION(3, 0)
-    ref<Expr> result = eval(ki, state.incomingBBIndex[state.tinfo.get_cur_tid()], state).value;
+    klee::ref<Expr> result = eval(ki, state.incomingBBIndex[state.tinfo.get_cur_tid()], state).value;
 #else
-    ref<Expr> result = eval(ki, state.incomingBBIndex[state.tinfo.get_cur_tid()] * 2, state).value;
+    klee::ref<Expr> result = eval(ki, state.incomingBBIndex[state.tinfo.get_cur_tid()] * 2, state).value;
 #endif
     bindLocal(ki, state, result);
 
@@ -2012,10 +2012,10 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
     SelectInst *SI = cast<SelectInst>(ki->inst);
     assert(SI->getCondition() == SI->getOperand(0) &&
            "Wrong operand index!");
-    ref<Expr> cond = eval(ki, 0, state).value;
-    ref<Expr> tExpr = eval(ki, 1, state).value;
-    ref<Expr> fExpr = eval(ki, 2, state).value;
-    ref<Expr> result = SelectExpr::create(cond, tExpr, fExpr);
+    klee::ref<Expr> cond = eval(ki, 0, state).value;
+    klee::ref<Expr> tExpr = eval(ki, 1, state).value;
+    klee::ref<Expr> fExpr = eval(ki, 2, state).value;
+    klee::ref<Expr> result = SelectExpr::create(cond, tExpr, fExpr);
     bindLocal(ki, state, result);
     break;
   }
@@ -2027,9 +2027,9 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
   // Arithmetic / logical
 
   case Instruction::Add: {
-    ref<Expr> left = eval(ki, 0, state).value;
-    ref<Expr> right = eval(ki, 1, state).value;
-    ref<Expr> result = AddExpr::create(left, right);
+    klee::ref<Expr> left = eval(ki, 0, state).value;
+    klee::ref<Expr> right = eval(ki, 1, state).value;
+    klee::ref<Expr> result = AddExpr::create(left, right);
     if (UseSymbolicConfig && (left->accum || right->accum))
       result->accum = true;
     bindLocal(ki, state, result);
@@ -2037,9 +2037,9 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
   }
 
   case Instruction::Sub: {
-    ref<Expr> left = eval(ki, 0, state).value;
-    ref<Expr> right = eval(ki, 1, state).value;
-    ref<Expr> result = SubExpr::create(left, right);
+    klee::ref<Expr> left = eval(ki, 0, state).value;
+    klee::ref<Expr> right = eval(ki, 1, state).value;
+    klee::ref<Expr> result = SubExpr::create(left, right);
     if (UseSymbolicConfig && (left->accum || right->accum))
       result->accum = true;
     bindLocal(ki, state, result);
@@ -2047,9 +2047,9 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
   }
  
   case Instruction::Mul: {
-    ref<Expr> left = eval(ki, 0, state).value;
-    ref<Expr> right = eval(ki, 1, state).value;
-    ref<Expr> result = MulExpr::create(left, right);
+    klee::ref<Expr> left = eval(ki, 0, state).value;
+    klee::ref<Expr> right = eval(ki, 1, state).value;
+    klee::ref<Expr> result = MulExpr::create(left, right);
     if (UseSymbolicConfig && (left->accum || right->accum))
       result->accum = true;
     bindLocal(ki, state, result);
@@ -2057,9 +2057,9 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
   }
 
   case Instruction::UDiv: {
-    ref<Expr> left = eval(ki, 0, state).value;
-    ref<Expr> right = eval(ki, 1, state).value;
-    ref<Expr> result = UDivExpr::create(left, right);
+    klee::ref<Expr> left = eval(ki, 0, state).value;
+    klee::ref<Expr> right = eval(ki, 1, state).value;
+    klee::ref<Expr> result = UDivExpr::create(left, right);
     if (UseSymbolicConfig && (left->accum || right->accum))
       result->accum = true;
     bindLocal(ki, state, result);
@@ -2067,9 +2067,9 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
   }
 
   case Instruction::SDiv: {
-    ref<Expr> left = eval(ki, 0, state).value;
-    ref<Expr> right = eval(ki, 1, state).value;
-    ref<Expr> result = SDivExpr::create(left, right);
+    klee::ref<Expr> left = eval(ki, 0, state).value;
+    klee::ref<Expr> right = eval(ki, 1, state).value;
+    klee::ref<Expr> result = SDivExpr::create(left, right);
     if (UseSymbolicConfig && (left->accum || right->accum))
       result->accum = true;
     bindLocal(ki, state, result);
@@ -2077,9 +2077,9 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
   }
 
   case Instruction::URem: {
-    ref<Expr> left = eval(ki, 0, state).value;
-    ref<Expr> right = eval(ki, 1, state).value;
-    ref<Expr> result = URemExpr::create(left, right);
+    klee::ref<Expr> left = eval(ki, 0, state).value;
+    klee::ref<Expr> right = eval(ki, 1, state).value;
+    klee::ref<Expr> result = URemExpr::create(left, right);
     if (UseSymbolicConfig && (left->accum || right->accum))
       result->accum = true;
     bindLocal(ki, state, result);
@@ -2087,9 +2087,9 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
   }
  
   case Instruction::SRem: {
-    ref<Expr> left = eval(ki, 0, state).value;
-    ref<Expr> right = eval(ki, 1, state).value;
-    ref<Expr> result = SRemExpr::create(left, right);
+    klee::ref<Expr> left = eval(ki, 0, state).value;
+    klee::ref<Expr> right = eval(ki, 1, state).value;
+    klee::ref<Expr> result = SRemExpr::create(left, right);
     if (UseSymbolicConfig && (left->accum || right->accum))
       result->accum = true;
     bindLocal(ki, state, result);
@@ -2097,9 +2097,9 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
   }
 
   case Instruction::And: {
-    ref<Expr> left = eval(ki, 0, state).value;
-    ref<Expr> right = eval(ki, 1, state).value;
-    ref<Expr> result = AndExpr::create(left, right);
+    klee::ref<Expr> left = eval(ki, 0, state).value;
+    klee::ref<Expr> right = eval(ki, 1, state).value;
+    klee::ref<Expr> result = AndExpr::create(left, right);
     if (UseSymbolicConfig && (left->accum || right->accum))
       result->accum = true;
     bindLocal(ki, state, result);
@@ -2107,9 +2107,9 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
   }
 
   case Instruction::Or: {
-    ref<Expr> left = eval(ki, 0, state).value;
-    ref<Expr> right = eval(ki, 1, state).value;
-    ref<Expr> result = OrExpr::create(left, right);
+    klee::ref<Expr> left = eval(ki, 0, state).value;
+    klee::ref<Expr> right = eval(ki, 1, state).value;
+    klee::ref<Expr> result = OrExpr::create(left, right);
     if (UseSymbolicConfig && (left->accum || right->accum))
       result->accum = true;
     bindLocal(ki, state, result);
@@ -2117,9 +2117,9 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
   }
 
   case Instruction::Xor: {
-    ref<Expr> left = eval(ki, 0, state).value;
-    ref<Expr> right = eval(ki, 1, state).value;
-    ref<Expr> result = XorExpr::create(left, right);
+    klee::ref<Expr> left = eval(ki, 0, state).value;
+    klee::ref<Expr> right = eval(ki, 1, state).value;
+    klee::ref<Expr> result = XorExpr::create(left, right);
     if (UseSymbolicConfig && (left->accum || right->accum))
       result->accum = true;
     bindLocal(ki, state, result);
@@ -2127,9 +2127,9 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
   }
 
   case Instruction::Shl: {
-    ref<Expr> left = eval(ki, 0, state).value;
-    ref<Expr> right = eval(ki, 1, state).value;
-    ref<Expr> result = ShlExpr::create(left, right);
+    klee::ref<Expr> left = eval(ki, 0, state).value;
+    klee::ref<Expr> right = eval(ki, 1, state).value;
+    klee::ref<Expr> result = ShlExpr::create(left, right);
     if (UseSymbolicConfig && (left->accum || right->accum))
       result->accum = true;
     bindLocal(ki, state, result);
@@ -2137,9 +2137,9 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
   }
 
   case Instruction::LShr: {
-    ref<Expr> left = eval(ki, 0, state).value;
-    ref<Expr> right = eval(ki, 1, state).value;
-    ref<Expr> result = LShrExpr::create(left, right);
+    klee::ref<Expr> left = eval(ki, 0, state).value;
+    klee::ref<Expr> right = eval(ki, 1, state).value;
+    klee::ref<Expr> result = LShrExpr::create(left, right);
     if (UseSymbolicConfig && (left->accum || right->accum))
       result->accum = true;
     bindLocal(ki, state, result);
@@ -2147,9 +2147,9 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
   }
 
   case Instruction::AShr: {
-    ref<Expr> left = eval(ki, 0, state).value;
-    ref<Expr> right = eval(ki, 1, state).value;
-    ref<Expr> result = AShrExpr::create(left, right);
+    klee::ref<Expr> left = eval(ki, 0, state).value;
+    klee::ref<Expr> right = eval(ki, 1, state).value;
+    klee::ref<Expr> result = AShrExpr::create(left, right);
     if (UseSymbolicConfig && (left->accum || right->accum))
       result->accum = true;
     bindLocal(ki, state, result);
@@ -2164,9 +2164,9 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
  
     switch(ii->getPredicate()) {
     case ICmpInst::ICMP_EQ: {
-      ref<Expr> left = eval(ki, 0, state).value;
-      ref<Expr> right = eval(ki, 1, state).value;
-      ref<Expr> result = EqExpr::create(left, right);
+      klee::ref<Expr> left = eval(ki, 0, state).value;
+      klee::ref<Expr> right = eval(ki, 1, state).value;
+      klee::ref<Expr> result = EqExpr::create(left, right);
       if (UseSymbolicConfig && (left->accum || right->accum))
         result->accum = true;
       bindLocal(ki, state, result);
@@ -2174,9 +2174,9 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
     }
 
     case ICmpInst::ICMP_NE: {
-      ref<Expr> left = eval(ki, 0, state).value;
-      ref<Expr> right = eval(ki, 1, state).value;
-      ref<Expr> result = NeExpr::create(left, right);
+      klee::ref<Expr> left = eval(ki, 0, state).value;
+      klee::ref<Expr> right = eval(ki, 1, state).value;
+      klee::ref<Expr> result = NeExpr::create(left, right);
       if (UseSymbolicConfig && (left->accum || right->accum))
         result->accum = true;
       bindLocal(ki, state, result);
@@ -2184,9 +2184,9 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
     }
 
     case ICmpInst::ICMP_UGT: {
-      ref<Expr> left = eval(ki, 0, state).value;
-      ref<Expr> right = eval(ki, 1, state).value;
-      ref<Expr> result = UgtExpr::create(left, right);
+      klee::ref<Expr> left = eval(ki, 0, state).value;
+      klee::ref<Expr> right = eval(ki, 1, state).value;
+      klee::ref<Expr> result = UgtExpr::create(left, right);
       if (UseSymbolicConfig && (left->accum || right->accum))
         result->accum = true;
       bindLocal(ki, state,result);
@@ -2194,9 +2194,9 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
     }
 
     case ICmpInst::ICMP_UGE: {
-      ref<Expr> left = eval(ki, 0, state).value;
-      ref<Expr> right = eval(ki, 1, state).value;
-      ref<Expr> result = UgeExpr::create(left, right);
+      klee::ref<Expr> left = eval(ki, 0, state).value;
+      klee::ref<Expr> right = eval(ki, 1, state).value;
+      klee::ref<Expr> result = UgeExpr::create(left, right);
       if (UseSymbolicConfig && (left->accum || right->accum))
         result->accum = true;
       bindLocal(ki, state, result);
@@ -2204,9 +2204,9 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
     }
 
     case ICmpInst::ICMP_ULT: {
-      ref<Expr> left = eval(ki, 0, state).value;
-      ref<Expr> right = eval(ki, 1, state).value;
-      ref<Expr> result = UltExpr::create(left, right);
+      klee::ref<Expr> left = eval(ki, 0, state).value;
+      klee::ref<Expr> right = eval(ki, 1, state).value;
+      klee::ref<Expr> result = UltExpr::create(left, right);
       if (UseSymbolicConfig && (left->accum || right->accum))
         result->accum = true;
       bindLocal(ki, state, result);
@@ -2214,9 +2214,9 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
     }
 
     case ICmpInst::ICMP_ULE: {
-      ref<Expr> left = eval(ki, 0, state).value;
-      ref<Expr> right = eval(ki, 1, state).value;
-      ref<Expr> result = UleExpr::create(left, right);
+      klee::ref<Expr> left = eval(ki, 0, state).value;
+      klee::ref<Expr> right = eval(ki, 1, state).value;
+      klee::ref<Expr> result = UleExpr::create(left, right);
       if (UseSymbolicConfig && (left->accum || right->accum))
         result->accum = true;
       bindLocal(ki, state, result);
@@ -2224,9 +2224,9 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
     }
 
     case ICmpInst::ICMP_SGT: {
-      ref<Expr> left = eval(ki, 0, state).value;
-      ref<Expr> right = eval(ki, 1, state).value;
-      ref<Expr> result = SgtExpr::create(left, right);
+      klee::ref<Expr> left = eval(ki, 0, state).value;
+      klee::ref<Expr> right = eval(ki, 1, state).value;
+      klee::ref<Expr> result = SgtExpr::create(left, right);
       if (UseSymbolicConfig && (left->accum || right->accum))
         result->accum = true;
       bindLocal(ki, state, result);
@@ -2234,9 +2234,9 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
     }
 
     case ICmpInst::ICMP_SGE: {
-      ref<Expr> left = eval(ki, 0, state).value;
-      ref<Expr> right = eval(ki, 1, state).value;
-      ref<Expr> result = SgeExpr::create(left, right);
+      klee::ref<Expr> left = eval(ki, 0, state).value;
+      klee::ref<Expr> right = eval(ki, 1, state).value;
+      klee::ref<Expr> result = SgeExpr::create(left, right);
       if (UseSymbolicConfig && (left->accum || right->accum))
         result->accum = true;
       bindLocal(ki, state, result);
@@ -2244,9 +2244,9 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
     }
 
     case ICmpInst::ICMP_SLT: {
-      ref<Expr> left = eval(ki, 0, state).value;
-      ref<Expr> right = eval(ki, 1, state).value;
-      ref<Expr> result = SltExpr::create(left, right);
+      klee::ref<Expr> left = eval(ki, 0, state).value;
+      klee::ref<Expr> right = eval(ki, 1, state).value;
+      klee::ref<Expr> result = SltExpr::create(left, right);
       if (UseSymbolicConfig && (left->accum || right->accum))
         result->accum = true;
       bindLocal(ki, state, result);
@@ -2254,9 +2254,9 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
     }
 
     case ICmpInst::ICMP_SLE: {
-      ref<Expr> left = eval(ki, 0, state).value;
-      ref<Expr> right = eval(ki, 1, state).value;
-      ref<Expr> result = SleExpr::create(left, right);
+      klee::ref<Expr> left = eval(ki, 0, state).value;
+      klee::ref<Expr> right = eval(ki, 1, state).value;
+      klee::ref<Expr> result = SleExpr::create(left, right);
       if (UseSymbolicConfig && (left->accum || right->accum))
         result->accum = true;
       bindLocal(ki, state, result);
@@ -2280,9 +2280,9 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
 #endif
     unsigned elementSize = 
       kmodule->targetData->getTypeStoreSize(ai->getAllocatedType());
-    ref<Expr> size = Expr::createPointer(elementSize);
+    klee::ref<Expr> size = Expr::createPointer(elementSize);
     if (ai->isArrayAllocation()) {
-      ref<Expr> count = eval(ki, 0, state).value;
+      klee::ref<Expr> count = eval(ki, 0, state).value;
       count = Expr::createZExtToPointerWidth(count);
       size = MulExpr::create(size, count);
     }
@@ -2292,7 +2292,7 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
   }
 #if LLVM_VERSION_CODE < LLVM_VERSION(2, 7)
   case Instruction::Free: {
-    ref<Expr> base = eval(ki, 0, state).value;
+    klee::ref<Expr> base = eval(ki, 0, state).value;
     executeFree(state, base);
     break;
   }
@@ -2301,7 +2301,7 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
   case Instruction::Load: {
     KGEPInstruction *kgepi = static_cast<KGEPInstruction*>(ki);
 
-    ref<Expr> base = eval(ki, 0, state).value;
+    klee::ref<Expr> base = eval(ki, 0, state).value;
     updateCType(state, kgepi->inst->getOperand(0), 
                 base, state.tinfo.is_GPU_mode);
 
@@ -2318,8 +2318,8 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
   case Instruction::Store: {
     KGEPInstruction *kgepi = static_cast<KGEPInstruction*>(ki);
 
-    ref<Expr> base = eval(ki, 1, state).value;
-    ref<Expr> value = eval(ki, 0, state).value;
+    klee::ref<Expr> base = eval(ki, 1, state).value;
+    klee::ref<Expr> value = eval(ki, 0, state).value;
     updateCType(state, kgepi->inst->getOperand(1), 
                 base, state.tinfo.is_GPU_mode);
 
@@ -2330,7 +2330,7 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
   case Instruction::GetElementPtr: {
     KGEPInstruction *kgepi = static_cast<KGEPInstruction*>(ki);
 
-    ref<Expr> base = eval(ki, 0, state).value;
+    klee::ref<Expr> base = eval(ki, 0, state).value;
     updateCType(state, kgepi->inst->getOperand(0), 
                 base, state.tinfo.is_GPU_mode);
     GPUConfig::CTYPE ctype = base->ctype;
@@ -2339,7 +2339,7 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
            it = kgepi->indices.begin(), ie = kgepi->indices.end(); 
          it != ie; ++it) {
       uint64_t elementSize = it->second;
-      ref<Expr> index = eval(ki, it->first, state).value;
+      klee::ref<Expr> index = eval(ki, it->first, state).value;
       base = AddExpr::create(base,
                              MulExpr::create(Expr::createSExtToPointerWidth(index),
                                              Expr::createPointer(elementSize)));
@@ -2355,8 +2355,8 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
   // Conversion
   case Instruction::Trunc: {
     CastInst *ci = cast<CastInst>(i);
-    ref<Expr> tmp = eval(ki, 0, state).value; 
-    ref<Expr> result = ExtractExpr::create(tmp,
+    klee::ref<Expr> tmp = eval(ki, 0, state).value; 
+    klee::ref<Expr> result = ExtractExpr::create(tmp,
                                            0,
                                            getWidthForLLVMType(ci->getType()));
     if (UseSymbolicConfig && tmp->accum)
@@ -2366,8 +2366,8 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
   }
   case Instruction::ZExt: {
     CastInst *ci = cast<CastInst>(i);
-    ref<Expr> tmp = eval(ki, 0, state).value;
-    ref<Expr> result = ZExtExpr::create(tmp,
+    klee::ref<Expr> tmp = eval(ki, 0, state).value;
+    klee::ref<Expr> result = ZExtExpr::create(tmp,
                                         getWidthForLLVMType(ci->getType()));
     if (UseSymbolicConfig && tmp->accum) 
       result->accum = true;
@@ -2376,8 +2376,8 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
   }
   case Instruction::SExt: {
     CastInst *ci = cast<CastInst>(i);
-    ref<Expr> tmp = eval(ki, 0, state).value;
-    ref<Expr> result = SExtExpr::create(tmp,
+    klee::ref<Expr> tmp = eval(ki, 0, state).value;
+    klee::ref<Expr> result = SExtExpr::create(tmp,
                                         getWidthForLLVMType(ci->getType()));
     if (UseSymbolicConfig && tmp->accum)
       result->accum = true;
@@ -2388,8 +2388,8 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
   case Instruction::IntToPtr: {
     CastInst *ci = cast<CastInst>(i);
     Expr::Width pType = getWidthForLLVMType(ci->getType());
-    ref<Expr> arg = eval(ki, 0, state).value;
-    ref<Expr> tmp = ZExtExpr::create(arg, pType);
+    klee::ref<Expr> arg = eval(ki, 0, state).value;
+    klee::ref<Expr> tmp = ZExtExpr::create(arg, pType);
     if (UseSymbolicConfig && arg->accum)
       tmp->accum = true; 
     bindLocal(ki, state, tmp);
@@ -2398,8 +2398,8 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
   case Instruction::PtrToInt: {
     CastInst *ci = cast<CastInst>(i);
     Expr::Width iType = getWidthForLLVMType(ci->getType());
-    ref<Expr> arg = eval(ki, 0, state).value;
-    ref<Expr> tmp = ZExtExpr::create(arg, iType);
+    klee::ref<Expr> arg = eval(ki, 0, state).value;
+    klee::ref<Expr> tmp = ZExtExpr::create(arg, iType);
     if (UseSymbolicConfig && arg->accum)
       tmp->accum = true;
     bindLocal(ki, state, tmp);
@@ -2407,7 +2407,7 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
   }
 
   case Instruction::BitCast: {
-    ref<Expr> result = eval(ki, 0, state).value;
+    klee::ref<Expr> result = eval(ki, 0, state).value;
     bindLocal(ki, state, result);
     break;
   }
@@ -2415,9 +2415,9 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
     // Floating point instructions
 
   case Instruction::FAdd: {
-    ref<ConstantExpr> left = toConstant(state, eval(ki, 0, state).value,
+    klee::ref<ConstantExpr> left = toConstant(state, eval(ki, 0, state).value,
                                         "floating point");
-    ref<ConstantExpr> right = toConstant(state, eval(ki, 1, state).value,
+    klee::ref<ConstantExpr> right = toConstant(state, eval(ki, 1, state).value,
                                          "floating point");
     if (!fpWidthToSemantics(left->getWidth()) ||
         !fpWidthToSemantics(right->getWidth()))
@@ -2425,7 +2425,7 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
 
     llvm::APFloat Res(left->getAPValue());
     Res.add(APFloat(right->getAPValue()), APFloat::rmNearestTiesToEven);
-    ref<Expr> result = ConstantExpr::alloc(Res.bitcastToAPInt()); 
+    klee::ref<Expr> result = ConstantExpr::alloc(Res.bitcastToAPInt()); 
     if (UseSymbolicConfig && (left->accum || right->accum))
       result->accum = true; 
     bindLocal(ki, state, result);
@@ -2433,9 +2433,9 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
   }
 
   case Instruction::FSub: {
-    ref<ConstantExpr> left = toConstant(state, eval(ki, 0, state).value,
+    klee::ref<ConstantExpr> left = toConstant(state, eval(ki, 0, state).value,
                                         "floating point");
-    ref<ConstantExpr> right = toConstant(state, eval(ki, 1, state).value,
+    klee::ref<ConstantExpr> right = toConstant(state, eval(ki, 1, state).value,
                                          "floating point");
     if (!fpWidthToSemantics(left->getWidth()) ||
         !fpWidthToSemantics(right->getWidth()))
@@ -2443,7 +2443,7 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
 
     llvm::APFloat Res(left->getAPValue());
     Res.subtract(APFloat(right->getAPValue()), APFloat::rmNearestTiesToEven);
-    ref<Expr> result = ConstantExpr::alloc(Res.bitcastToAPInt()); 
+    klee::ref<Expr> result = ConstantExpr::alloc(Res.bitcastToAPInt()); 
     if (UseSymbolicConfig && (left->accum || right->accum))
       result->accum = true; 
     bindLocal(ki, state, result);
@@ -2451,9 +2451,9 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
   }
  
   case Instruction::FMul: {
-    ref<ConstantExpr> left = toConstant(state, eval(ki, 0, state).value,
+    klee::ref<ConstantExpr> left = toConstant(state, eval(ki, 0, state).value,
                                         "floating point");
-    ref<ConstantExpr> right = toConstant(state, eval(ki, 1, state).value,
+    klee::ref<ConstantExpr> right = toConstant(state, eval(ki, 1, state).value,
                                          "floating point");
     if (!fpWidthToSemantics(left->getWidth()) ||
         !fpWidthToSemantics(right->getWidth()))
@@ -2461,7 +2461,7 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
 
     llvm::APFloat Res(left->getAPValue());
     Res.multiply(APFloat(right->getAPValue()), APFloat::rmNearestTiesToEven);
-    ref<Expr> result = ConstantExpr::alloc(Res.bitcastToAPInt());
+    klee::ref<Expr> result = ConstantExpr::alloc(Res.bitcastToAPInt());
     if (UseSymbolicConfig && (left->accum || right->accum))
       result->accum = true;
     bindLocal(ki, state, result);
@@ -2469,9 +2469,9 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
   }
 
   case Instruction::FDiv: {
-    ref<ConstantExpr> left = toConstant(state, eval(ki, 0, state).value,
+    klee::ref<ConstantExpr> left = toConstant(state, eval(ki, 0, state).value,
                                         "floating point");
-    ref<ConstantExpr> right = toConstant(state, eval(ki, 1, state).value,
+    klee::ref<ConstantExpr> right = toConstant(state, eval(ki, 1, state).value,
                                          "floating point");
     if (!fpWidthToSemantics(left->getWidth()) ||
         !fpWidthToSemantics(right->getWidth()))
@@ -2479,7 +2479,7 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
 
     llvm::APFloat Res(left->getAPValue());
     Res.divide(APFloat(right->getAPValue()), APFloat::rmNearestTiesToEven);
-    ref<Expr> result = ConstantExpr::alloc(Res.bitcastToAPInt());
+    klee::ref<Expr> result = ConstantExpr::alloc(Res.bitcastToAPInt());
     if (UseSymbolicConfig && (left->accum || right->accum))
       result->accum = true;
     bindLocal(ki, state, result);
@@ -2487,9 +2487,9 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
   }
 
   case Instruction::FRem: {
-    ref<ConstantExpr> left = toConstant(state, eval(ki, 0, state).value,
+    klee::ref<ConstantExpr> left = toConstant(state, eval(ki, 0, state).value,
                                         "floating point");
-    ref<ConstantExpr> right = toConstant(state, eval(ki, 1, state).value,
+    klee::ref<ConstantExpr> right = toConstant(state, eval(ki, 1, state).value,
                                          "floating point");
     if (!fpWidthToSemantics(left->getWidth()) ||
         !fpWidthToSemantics(right->getWidth()))
@@ -2497,7 +2497,7 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
 
     llvm::APFloat Res(left->getAPValue());
     Res.mod(APFloat(right->getAPValue()), APFloat::rmNearestTiesToEven);
-    ref<Expr> result = ConstantExpr::alloc(Res.bitcastToAPInt());
+    klee::ref<Expr> result = ConstantExpr::alloc(Res.bitcastToAPInt());
     if (UseSymbolicConfig && (left->accum || right->accum))
       result->accum = true;
     bindLocal(ki, state, result);
@@ -2507,7 +2507,7 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
   case Instruction::FPTrunc: {
     FPTruncInst *fi = cast<FPTruncInst>(i);
     Expr::Width resultType = getWidthForLLVMType(fi->getType());
-    ref<ConstantExpr> arg = toConstant(state, eval(ki, 0, state).value,
+    klee::ref<ConstantExpr> arg = toConstant(state, eval(ki, 0, state).value,
                                        "floating point");
     if (!fpWidthToSemantics(arg->getWidth()) || resultType > arg->getWidth())
       return terminateStateOnExecError(state, "Unsupported FPTrunc operation");
@@ -2524,7 +2524,7 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
   case Instruction::FPExt: {
     FPExtInst *fi = cast<FPExtInst>(i);
     Expr::Width resultType = getWidthForLLVMType(fi->getType());
-    ref<ConstantExpr> arg = toConstant(state, eval(ki, 0, state).value,
+    klee::ref<ConstantExpr> arg = toConstant(state, eval(ki, 0, state).value,
                                         "floating point");
     if (!fpWidthToSemantics(arg->getWidth()) || arg->getWidth() > resultType)
       return terminateStateOnExecError(state, "Unsupported FPExt operation");
@@ -2541,7 +2541,7 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
   case Instruction::FPToUI: {
     FPToUIInst *fi = cast<FPToUIInst>(i);
     Expr::Width resultType = getWidthForLLVMType(fi->getType());
-    ref<ConstantExpr> arg = toConstant(state, eval(ki, 0, state).value,
+    klee::ref<ConstantExpr> arg = toConstant(state, eval(ki, 0, state).value,
                                        "floating point");
     if (!fpWidthToSemantics(arg->getWidth()) || resultType > 64)
       return terminateStateOnExecError(state, "Unsupported FPToUI operation");
@@ -2558,7 +2558,7 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
   case Instruction::FPToSI: {
     FPToSIInst *fi = cast<FPToSIInst>(i);
     Expr::Width resultType = getWidthForLLVMType(fi->getType());
-    ref<ConstantExpr> arg = toConstant(state, eval(ki, 0, state).value,
+    klee::ref<ConstantExpr> arg = toConstant(state, eval(ki, 0, state).value,
                                        "floating point");
     if (!fpWidthToSemantics(arg->getWidth()) || resultType > 64)
       return terminateStateOnExecError(state, "Unsupported FPToSI operation");
@@ -2575,7 +2575,7 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
   case Instruction::UIToFP: {
     UIToFPInst *fi = cast<UIToFPInst>(i);
     Expr::Width resultType = getWidthForLLVMType(fi->getType());
-    ref<ConstantExpr> arg = toConstant(state, eval(ki, 0, state).value,
+    klee::ref<ConstantExpr> arg = toConstant(state, eval(ki, 0, state).value,
                                        "floating point");
     const llvm::fltSemantics *semantics = fpWidthToSemantics(resultType);
     if (!semantics)
@@ -2591,7 +2591,7 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
   case Instruction::SIToFP: {
     SIToFPInst *fi = cast<SIToFPInst>(i);
     Expr::Width resultType = getWidthForLLVMType(fi->getType());
-    ref<ConstantExpr> arg = toConstant(state, eval(ki, 0, state).value,
+    klee::ref<ConstantExpr> arg = toConstant(state, eval(ki, 0, state).value,
                                        "floating point");
     const llvm::fltSemantics *semantics = fpWidthToSemantics(resultType);
     if (!semantics)
@@ -2606,9 +2606,9 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
 
   case Instruction::FCmp: {
     FCmpInst *fi = cast<FCmpInst>(i);
-    ref<ConstantExpr> left = toConstant(state, eval(ki, 0, state).value,
+    klee::ref<ConstantExpr> left = toConstant(state, eval(ki, 0, state).value,
                                         "floating point");
-    ref<ConstantExpr> right = toConstant(state, eval(ki, 1, state).value,
+    klee::ref<ConstantExpr> right = toConstant(state, eval(ki, 1, state).value,
                                          "floating point");
     if (!fpWidthToSemantics(left->getWidth()) ||
         !fpWidthToSemantics(right->getWidth()))
@@ -2699,10 +2699,10 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
   case Instruction::InsertValue: {
     KGEPInstruction *kgepi = static_cast<KGEPInstruction*>(ki);
 
-    ref<Expr> agg = eval(ki, 0, state).value;
-    ref<Expr> val = eval(ki, 1, state).value;
+    klee::ref<Expr> agg = eval(ki, 0, state).value;
+    klee::ref<Expr> val = eval(ki, 1, state).value;
 
-    ref<Expr> l = NULL, r = NULL;
+    klee::ref<Expr> l = NULL, r = NULL;
     unsigned lOffset = kgepi->offset*8, rOffset = kgepi->offset*8 + val->getWidth();
 
     if (lOffset > 0)
@@ -2710,7 +2710,7 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
     if (rOffset < agg->getWidth())
       r = ExtractExpr::create(agg, rOffset, agg->getWidth() - rOffset);
 
-    ref<Expr> result;
+    klee::ref<Expr> result;
     if (!l.isNull() && !r.isNull())
       result = ConcatExpr::create(r, ConcatExpr::create(val, l));
     else if (!l.isNull())
@@ -2726,9 +2726,9 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
   case Instruction::ExtractValue: {
     KGEPInstruction *kgepi = static_cast<KGEPInstruction*>(ki);
 
-    ref<Expr> agg = eval(ki, 0, state).value;
+    klee::ref<Expr> agg = eval(ki, 0, state).value;
 
-    ref<Expr> result = ExtractExpr::create(agg, kgepi->offset*8, getWidthForLLVMType(i->getType()));
+    klee::ref<Expr> result = ExtractExpr::create(agg, kgepi->offset*8, getWidthForLLVMType(i->getType()));
 
     bindLocal(ki, state, result);
     break;
@@ -2814,7 +2814,7 @@ void Executor::constructSharedMemory(ExecutionState &state, unsigned bid) {
         glmo->getBaseExpr()->dump();    
       }
 
-      ref<ConstantExpr> size = glmo->getSizeExpr();
+      klee::ref<ConstantExpr> size = glmo->getSizeExpr();
       // Mimic KLEE's allocation scheme ..
       if (ConstantExpr *CE = dyn_cast<ConstantExpr>(size)) {
         MemoryObject *sharemo = NULL;
@@ -2864,7 +2864,7 @@ void Executor::clearSharedMemory(ExecutionState &state) {
 void Executor::callIntrinsicFunction(ExecutionState &state, 
 				     KInstruction *ki,
 				     Function *f,
-				     std::vector< ref<Expr> > &arguments) {
+				     std::vector< klee::ref<Expr> > &arguments) {
   std::string f_name = f->getName();
   bool b = false;
   llvm::Module* currModule = kmodule->module;
@@ -2911,7 +2911,7 @@ static bool enterRealGPUKernel(std::string kernelName,
 void Executor::executeCall(ExecutionState &state, 
                            KInstruction *ki,
                            Function *f,
-                           std::vector< ref<Expr> > &arguments, 
+                           std::vector< klee::ref<Expr> > &arguments, 
                            unsigned seqNum) {
 
   if (state.tinfo.kernel_call) {
@@ -2950,17 +2950,17 @@ void Executor::executeCall(ExecutionState &state,
         // make a function believe that all varargs are on stack.
         executeMemoryOperation(state, true, arguments[0],
                                ConstantExpr::create(48, 32), 0); // gp_offset
-        ref<Expr> addr1 = AddExpr::create(arguments[0], 
+        klee::ref<Expr> addr1 = AddExpr::create(arguments[0], 
                                           ConstantExpr::create(4, 64));
         addr1->ctype = arguments[0]->ctype; 
         executeMemoryOperation(state, true, addr1,
                                ConstantExpr::create(304, 32), 0); // fp_offset
-        ref<Expr> addr2 = AddExpr::create(arguments[0], 
+        klee::ref<Expr> addr2 = AddExpr::create(arguments[0], 
                                           ConstantExpr::create(8, 64));
         addr2->ctype = arguments[0]->ctype; 
         executeMemoryOperation(state, true, addr2,
                                sf.varargs->getBaseExpr(), 0); // overflow_arg_area
-        ref<Expr> addr3 = AddExpr::create(arguments[0], 
+        klee::ref<Expr> addr3 = AddExpr::create(arguments[0], 
                                           ConstantExpr::create(16, 64));
         addr3->ctype = arguments[0]->ctype; 
         executeMemoryOperation(state, true, addr3, 
@@ -3210,10 +3210,10 @@ static bool determineBranchType(Instruction *inst) {
   } 
 }
 
-static ref<Expr> constructInheritExpr(ExecutionState &state, 
-                                      ParaTree &paraTree, ref<Expr> &tdcCond) {
+static klee::ref<Expr> constructInheritExpr(ExecutionState &state, 
+                                      ParaTree &paraTree, klee::ref<Expr> &tdcCond) {
   ParaTreeNode *current = paraTree.getCurrentNode();
-  ref<Expr> expr;
+  klee::ref<Expr> expr;
   if (current == NULL) {
     unsigned tid = state.tinfo.get_cur_tid();
     expr = state.cTidSets[tid].inheritExpr; 
@@ -3239,7 +3239,7 @@ static ref<Expr> constructInheritExpr(ExecutionState &state,
 // or TDC (thread-dependent conditional)
 bool Executor::forkNewParametricFlow(ExecutionState &state, KInstruction *ki) {
   Instruction *i = ki->inst;
-  ref<Expr> cond = eval(ki, 0, state).value;
+  klee::ref<Expr> cond = eval(ki, 0, state).value;
   //std::cout << "cond in forkNewSymbolicFlow: " << std::endl;
   //cond->dump();
 
@@ -3253,8 +3253,8 @@ bool Executor::forkNewParametricFlow(ExecutionState &state, KInstruction *ki) {
     bool isCondBr = determineBranchType(i);
     llvm::BasicBlock *postDom = state.findNearestCommonPostDominator(postDominator, i, isCondBr); 
     ParaTree &pTree = state.getCurrentParaTree();
-    ref<Expr> tdcCond = 0;
-    ref<Expr> inheritCond = constructInheritExpr(state, pTree, tdcCond);
+    klee::ref<Expr> tdcCond = 0;
+    klee::ref<Expr> inheritCond = constructInheritExpr(state, pTree, tdcCond);
     ParaTreeNode *paraNode = new ParaTreeNode(i, postDom, SYM, isCondBr, 
                                               false, inheritCond, tdcCond);
     pTree.insertNodeIntoParaTree(paraNode);
@@ -3270,8 +3270,8 @@ bool Executor::forkNewParametricFlow(ExecutionState &state, KInstruction *ki) {
         ParaTree &pTree = state.getCurrentParaTree();
         bool isCondBr = determineBranchType(i);
         llvm::BasicBlock *postDom = state.findNearestCommonPostDominator(postDominator, i, isCondBr); 
-        ref<Expr> tdcCond = 0;
-        ref<Expr> inheritCond = constructInheritExpr(state, pTree, tdcCond);
+        klee::ref<Expr> tdcCond = 0;
+        klee::ref<Expr> inheritCond = constructInheritExpr(state, pTree, tdcCond);
 
         ParaTreeNode *paraNode = new ParaTreeNode(i, postDom, TDC, isCondBr, 
                                                   false, inheritCond, tdcCond);
@@ -3284,7 +3284,7 @@ bool Executor::forkNewParametricFlow(ExecutionState &state, KInstruction *ki) {
         ExecutorUtil::addConfigConstraint(state, tdcCond);
         bool result = false;
         bool success = solver->mustBeTrue(state, cond, result);
-        ref<Expr> trueExpr = ConstantExpr::create(1, Expr::Bool);
+        klee::ref<Expr> trueExpr = ConstantExpr::create(1, Expr::Bool);
 
         if (success) {
           if (result) { // Only 'True' flow 
@@ -3305,7 +3305,7 @@ bool Executor::forkNewParametricFlow(ExecutionState &state, KInstruction *ki) {
                                 cond, 0, 0);
               pTree.updateCurrentNodeOnNewConfig(config, TDC);
               GKLEE_INFO << "'Else' path flow feasible !" << std::endl;
-              ref<Expr> negateExpr = Expr::createIsZero(cond);
+              klee::ref<Expr> negateExpr = Expr::createIsZero(cond);
               evaluateConstraintAsNewFlow(state, pTree, negateExpr, true);
             } else { // Only 'False' flow
               GKLEE_INFO << "'True' path flow infeasible !" << std::endl;
@@ -3330,8 +3330,8 @@ bool Executor::forkNewParametricFlow(ExecutionState &state, KInstruction *ki) {
       bool isCondBr = determineBranchType(i);
       llvm::BasicBlock *postDom = state.findNearestCommonPostDominator(postDominator, i, isCondBr); 
       ParaTree &pTree = state.getCurrentParaTree();
-      ref<Expr> tdcCond = 0;
-      ref<Expr> inheritCond = constructInheritExpr(state, pTree, tdcCond);
+      klee::ref<Expr> tdcCond = 0;
+      klee::ref<Expr> inheritCond = constructInheritExpr(state, pTree, tdcCond);
       ParaTreeNode *paraNode = new ParaTreeNode(i, postDom, ACCUM, isCondBr, 
                                                 false, inheritCond, tdcCond);
       pTree.insertNodeIntoParaTree(paraNode);
@@ -3349,7 +3349,7 @@ bool Executor::forkNewParametricFlow(ExecutionState &state, KInstruction *ki) {
 bool Executor::forkNewParametricFlowUnderRacePrune(ExecutionState &state, 
                                                    KInstruction *ki) {
   Instruction *i = ki->inst;
-  ref<Expr> cond = eval(ki, 0, state).value;
+  klee::ref<Expr> cond = eval(ki, 0, state).value;
   //std::cout << "cond in forkNewSymbolicFlow in [RacePrune]: " << std::endl;
   //cond->dump();
 
@@ -3363,8 +3363,8 @@ bool Executor::forkNewParametricFlowUnderRacePrune(ExecutionState &state,
     bool isCondBr = determineBranchType(i);
     llvm::BasicBlock *postDom = state.findNearestCommonPostDominator(postDominator, i, isCondBr); 
     ParaTree &pTree = state.getCurrentParaTree();
-    ref<Expr> tdcCond = 0;
-    ref<Expr> inheritCond = constructInheritExpr(state, pTree, tdcCond);
+    klee::ref<Expr> tdcCond = 0;
+    klee::ref<Expr> inheritCond = constructInheritExpr(state, pTree, tdcCond);
     ParaTreeNode *paraNode = new ParaTreeNode(i, postDom, SYM, isCondBr, 
                                               false, inheritCond, tdcCond);
     pTree.insertNodeIntoParaTree(paraNode);
@@ -3380,8 +3380,8 @@ bool Executor::forkNewParametricFlowUnderRacePrune(ExecutionState &state,
         ParaTree &pTree = state.getCurrentParaTree();
         bool isCondBr = determineBranchType(i);
         llvm::BasicBlock *postDom = state.findNearestCommonPostDominator(postDominator, i, isCondBr); 
-        ref<Expr> tdcCond = 0;
-        ref<Expr> inheritCond = constructInheritExpr(state, pTree, tdcCond);
+        klee::ref<Expr> tdcCond = 0;
+        klee::ref<Expr> inheritCond = constructInheritExpr(state, pTree, tdcCond);
 
         ParaTreeNode *paraNode = new ParaTreeNode(i, postDom, TDC, isCondBr, 
                                                   false, inheritCond, tdcCond);
@@ -3394,7 +3394,7 @@ bool Executor::forkNewParametricFlowUnderRacePrune(ExecutionState &state,
         ExecutorUtil::addConfigConstraint(state, tdcCond);
         bool result = false;
         bool success = solver->mustBeTrue(state, cond, result);
-        ref<Expr> trueExpr = ConstantExpr::create(1, Expr::Bool);
+        klee::ref<Expr> trueExpr = ConstantExpr::create(1, Expr::Bool);
 
         if (success) {
           if (result) { // Only 'True' flow 
@@ -3425,7 +3425,7 @@ bool Executor::forkNewParametricFlowUnderRacePrune(ExecutionState &state,
               }
               GKLEE_INFO << "'Else' path flow feasible in [RacePrune] mode!" 
                          << std::endl;
-              ref<Expr> negateExpr = Expr::createIsZero(cond);
+              klee::ref<Expr> negateExpr = Expr::createIsZero(cond);
               evaluateConstraintAsNewFlowUnderRacePrune(state, pTree, negateExpr, true, bi);
             } else { // Only 'False' flow
               GKLEE_INFO << "'True' path flow infeasible in RacePrune mode!" 
@@ -3451,8 +3451,8 @@ bool Executor::forkNewParametricFlowUnderRacePrune(ExecutionState &state,
       bool isCondBr = determineBranchType(i);
       llvm::BasicBlock *postDom = state.findNearestCommonPostDominator(postDominator, i, isCondBr); 
       ParaTree &pTree = state.getCurrentParaTree();
-      ref<Expr> tdcCond = 0;
-      ref<Expr> inheritCond = constructInheritExpr(state, pTree, tdcCond);
+      klee::ref<Expr> tdcCond = 0;
+      klee::ref<Expr> inheritCond = constructInheritExpr(state, pTree, tdcCond);
       ParaTreeNode *paraNode = new ParaTreeNode(i, postDom, ACCUM, isCondBr, 
                                                 false, inheritCond, tdcCond);
       pTree.insertNodeIntoParaTree(paraNode);
@@ -3501,7 +3501,7 @@ void Executor::updateParaTreeSetUnderRacePrune(ExecutionState &state) {
   ParaTreeVec paraTreeVec;
   bool firstNonKeep = false;
   unsigned nonKeep = 0;
-  ref<Expr> orExpr = ConstantExpr::create(1, Expr::Bool);
+  klee::ref<Expr> orExpr = ConstantExpr::create(1, Expr::Bool);
   for (unsigned i = 0; i < state.cTidSets.size(); i++) {
     if (i != 1) {
       if (state.cTidSets[i].slotUsed) {
@@ -3535,7 +3535,7 @@ void Executor::updateParaTreeSetUnderRacePrune(ExecutionState &state) {
   if (paraTreeVec.size() == 0) {
     paraTreeVec.push_back(ParaTree());
     state.tinfo.symParaTreeVec.push_back(0);
-    ref<Expr> cond = ConstantExpr::create(1, Expr::Bool);
+    klee::ref<Expr> cond = ConstantExpr::create(1, Expr::Bool);
     state.cTidSets[0].inheritExpr = cond;
   }
   state.getCurrentParaTreeSet().push_back(paraTreeVec);
@@ -3847,14 +3847,14 @@ void Executor::run(ExecutionState &initialState) {
 }
 
 std::string Executor::getAddressInfo(ExecutionState &state, 
-                                     ref<Expr> address) const{
+                                     klee::ref<Expr> address) const{
   std::ostringstream info;
   info << "\taddress: " << address << "\n";
   uint64_t example;
   if (ConstantExpr *CE = dyn_cast<ConstantExpr>(address)) {
     example = CE->getZExtValue();
   } else {
-    ref<ConstantExpr> value;
+    klee::ref<ConstantExpr> value;
     ExecutorUtil::copyOutConstraintUnderSymbolic(state);
     bool success = solver->getValue(state, address, value);
     assert(success && "FIXME: Unhandled solver failure");
@@ -3862,7 +3862,7 @@ std::string Executor::getAddressInfo(ExecutionState &state,
     ExecutorUtil::copyBackConstraintUnderSymbolic(state);
     example = value->getZExtValue();
     info << "\texample: " << example << "\n";
-    std::pair< ref<Expr>, ref<Expr> > res = solver->getRange(state, address);
+    std::pair< klee::ref<Expr>, klee::ref<Expr> > res = solver->getRange(state, address);
     info << "\trange: [" << res.first << ", " << res.second <<"]\n";
   }
   
@@ -4186,7 +4186,7 @@ void Executor::terminateStateOnError(ExecutionState &state,
 
         msg << ai->getName().str();
         // XXX should go through function
-        ref<Expr> value = sf.locals[sf.kf->getArgRegister(index++)].value; 
+        klee::ref<Expr> value = sf.locals[sf.kf->getArgRegister(index++)].value; 
         if (isa<ConstantExpr>(value))
           msg << "=" << value;
       }
@@ -4221,7 +4221,7 @@ static std::set<std::string> okExternals(okExternalsList,
 void Executor::callExternalFunction(ExecutionState &state,
                                     KInstruction *target,
                                     Function *function,
-                                    std::vector< ref<Expr> > &arguments) {
+                                    std::vector< klee::ref<Expr> > &arguments) {
 
   // check if specialFunctionHandler wants it
   if (specialFunctionHandler->handle(state, function, target, arguments))
@@ -4241,10 +4241,10 @@ void Executor::callExternalFunction(ExecutionState &state,
   uint64_t *args = (uint64_t*) alloca(2*sizeof(*args) * (arguments.size() + 1));
   memset(args, 0, 2 * sizeof(*args) * (arguments.size() + 1));
   unsigned wordIndex = 2;
-  for (std::vector<ref<Expr> >::iterator ai = arguments.begin(), 
+  for (std::vector<klee::ref<Expr> >::iterator ai = arguments.begin(), 
        ae = arguments.end(); ai!=ae; ++ai) {
     if (AllowExternalSymCalls) { // don't bother checking uniqueness
-      ref<ConstantExpr> ce;
+      klee::ref<ConstantExpr> ce;
       ExecutorUtil::copyOutConstraintUnderSymbolic(state);
       bool success = solver->getValue(state, *ai, ce);
       assert(success && "FIXME: Unhandled solver failure");
@@ -4253,7 +4253,7 @@ void Executor::callExternalFunction(ExecutionState &state,
       ce->toMemory(&args[wordIndex]);
       wordIndex += (ce->getWidth()+63)/64;
     } else {
-      ref<Expr> arg = toUnique(state, *ai);
+      klee::ref<Expr> arg = toUnique(state, *ai);
 
       if (ConstantExpr *ce = dyn_cast<ConstantExpr>(arg)) {
         // XXX kick toMemory functions from here
@@ -4313,7 +4313,7 @@ void Executor::callExternalFunction(ExecutionState &state,
 
   LLVM_TYPE_Q Type *resultType = target->inst->getType();
   if (resultType != Type::getVoidTy(getGlobalContext())) {
-    ref<Expr> e = ConstantExpr::fromMemory((void*) args, 
+    klee::ref<Expr> e = ConstantExpr::fromMemory((void*) args, 
                                            getWidthForLLVMType(resultType));
     bindLocal(target, state, e);
   }
@@ -4321,8 +4321,8 @@ void Executor::callExternalFunction(ExecutionState &state,
 
 /***/
 
-ref<Expr> Executor::replaceReadWithSymbolic(ExecutionState &state, 
-                                            ref<Expr> e) {
+klee::ref<Expr> Executor::replaceReadWithSymbolic(ExecutionState &state, 
+                                            klee::ref<Expr> e) {
   unsigned n = interpreterOpts.MakeConcreteSymbolic;
   if (!n || replayOut || replayPath)
     return e;
@@ -4340,8 +4340,8 @@ ref<Expr> Executor::replaceReadWithSymbolic(ExecutionState &state,
   static unsigned id;
   const Array *array = new Array("rrws_arr" + llvm::utostr(++id), 
                                  Expr::getMinBytesForWidth(e->getWidth()));
-  ref<Expr> res = Expr::createTempRead(array, e->getWidth());
-  ref<Expr> eq = NotOptimizedExpr::create(EqExpr::create(e, res));
+  klee::ref<Expr> res = Expr::createTempRead(array, e->getWidth());
+  klee::ref<Expr> eq = NotOptimizedExpr::create(EqExpr::create(e, res));
   std::cerr << "Making symbolic: " << eq << "\n";
   state.addConstraint(eq);
   return res;
@@ -4440,7 +4440,7 @@ void Executor::runFunctionAsMain(Function *f,
 				 int argc,
 				 char **argv,
 				 char **envp) {
-  std::vector<ref<Expr> > arguments;
+  std::vector<klee::ref<Expr> > arguments;
 
   // force deterministic initialization of memory objects
   srand(1);
@@ -4570,7 +4570,7 @@ void Executor::getConstraintLog(const ExecutionState &state,
   }
 }
 
-bool Executor::getSymbolicConfig(ExecutionState &state, ref<Expr> cond) {
+bool Executor::getSymbolicConfig(ExecutionState &state, klee::ref<Expr> cond) {
   solver->setTimeout(stpTimeout);
 
   ExecutionState tmp(state); 
@@ -4593,23 +4593,23 @@ bool Executor::getSymbolicConfig(ExecutionState &state, ref<Expr> cond) {
 
   Assignment *binding = new Assignment(objects, values);
   ObjectState *os = state.addressSpace.findNonConstantObject(state.tinfo.thread_id_mo, 0);
-  ref<Expr> tidx = os->read(0, Expr::Int32);
-  ref<Expr> tidy = os->read(4, Expr::Int32);
-  ref<Expr> tidz = os->read(8, Expr::Int32);
+  klee::ref<Expr> tidx = os->read(0, Expr::Int32);
+  klee::ref<Expr> tidy = os->read(4, Expr::Int32);
+  klee::ref<Expr> tidz = os->read(8, Expr::Int32);
   
-  ref<Expr> cTidx = binding->evaluate(tidx);
-  ref<Expr> cTidy = binding->evaluate(tidy);
-  ref<Expr> cTidz = binding->evaluate(tidz);
+  klee::ref<Expr> cTidx = binding->evaluate(tidx);
+  klee::ref<Expr> cTidy = binding->evaluate(tidy);
+  klee::ref<Expr> cTidz = binding->evaluate(tidz);
 
-  ref<Expr> cCond = binding->evaluate(cond);
+  klee::ref<Expr> cCond = binding->evaluate(cond);
 
   return true;
 }
 
-bool Executor::getSymbolicConfigSolution(ExecutionState &state, ref<Expr> condition,
-                                         std::vector< ref<Expr> > offsetVec,
-                                         std::vector< ref<Expr> > &cOffsetVec,
-                                         ref<Expr> val1, ref<Expr> val2, bool &benign,
+bool Executor::getSymbolicConfigSolution(ExecutionState &state, klee::ref<Expr> condition,
+                                         std::vector< klee::ref<Expr> > offsetVec,
+                                         std::vector< klee::ref<Expr> > &cOffsetVec,
+                                         klee::ref<Expr> val1, klee::ref<Expr> val2, bool &benign,
                                          std::vector<SymBlockID_t> &symBlockIDs, 
                                          std::vector<SymThreadID_t> &symThreadIDs, 
                                          SymBlockDim_t &symBlockDim) {
@@ -4639,19 +4639,19 @@ bool Executor::getSymbolicConfigSolution(ExecutionState &state, ref<Expr> condit
   ObjectState *tos1 = tmp.addressSpace.localMemories[1].findNonConstantObject(tmp.tinfo.thread_id_mo); 
 
   // bid ...
-  ref<Expr> bid0x = binding->evaluate(bos0->read(0, Expr::Int32));
-  ref<Expr> bid0y = binding->evaluate(bos0->read(4, Expr::Int32));
-  ref<Expr> bid0z = binding->evaluate(bos0->read(8, Expr::Int32));
-  ref<Expr> bid1x = binding->evaluate(bos1->read(0, Expr::Int32));
-  ref<Expr> bid1y = binding->evaluate(bos1->read(4, Expr::Int32));
-  ref<Expr> bid1z = binding->evaluate(bos1->read(8, Expr::Int32));
+  klee::ref<Expr> bid0x = binding->evaluate(bos0->read(0, Expr::Int32));
+  klee::ref<Expr> bid0y = binding->evaluate(bos0->read(4, Expr::Int32));
+  klee::ref<Expr> bid0z = binding->evaluate(bos0->read(8, Expr::Int32));
+  klee::ref<Expr> bid1x = binding->evaluate(bos1->read(0, Expr::Int32));
+  klee::ref<Expr> bid1y = binding->evaluate(bos1->read(4, Expr::Int32));
+  klee::ref<Expr> bid1z = binding->evaluate(bos1->read(8, Expr::Int32));
   // tid ...
-  ref<Expr> tid0x = binding->evaluate(tos0->read(0, Expr::Int32));
-  ref<Expr> tid0y = binding->evaluate(tos0->read(4, Expr::Int32));
-  ref<Expr> tid0z = binding->evaluate(tos0->read(8, Expr::Int32));
-  ref<Expr> tid1x = binding->evaluate(tos1->read(0, Expr::Int32));
-  ref<Expr> tid1y = binding->evaluate(tos1->read(4, Expr::Int32));
-  ref<Expr> tid1z = binding->evaluate(tos1->read(8, Expr::Int32));
+  klee::ref<Expr> tid0x = binding->evaluate(tos0->read(0, Expr::Int32));
+  klee::ref<Expr> tid0y = binding->evaluate(tos0->read(4, Expr::Int32));
+  klee::ref<Expr> tid0z = binding->evaluate(tos0->read(8, Expr::Int32));
+  klee::ref<Expr> tid1x = binding->evaluate(tos1->read(0, Expr::Int32));
+  klee::ref<Expr> tid1y = binding->evaluate(tos1->read(4, Expr::Int32));
+  klee::ref<Expr> tid1z = binding->evaluate(tos1->read(8, Expr::Int32));
 
   // thread 0
   if (ConstantExpr *bid0x_t = dyn_cast<ConstantExpr>(bid0x)) {
@@ -4695,13 +4695,13 @@ bool Executor::getSymbolicConfigSolution(ExecutionState &state, ref<Expr> condit
 
   for (unsigned i = 0; i < offsetVec.size(); i++) {
     // concretize the 'offset' expression w.r.t bindings ...
-    ref<Expr> cOffset = binding->evaluate(offsetVec[i]); 
+    klee::ref<Expr> cOffset = binding->evaluate(offsetVec[i]); 
     cOffsetVec.push_back(cOffset);
   }
   // if benign = true, race checking ... 
   if (benign) {
     if (val1->getWidth() == val2->getWidth()) {
-      ref<Expr> eqExpr = EqExpr::create(val1, val2);
+      klee::ref<Expr> eqExpr = EqExpr::create(val1, val2);
       bool result = false;
       solver->mustBeTrue(tmp, eqExpr, result); 
       benign = result;
@@ -4713,7 +4713,7 @@ bool Executor::getSymbolicConfigSolution(ExecutionState &state, ref<Expr> condit
 }
 
 bool Executor::dumpOffsetValue(const ExecutionState &state, 
-                               ref<Expr> offset) {
+                               klee::ref<Expr> offset) {
   solver->setTimeout(stpTimeout);
 
   ExecutionState tmp(state);
@@ -4737,13 +4737,13 @@ bool Executor::dumpOffsetValue(const ExecutionState &state,
   ObjectState *tos0 = tmp.addressSpace.localMemories[0].findNonConstantObject(tmp.tinfo.thread_id_mo); 
 
   // bid ...
-  ref<Expr> bid0x = binding->evaluate(bos0->read(0, Expr::Int32));
-  ref<Expr> bid0y = binding->evaluate(bos0->read(4, Expr::Int32));
-  ref<Expr> bid0z = binding->evaluate(bos0->read(8, Expr::Int32));
+  klee::ref<Expr> bid0x = binding->evaluate(bos0->read(0, Expr::Int32));
+  klee::ref<Expr> bid0y = binding->evaluate(bos0->read(4, Expr::Int32));
+  klee::ref<Expr> bid0z = binding->evaluate(bos0->read(8, Expr::Int32));
   // tid ...
-  ref<Expr> tid0x = binding->evaluate(tos0->read(0, Expr::Int32));
-  ref<Expr> tid0y = binding->evaluate(tos0->read(4, Expr::Int32));
-  ref<Expr> tid0z = binding->evaluate(tos0->read(8, Expr::Int32));
+  klee::ref<Expr> tid0x = binding->evaluate(tos0->read(0, Expr::Int32));
+  klee::ref<Expr> tid0y = binding->evaluate(tos0->read(4, Expr::Int32));
+  klee::ref<Expr> tid0z = binding->evaluate(tos0->read(8, Expr::Int32));
 
   // thread 0
   if (ConstantExpr *bid0x_t = dyn_cast<ConstantExpr>(bid0x)) {
@@ -4765,7 +4765,7 @@ bool Executor::dumpOffsetValue(const ExecutionState &state,
     std::cout << "the thread z: " << tid0z_t->getZExtValue() << std::endl;
   }
 
-  ref<Expr> offsetRef = binding->evaluate(offset); 
+  klee::ref<Expr> offsetRef = binding->evaluate(offset); 
   std::cout << "offset in concrete : " << std::endl;
   offsetRef->dump();
   
@@ -4774,7 +4774,7 @@ bool Executor::dumpOffsetValue(const ExecutionState &state,
 }
 
 bool Executor::getConditionSolution(const ExecutionState &state, 
-                                    ref<Expr> condition, 
+                                    klee::ref<Expr> condition, 
                                     std::vector<
                                     std::pair<std::string,
                                     std::vector<unsigned char> > >
@@ -4809,7 +4809,7 @@ bool Executor::getSymbolicSolution(const ExecutionState &state,
   if (!NoPreferCex) {
     for (unsigned i = 0; i != state.symbolics.size(); ++i) {
       const MemoryObject *mo = state.symbolics[i].first;
-      std::vector< ref<Expr> >::const_iterator pi = 
+      std::vector< klee::ref<Expr> >::const_iterator pi = 
         mo->cexPreferences.begin(), pie = mo->cexPreferences.end();
       for (; pi != pie; ++pi) {
         bool mustBeTrue;
@@ -4849,8 +4849,8 @@ void Executor::getCoveredLines(const ExecutionState &state,
 }
 
 void Executor::doImpliedValueConcretization(ExecutionState &state,
-                                            ref<Expr> e,
-                                            ref<ConstantExpr> value) {
+                                            klee::ref<Expr> e,
+                                            klee::ref<ConstantExpr> value) {
   abort(); // FIXME: Broken until we sort out how to do the write back.
 
   if (DebugCheckForImpliedValues)

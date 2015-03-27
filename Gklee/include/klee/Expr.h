@@ -190,7 +190,7 @@ public:
   virtual Width getWidth() const = 0;
   
   virtual unsigned getNumKids() const = 0;
-  virtual ref<Expr> getKid(unsigned i) const = 0;
+  virtual klee::ref<Expr> getKid(unsigned i) const = 0;
     
   virtual void print(std::ostream &os) const;
 
@@ -215,7 +215,7 @@ public:
 
   // Given an array of new kids return a copy of the expression
   // but using those children. 
-  virtual ref<Expr> rebuild(ref<Expr> kids[/* getNumKids() */]) const = 0;
+  virtual klee::ref<Expr> rebuild(klee::ref<Expr> kids[/* getNumKids() */]) const = 0;
 
   //
 
@@ -241,19 +241,19 @@ public:
   /* Kind utilities */
 
   /* Utility creation functions */
-  static ref<Expr> createSExtToPointerWidth(ref<Expr> e);
-  static ref<Expr> createZExtToPointerWidth(ref<Expr> e);
-  static ref<Expr> createImplies(ref<Expr> hyp, ref<Expr> conc);
-  static ref<Expr> createIsZero(ref<Expr> e);
+  static klee::ref<Expr> createSExtToPointerWidth(klee::ref<Expr> e);
+  static klee::ref<Expr> createZExtToPointerWidth(klee::ref<Expr> e);
+  static klee::ref<Expr> createImplies(klee::ref<Expr> hyp, klee::ref<Expr> conc);
+  static klee::ref<Expr> createIsZero(klee::ref<Expr> e);
 
   /// Create a little endian read of the given type at offset 0 of the
   /// given object.
-  static ref<Expr> createTempRead(const Array *array, Expr::Width w);
+  static klee::ref<Expr> createTempRead(const Array *array, Expr::Width w);
   
-  static ref<ConstantExpr> createPointer(uint64_t v);
+  static klee::ref<ConstantExpr> createPointer(uint64_t v);
 
   struct CreateArg;
-  static ref<Expr> createFromKind(Kind k, std::vector<CreateArg> args);
+  static klee::ref<Expr> createFromKind(Kind k, std::vector<CreateArg> args);
 
   static bool isValidKidWidth(unsigned kid, Width w) { return true; }
   static bool needsResultType() { return false; }
@@ -262,11 +262,11 @@ public:
 };
 
 struct Expr::CreateArg {
-  ref<Expr> expr;
+  klee::ref<Expr> expr;
   Width width;
   
   CreateArg(Width w = Bool) : expr(0), width(w) {}
-  CreateArg(ref<Expr> e) : expr(e), width(Expr::InvalidWidth) {}
+  CreateArg(klee::ref<Expr> e) : expr(e), width(Expr::InvalidWidth) {}
   
   bool isExpr() { return !isWidth(); }
   bool isWidth() { return width != Expr::InvalidWidth; }
@@ -329,7 +329,7 @@ public:
   Kind getKind() const { return Constant; }
 
   unsigned getNumKids() const { return 0; }
-  ref<Expr> getKid(unsigned i) const { return 0; }
+  klee::ref<Expr> getKid(unsigned i) const { return 0; }
 
   /// getAPValue - Return the arbitrary precision value directly.
   ///
@@ -373,31 +373,31 @@ public:
     return value.ult(cb.value) ? -1 : 1;
   }
 
-  virtual ref<Expr> rebuild(ref<Expr> kids[]) const { 
+  virtual klee::ref<Expr> rebuild(klee::ref<Expr> kids[]) const { 
     assert(0 && "rebuild() on ConstantExpr"); 
     return (Expr*) this;
   }
 
   virtual unsigned computeHash();
   
-  static ref<Expr> fromMemory(void *address, Width w);
+  static klee::ref<Expr> fromMemory(void *address, Width w);
   void toMemory(void *address);
 
-  static ref<ConstantExpr> alloc(const llvm::APInt &v) {
-    ref<ConstantExpr> r(new ConstantExpr(v));
+  static klee::ref<ConstantExpr> alloc(const llvm::APInt &v) {
+    klee::ref<ConstantExpr> r(new ConstantExpr(v));
     r->computeHash();
     return r;
   }
 
-  static ref<ConstantExpr> alloc(const llvm::APFloat &f) {
+  static klee::ref<ConstantExpr> alloc(const llvm::APFloat &f) {
     return alloc(f.bitcastToAPInt());
   }
 
-  static ref<ConstantExpr> alloc(uint64_t v, Width w) {
+  static klee::ref<ConstantExpr> alloc(uint64_t v, Width w) {
     return alloc(llvm::APInt(w, v));
   }
   
-  static ref<ConstantExpr> create(uint64_t v, Width w) {
+  static klee::ref<ConstantExpr> create(uint64_t v, Width w) {
     assert(v == bits64::truncateToNBits(v, w) &&
            "invalid constant");
     return alloc(v, w);
@@ -431,39 +431,39 @@ public:
 
   /* Constant Operations */
 
-  ref<ConstantExpr> Concat(const ref<ConstantExpr> &RHS);
-  ref<ConstantExpr> Extract(unsigned offset, Width W);
-  ref<ConstantExpr> ZExt(Width W);
-  ref<ConstantExpr> SExt(Width W);
-  ref<ConstantExpr> Add(const ref<ConstantExpr> &RHS);
-  ref<ConstantExpr> Sub(const ref<ConstantExpr> &RHS);
-  ref<ConstantExpr> Mul(const ref<ConstantExpr> &RHS);
-  ref<ConstantExpr> UDiv(const ref<ConstantExpr> &RHS);
-  ref<ConstantExpr> SDiv(const ref<ConstantExpr> &RHS);
-  ref<ConstantExpr> URem(const ref<ConstantExpr> &RHS);
-  ref<ConstantExpr> SRem(const ref<ConstantExpr> &RHS);
-  ref<ConstantExpr> And(const ref<ConstantExpr> &RHS);
-  ref<ConstantExpr> Or(const ref<ConstantExpr> &RHS);
-  ref<ConstantExpr> Xor(const ref<ConstantExpr> &RHS);
-  ref<ConstantExpr> Shl(const ref<ConstantExpr> &RHS);
-  ref<ConstantExpr> LShr(const ref<ConstantExpr> &RHS);
-  ref<ConstantExpr> AShr(const ref<ConstantExpr> &RHS);
+  klee::ref<ConstantExpr> Concat(const klee::ref<ConstantExpr> &RHS);
+  klee::ref<ConstantExpr> Extract(unsigned offset, Width W);
+  klee::ref<ConstantExpr> ZExt(Width W);
+  klee::ref<ConstantExpr> SExt(Width W);
+  klee::ref<ConstantExpr> Add(const klee::ref<ConstantExpr> &RHS);
+  klee::ref<ConstantExpr> Sub(const klee::ref<ConstantExpr> &RHS);
+  klee::ref<ConstantExpr> Mul(const klee::ref<ConstantExpr> &RHS);
+  klee::ref<ConstantExpr> UDiv(const klee::ref<ConstantExpr> &RHS);
+  klee::ref<ConstantExpr> SDiv(const klee::ref<ConstantExpr> &RHS);
+  klee::ref<ConstantExpr> URem(const klee::ref<ConstantExpr> &RHS);
+  klee::ref<ConstantExpr> SRem(const klee::ref<ConstantExpr> &RHS);
+  klee::ref<ConstantExpr> And(const klee::ref<ConstantExpr> &RHS);
+  klee::ref<ConstantExpr> Or(const klee::ref<ConstantExpr> &RHS);
+  klee::ref<ConstantExpr> Xor(const klee::ref<ConstantExpr> &RHS);
+  klee::ref<ConstantExpr> Shl(const klee::ref<ConstantExpr> &RHS);
+  klee::ref<ConstantExpr> LShr(const klee::ref<ConstantExpr> &RHS);
+  klee::ref<ConstantExpr> AShr(const klee::ref<ConstantExpr> &RHS);
 
   // Comparisons return a constant expression of width 1.
 
-  ref<ConstantExpr> Eq(const ref<ConstantExpr> &RHS);
-  ref<ConstantExpr> Ne(const ref<ConstantExpr> &RHS);
-  ref<ConstantExpr> Ult(const ref<ConstantExpr> &RHS);
-  ref<ConstantExpr> Ule(const ref<ConstantExpr> &RHS);
-  ref<ConstantExpr> Ugt(const ref<ConstantExpr> &RHS);
-  ref<ConstantExpr> Uge(const ref<ConstantExpr> &RHS);
-  ref<ConstantExpr> Slt(const ref<ConstantExpr> &RHS);
-  ref<ConstantExpr> Sle(const ref<ConstantExpr> &RHS);
-  ref<ConstantExpr> Sgt(const ref<ConstantExpr> &RHS);
-  ref<ConstantExpr> Sge(const ref<ConstantExpr> &RHS);
+  klee::ref<ConstantExpr> Eq(const klee::ref<ConstantExpr> &RHS);
+  klee::ref<ConstantExpr> Ne(const klee::ref<ConstantExpr> &RHS);
+  klee::ref<ConstantExpr> Ult(const klee::ref<ConstantExpr> &RHS);
+  klee::ref<ConstantExpr> Ule(const klee::ref<ConstantExpr> &RHS);
+  klee::ref<ConstantExpr> Ugt(const klee::ref<ConstantExpr> &RHS);
+  klee::ref<ConstantExpr> Uge(const klee::ref<ConstantExpr> &RHS);
+  klee::ref<ConstantExpr> Slt(const klee::ref<ConstantExpr> &RHS);
+  klee::ref<ConstantExpr> Sle(const klee::ref<ConstantExpr> &RHS);
+  klee::ref<ConstantExpr> Sgt(const klee::ref<ConstantExpr> &RHS);
+  klee::ref<ConstantExpr> Sge(const klee::ref<ConstantExpr> &RHS);
 
-  ref<ConstantExpr> Neg();
-  ref<ConstantExpr> Not();
+  klee::ref<ConstantExpr> Neg();
+  klee::ref<ConstantExpr> Not();
 };
 
   
@@ -479,11 +479,11 @@ public:
 
 class BinaryExpr : public NonConstantExpr {
 public:
-  ref<Expr> left, right;
+  klee::ref<Expr> left, right;
 
 public:
   unsigned getNumKids() const { return 2; }
-  ref<Expr> getKid(unsigned i) const { 
+  klee::ref<Expr> getKid(unsigned i) const { 
     if(i == 0)
       return left;
     if(i == 1)
@@ -492,7 +492,7 @@ public:
   }
  
 protected:
-  BinaryExpr(const ref<Expr> &l, const ref<Expr> &r) : left(l), right(r) {}
+  BinaryExpr(const klee::ref<Expr> &l, const klee::ref<Expr> &r) : left(l), right(r) {}
 
 public:
   static bool classof(const Expr *E) {
@@ -506,7 +506,7 @@ public:
 class CmpExpr : public BinaryExpr {
 
 protected:
-  CmpExpr(ref<Expr> l, ref<Expr> r) : BinaryExpr(l,r) {}
+  CmpExpr(klee::ref<Expr> l, klee::ref<Expr> r) : BinaryExpr(l,r) {}
   
 public:                                                       
   Width getWidth() const { return Bool; }
@@ -524,26 +524,26 @@ class NotOptimizedExpr : public NonConstantExpr {
 public:
   static const Kind kind = NotOptimized;
   static const unsigned numKids = 1;
-  ref<Expr> src;
+  klee::ref<Expr> src;
 
-  static ref<Expr> alloc(const ref<Expr> &src) {
-    ref<Expr> r(new NotOptimizedExpr(src));
+  static klee::ref<Expr> alloc(const klee::ref<Expr> &src) {
+    klee::ref<Expr> r(new NotOptimizedExpr(src));
     r->computeHash();
     return r;
   }
   
-  static ref<Expr> create(ref<Expr> src);
+  static klee::ref<Expr> create(klee::ref<Expr> src);
   
   Width getWidth() const { return src->getWidth(); }
   Kind getKind() const { return NotOptimized; }
 
   unsigned getNumKids() const { return 1; }
-  ref<Expr> getKid(unsigned i) const { return src; }
+  klee::ref<Expr> getKid(unsigned i) const { return src; }
 
-  virtual ref<Expr> rebuild(ref<Expr> kids[]) const { return create(kids[0]); }
+  virtual klee::ref<Expr> rebuild(klee::ref<Expr> kids[]) const { return create(kids[0]); }
 
 private:
-  NotOptimizedExpr(const ref<Expr> &_src) : src(_src) {}
+  NotOptimizedExpr(const klee::ref<Expr> &_src) : src(_src) {}
 
 public:
   static bool classof(const Expr *E) {
@@ -563,7 +563,7 @@ class UpdateNode {
 
 public:
   const UpdateNode *next;
-  ref<Expr> index, value;
+  klee::ref<Expr> index, value;
   
 private:
   /// size of this update sequence, including this update
@@ -571,8 +571,8 @@ private:
   
 public:
   UpdateNode(const UpdateNode *_next, 
-             const ref<Expr> &_index, 
-             const ref<Expr> &_value);
+             const klee::ref<Expr> &_index, 
+             const klee::ref<Expr> &_value);
 
   unsigned getSize() const { return size; }
 
@@ -595,7 +595,7 @@ public:
   /// constantValues - The constant initial values for this array, or empty for
   /// a symbolic array. If non-empty, this size of this array is equivalent to
   /// the array size.
-  const std::vector< ref<ConstantExpr> > constantValues;
+  const std::vector< klee::ref<ConstantExpr> > constantValues;
   
 public:
   /// Array - Construct a new array object.
@@ -606,15 +606,15 @@ public:
   /// not parse correctly since two arrays with the same name cannot be
   /// distinguished once printed.
   Array(const std::string &_name, uint64_t _size, 
-        const ref<ConstantExpr> *constantValuesBegin = 0,
-        const ref<ConstantExpr> *constantValuesEnd = 0)
+        const klee::ref<ConstantExpr> *constantValuesBegin = 0,
+        const klee::ref<ConstantExpr> *constantValuesEnd = 0)
     : name(_name), size(_size), 
       constantValues(constantValuesBegin, constantValuesEnd) {      
     assert((isSymbolicArray() || constantValues.size() == size) &&
            "Invalid size for constant array!");
     computeHash();
 #ifndef NDEBUG
-    for (const ref<ConstantExpr> *it = constantValuesBegin;
+    for (const klee::ref<ConstantExpr> *it = constantValuesBegin;
          it != constantValuesEnd; ++it)
       assert((*it)->getWidth() == getRange() &&
              "Invalid initial constant value!");
@@ -655,7 +655,7 @@ public:
   /// size of this update list
   unsigned getSize() const { return (head ? head->getSize() : 0); }
   
-  void extend(const ref<Expr> &index, const ref<Expr> &value);
+  void extend(const klee::ref<Expr> &index, const klee::ref<Expr> &value);
 
   int compare(const UpdateList &b) const;
   unsigned hash() const;
@@ -669,33 +669,33 @@ public:
   
 public:
   UpdateList updates;
-  ref<Expr> index;
+  klee::ref<Expr> index;
 
 public:
-  static ref<Expr> alloc(const UpdateList &updates, const ref<Expr> &index) {
-    ref<Expr> r(new ReadExpr(updates, index));
+  static klee::ref<Expr> alloc(const UpdateList &updates, const klee::ref<Expr> &index) {
+    klee::ref<Expr> r(new ReadExpr(updates, index));
     r->computeHash();
     return r;
   }
   
-  static ref<Expr> create(const UpdateList &updates, ref<Expr> i);
+  static klee::ref<Expr> create(const UpdateList &updates, klee::ref<Expr> i);
   
   Width getWidth() const { return Expr::Int8; }
   Kind getKind() const { return Read; }
   
   unsigned getNumKids() const { return numKids; }
-  ref<Expr> getKid(unsigned i) const { return !i ? index : 0; }  
+  klee::ref<Expr> getKid(unsigned i) const { return !i ? index : 0; }  
   
   int compareContents(const Expr &b) const;
 
-  virtual ref<Expr> rebuild(ref<Expr> kids[]) const { 
+  virtual klee::ref<Expr> rebuild(klee::ref<Expr> kids[]) const { 
     return create(updates, kids[0]);
   }
 
   virtual unsigned computeHash();
 
 private:
-  ReadExpr(const UpdateList &_updates, const ref<Expr> &_index) : 
+  ReadExpr(const UpdateList &_updates, const klee::ref<Expr> &_index) : 
     updates(_updates), index(_index) {}
 
 public:
@@ -713,23 +713,23 @@ public:
   static const unsigned numKids = 3;
   
 public:
-  ref<Expr> cond, trueExpr, falseExpr;
+  klee::ref<Expr> cond, trueExpr, falseExpr;
 
 public:
-  static ref<Expr> alloc(const ref<Expr> &c, const ref<Expr> &t, 
-                         const ref<Expr> &f) {
-    ref<Expr> r(new SelectExpr(c, t, f));
+  static klee::ref<Expr> alloc(const klee::ref<Expr> &c, const klee::ref<Expr> &t, 
+                         const klee::ref<Expr> &f) {
+    klee::ref<Expr> r(new SelectExpr(c, t, f));
     r->computeHash();
     return r;
   }
   
-  static ref<Expr> create(ref<Expr> c, ref<Expr> t, ref<Expr> f);
+  static klee::ref<Expr> create(klee::ref<Expr> c, klee::ref<Expr> t, klee::ref<Expr> f);
 
   Width getWidth() const { return trueExpr->getWidth(); }
   Kind getKind() const { return Select; }
 
   unsigned getNumKids() const { return numKids; }
-  ref<Expr> getKid(unsigned i) const { 
+  klee::ref<Expr> getKid(unsigned i) const { 
         switch(i) {
         case 0: return cond;
         case 1: return trueExpr;
@@ -745,12 +745,12 @@ public:
       return true;
   }
     
-  virtual ref<Expr> rebuild(ref<Expr> kids[]) const { 
+  virtual klee::ref<Expr> rebuild(klee::ref<Expr> kids[]) const { 
     return create(kids[0], kids[1], kids[2]);
   }
 
 private:
-  SelectExpr(const ref<Expr> &c, const ref<Expr> &t, const ref<Expr> &f) 
+  SelectExpr(const klee::ref<Expr> &c, const klee::ref<Expr> &t, const klee::ref<Expr> &f) 
     : cond(c), trueExpr(t), falseExpr(f) {}
 
 public:
@@ -771,42 +771,42 @@ public:
 
 private:
   Width width;
-  ref<Expr> left, right;  
+  klee::ref<Expr> left, right;  
 
 public:
-  static ref<Expr> alloc(const ref<Expr> &l, const ref<Expr> &r) {
-    ref<Expr> c(new ConcatExpr(l, r));
+  static klee::ref<Expr> alloc(const klee::ref<Expr> &l, const klee::ref<Expr> &r) {
+    klee::ref<Expr> c(new ConcatExpr(l, r));
     c->computeHash();
     return c;
   }
   
-  static ref<Expr> create(const ref<Expr> &l, const ref<Expr> &r);
+  static klee::ref<Expr> create(const klee::ref<Expr> &l, const klee::ref<Expr> &r);
 
   Width getWidth() const { return width; }
   Kind getKind() const { return kind; }
-  ref<Expr> getLeft() const { return left; }
-  ref<Expr> getRight() const { return right; }
+  klee::ref<Expr> getLeft() const { return left; }
+  klee::ref<Expr> getRight() const { return right; }
 
   unsigned getNumKids() const { return numKids; }
-  ref<Expr> getKid(unsigned i) const { 
+  klee::ref<Expr> getKid(unsigned i) const { 
     if (i == 0) return left; 
     else if (i == 1) return right;
     else return NULL;
   }
 
   /// Shortcuts to create larger concats.  The chain returned is unbalanced to the right
-  static ref<Expr> createN(unsigned nKids, const ref<Expr> kids[]);
-  static ref<Expr> create4(const ref<Expr> &kid1, const ref<Expr> &kid2,
-			   const ref<Expr> &kid3, const ref<Expr> &kid4);
-  static ref<Expr> create8(const ref<Expr> &kid1, const ref<Expr> &kid2,
-			   const ref<Expr> &kid3, const ref<Expr> &kid4,
-			   const ref<Expr> &kid5, const ref<Expr> &kid6,
-			   const ref<Expr> &kid7, const ref<Expr> &kid8);
+  static klee::ref<Expr> createN(unsigned nKids, const klee::ref<Expr> kids[]);
+  static klee::ref<Expr> create4(const klee::ref<Expr> &kid1, const klee::ref<Expr> &kid2,
+			   const klee::ref<Expr> &kid3, const klee::ref<Expr> &kid4);
+  static klee::ref<Expr> create8(const klee::ref<Expr> &kid1, const klee::ref<Expr> &kid2,
+			   const klee::ref<Expr> &kid3, const klee::ref<Expr> &kid4,
+			   const klee::ref<Expr> &kid5, const klee::ref<Expr> &kid6,
+			   const klee::ref<Expr> &kid7, const klee::ref<Expr> &kid8);
   
-  virtual ref<Expr> rebuild(ref<Expr> kids[]) const { return create(kids[0], kids[1]); }
+  virtual klee::ref<Expr> rebuild(klee::ref<Expr> kids[]) const { return create(kids[0], kids[1]); }
   
 private:
-  ConcatExpr(const ref<Expr> &l, const ref<Expr> &r) : left(l), right(r) {
+  ConcatExpr(const klee::ref<Expr> &l, const klee::ref<Expr> &r) : left(l), right(r) {
     width = l->getWidth() + r->getWidth();
   }
 
@@ -828,25 +828,25 @@ public:
   static const unsigned numKids = 1;
   
 public:
-  ref<Expr> expr;
+  klee::ref<Expr> expr;
   unsigned offset;
   Width width;
 
 public:  
-  static ref<Expr> alloc(const ref<Expr> &e, unsigned o, Width w) {
-    ref<Expr> r(new ExtractExpr(e, o, w));
+  static klee::ref<Expr> alloc(const klee::ref<Expr> &e, unsigned o, Width w) {
+    klee::ref<Expr> r(new ExtractExpr(e, o, w));
     r->computeHash();
     return r;
   }
   
   /// Creates an ExtractExpr with the given bit offset and width
-  static ref<Expr> create(ref<Expr> e, unsigned bitOff, Width w);
+  static klee::ref<Expr> create(klee::ref<Expr> e, unsigned bitOff, Width w);
 
   Width getWidth() const { return width; }
   Kind getKind() const { return Extract; }
 
   unsigned getNumKids() const { return numKids; }
-  ref<Expr> getKid(unsigned i) const { return expr; }
+  klee::ref<Expr> getKid(unsigned i) const { return expr; }
 
   int compareContents(const Expr &b) const {
     const ExtractExpr &eb = static_cast<const ExtractExpr&>(b);
@@ -855,14 +855,14 @@ public:
     return 0;
   }
 
-  virtual ref<Expr> rebuild(ref<Expr> kids[]) const { 
+  virtual klee::ref<Expr> rebuild(klee::ref<Expr> kids[]) const { 
     return create(kids[0], offset, width);
   }
 
   virtual unsigned computeHash();
 
 private:
-  ExtractExpr(const ref<Expr> &e, unsigned b, Width w) 
+  ExtractExpr(const klee::ref<Expr> &e, unsigned b, Width w) 
     : expr(e),offset(b),width(w) {}
 
 public:
@@ -881,22 +881,22 @@ public:
   static const Kind kind = Not;
   static const unsigned numKids = 1;
   
-  ref<Expr> expr;
+  klee::ref<Expr> expr;
 
 public:  
-  static ref<Expr> alloc(const ref<Expr> &e) {
-    ref<Expr> r(new NotExpr(e));
+  static klee::ref<Expr> alloc(const klee::ref<Expr> &e) {
+    klee::ref<Expr> r(new NotExpr(e));
     r->computeHash();
     return r;
   }
   
-  static ref<Expr> create(const ref<Expr> &e);
+  static klee::ref<Expr> create(const klee::ref<Expr> &e);
 
   Width getWidth() const { return expr->getWidth(); }
   Kind getKind() const { return Not; }
 
   unsigned getNumKids() const { return numKids; }
-  ref<Expr> getKid(unsigned i) const { return expr; }
+  klee::ref<Expr> getKid(unsigned i) const { return expr; }
 
   int compareContents(const Expr &b) const {
     const NotExpr &eb = static_cast<const NotExpr&>(b);
@@ -904,7 +904,7 @@ public:
     return 0;
   }
 
-  virtual ref<Expr> rebuild(ref<Expr> kids[]) const { 
+  virtual klee::ref<Expr> rebuild(klee::ref<Expr> kids[]) const { 
     return create(kids[0]);
   }
 
@@ -917,7 +917,7 @@ public:
   static bool classof(const NotExpr *) { return true; }
 
 private:
-  NotExpr(const ref<Expr> &e) : expr(e) {}
+  NotExpr(const klee::ref<Expr> &e) : expr(e) {}
 };
 
 
@@ -926,16 +926,16 @@ private:
 
 class CastExpr : public NonConstantExpr {
 public:
-  ref<Expr> src;
+  klee::ref<Expr> src;
   Width width;
 
 public:
-  CastExpr(const ref<Expr> &e, Width w) : src(e), width(w) {}
+  CastExpr(const klee::ref<Expr> &e, Width w) : src(e), width(w) {}
 
   Width getWidth() const { return width; }
 
   unsigned getNumKids() const { return 1; }
-  ref<Expr> getKid(unsigned i) const { return (i==0) ? src : 0; }
+  klee::ref<Expr> getKid(unsigned i) const { return (i==0) ? src : 0; }
   
   static bool needsResultType() { return true; }
   
@@ -960,15 +960,15 @@ public:                                                          \
   static const Kind kind = _class_kind;                          \
   static const unsigned numKids = 1;                             \
 public:                                                          \
-    _class_kind ## Expr(ref<Expr> e, Width w) : CastExpr(e,w) {} \
-    static ref<Expr> alloc(const ref<Expr> &e, Width w) {        \
-      ref<Expr> r(new _class_kind ## Expr(e, w));                \
+    _class_kind ## Expr(klee::ref<Expr> e, Width w) : CastExpr(e,w) {} \
+    static klee::ref<Expr> alloc(const klee::ref<Expr> &e, Width w) {        \
+      klee::ref<Expr> r(new _class_kind ## Expr(e, w));                \
       r->computeHash();                                          \
       return r;                                                  \
     }                                                            \
-    static ref<Expr> create(const ref<Expr> &e, Width w);        \
+    static klee::ref<Expr> create(const klee::ref<Expr> &e, Width w);        \
     Kind getKind() const { return _class_kind; }                 \
-    virtual ref<Expr> rebuild(ref<Expr> kids[]) const {          \
+    virtual klee::ref<Expr> rebuild(klee::ref<Expr> kids[]) const {          \
       return create(kids[0], width);                             \
     }                                                            \
                                                                  \
@@ -991,17 +991,17 @@ public:                                                              \
   static const Kind kind = _class_kind;                              \
   static const unsigned numKids = 2;                                 \
 public:                                                              \
-    _class_kind ## Expr(const ref<Expr> &l,                          \
-                        const ref<Expr> &r) : BinaryExpr(l,r) {}     \
-    static ref<Expr> alloc(const ref<Expr> &l, const ref<Expr> &r) { \
-      ref<Expr> res(new _class_kind ## Expr (l, r));                 \
+    _class_kind ## Expr(const klee::ref<Expr> &l,                          \
+                        const klee::ref<Expr> &r) : BinaryExpr(l,r) {}     \
+    static klee::ref<Expr> alloc(const klee::ref<Expr> &l, const klee::ref<Expr> &r) { \
+      klee::ref<Expr> res(new _class_kind ## Expr (l, r));                 \
       res->computeHash();                                            \
       return res;                                                    \
     }                                                                \
-    static ref<Expr> create(const ref<Expr> &l, const ref<Expr> &r); \
+    static klee::ref<Expr> create(const klee::ref<Expr> &l, const klee::ref<Expr> &r); \
     Width getWidth() const { return left->getWidth(); }              \
     Kind getKind() const { return _class_kind; }                     \
-    virtual ref<Expr> rebuild(ref<Expr> kids[]) const {              \
+    virtual klee::ref<Expr> rebuild(klee::ref<Expr> kids[]) const {              \
       return create(kids[0], kids[1]);                               \
     }                                                                \
                                                                      \
@@ -1035,16 +1035,16 @@ public:                                                              \
   static const Kind kind = _class_kind;                              \
   static const unsigned numKids = 2;                                 \
 public:                                                              \
-    _class_kind ## Expr(const ref<Expr> &l,                          \
-                        const ref<Expr> &r) : CmpExpr(l,r) {}        \
-    static ref<Expr> alloc(const ref<Expr> &l, const ref<Expr> &r) { \
-      ref<Expr> res(new _class_kind ## Expr (l, r));                 \
+    _class_kind ## Expr(const klee::ref<Expr> &l,                          \
+                        const klee::ref<Expr> &r) : CmpExpr(l,r) {}        \
+    static klee::ref<Expr> alloc(const klee::ref<Expr> &l, const klee::ref<Expr> &r) { \
+      klee::ref<Expr> res(new _class_kind ## Expr (l, r));                 \
       res->computeHash();                                            \
       return res;                                                    \
     }                                                                \
-    static ref<Expr> create(const ref<Expr> &l, const ref<Expr> &r); \
+    static klee::ref<Expr> create(const klee::ref<Expr> &l, const klee::ref<Expr> &r); \
     Kind getKind() const { return _class_kind; }                     \
-    virtual ref<Expr> rebuild(ref<Expr> kids[]) const {              \
+    virtual klee::ref<Expr> rebuild(klee::ref<Expr> kids[]) const {              \
       return create(kids[0], kids[1]);                               \
     }                                                                \
                                                                      \

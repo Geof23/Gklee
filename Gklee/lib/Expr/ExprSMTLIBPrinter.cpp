@@ -103,7 +103,7 @@ namespace klee
 		return true;
 	}
 
-	void ExprSMTLIBPrinter::printConstant(const ref<ConstantExpr>& e)
+	void ExprSMTLIBPrinter::printConstant(const klee::ref<ConstantExpr>& e)
 	{
 		/* Handle simple boolean constants */
 
@@ -165,7 +165,7 @@ namespace klee
 		}
 	}
 
-	void ExprSMTLIBPrinter::printExpression(const ref<Expr>& e, ExprSMTLIBPrinter::SMTLIB_SORT expectedSort)
+	void ExprSMTLIBPrinter::printExpression(const klee::ref<Expr>& e, ExprSMTLIBPrinter::SMTLIB_SORT expectedSort)
 	{
 		//check if casting might be necessary
 		if(getSort(e) != expectedSort)
@@ -239,7 +239,7 @@ namespace klee
 		}
 	}
 
-	void ExprSMTLIBPrinter::printReadExpr(const ref<ReadExpr>& e)
+	void ExprSMTLIBPrinter::printReadExpr(const klee::ref<ReadExpr>& e)
 	{
 		*p << "(" << getSMTLIBKeyword(e) << " ";
 		p->pushIndent();
@@ -258,7 +258,7 @@ namespace klee
 		*p << ")";
 	}
 
-	void ExprSMTLIBPrinter::printExtractExpr(const ref<ExtractExpr>& e)
+	void ExprSMTLIBPrinter::printExtractExpr(const klee::ref<ExtractExpr>& e)
 	{
 		unsigned int lowIndex= e->offset;
 		unsigned int highIndex= lowIndex + e->width -1;
@@ -276,7 +276,7 @@ namespace klee
 		*p << ")";
 	}
 
-	void ExprSMTLIBPrinter::printCastExpr(const ref<CastExpr>& e)
+	void ExprSMTLIBPrinter::printCastExpr(const klee::ref<CastExpr>& e)
 	{
 		/* sign_extend and zero_extend behave slightly unusually in SMTLIBv2
 		 * instead of specifying of what bit-width we would like to extend to
@@ -309,7 +309,7 @@ namespace klee
 		*p << ")";
 	}
 
-	void ExprSMTLIBPrinter::printNotEqualExpr(const ref<NeExpr>& e)
+	void ExprSMTLIBPrinter::printNotEqualExpr(const klee::ref<NeExpr>& e)
 	{
 		*p << "(not (";
 		p->pushIndent();
@@ -336,7 +336,7 @@ namespace klee
 	}
 
 
-	const char* ExprSMTLIBPrinter::getSMTLIBKeyword(const ref<Expr>& e)
+	const char* ExprSMTLIBPrinter::getSMTLIBKeyword(const klee::ref<Expr>& e)
 	{
 
 		switch(e->getKind())
@@ -490,7 +490,7 @@ namespace klee
 					/*loop over elements in the array and generate an assert statement
 					  for each one
 					 */
-					for(vector< ref<ConstantExpr> >::const_iterator ce= array->constantValues.begin();
+					for(vector< klee::ref<ConstantExpr> >::const_iterator ce= array->constantValues.begin();
 							ce != array->constantValues.end(); ce++, byteIndex++)
 					{
 						*p << "(assert (";
@@ -570,7 +570,7 @@ namespace klee
 		}
 	}
 
-	void ExprSMTLIBPrinter::scan(const ref<Expr>& e)
+	void ExprSMTLIBPrinter::scan(const klee::ref<Expr>& e)
 	{
 		if(e.isNull())
 		{
@@ -681,7 +681,7 @@ namespace klee
 		p->breakLineI();
 	}
 
-	ExprSMTLIBPrinter::SMTLIB_SORT ExprSMTLIBPrinter::getSort(const ref<Expr>& e)
+	ExprSMTLIBPrinter::SMTLIB_SORT ExprSMTLIBPrinter::getSort(const klee::ref<Expr>& e)
 	{
 		/* We could handle every operator in a large switch statement,
 		 * but this seems more elegant.
@@ -700,7 +700,7 @@ namespace klee
 			return (e->getWidth() == Expr::Bool)?(SORT_BOOL):(SORT_BITVECTOR);
 	}
 
-	void ExprSMTLIBPrinter::printCastToSort(const ref<Expr>& e, ExprSMTLIBPrinter::SMTLIB_SORT sort)
+	void ExprSMTLIBPrinter::printCastToSort(const klee::ref<Expr>& e, ExprSMTLIBPrinter::SMTLIB_SORT sort)
 	{
 		switch(sort)
 		{
@@ -744,7 +744,7 @@ namespace klee
 		}
 	}
 
-	void ExprSMTLIBPrinter::printSelectExpr(const ref<SelectExpr>& e, ExprSMTLIBPrinter::SMTLIB_SORT s)
+	void ExprSMTLIBPrinter::printSelectExpr(const klee::ref<SelectExpr>& e, ExprSMTLIBPrinter::SMTLIB_SORT s)
 	{
 		//This is the if-then-else expression
 
@@ -773,7 +773,7 @@ namespace klee
 		*p << ")";
 	}
 
-	void ExprSMTLIBPrinter::printSortArgsExpr(const ref<Expr>& e, ExprSMTLIBPrinter::SMTLIB_SORT s)
+	void ExprSMTLIBPrinter::printSortArgsExpr(const klee::ref<Expr>& e, ExprSMTLIBPrinter::SMTLIB_SORT s)
 	{
 		*p << "(" << getSMTLIBKeyword(e) << " ";
 		p->pushIndent(); //add indent for recursive call
@@ -790,7 +790,7 @@ namespace klee
 		*p << ")";
 	}
 
-	void ExprSMTLIBPrinter::printLogicalOrBitVectorExpr(const ref<Expr>& e, ExprSMTLIBPrinter::SMTLIB_SORT s)
+	void ExprSMTLIBPrinter::printLogicalOrBitVectorExpr(const klee::ref<Expr>& e, ExprSMTLIBPrinter::SMTLIB_SORT s)
 	{
 		/* For these operators it is the case that the expected sort is the same as the sorts
 		 * of the arguments.

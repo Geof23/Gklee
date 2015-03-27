@@ -29,7 +29,7 @@ namespace klee {
   public:
     typedef void (SpecialFunctionHandler::*Handler)(ExecutionState &state,
                                                     KInstruction *target, 
-                                                    std::vector<ref<Expr> > 
+                                                    std::vector<klee::ref<Expr> > 
                                                       &arguments);
     typedef std::map<const llvm::Function*, 
                      std::pair<Handler,bool> > handlers_ty;
@@ -53,20 +53,20 @@ namespace klee {
     bool handle(ExecutionState &state, 
                 llvm::Function *f,
                 KInstruction *target,
-                std::vector< ref<Expr> > &arguments);
+                std::vector< klee::ref<Expr> > &arguments);
 
     /* Convenience routines */
 
-    std::string readStringAtAddress(ExecutionState &state, ref<Expr> address);
+    std::string readStringAtAddress(ExecutionState &state, klee::ref<Expr> address);
     
     /* Handlers */
 
     void encounterBarrier(ExecutionState &state, KInstruction *target,
-			  std::vector<ref<Expr> > &arguments, bool check_barrier = false);
+			  std::vector<klee::ref<Expr> > &arguments, bool check_barrier = false);
 
 #define HANDLER(name) void name(ExecutionState &state, \
                                 KInstruction *target, \
-                                std::vector< ref<Expr> > &arguments)
+                                std::vector< klee::ref<Expr> > &arguments)
     HANDLER(handleAbort);
     HANDLER(handleAssert);
     HANDLER(handleAssertFail);

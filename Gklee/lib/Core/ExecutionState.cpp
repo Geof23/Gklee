@@ -109,7 +109,7 @@ ExecutionState::ExecutionState(KFunction *kf)
   pushAllFrames(0, kf);
 }
 
-ExecutionState::ExecutionState(const std::vector<ref<Expr> > &assumptions) 
+ExecutionState::ExecutionState(const std::vector<klee::ref<Expr> > &assumptions) 
   : deviceSet(0),
     fakeState(true),
     fence(""),
@@ -223,7 +223,7 @@ void ExecutionState::setCorrespondTidSets() {
         constructMemoryAccessSets(addressSpace, false);
       }
     }
-    ref<Expr> expr = ConstantExpr::create(1, Expr::Bool);
+    klee::ref<Expr> expr = ConstantExpr::create(1, Expr::Bool);
     cTidSets.push_back(CorrespondTid(curBid, rTid, warpNum, 
                                      false, false, false, expr));
   }
@@ -352,10 +352,10 @@ bool ExecutionState::merge(const ExecutionState &b) {
       return false;
   }
 
-  std::set< ref<Expr> > aConstraints(constraints.begin(), constraints.end());
-  std::set< ref<Expr> > bConstraints(b.constraints.begin(), 
+  std::set< klee::ref<Expr> > aConstraints(constraints.begin(), constraints.end());
+  std::set< klee::ref<Expr> > bConstraints(b.constraints.begin(), 
                                      b.constraints.end());
-  std::set< ref<Expr> > commonConstraints, aSuffix, bSuffix;
+  std::set< klee::ref<Expr> > commonConstraints, aSuffix, bSuffix;
   std::set_intersection(aConstraints.begin(), aConstraints.end(),
                         bConstraints.begin(), bConstraints.end(),
                         std::inserter(commonConstraints, commonConstraints.begin()));
@@ -367,17 +367,17 @@ bool ExecutionState::merge(const ExecutionState &b) {
                       std::inserter(bSuffix, bSuffix.end()));
   if (DebugLogStateMerge) {
     std::cerr << "\tconstraint prefix: [";
-    for (std::set< ref<Expr> >::iterator it = commonConstraints.begin(), 
+    for (std::set< klee::ref<Expr> >::iterator it = commonConstraints.begin(), 
            ie = commonConstraints.end(); it != ie; ++it)
       std::cerr << *it << ", ";
     std::cerr << "]\n";
     std::cerr << "\tA suffix: [";
-    for (std::set< ref<Expr> >::iterator it = aSuffix.begin(), 
+    for (std::set< klee::ref<Expr> >::iterator it = aSuffix.begin(), 
            ie = aSuffix.end(); it != ie; ++it)
       std::cerr << *it << ", ";
     std::cerr << "]\n";
     std::cerr << "\tB suffix: [";
-    for (std::set< ref<Expr> >::iterator it = bSuffix.begin(), 
+    for (std::set< klee::ref<Expr> >::iterator it = bSuffix.begin(), 
            ie = bSuffix.end(); it != ie; ++it)
       std::cerr << *it << ", ";
     std::cerr << "]\n";
@@ -428,12 +428,12 @@ bool ExecutionState::merge(const ExecutionState &b) {
   
   // // merge stack
 
-  ref<Expr> inA = ConstantExpr::alloc(1, Expr::Bool);
-  ref<Expr> inB = ConstantExpr::alloc(1, Expr::Bool);
-  for (std::set< ref<Expr> >::iterator it = aSuffix.begin(), 
+  klee::ref<Expr> inA = ConstantExpr::alloc(1, Expr::Bool);
+  klee::ref<Expr> inB = ConstantExpr::alloc(1, Expr::Bool);
+  for (std::set< klee::ref<Expr> >::iterator it = aSuffix.begin(), 
          ie = aSuffix.end(); it != ie; ++it)
     inA = AndExpr::create(inA, *it);
-  for (std::set< ref<Expr> >::iterator it = bSuffix.begin(), 
+  for (std::set< klee::ref<Expr> >::iterator it = bSuffix.begin(), 
          ie = bSuffix.end(); it != ie; ++it)
     inB = AndExpr::create(inB, *it);
 
@@ -447,8 +447,8 @@ bool ExecutionState::merge(const ExecutionState &b) {
     StackFrame &af = *itA;
     const StackFrame &bf = *itB;
     for (unsigned i=0; i<af.kf->numRegisters; i++) {
-      ref<Expr> &av = af.locals[i].value;
-      const ref<Expr> &bv = bf.locals[i].value;
+      klee::ref<Expr> &av = af.locals[i].value;
+      const klee::ref<Expr> &bv = bf.locals[i].value;
       if (av.isNull() || bv.isNull()) {
         // if one is null then by implication (we are at same pc)
         // we cannot reuse this local, so just ignore
@@ -469,14 +469,14 @@ bool ExecutionState::merge(const ExecutionState &b) {
 
     ObjectState *wos = addressSpace.getWriteable(mo, os);
     for (unsigned i=0; i<mo->size; i++) {
-      ref<Expr> av = wos->read8(i);
-      ref<Expr> bv = otherOS->read8(i);
+      klee::ref<Expr> av = wos->read8(i);
+      klee::ref<Expr> bv = otherOS->read8(i);
       wos->write(i, SelectExpr::create(inA, av, bv));
     }
   }
 
   constraints = ConstraintManager();
-  for (std::set< ref<Expr> >::iterator it = commonConstraints.begin(), 
+  for (std::set< klee::ref<Expr> >::iterator it = commonConstraints.begin(), 
          ie = commonConstraints.end(); it != ie; ++it)
     constraints.addConstraint(*it);
   constraints.addConstraint(OrExpr::create(inA, inB));
@@ -507,7 +507,7 @@ void ExecutionState::dumpStack(std::ostream &out) const {
         
         out << ai->getName().str();
         // XXX should go through function
-        ref<Expr> value = sf.locals[sf.kf->getArgRegister(index++)].value;
+        klee::ref<Expr> value = sf.locals[sf.kf->getArgRegister(index++)].value;
         if (isa<ConstantExpr>(value))
           out << "=" << value;
       }
@@ -728,104 +728,104 @@ void ExecutionState::reconfigGPUSymbolic() {
 void ExecutionState::constructUnboundedBlockEncodedConstraint(unsigned cur_bid) {
   ObjectState *os = addressSpace.cpuMemory.findNonConstantObject(tinfo.sym_gdim_mo);
 
-  ref<Expr> gdimx = os->read(0, Expr::Int32);
-  ref<Expr> gdimy = os->read(4, Expr::Int32);  
-  ref<Expr> gdimz = os->read(8, Expr::Int32);  
+  klee::ref<Expr> gdimx = os->read(0, Expr::Int32);
+  klee::ref<Expr> gdimy = os->read(4, Expr::Int32);  
+  klee::ref<Expr> gdimz = os->read(8, Expr::Int32);  
 
-  ref<Expr> gdimxConstr = AndExpr::create(UgtExpr::create(gdimx, ConstantExpr::create(0, Expr::Int32)), 
+  klee::ref<Expr> gdimxConstr = AndExpr::create(UgtExpr::create(gdimx, ConstantExpr::create(0, Expr::Int32)), 
                                           UleExpr::create(gdimx, ConstantExpr::create(GPUConfig::SymMaxGridSize[0], Expr::Int32)));
-  ref<Expr> gdimyConstr = AndExpr::create(UgtExpr::create(gdimy, ConstantExpr::create(0, Expr::Int32)), 
+  klee::ref<Expr> gdimyConstr = AndExpr::create(UgtExpr::create(gdimy, ConstantExpr::create(0, Expr::Int32)), 
                                           UleExpr::create(gdimy, ConstantExpr::create(GPUConfig::SymMaxGridSize[1], Expr::Int32)));
-  ref<Expr> gdimzConstr = AndExpr::create(UgtExpr::create(gdimz, ConstantExpr::create(0, Expr::Int32)), 
+  klee::ref<Expr> gdimzConstr = AndExpr::create(UgtExpr::create(gdimz, ConstantExpr::create(0, Expr::Int32)), 
                                           UleExpr::create(gdimz, ConstantExpr::create(GPUConfig::SymMaxGridSize[2], Expr::Int32)));
 
-  ref<Expr> gdimConstraint = AndExpr::create(AndExpr::create(gdimxConstr, gdimyConstr),
+  klee::ref<Expr> gdimConstraint = AndExpr::create(AndExpr::create(gdimxConstr, gdimyConstr),
                                              gdimzConstr); 
   addConstraint(gdimConstraint);
 
   // construct thread constraint based on the symbolic config 
   ObjectState *bos = addressSpace.localMemories[cur_bid].findNonConstantObject(tinfo.thread_id_mo); 
-  ref<Expr> bidx = bos->read(0, Expr::Int32);
-  ref<Expr> bidy = bos->read(4, Expr::Int32);
-  ref<Expr> bidz = bos->read(8, Expr::Int32);
+  klee::ref<Expr> bidx = bos->read(0, Expr::Int32);
+  klee::ref<Expr> bidy = bos->read(4, Expr::Int32);
+  klee::ref<Expr> bidz = bos->read(8, Expr::Int32);
 
-  ref<Expr> bidxConstr = AndExpr::create(UltExpr::create(bidx, gdimx), 
+  klee::ref<Expr> bidxConstr = AndExpr::create(UltExpr::create(bidx, gdimx), 
                                          UgeExpr::create(bidx, ConstantExpr::create(0, Expr::Int32))); 
-  ref<Expr> bidyConstr = AndExpr::create(UltExpr::create(bidy, gdimy), 
+  klee::ref<Expr> bidyConstr = AndExpr::create(UltExpr::create(bidy, gdimy), 
                                          UgeExpr::create(bidy, ConstantExpr::create(0, Expr::Int32))); 
-  ref<Expr> bidzConstr = AndExpr::create(UltExpr::create(bidz, gdimz), 
+  klee::ref<Expr> bidzConstr = AndExpr::create(UltExpr::create(bidz, gdimz), 
                                          UgeExpr::create(bidz, ConstantExpr::create(0, Expr::Int32))); 
-  ref<Expr> totalExpr = AndExpr::create(AndExpr::create(bidxConstr, bidyConstr), bidzConstr);
+  klee::ref<Expr> totalExpr = AndExpr::create(AndExpr::create(bidxConstr, bidyConstr), bidzConstr);
   addConstraint(totalExpr);
 }
 
 void ExecutionState::constructUnboundedThreadEncodedConstraint(unsigned cur_tid) {
   ObjectState *os = addressSpace.cpuMemory.findNonConstantObject(tinfo.sym_bdim_mo);
 
-  ref<Expr> bdimx = os->read(0, Expr::Int32);
-  ref<Expr> bdimy = os->read(4, Expr::Int32);  
-  ref<Expr> bdimz = os->read(8, Expr::Int32);  
+  klee::ref<Expr> bdimx = os->read(0, Expr::Int32);
+  klee::ref<Expr> bdimy = os->read(4, Expr::Int32);  
+  klee::ref<Expr> bdimz = os->read(8, Expr::Int32);  
 
-  ref<Expr> bdimxConstr = AndExpr::create(UgtExpr::create(bdimx, ConstantExpr::create(0, Expr::Int32)), 
+  klee::ref<Expr> bdimxConstr = AndExpr::create(UgtExpr::create(bdimx, ConstantExpr::create(0, Expr::Int32)), 
                                           UleExpr::create(bdimx, ConstantExpr::create(GPUConfig::SymMaxBlockSize[0], Expr::Int32)));
-  ref<Expr> bdimyConstr = AndExpr::create(UgtExpr::create(bdimy, ConstantExpr::create(0, Expr::Int32)), 
+  klee::ref<Expr> bdimyConstr = AndExpr::create(UgtExpr::create(bdimy, ConstantExpr::create(0, Expr::Int32)), 
                                           UleExpr::create(bdimy, ConstantExpr::create(GPUConfig::SymMaxBlockSize[1], Expr::Int32)));
-  ref<Expr> bdimzConstr = AndExpr::create(UgtExpr::create(bdimz, ConstantExpr::create(0, Expr::Int32)), 
+  klee::ref<Expr> bdimzConstr = AndExpr::create(UgtExpr::create(bdimz, ConstantExpr::create(0, Expr::Int32)), 
                                           UleExpr::create(bdimz, ConstantExpr::create(GPUConfig::SymMaxBlockSize[2], Expr::Int32)));
 
-  ref<Expr> bdimConstraint = AndExpr::create(AndExpr::create(bdimxConstr, bdimyConstr),
+  klee::ref<Expr> bdimConstraint = AndExpr::create(AndExpr::create(bdimxConstr, bdimyConstr),
                                              bdimzConstr); 
   addConstraint(bdimConstraint);
 
   // construct thread constraint based on the symbolic config 
   ObjectState *tos = addressSpace.localMemories[cur_tid].findNonConstantObject(tinfo.thread_id_mo); 
-  ref<Expr> tidx = tos->read(0, Expr::Int32);
-  ref<Expr> tidy = tos->read(4, Expr::Int32);
-  ref<Expr> tidz = tos->read(8, Expr::Int32);
+  klee::ref<Expr> tidx = tos->read(0, Expr::Int32);
+  klee::ref<Expr> tidy = tos->read(4, Expr::Int32);
+  klee::ref<Expr> tidz = tos->read(8, Expr::Int32);
 
-  ref<Expr> tidxConstr = AndExpr::create(UltExpr::create(tidx, bdimx), 
+  klee::ref<Expr> tidxConstr = AndExpr::create(UltExpr::create(tidx, bdimx), 
                                          UgeExpr::create(tidx, ConstantExpr::create(0, Expr::Int32))); 
-  ref<Expr> tidyConstr = AndExpr::create(UltExpr::create(tidy, bdimy), 
+  klee::ref<Expr> tidyConstr = AndExpr::create(UltExpr::create(tidy, bdimy), 
                                          UgeExpr::create(tidy, ConstantExpr::create(0, Expr::Int32))); 
-  ref<Expr> tidzConstr = AndExpr::create(UltExpr::create(tidz, bdimz), 
+  klee::ref<Expr> tidzConstr = AndExpr::create(UltExpr::create(tidz, bdimz), 
                                          UgeExpr::create(tidz, ConstantExpr::create(0, Expr::Int32))); 
-  ref<Expr> totalExpr = AndExpr::create(AndExpr::create(tidxConstr, tidyConstr), tidzConstr);
+  klee::ref<Expr> totalExpr = AndExpr::create(AndExpr::create(tidxConstr, tidyConstr), tidzConstr);
   addConstraint(totalExpr);
 }
 
 // construct the block-level encoded constraint ...
-void ExecutionState::constructBlockEncodedConstraint(ref<Expr> &constraint, unsigned cur_bid) {
+void ExecutionState::constructBlockEncodedConstraint(klee::ref<Expr> &constraint, unsigned cur_bid) {
   ObjectState *os = addressSpace.findNonConstantObject(tinfo.block_id_mo, cur_bid);
   // bid x ...
-  ref<Expr> bidx = os->read(0, Expr::Int32);
-  ref<Expr> xcond = AndExpr::create(SltExpr::create(bidx, ConstantExpr::create(GPUConfig::GridSize[0], Expr::Int32)), 
+  klee::ref<Expr> bidx = os->read(0, Expr::Int32);
+  klee::ref<Expr> xcond = AndExpr::create(SltExpr::create(bidx, ConstantExpr::create(GPUConfig::GridSize[0], Expr::Int32)), 
                                     SgeExpr::create(bidx, ConstantExpr::create(0, Expr::Int32)));
   // bid y ...
-  ref<Expr> bidy = os->read(4, Expr::Int32);
-  ref<Expr> ycond = AndExpr::create(SltExpr::create(bidy, ConstantExpr::create(GPUConfig::GridSize[1], Expr::Int32)), 
+  klee::ref<Expr> bidy = os->read(4, Expr::Int32);
+  klee::ref<Expr> ycond = AndExpr::create(SltExpr::create(bidy, ConstantExpr::create(GPUConfig::GridSize[1], Expr::Int32)), 
                                     SgeExpr::create(bidy, ConstantExpr::create(0, Expr::Int32)));
   // bid z ...
-  ref<Expr> bidz = os->read(8, Expr::Int32);
-  ref<Expr> zcond = AndExpr::create(SltExpr::create(bidz, ConstantExpr::create(GPUConfig::GridSize[2], Expr::Int32)), 
+  klee::ref<Expr> bidz = os->read(8, Expr::Int32);
+  klee::ref<Expr> zcond = AndExpr::create(SltExpr::create(bidz, ConstantExpr::create(GPUConfig::GridSize[2], Expr::Int32)), 
                                     SgeExpr::create(bidz, ConstantExpr::create(0, Expr::Int32)));
   // regardless of number of grid dimensions
   constraint = AndExpr::create(AndExpr::create(xcond, ycond), zcond);
 }
 
 // construct the thread-level encoded constraint ...
-void ExecutionState::constructThreadEncodedConstraint(ref<Expr> &constraint, unsigned cur_tid) {
+void ExecutionState::constructThreadEncodedConstraint(klee::ref<Expr> &constraint, unsigned cur_tid) {
   ObjectState *os = addressSpace.findNonConstantObject(tinfo.thread_id_mo, cur_tid);
   // tid x ...
-  ref<Expr> tidx = os->read(0, Expr::Int32);
-  ref<Expr> xcond = AndExpr::create(SltExpr::create(tidx, ConstantExpr::create(GPUConfig::BlockSize[0], Expr::Int32)), 
+  klee::ref<Expr> tidx = os->read(0, Expr::Int32);
+  klee::ref<Expr> xcond = AndExpr::create(SltExpr::create(tidx, ConstantExpr::create(GPUConfig::BlockSize[0], Expr::Int32)), 
                                     SgeExpr::create(tidx, ConstantExpr::create(0, Expr::Int32)));
   // tid y ...
-  ref<Expr> tidy = os->read(4, Expr::Int32);
-  ref<Expr> ycond = AndExpr::create(SltExpr::create(tidy, ConstantExpr::create(GPUConfig::BlockSize[1], Expr::Int32)), 
+  klee::ref<Expr> tidy = os->read(4, Expr::Int32);
+  klee::ref<Expr> ycond = AndExpr::create(SltExpr::create(tidy, ConstantExpr::create(GPUConfig::BlockSize[1], Expr::Int32)), 
                                     SgeExpr::create(tidy, ConstantExpr::create(0, Expr::Int32)));
   // tid z ...
-  ref<Expr> tidz = os->read(8, Expr::Int32);
-  ref<Expr> zcond = AndExpr::create(SltExpr::create(tidz, ConstantExpr::create(GPUConfig::BlockSize[2], Expr::Int32)), 
+  klee::ref<Expr> tidz = os->read(8, Expr::Int32);
+  klee::ref<Expr> zcond = AndExpr::create(SltExpr::create(tidz, ConstantExpr::create(GPUConfig::BlockSize[2], Expr::Int32)), 
                                     SgeExpr::create(tidz, ConstantExpr::create(0, Expr::Int32))); 
   // regardless of number of block dimensions
   constraint = AndExpr::create(AndExpr::create(xcond, ycond), zcond);
@@ -1104,7 +1104,7 @@ void ExecutionState::encounterSyncthreadsBarrier(unsigned cur_tid) {
     // create the inherit cond from parametric flow tree 
     ParaTreeNode *current = getCurrentParaTree().getCurrentNode(); 
     if (current) {
-      ref<Expr> expr = getCurrentParaTree().getCurrentNodeTDCExpr(); 
+      klee::ref<Expr> expr = getCurrentParaTree().getCurrentNodeTDCExpr(); 
       cTidSets[cur_tid].inheritExpr = constraints.simplifyExpr(expr);
     }
     //std::cout << "cur_tid: " << cur_tid << std::endl;
@@ -1218,7 +1218,7 @@ void ExecutionState::symEncounterPostDominator(llvm::Instruction *inst) {
   ParaTree &paraTree = getCurrentParaTree();
   llvm::BasicBlock *curBB = inst->getParent();
   ParaTreeNode *tmp = paraTree.getCurrentNode();
-  ref<Expr> cond = ConstantExpr::create(1, Expr::Bool);
+  klee::ref<Expr> cond = ConstantExpr::create(1, Expr::Bool);
 
   while (tmp != NULL) {
     unsigned which = tmp->whichSuccessor;
@@ -1256,8 +1256,8 @@ ParaTree& ExecutionState::getCurrentParaTree() {
   return (curTree == 0)? paraTreeVec[curTree] : paraTreeVec[curTree-1];
 }
 
-ref<Expr> ExecutionState::getTDCCondition(bool ignoreCur) {
-  ref<Expr> expr;
+klee::ref<Expr> ExecutionState::getTDCCondition(bool ignoreCur) {
+  klee::ref<Expr> expr;
   if (!tinfo.is_GPU_mode) {
     expr = klee::ConstantExpr::create(1, Expr::Bool);
   } else {

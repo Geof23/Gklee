@@ -42,7 +42,7 @@ namespace klee {
   public:
     PTreeNode *parent, *left, *right;
     ExecutionState *data;
-    ref<Expr> condition;
+    klee::ref<Expr> condition;
 
   private:
     PTreeNode(PTreeNode *_parent, ExecutionState *_data);

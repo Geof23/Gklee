@@ -23,7 +23,7 @@ class ExprVisitor;
   
 class ConstraintManager {
 public:
-  typedef std::vector< ref<Expr> > constraints_ty;
+  typedef std::vector< klee::ref<Expr> > constraints_ty;
   typedef constraints_ty::iterator iterator;
   typedef constraints_ty::const_iterator const_iterator;
 
@@ -31,22 +31,22 @@ public:
 
   // create from constraints with no optimization
   explicit
-  ConstraintManager(const std::vector< ref<Expr> > &_constraints) :
+  ConstraintManager(const std::vector< klee::ref<Expr> > &_constraints) :
     constraints(_constraints) {}
 
   ConstraintManager(const ConstraintManager &cs) : constraints(cs.constraints) {}
 
-  typedef std::vector< ref<Expr> >::const_iterator constraint_iterator;
+  typedef std::vector< klee::ref<Expr> >::const_iterator constraint_iterator;
 
   // given a constraint which is known to be valid, attempt to 
   // simplify the existing constraint set
-  void simplifyForValidConstraint(ref<Expr> e);
+  void simplifyForValidConstraint(klee::ref<Expr> e);
 
-  ref<Expr> simplifyExpr(ref<Expr> e) const;
+  klee::ref<Expr> simplifyExpr(klee::ref<Expr> e) const;
 
-  ref<Expr> updateExprThroughReplacement(ref<Expr> e, std::map< ref<Expr>, ref<Expr> > equalities) const; 
+  klee::ref<Expr> updateExprThroughReplacement(klee::ref<Expr> e, std::map< klee::ref<Expr>, klee::ref<Expr> > equalities) const; 
 
-  void addConstraint(ref<Expr> e);
+  void addConstraint(klee::ref<Expr> e);
 
   bool empty() const {
     return constraints.empty();
@@ -54,7 +54,7 @@ public:
   void clear() {
     constraints.clear();
   }
-  ref<Expr> back() const {
+  klee::ref<Expr> back() const {
     return constraints.back();
   }
   constraint_iterator begin() const {
@@ -63,7 +63,7 @@ public:
   constraint_iterator end() const {
     return constraints.end();
   }
-  std::vector< ref<Expr> >& getConstraints() {
+  std::vector< klee::ref<Expr> >& getConstraints() {
     return constraints;
   }
   size_t size() const {
@@ -83,12 +83,12 @@ public:
 
 private:
 
-  std::vector< ref<Expr> > constraints;
+  std::vector< klee::ref<Expr> > constraints;
 
   // returns true iff the constraints were modified
   bool rewriteConstraints(ExprVisitor &visitor);
 
-  void addConstraintInternal(ref<Expr> e);
+  void addConstraintInternal(klee::ref<Expr> e);
 };
 
 }

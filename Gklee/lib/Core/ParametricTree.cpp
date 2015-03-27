@@ -268,10 +268,10 @@ void ParaTree::destroyParaTree(ParaTreeNode *node) {
   } 
 }
 
-ref<Expr> ParaTree::getCurrentNodeTDCExpr() {
+klee::ref<Expr> ParaTree::getCurrentNodeTDCExpr() {
   unsigned which = current->whichSuccessor;
   std::vector<ParaConfig> &configVec = current->successorConfigVec;
-  ref<Expr> cond = 0;
+  klee::ref<Expr> cond = 0;
   if (current->symBrType == TDC) 
     cond = AndExpr::create(current->tdcCond, configVec[which].cond);  
   else 

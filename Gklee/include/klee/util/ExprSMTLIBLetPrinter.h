@@ -25,15 +25,15 @@ namespace klee
 			virtual ~ExprSMTLIBLetPrinter() { }
 			virtual void generateOutput();
 		protected:
-			virtual void scan(const ref<Expr>& e);
+			virtual void scan(const klee::ref<Expr>& e);
 			virtual void reset();
 			virtual void generateBindings();
-			void printExpression(const ref<Expr>& e, ExprSMTLIBPrinter::SMTLIB_SORT expectedSort);
+			void printExpression(const klee::ref<Expr>& e, ExprSMTLIBPrinter::SMTLIB_SORT expectedSort);
 			void printLetExpression();
 
 		private:
 			///Let expression binding number map.
-			std::map<const ref<Expr>,unsigned int> bindings;
+			std::map<const klee::ref<Expr>,unsigned int> bindings;
 
 			/* These are effectively expression counters.
 			 * firstEO - first Occurrence of expression contains
@@ -48,7 +48,7 @@ namespace klee
 			 *
 			 *
 			 */
-			std::set<ref<Expr> > firstEO, twoOrMoreEO;
+			std::set<klee::ref<Expr> > firstEO, twoOrMoreEO;
 
 			///This is the prefix string used for all abbreviations in (let) expressions.
 			static const char BINDING_PREFIX[];

@@ -118,9 +118,9 @@ namespace runtime {
 
 using namespace runtime; 
 
-ref<klee::ConstantExpr> Executor::evalConstant(const Constant *c) {
+klee::ref<klee::ConstantExpr> Executor::evalConstant(const Constant *c) {
   if (const llvm::ConstantExpr *ce = dyn_cast<llvm::ConstantExpr>(c)) {
-    ref<klee::ConstantExpr> expr = evalConstantExpr(ce);
+    klee::ref<klee::ConstantExpr> expr = evalConstantExpr(ce);
     return expr;
   } else {
     if (const ConstantInt *ci = dyn_cast<ConstantInt>(c)) {
@@ -136,20 +136,20 @@ ref<klee::ConstantExpr> Executor::evalConstant(const Constant *c) {
 #if LLVM_VERSION_CODE >= LLVM_VERSION(3, 1)
     } else if (const ConstantDataSequential *cds =
                  dyn_cast<ConstantDataSequential>(c)) {
-      std::vector<ref<Expr> > kids;
+      std::vector<klee::ref<Expr> > kids;
       for (unsigned i = 0, e = cds->getNumElements(); i != e; ++i) {
-        ref<Expr> kid = evalConstant(cds->getElementAsConstant(i));
+        klee::ref<Expr> kid = evalConstant(cds->getElementAsConstant(i));
         kids.push_back(kid);
       }
-      ref<Expr> res = ConcatExpr::createN(kids.size(), kids.data());
+      klee::ref<Expr> res = ConcatExpr::createN(kids.size(), kids.data());
       return cast<ConstantExpr>(res);
 #endif
     } else if (const ConstantStruct *cs = dyn_cast<ConstantStruct>(c)) {
       const StructLayout *sl = kmodule->targetData->getStructLayout(cs->getType());
-      llvm::SmallVector<ref<Expr>, 4> kids;
+      llvm::SmallVector<klee::ref<Expr>, 4> kids;
       for (unsigned i = cs->getNumOperands(); i != 0; --i) {
         unsigned op = i-1;
-        ref<Expr> kid = evalConstant(cs->getOperand(op));
+        klee::ref<Expr> kid = evalConstant(cs->getOperand(op));
 
         uint64_t thisOffset = sl->getElementOffsetInBits(op),
                  nextOffset = (op == cs->getNumOperands() - 1)
@@ -162,16 +162,16 @@ ref<klee::ConstantExpr> Executor::evalConstant(const Constant *c) {
 
         kids.push_back(kid);
       }
-      ref<Expr> res = ConcatExpr::createN(kids.size(), kids.data());
+      klee::ref<Expr> res = ConcatExpr::createN(kids.size(), kids.data());
       return cast<ConstantExpr>(res);
     } else if (const ConstantArray *ca = dyn_cast<ConstantArray>(c)){
-      llvm::SmallVector<ref<Expr>, 4> kids;
+      llvm::SmallVector<klee::ref<Expr>, 4> kids;
       for (unsigned i = ca->getNumOperands(); i != 0; --i) {
         unsigned op = i-1;
-        ref<Expr> kid = evalConstant(ca->getOperand(op));
+        klee::ref<Expr> kid = evalConstant(ca->getOperand(op));
         kids.push_back(kid);
       }
-      ref<Expr> res = ConcatExpr::createN(kids.size(), kids.data());
+      klee::ref<Expr> res = ConcatExpr::createN(kids.size(), kids.data());
       return cast<ConstantExpr>(res);
     } else {
       // Constant{Vector}
@@ -219,7 +219,7 @@ void Executor::initializeGlobalObject(ExecutionState &state, ObjectState *os,
 #endif
   } else {
     unsigned StoreBits = targetData->getTypeStoreSizeInBits(c->getType());
-    ref<ConstantExpr> C = evalConstant(c);
+    klee::ref<ConstantExpr> C = evalConstant(c);
 
     // Extend the constant if necessary;
     assert(StoreBits >= C->getWidth() && "Invalid store size!");
@@ -446,7 +446,7 @@ void Executor::initializeExternalSharedGlobals(ExecutionState &state) {
       // Remove the case 'extern __shared__'
       if (size == 0 && s == "__shared__") {
         MemoryObject *oldMo = globalObjects.find(gi)->second;
-        ref<Expr> oldAddr = oldMo->getBaseExpr();
+        klee::ref<Expr> oldAddr = oldMo->getBaseExpr();
         std::vector<unsigned> cVec;
         for (unsigned i = 0; i < kmodule->constants.size(); ++i) {
           Cell &c = kmodule->constantTable[i];
@@ -510,7 +510,7 @@ void Executor::initializeGlobals(ExecutionState &state) {
   // since reading/writing via a function pointer is unsupported anyway.
   for (Module::iterator i = m->begin(), ie = m->end(); i != ie; ++i) {
     Function *f = i;
-    ref<ConstantExpr> addr(0);
+    klee::ref<ConstantExpr> addr(0);
 
     // If the symbol has external weak linkage then it is implicitly
     // not defined in this module; if it isn't resolvable then it
@@ -675,7 +675,7 @@ void Executor::initializeGlobals(ExecutionState &state) {
 
 template <typename TypeIt>
 void Executor::computeOffsets(KGEPInstruction *kgepi, TypeIt ib, TypeIt ie) {
-  ref<ConstantExpr> constantOffset =
+  klee::ref<ConstantExpr> constantOffset =
     ConstantExpr::alloc(0, Context::get().getPointerWidth());
   uint64_t index = 1;
   for (TypeIt ii = ib; ii != ie; ++ii) {
@@ -691,9 +691,9 @@ void Executor::computeOffsets(KGEPInstruction *kgepi, TypeIt ib, TypeIt ie) {
         kmodule->targetData->getTypeStoreSize(set->getElementType());
       Value *operand = ii.getOperand();
       if (Constant *c = dyn_cast<Constant>(operand)) {
-        ref<ConstantExpr> index =
+        klee::ref<ConstantExpr> index =
           evalConstant(c)->SExt(Context::get().getPointerWidth());
-        ref<ConstantExpr> addend =
+        klee::ref<ConstantExpr> addend =
           index->Mul(ConstantExpr::alloc(elementSize,
                                          Context::get().getPointerWidth()));
         constantOffset = constantOffset->Add(addend);
@@ -751,7 +751,7 @@ ObjectState *Executor::bindObjectInStateToShared(ExecutionState &state,
 }
 
 void Executor::resolveExact(ExecutionState &state,
-                            ref<Expr> p,
+                            klee::ref<Expr> p,
                             ExactResolutionList &results, 
                             const std::string &name, 
 			    GPUConfig::CTYPE ctype,  
@@ -765,7 +765,7 @@ void Executor::resolveExact(ExecutionState &state,
 
   for (ResolutionList::iterator it = rl.begin(), ie = rl.end(); 
        it != ie; ++it) {
-    ref<Expr> inBounds = EqExpr::create(p, it->first->getBaseExpr());
+    klee::ref<Expr> inBounds = EqExpr::create(p, it->first->getBaseExpr());
     
     StatePair branches = fork(*unbound, inBounds, true);
     
@@ -786,8 +786,8 @@ void Executor::resolveExact(ExecutionState &state,
 }
 
 void Executor::dumpTmpOutOfBoundConfig(ExecutionState &state, 
-                                       ref<Expr> boundExpr, 
-                                       ref<Expr> offset) {
+                                       klee::ref<Expr> boundExpr, 
+                                       klee::ref<Expr> offset) {
   bool benign = false;
   std::vector<SymBlockID_t> symBlockIDs;
   std::vector<SymThreadID_t> symThreadIDs;
@@ -798,8 +798,8 @@ void Executor::dumpTmpOutOfBoundConfig(ExecutionState &state,
   symThreadIDs.push_back(SymThreadID_t(0, 0, 0));
   symThreadIDs.push_back(SymThreadID_t(0, 0, 0));
 
-  ref<Expr> oobCond = Expr::createIsZero(boundExpr);
-  std::vector< ref<Expr> > offsetVec, cOffsetVec;
+  klee::ref<Expr> oobCond = Expr::createIsZero(boundExpr);
+  std::vector< klee::ref<Expr> > offsetVec, cOffsetVec;
   offsetVec.push_back(offset); 
   bool success = getSymbolicConfigSolution(state, oobCond, offsetVec, 
                                            cOffsetVec, 0, 0, 
@@ -824,8 +824,8 @@ void Executor::dumpTmpOutOfBoundConfig(ExecutionState &state,
 
 void Executor::executeMemoryOperation(ExecutionState &state,
                                       bool isWrite,
-                                      ref<Expr> address,
-                                      ref<Expr> value /* undef if read */,
+                                      klee::ref<Expr> address,
+                                      klee::ref<Expr> value /* undef if read */,
                                       KInstruction *target, 
                                       unsigned seqNum, bool isAtomic) {
   Expr::Width type = (isWrite ? value->getWidth() : 
@@ -879,7 +879,7 @@ void Executor::executeMemoryOperation(ExecutionState &state,
       address = toConstant(state, address, "max-sym-array-size");
     }
     
-    ref<Expr> offset = mo->getOffsetExpr(address);
+    klee::ref<Expr> offset = mo->getOffsetExpr(address);
    
     bool inBounds;
     solver->setTimeout(stpTimeout);
@@ -937,7 +937,7 @@ void Executor::executeMemoryOperation(ExecutionState &state,
             }
           } else {
             if (state.tinfo.is_GPU_mode) {
-              ref<Expr> accessExpr = state.getTDCCondition();
+              klee::ref<Expr> accessExpr = state.getTDCCondition();
 	      state.addressSpace.addWrite(mo, offset, value, type, 
 	  	  		          state.tinfo.get_cur_bid(), 
                                           state.tinfo.get_cur_tid(),
@@ -949,7 +949,7 @@ void Executor::executeMemoryOperation(ExecutionState &state,
         }
       } else {
         // memory type inference
-        ref<Expr> result = os->read(offset, type);
+        klee::ref<Expr> result = os->read(offset, type);
 
         if (!UseSymbolicConfig) {
           if (state.tinfo.is_GPU_mode) {
@@ -961,7 +961,7 @@ void Executor::executeMemoryOperation(ExecutionState &state,
           }
         } else {
           if (state.tinfo.is_GPU_mode) {
-            ref<Expr> accessExpr = state.getTDCCondition();
+            klee::ref<Expr> accessExpr = state.getTDCCondition();
   	    state.addressSpace.addRead(mo, offset, result, type,
 	    			       state.tinfo.get_cur_bid(), 
                                        state.tinfo.get_cur_tid(), 
@@ -1000,7 +1000,7 @@ void Executor::executeMemoryOperation(ExecutionState &state,
   for (ResolutionList::iterator i = rl.begin(), ie = rl.end(); i != ie; ++i) {
     const MemoryObject *mo = i->first;
     const ObjectState *os = i->second;
-    ref<Expr> inBounds = mo->getBoundsCheckPointer(address, bytes);
+    klee::ref<Expr> inBounds = mo->getBoundsCheckPointer(address, bytes);
     
     StatePair branches = fork(*unbound, inBounds, true);
     ExecutionState *bound = branches.first;
@@ -1017,7 +1017,7 @@ void Executor::executeMemoryOperation(ExecutionState &state,
           wos->write(mo->getOffsetExpr(address), value);
         }
       } else {
-        ref<Expr> result = os->read(mo->getOffsetExpr(address), type);
+        klee::ref<Expr> result = os->read(mo->getOffsetExpr(address), type);
         bindLocal(target, *bound, result);
       }
     } 
@@ -1039,7 +1039,7 @@ void Executor::executeMemoryOperation(ExecutionState &state,
   }
 }
 
-void Executor::executeNoMemoryCoalescing(ExecutionState &state, ref<Expr> &noMCCond) {
+void Executor::executeNoMemoryCoalescing(ExecutionState &state, klee::ref<Expr> &noMCCond) {
   if (GPUConfig::verbose > 0){
     std::cout << "No memory coalescing condition: " << std::endl;
     noMCCond->dump();
@@ -1052,7 +1052,7 @@ void Executor::executeNoMemoryCoalescing(ExecutionState &state, ref<Expr> &noMCC
   delete anoState;
 }
 
-void Executor::executeBankConflict(ExecutionState &state, ref<Expr> &bcCond) {
+void Executor::executeBankConflict(ExecutionState &state, klee::ref<Expr> &bcCond) {
   if (GPUConfig::verbose > 0){
     std::cout << "Bank conflict condition: " << std::endl;
     bcCond->dump();
@@ -1065,7 +1065,7 @@ void Executor::executeBankConflict(ExecutionState &state, ref<Expr> &bcCond) {
   delete anoState;
 }
 
-void Executor::executeVolatileMissing(ExecutionState &state, ref<Expr> &vmCond) {
+void Executor::executeVolatileMissing(ExecutionState &state, klee::ref<Expr> &vmCond) {
   if (GPUConfig::verbose > 0) {
     std::cout << "Volatile missing condition: " << std::endl;
     vmCond->dump();
@@ -1078,7 +1078,7 @@ void Executor::executeVolatileMissing(ExecutionState &state, ref<Expr> &vmCond) 
   delete anoState;
 }
 
-void Executor::executeRaceCondition(ExecutionState &state, ref<Expr> &raceCond) {
+void Executor::executeRaceCondition(ExecutionState &state, klee::ref<Expr> &raceCond) {
   bool result = false;
   bool success = false;
 
@@ -1109,7 +1109,7 @@ void Executor::executeRaceCondition(ExecutionState &state, ref<Expr> &raceCond) 
 
 // CUDA doesn't support dynamic allocation in GPU; thus only stack or host allocation are allowed
 void Executor::executeAlloc(ExecutionState &state,
-                            ref<Expr> size,
+                            klee::ref<Expr> size,
                             bool isLocal,
                             KInstruction *target,
                             bool zeroMemory,
@@ -1158,7 +1158,7 @@ void Executor::executeAlloc(ExecutionState &state,
     // return argument first). This shows up in pcre when llvm
     // collapses the size expression with a select.
 
-    ref<ConstantExpr> example;
+    klee::ref<ConstantExpr> example;
     ExecutorUtil::copyOutConstraintUnderSymbolic(state);
 
     bool success = solver->getValue(state, size, example);
@@ -1168,7 +1168,7 @@ void Executor::executeAlloc(ExecutionState &state,
     // Try and start with a small example.
     Expr::Width W = example->getWidth();
     while (example->Ugt(ConstantExpr::alloc(128, W))->isTrue()) {
-      ref<ConstantExpr> tmp = example->LShr(ConstantExpr::alloc(1, W));
+      klee::ref<ConstantExpr> tmp = example->LShr(ConstantExpr::alloc(1, W));
       bool res;
       bool success = solver->mayBeTrue(state, EqExpr::create(tmp, size), res);
       assert(success && "FIXME: Unhandled solver failure");      
@@ -1184,7 +1184,7 @@ void Executor::executeAlloc(ExecutionState &state,
     
     if (fixedSize.second) { 
       // Check for exactly two values
-      ref<ConstantExpr> tmp;
+      klee::ref<ConstantExpr> tmp;
       bool success = solver->getValue(*fixedSize.second, size, tmp);
       assert(success && "FIXME: Unhandled solver failure");      
       (void) success;
@@ -1230,7 +1230,7 @@ void Executor::executeAlloc(ExecutionState &state,
 }
 
 void Executor::executeFree(ExecutionState &state,
-                           ref<Expr> address,
+                           klee::ref<Expr> address,
                            KInstruction *target) {
   StatePair zeroPointer = fork(state, Expr::createIsZero(address), true);
   if (zeroPointer.first) {

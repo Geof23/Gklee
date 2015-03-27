@@ -19,10 +19,10 @@ using namespace klee;
 
 class ExprReplaceVisitor : public ExprVisitor {
 private:
-  ref<Expr> src, dst;
+  klee::ref<Expr> src, dst;
 
 public:
-  ExprReplaceVisitor(ref<Expr> _src, ref<Expr> _dst) : src(_src), dst(_dst) {}
+  ExprReplaceVisitor(klee::ref<Expr> _src, klee::ref<Expr> _dst) : src(_src), dst(_dst) {}
 
   Action visitExpr(const Expr &e) {
     if (e == *src.get()) {
@@ -43,16 +43,16 @@ public:
 
 class ExprReplaceVisitor2 : public ExprVisitor {
 private:
-  const std::map< ref<Expr>, ref<Expr> > &replacements;
+  const std::map< klee::ref<Expr>, klee::ref<Expr> > &replacements;
 
 public:
-  ExprReplaceVisitor2(const std::map< ref<Expr>, ref<Expr> > &_replacements) 
+  ExprReplaceVisitor2(const std::map< klee::ref<Expr>, klee::ref<Expr> > &_replacements) 
     : ExprVisitor(true),
       replacements(_replacements) {}
 
   Action visitExprPost(const Expr &e) {
-    std::map< ref<Expr>, ref<Expr> >::const_iterator it =
-      replacements.find(ref<Expr>(const_cast<Expr*>(&e)));
+    std::map< klee::ref<Expr>, klee::ref<Expr> >::const_iterator it =
+      replacements.find(klee::ref<Expr>(const_cast<Expr*>(&e)));
     if (it!=replacements.end()) {
       return Action::changeTo(it->second);
     } else {
@@ -68,8 +68,8 @@ bool ConstraintManager::rewriteConstraints(ExprVisitor &visitor) {
   constraints.swap(old);
   for (ConstraintManager::constraints_ty::iterator 
          it = old.begin(), ie = old.end(); it != ie; ++it) {
-    ref<Expr> &ce = *it;
-    ref<Expr> e = visitor.visit(ce);
+    klee::ref<Expr> &ce = *it;
+    klee::ref<Expr> e = visitor.visit(ce);
 
     if (e!=ce) {
       addConstraintInternal(e); // enable further reductions
@@ -82,15 +82,15 @@ bool ConstraintManager::rewriteConstraints(ExprVisitor &visitor) {
   return changed;
 }
 
-void ConstraintManager::simplifyForValidConstraint(ref<Expr> e) {
+void ConstraintManager::simplifyForValidConstraint(klee::ref<Expr> e) {
   // XXX 
 }
 
-ref<Expr> ConstraintManager::simplifyExpr(ref<Expr> e) const {
+klee::ref<Expr> ConstraintManager::simplifyExpr(klee::ref<Expr> e) const {
   if (isa<ConstantExpr>(e))
     return e;
 
-  std::map< ref<Expr>, ref<Expr> > equalities;
+  std::map< klee::ref<Expr>, klee::ref<Expr> > equalities;
   
   for (ConstraintManager::constraints_ty::const_iterator 
          it = constraints.begin(), ie = constraints.end(); it != ie; ++it) {
@@ -111,8 +111,8 @@ ref<Expr> ConstraintManager::simplifyExpr(ref<Expr> e) const {
   return ExprReplaceVisitor2(equalities).visit(e);
 }
 
-ref<Expr> ConstraintManager::updateExprThroughReplacement(ref<Expr> e, 
-                                                          std::map< ref<Expr>, ref<Expr> > equalities) const {
+klee::ref<Expr> ConstraintManager::updateExprThroughReplacement(klee::ref<Expr> e, 
+                                                          std::map< klee::ref<Expr>, klee::ref<Expr> > equalities) const {
   if (isa<ConstantExpr>(e))
     return e;
 
@@ -124,7 +124,7 @@ ref<Expr> ConstraintManager::updateExprThroughReplacement(ref<Expr> e,
 // an expression is simplfied to "false", 
 // in which this function return false;
 
-void ConstraintManager::addConstraintInternal(ref<Expr> e) {
+void ConstraintManager::addConstraintInternal(klee::ref<Expr> e) {
   // rewrite any known equalities 
 
   // XXX should profile the effects of this and the overhead.
@@ -164,7 +164,7 @@ void ConstraintManager::addConstraintInternal(ref<Expr> e) {
 
 }
 
-void ConstraintManager::addConstraint(ref<Expr> e) {
+void ConstraintManager::addConstraint(klee::ref<Expr> e) {
   e = simplifyExpr(e);
   addConstraintInternal(e);
 }

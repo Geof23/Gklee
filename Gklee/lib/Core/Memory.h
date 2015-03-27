@@ -71,7 +71,7 @@ public:
   /// a counterexample. Mutable since we play a little fast and loose
   /// with allowing it to be added to during execution (although
   /// should sensibly be only at creation time).
-  mutable std::vector< ref<Expr> > cexPreferences;
+  mutable std::vector< klee::ref<Expr> > cexPreferences;
 
   // DO NOT IMPLEMENT
   MemoryObject(const MemoryObject &b);
@@ -142,23 +142,23 @@ public:
     return bt_id;
   }
 
-  ref<ConstantExpr> getBaseExpr() const { 
+  klee::ref<ConstantExpr> getBaseExpr() const { 
     return ConstantExpr::create(address, Context::get().getPointerWidth());
   }
-  ref<ConstantExpr> getSizeExpr() const { 
+  klee::ref<ConstantExpr> getSizeExpr() const { 
     return ConstantExpr::create(size, Context::get().getPointerWidth());
   }
-  ref<Expr> getOffsetExpr(ref<Expr> pointer) const {
+  klee::ref<Expr> getOffsetExpr(klee::ref<Expr> pointer) const {
     return SubExpr::create(pointer, getBaseExpr());
   }
-  ref<Expr> getBoundsCheckPointer(ref<Expr> pointer) const {
+  klee::ref<Expr> getBoundsCheckPointer(klee::ref<Expr> pointer) const {
     return getBoundsCheckOffset(getOffsetExpr(pointer));
   }
-  ref<Expr> getBoundsCheckPointer(ref<Expr> pointer, unsigned bytes) const {
+  klee::ref<Expr> getBoundsCheckPointer(klee::ref<Expr> pointer, unsigned bytes) const {
     return getBoundsCheckOffset(getOffsetExpr(pointer), bytes);
   }
 
-  ref<Expr> getBoundsCheckOffset(ref<Expr> offset) const {
+  klee::ref<Expr> getBoundsCheckOffset(klee::ref<Expr> offset) const {
     if (size==0) {
       return EqExpr::create(offset, 
                             ConstantExpr::alloc(0, Context::get().getPointerWidth()));
@@ -166,7 +166,7 @@ public:
       return UltExpr::create(offset, getSizeExpr());
     }
   }
-  ref<Expr> getBoundsCheckOffset(ref<Expr> offset, unsigned bytes) const {
+  klee::ref<Expr> getBoundsCheckOffset(klee::ref<Expr> offset, unsigned bytes) const {
     if (bytes<=size) {
       return UltExpr::create(offset, 
                              ConstantExpr::alloc(size - bytes + 1, 
@@ -194,7 +194,7 @@ private:
   // mutable because may need flushed during read of const
   mutable BitArray *flushMask;
 
-  ref<Expr> *knownSymbolics;
+  klee::ref<Expr> *knownSymbolics;
 
   // mutable because we may need flush during read of const
   mutable UpdateList updates;
@@ -226,13 +226,13 @@ public:
   // make contents all concrete and random
   void initializeToRandom();
 
-  ref<Expr> read(ref<Expr> offset, Expr::Width width) const;
-  ref<Expr> read(unsigned offset, Expr::Width width) const;
-  ref<Expr> read8(unsigned offset) const;
+  klee::ref<Expr> read(klee::ref<Expr> offset, Expr::Width width) const;
+  klee::ref<Expr> read(unsigned offset, Expr::Width width) const;
+  klee::ref<Expr> read8(unsigned offset) const;
 
   // return bytes written.
-  void write(unsigned offset, ref<Expr> value);
-  void write(ref<Expr> offset, ref<Expr> value);
+  void write(unsigned offset, klee::ref<Expr> value);
+  void write(klee::ref<Expr> offset, klee::ref<Expr> value);
 
   void write8(unsigned offset, uint8_t value);
   void write16(unsigned offset, uint16_t value);
@@ -252,11 +252,11 @@ private:
 
   void makeSymbolic();
 
-  ref<Expr> read8(ref<Expr> offset) const;
-  void write8(unsigned offset, ref<Expr> value);
-  void write8(ref<Expr> offset, ref<Expr> value);
+  klee::ref<Expr> read8(klee::ref<Expr> offset) const;
+  void write8(unsigned offset, klee::ref<Expr> value);
+  void write8(klee::ref<Expr> offset, klee::ref<Expr> value);
 
-  void fastRangeCheckOffset(ref<Expr> offset, unsigned *base_r, 
+  void fastRangeCheckOffset(klee::ref<Expr> offset, unsigned *base_r, 
                             unsigned *size_r) const;
   void flushRangeForRead(unsigned rangeBase, unsigned rangeSize) const;
   void flushRangeForWrite(unsigned rangeBase, unsigned rangeSize);

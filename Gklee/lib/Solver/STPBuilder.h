@@ -115,8 +115,8 @@ private:
   ::VCExpr getInitialArray(const Array *os);
   ::VCExpr getArrayForUpdate(const Array *root, const UpdateNode *un);
 
-  ExprHandle constructActual(ref<Expr> e, int *width_out);
-  ExprHandle construct(ref<Expr> e, int *width_out);
+  ExprHandle constructActual(klee::ref<Expr> e, int *width_out);
+  ExprHandle construct(klee::ref<Expr> e, int *width_out);
   
   ::VCExpr buildVar(const char *name, unsigned width);
   ::VCExpr buildArray(const char *name, unsigned indexWidth, unsigned valueWidth);
@@ -130,7 +130,7 @@ public:
   ExprHandle getTempVar(Expr::Width w);
   ExprHandle getInitialRead(const Array *os, unsigned index);
 
-  ExprHandle construct(ref<Expr> e) { 
+  ExprHandle construct(klee::ref<Expr> e) { 
     ExprHandle res = construct(e, 0);
     constructed.clear();
     return res;

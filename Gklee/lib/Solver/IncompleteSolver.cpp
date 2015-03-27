@@ -114,7 +114,7 @@ bool StagedSolverImpl::computeValidity(const Query& query,
 }
 
 bool StagedSolverImpl::computeValue(const Query& query,
-                                    ref<Expr> &result) {
+                                    klee::ref<Expr> &result) {
   if (primary->computeValue(query, result))
     return true;
 

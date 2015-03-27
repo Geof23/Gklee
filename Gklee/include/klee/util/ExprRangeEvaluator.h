@@ -65,7 +65,7 @@ public:
   ExprRangeEvaluator() {}
   virtual ~ExprRangeEvaluator() {}
 
-  T evaluate(const ref<Expr> &e);
+  T evaluate(const klee::ref<Expr> &e);
 };
 
 template<class T>
@@ -90,7 +90,7 @@ T ExprRangeEvaluator<T>::evalRead(const UpdateList &ul,
 }
 
 template<class T>
-T ExprRangeEvaluator<T>::evaluate(const ref<Expr> &e) {
+T ExprRangeEvaluator<T>::evaluate(const klee::ref<Expr> &e) {
   switch (e->getKind()) {
   case Expr::Constant:
     return T(cast<ConstantExpr>(e));

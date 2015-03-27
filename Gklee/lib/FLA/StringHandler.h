@@ -19,7 +19,7 @@ class StringHandler {
   // function pointer
   typedef bool (StringHandler::*Handler) (ExecutionState &state,
 					  KInstruction *target,
-					  std::vector<ref<Expr> >
+					  std::vector<klee::ref<Expr> >
 					  &arguments);
   
   // map a function name to the handler
@@ -57,7 +57,7 @@ public:
   bool dispatchStringFunction(ExecutionState &state,
 			      KInstruction *ki,
 			      llvm::Function *f,
-			      std::vector< ref<Expr> > &arguments);
+			      std::vector< klee::ref<Expr> > &arguments);
 
   // print out the assignment (object -> value) if a solution is found
   static void printAssignments( std::vector<const Array*>& objects, 
@@ -68,16 +68,16 @@ private:
 
   // call the solver to check the expression in a constraint environment
 
-  bool solveExpr(ref<Expr> expr, std::vector<const Array*>& objects, 
+  bool solveExpr(klee::ref<Expr> expr, std::vector<const Array*>& objects, 
 		 std::vector< std::vector<unsigned char> >& values);
 
 
-  bool solveExpr(std::vector< ref<Expr> > &constr, ref<Expr> expr, 
+  bool solveExpr(std::vector< klee::ref<Expr> > &constr, klee::ref<Expr> expr, 
 		 std::vector<const Array*>& objects, 
 		 std::vector< std::vector<unsigned char> >& values);
 
 
-  bool solveExpr(std::vector< ref<Expr> > &constr, ref<Expr> expr) {
+  bool solveExpr(std::vector< klee::ref<Expr> > &constr, klee::ref<Expr> expr) {
     std::vector<const Array*> objects;
     std::vector< std::vector<unsigned char> > values;
     bool b = solveExpr(constr, expr, objects, values);
@@ -85,7 +85,7 @@ private:
     return b;
   }
 
-  bool solveExpr(ref<Expr> expr) {
+  bool solveExpr(klee::ref<Expr> expr) {
     std::vector<const Array*> objects;
     std::vector< std::vector<unsigned char> > values;
     bool b = solveExpr(expr, objects, values);
@@ -98,75 +98,75 @@ private:
 
   void executeMemoryOperation(ExecutionState &state,
 			      bool isWrite,
-			      ref<Expr> address,
-			      ref<Expr> value /* undef if read */,
+			      klee::ref<Expr> address,
+			      klee::ref<Expr> value /* undef if read */,
 			      KInstruction *target /* undef if write */);
 
 private:
 
   // read a concrete string from the memory
   std::string readStringAtAddress(ExecutionState &state, 
-				  ref<Expr> addressExpr);
+				  klee::ref<Expr> addressExpr);
 
   // read a concrete integer from the memory
-  ref<Expr> readIntAtAddress(ExecutionState &state, 
-			     ref<Expr> addressExpr, Expr::Width width = Expr::Int32);
+  klee::ref<Expr> readIntAtAddress(ExecutionState &state, 
+			     klee::ref<Expr> addressExpr, Expr::Width width = Expr::Int32);
 
   // read a string expression (either concrete or symbolic) from the memory
-  ref<Expr> obtainStr(ExecutionState &state,
-		      ref<Expr> addr);
+  klee::ref<Expr> obtainStr(ExecutionState &state,
+		      klee::ref<Expr> addr);
 
   // FLA's implementation of the "makeSymbolic" function
   // The length can be within a range rather than be fixed
   bool handleMakeSymbolicLength(ExecutionState &state,
 				       KInstruction *target,
-				       std::vector<ref<Expr> > &arguments);
+				       std::vector<klee::ref<Expr> > &arguments);
 
   // build a "length" expression
   bool handleStringLength(ExecutionState &state,
 			  KInstruction *target,
-			  std::vector<ref<Expr> > &arguments);
+			  std::vector<klee::ref<Expr> > &arguments);
 
   // build an "equal" expression
   bool handleStringEqual(ExecutionState &state,
 			 KInstruction *target,
-			 std::vector<ref<Expr> > &arguments);
+			 std::vector<klee::ref<Expr> > &arguments);
 
   // build a "not equal" expression
   // to be added
   bool handleStringNotEqual(ExecutionState &state,
 			    KInstruction *target,
-			    std::vector<ref<Expr> > &arguments);
+			    std::vector<klee::ref<Expr> > &arguments);
 
   // build a "FindLastOf" expression
   bool handleStringFindLastOf(ExecutionState &state,
 			      KInstruction *target,
-			      std::vector<ref<Expr> > &arguments);
+			      std::vector<klee::ref<Expr> > &arguments);
 
   // build a "Substr" expression
   bool handleStringSubStr(ExecutionState &state,
 			  KInstruction *target,
-			  std::vector<ref<Expr> > &arguments);
+			  std::vector<klee::ref<Expr> > &arguments);
 
   // build a "Find" expression
   bool handleStringFind(ExecutionState &state,
 			KInstruction *target,
-			std::vector<ref<Expr> > &arguments);
+			std::vector<klee::ref<Expr> > &arguments);
 
   // build a "Compare" expression
   bool handleStringCompare(ExecutionState &state,
 			   KInstruction *target,
-			   std::vector<ref<Expr> > &arguments);
+			   std::vector<klee::ref<Expr> > &arguments);
 
   // deallocate a string
   bool handleStringDeallocate(ExecutionState &state,
 			      KInstruction *target,
-			      std::vector<ref<Expr> > &arguments);
+			      std::vector<klee::ref<Expr> > &arguments);
 
   // handle string assignment
   bool handleStringAssign(ExecutionState &state,
 			  KInstruction *target,
-			  std::vector<ref<Expr> > &arguments);
+			  std::vector<klee::ref<Expr> > &arguments);
   
 };  // end class
 

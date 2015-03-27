@@ -14,7 +14,7 @@ using namespace klee;
 ExprVisitor::Action ExprEvaluator::evalRead(const UpdateList &ul,
                                             unsigned index) {
   for (const UpdateNode *un=ul.head; un; un=un->next) {
-    ref<Expr> ui = visit(un->index);
+    klee::ref<Expr> ui = visit(un->index);
     
     if (ConstantExpr *CE = dyn_cast<ConstantExpr>(ui)) {
       if (CE->getZExtValue() == index)
@@ -48,7 +48,7 @@ ExprVisitor::Action ExprEvaluator::visitExpr(const Expr &e) {
     if (!isa<ConstantExpr>(e.getKid(i)))
       return Action::doChildren();
 
-  ref<Expr> Kids[3];
+  klee::ref<Expr> Kids[3];
   for (unsigned i = 0; i != N; ++i) {
     assert(i < 3);
     Kids[i] = e.getKid(i);
@@ -58,7 +58,7 @@ ExprVisitor::Action ExprEvaluator::visitExpr(const Expr &e) {
 }
 
 ExprVisitor::Action ExprEvaluator::visitRead(const ReadExpr &re) {
-  ref<Expr> v = visit(re.index);
+  klee::ref<Expr> v = visit(re.index);
   
   if (ConstantExpr *CE = dyn_cast<ConstantExpr>(v)) {
     return evalRead(re.updates, CE->getZExtValue());
@@ -71,7 +71,7 @@ ExprVisitor::Action ExprEvaluator::visitRead(const ReadExpr &re) {
 // if this occurs then simply ignore the 0 divisor and use the
 // original expression.
 ExprVisitor::Action ExprEvaluator::protectedDivOperation(const BinaryExpr &e) {
-  ref<Expr> kids[2] = { visit(e.left),
+  klee::ref<Expr> kids[2] = { visit(e.left),
                         visit(e.right) };
 
   if (ConstantExpr *CE = dyn_cast<ConstantExpr>(kids[1]))

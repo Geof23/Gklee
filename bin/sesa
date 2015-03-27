@@ -1,1 +1,1 @@
-opt -load $KLEE_HOME_DIR/llvm/projects/TaintAnalysis/Debug+Asserts/lib/libashwin_taint.so -taint
+opt -load $KLEE_HOME_DIR/llvm/projects/TaintAnalysis/src/TaintAnalysis-build/lib/alias/libashwin_taint.so -taint

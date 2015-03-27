@@ -18,11 +18,11 @@
 
 using namespace klee;
 
-void klee::findReads(ref<Expr> e, 
+void klee::findReads(klee::ref<Expr> e, 
                      bool visitUpdates,
-                     std::vector< ref<ReadExpr> > &results) {
+                     std::vector< klee::ref<ReadExpr> > &results) {
   // Invariant: \forall_{i \in stack} !i.isConstant() && i \in visited 
-  std::vector< ref<Expr> > stack;
+  std::vector< klee::ref<Expr> > stack;
   ExprHashSet visited;
   std::set<const UpdateNode *> updates;
   
@@ -32,7 +32,7 @@ void klee::findReads(ref<Expr> e,
   }
 
   while (!stack.empty()) {
-    ref<Expr> top = stack.back();
+    klee::ref<Expr> top = stack.back();
     stack.pop_back();
 
     if (ReadExpr *re = dyn_cast<ReadExpr>(top)) {
@@ -65,7 +65,7 @@ void klee::findReads(ref<Expr> e,
     } else if (!isa<ConstantExpr>(top)) {
       Expr *e = top.get();
       for (unsigned i=0; i<e->getNumKids(); i++) {
-        ref<Expr> k = e->getKid(i);
+        klee::ref<Expr> k = e->getKid(i);
         if (!isa<ConstantExpr>(k) &&
             visited.insert(k).second)
           stack.push_back(k);
@@ -115,13 +115,13 @@ void klee::findSymbolicObjects(InputIterator begin,
     of.visit(*begin);
 }
 
-void klee::findSymbolicObjects(ref<Expr> e,
+void klee::findSymbolicObjects(klee::ref<Expr> e,
                                std::vector<const Array*> &results) {
   findSymbolicObjects(&e, &e+1, results);
 }
 
-typedef std::vector< ref<Expr> >::iterator A;
+typedef std::vector< klee::ref<Expr> >::iterator A;
 template void klee::findSymbolicObjects<A>(A, A, std::vector<const Array*> &);
 
-typedef std::set< ref<Expr> >::iterator B;
+typedef std::set< klee::ref<Expr> >::iterator B;
 template void klee::findSymbolicObjects<B>(B, B, std::vector<const Array*> &);

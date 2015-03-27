@@ -50,8 +50,8 @@ public:
 
   LengthVar(const std::string &_name, uint64_t _size, 
 	    Array* _arr,   // _arr is the associated var-len array
-	    const ref<ConstantExpr> *constantValuesBegin = 0,
-	    const ref<ConstantExpr> *constantValuesEnd = 0)
+	    const klee::ref<ConstantExpr> *constantValuesBegin = 0,
+	    const klee::ref<ConstantExpr> *constantValuesEnd = 0)
     : Array(_name, 
 	    _size, 
 	    constantValuesBegin, 
@@ -101,8 +101,8 @@ public:
 
   VarLenArray(const std::string &_name, uint64_t _min, uint64_t _max, 
 	      const bool _withDependentLength = false,
-	      const ref<ConstantExpr> *constantValuesBegin = 0,
-	      const ref<ConstantExpr> *constantValuesEnd = 0)
+	      const klee::ref<ConstantExpr> *constantValuesBegin = 0,
+	      const klee::ref<ConstantExpr> *constantValuesEnd = 0)
     : Array(_name, 
 	    _max, // the initial value is set to be maximum
 	    constantValuesBegin, 
@@ -165,19 +165,19 @@ public:
                               // for creating read expressions
 
   // read multiple bytes from an array
-  static ref<Expr> createMultRead(const Array *array, unsigned index, unsigned nbytes);
-  static ref<Expr> createValueRead(const Array *array, Expr::Width w);
+  static klee::ref<Expr> createMultRead(const Array *array, unsigned index, unsigned nbytes);
+  static klee::ref<Expr> createValueRead(const Array *array, Expr::Width w);
 
   // create a new variable which usually records the length of a string 
-  static ref<Expr> createLengthExpr(const Array *array) {
+  static klee::ref<Expr> createLengthExpr(const Array *array) {
     UpdateList ul(array, 0);
-    ref<Expr> e = ReadExpr::create(ul, ConstantExpr::alloc(0, Expr::Int32));
+    klee::ref<Expr> e = ReadExpr::create(ul, ConstantExpr::alloc(0, Expr::Int32));
     return SExtExpr::create(e, Int32);
   }
 
   // KLEE seems to have problems in comparing bit-vectors longer than 8 bytes;
   // here we divide the bit-vectors into chuncks of 8 bytes and then compare them
-  static ref<Expr> createLongEq(ref<Expr> e1, ref<Expr> e2, unsigned size, 
+  static klee::ref<Expr> createLongEq(klee::ref<Expr> e1, klee::ref<Expr> e2, unsigned size, 
 				bool is_eq = true);
 
 
@@ -235,11 +235,11 @@ public:
   }
   static bool classof(const StrExpr *) { return true; }
 
-  // virtual ref<Expr> resolveStrExpr(StrConstraint & constr, TravPurpose pur);
+  // virtual klee::ref<Expr> resolveStrExpr(StrConstraint & constr, TravPurpose pur);
 
   // traverse a string expressions and generate constraints
-  virtual ref<Expr> makeAliasConstraint(StrConstraint& constr, ref<Expr>& e) {
-    return EqExpr::create(ref<Expr>(this), e);
+  virtual klee::ref<Expr> makeAliasConstraint(StrConstraint& constr, klee::ref<Expr>& e) {
+    return EqExpr::create(klee::ref<Expr>(this), e);
   }
 
 };  // end StrExpr
@@ -254,19 +254,19 @@ public:
   static const SubKind subkind = StrAlias;
   static const unsigned numKids = 2;
   
-  ref<Expr> left, right;
+  klee::ref<Expr> left, right;
 
 public:  
-  StrAliasExpr(const ref<Expr> &l,
-	       const ref<Expr> &r) : left(l), right(r) {};
+  StrAliasExpr(const klee::ref<Expr> &l,
+	       const klee::ref<Expr> &r) : left(l), right(r) {};
 
-  static ref<Expr> alloc(const ref<Expr> &l, const ref<Expr> &r) {
-    ref<Expr> e(new StrAliasExpr(l, r));
+  static klee::ref<Expr> alloc(const klee::ref<Expr> &l, const klee::ref<Expr> &r) {
+    klee::ref<Expr> e(new StrAliasExpr(l, r));
     e->computeHash();
     return e;
   }
 
-  static ref<Expr> create(const ref<Expr> &l, const ref<Expr> &r) {
+  static klee::ref<Expr> create(const klee::ref<Expr> &l, const klee::ref<Expr> &r) {
     return alloc(l, r);
   }
   
@@ -283,7 +283,7 @@ public:
   SubKind getSubKind() const { return StrAlias; }
 
   unsigned getNumKids() const { return numKids; }
-  ref<Expr> getKid(unsigned i) const {
+  klee::ref<Expr> getKid(unsigned i) const {
     switch (i) {
     case 0:
       return left;
@@ -292,7 +292,7 @@ public:
     }
   }
 
-  ref<Expr> rebuild(ref<Expr> kids[]) const { 
+  klee::ref<Expr> rebuild(klee::ref<Expr> kids[]) const { 
     return alloc(kids[0], kids[1]);
   }
 
@@ -307,10 +307,10 @@ public:
   bool isSymbolic() { return left->isSymbolic() || right->isSymbolic(); };
   
   // Invoke the functions according to the purpose
-  ref<Expr> resolveStrExpr(StrConstraint & constr, TravPurpose pur) {
+  klee::ref<Expr> resolveStrExpr(StrConstraint & constr, TravPurpose pur) {
     switch (pur) {
     case MakeStrLen: {  // for the lengths of the strings
-      ref<Expr> e = EqExpr::create(left, right);
+      klee::ref<Expr> e = EqExpr::create(left, right);
       return e->resolveStrExpr(constr, pur);
     }
     default: {    // for the contents in the strings
@@ -356,7 +356,7 @@ public:
 
   SubKind getSubKind() const { return StrData; }
   unsigned getNumKids() const { return 0; }
-  ref<Expr> getKid(unsigned i) const { return 0; }
+  klee::ref<Expr> getKid(unsigned i) const { return 0; }
 
   void print(std::ostream &os) const {
     if (array != NULL)
@@ -370,7 +370,7 @@ public:
 
   // Given an array of new kids return a copy of the expression
   // but using those children. 
-  ref<Expr> rebuild(ref<Expr> kids[/* getNumKids() */]) const {
+  klee::ref<Expr> rebuild(klee::ref<Expr> kids[/* getNumKids() */]) const {
     assert(0 && "rebuild() on StrDataExpr"); 
     return (Expr*) this;
   };
@@ -396,10 +396,10 @@ public:
   int getMax () { return array->max; }
   int getSize () { return array == NULL ? value.length() : array->size; }
 
-  ref<Expr> makeLengthConstraint(StrConstraint &constr);
-  ref<Expr> resolveStrExpr(StrConstraint &constr, TravPurpose pur);
+  klee::ref<Expr> makeLengthConstraint(StrConstraint &constr);
+  klee::ref<Expr> resolveStrExpr(StrConstraint &constr, TravPurpose pur);
 
-  ref<Expr> makeAliasConstraint(StrConstraint& constr, ref<Expr>& e);
+  klee::ref<Expr> makeAliasConstraint(StrConstraint& constr, klee::ref<Expr>& e);
 
 };  // end StrExpr
 
@@ -413,13 +413,13 @@ public:
   static const SubKind subkind = StrLen;
   static const unsigned numKids = 1;
   
-  ref<Expr> str;
+  klee::ref<Expr> str;
 
 public:  
-  StrLenExpr(const ref<Expr> &_str) : str(_str) {}
+  StrLenExpr(const klee::ref<Expr> &_str) : str(_str) {}
 
-  static ref<Expr> alloc(const ref<Expr> &_str) {
-    ref<Expr> r(new StrLenExpr(_str));
+  static klee::ref<Expr> alloc(const klee::ref<Expr> &_str) {
+    klee::ref<Expr> r(new StrLenExpr(_str));
     r->computeHash();
     return r;
   }
@@ -432,7 +432,7 @@ public:
     os << ".len()";
   }
 
-  static ref<Expr> create(const ref<Expr> &e) {
+  static klee::ref<Expr> create(const klee::ref<Expr> &e) {
     return alloc(e);
   }
 
@@ -440,9 +440,9 @@ public:
   SubKind getSubKind() const { return StrLen; }
 
   unsigned getNumKids() const { return numKids; }
-  ref<Expr> getKid(unsigned i) const { return str; }
+  klee::ref<Expr> getKid(unsigned i) const { return str; }
 
-  ref<Expr> rebuild(ref<Expr> kids[]) const { 
+  klee::ref<Expr> rebuild(klee::ref<Expr> kids[]) const { 
     return create(kids[0]);
   }
 
@@ -456,7 +456,7 @@ public:
 
   bool isSymbolic() { return str->isSymbolic(); };
 
-  ref<Expr> resolveStrExpr(StrConstraint & constr, TravPurpose pur);
+  klee::ref<Expr> resolveStrExpr(StrConstraint & constr, TravPurpose pur);
 
 };
 
@@ -470,21 +470,21 @@ public:
   static const SubKind subkind = StrFindLastOf;
   static const unsigned numKids = 3;
   
-  ref<Expr> str, tofind, pos;
+  klee::ref<Expr> str, tofind, pos;
 
 public:  
-  StrFindLastOfExpr(const ref<Expr> &_str, const ref<Expr> &_tofind,
-		    const ref<Expr>& _pos = ConstantExpr::create(0, Int32)) : 
+  StrFindLastOfExpr(const klee::ref<Expr> &_str, const klee::ref<Expr> &_tofind,
+		    const klee::ref<Expr>& _pos = ConstantExpr::create(0, Int32)) : 
     str(_str), tofind(_tofind), pos(_pos) {}
 
-  static ref<Expr> alloc(const ref<Expr> &_str, const ref<Expr> &_tofind,
-			 const ref<Expr> _pos = ConstantExpr::create(0, Int32)) {
-    ref<Expr> r(new StrFindLastOfExpr(_str, _tofind, _pos));
+  static klee::ref<Expr> alloc(const klee::ref<Expr> &_str, const klee::ref<Expr> &_tofind,
+			 const klee::ref<Expr> _pos = ConstantExpr::create(0, Int32)) {
+    klee::ref<Expr> r(new StrFindLastOfExpr(_str, _tofind, _pos));
     r->computeHash();
     return r;
   }
 
-  static ref<Expr> create(const ref<Expr> &e1, const ref<Expr> &e2, const ref<Expr> &e3) {
+  static klee::ref<Expr> create(const klee::ref<Expr> &e1, const klee::ref<Expr> &e2, const klee::ref<Expr> &e3) {
     return alloc(e1, e2, e3);
   }
   
@@ -504,7 +504,7 @@ public:
   SubKind getSubKind() const { return StrFindLastOf; }
 
   unsigned getNumKids() const { return numKids; }
-  ref<Expr> getKid(unsigned i) const {
+  klee::ref<Expr> getKid(unsigned i) const {
     switch (i) {
     case 0:
       return str;
@@ -515,7 +515,7 @@ public:
     }
   }
 
-  ref<Expr> rebuild(ref<Expr> kids[]) const { 
+  klee::ref<Expr> rebuild(klee::ref<Expr> kids[]) const { 
     return alloc(kids[0], kids[1], kids[2]);
   }
 
@@ -529,9 +529,9 @@ public:
 
   bool isSymbolic() { return str->isSymbolic() || tofind->isSymbolic(); };
   
-  ref<Expr> makeLengthConstraint(StrConstraint &constr);
-  ref<Expr> resolveStrExpr(StrConstraint & constr, TravPurpose pur);
-  ref<Expr> makeAliasConstraint(StrConstraint& constr, ref<Expr>& e);
+  klee::ref<Expr> makeLengthConstraint(StrConstraint &constr);
+  klee::ref<Expr> resolveStrExpr(StrConstraint & constr, TravPurpose pur);
+  klee::ref<Expr> makeAliasConstraint(StrConstraint& constr, klee::ref<Expr>& e);
 
 };
 
@@ -545,22 +545,22 @@ public:
   static const SubKind subkind = StrSubStr;
   static const unsigned numKids = 3;
   
-  ref<Expr> str, pos, len;
+  klee::ref<Expr> str, pos, len;
 
 public:  
-  StrSubStrExpr(const ref<Expr> &_str, const ref<Expr> &_pos,
-		const ref<Expr> _len = ConstantExpr::create(npos, Int32)) : 
+  StrSubStrExpr(const klee::ref<Expr> &_str, const klee::ref<Expr> &_pos,
+		const klee::ref<Expr> _len = ConstantExpr::create(npos, Int32)) : 
     str(_str), pos(_pos), len(_len) {
   }
 
-  static ref<Expr> alloc(const ref<Expr> &_str, const ref<Expr> &_pos,
-			 const ref<Expr> _len = ConstantExpr::create(npos, Int32)) {
-    ref<Expr> r(new StrSubStrExpr(_str, _pos, _len));
+  static klee::ref<Expr> alloc(const klee::ref<Expr> &_str, const klee::ref<Expr> &_pos,
+			 const klee::ref<Expr> _len = ConstantExpr::create(npos, Int32)) {
+    klee::ref<Expr> r(new StrSubStrExpr(_str, _pos, _len));
     r->computeHash();
     return r;
   }
 
-  static ref<Expr> create(const ref<Expr> &e1, const ref<Expr> &e2, const ref<Expr> &e3) {
+  static klee::ref<Expr> create(const klee::ref<Expr> &e1, const klee::ref<Expr> &e2, const klee::ref<Expr> &e3) {
     return alloc(e1, e2, e3);
   }
   
@@ -572,7 +572,7 @@ public:
     os << ".substr(";
     pos->print(os);
     if (isa<ConstantExpr>(len)) {
-      ref<ConstantExpr> e = cast<ConstantExpr>(len);
+      klee::ref<ConstantExpr> e = cast<ConstantExpr>(len);
       if (e->getZExtValue() != npos)
 	os << "," << len;
     }
@@ -585,7 +585,7 @@ public:
   SubKind getSubKind() const { return StrSubStr; }
 
   unsigned getNumKids() const { return numKids; }
-  ref<Expr> getKid(unsigned i) const {
+  klee::ref<Expr> getKid(unsigned i) const {
     switch (i) {
     case 0:
       return str;
@@ -596,7 +596,7 @@ public:
     }
   }
 
-  ref<Expr> rebuild(ref<Expr> kids[]) const { 
+  klee::ref<Expr> rebuild(klee::ref<Expr> kids[]) const { 
     return alloc(kids[0], kids[1], kids[2]);
   }
 
@@ -610,9 +610,9 @@ public:
 
   bool isSymbolic() { return str->isSymbolic(); };
   
-  ref<Expr> makeLengthConstraint(StrConstraint &constr);
-  ref<Expr> resolveStrExpr(StrConstraint &constr, TravPurpose pur);
-  ref<Expr> makeAliasConstraint(StrConstraint& constr, ref<Expr>& e);
+  klee::ref<Expr> makeLengthConstraint(StrConstraint &constr);
+  klee::ref<Expr> resolveStrExpr(StrConstraint &constr, TravPurpose pur);
+  klee::ref<Expr> makeAliasConstraint(StrConstraint& constr, klee::ref<Expr>& e);
 
 };
 
@@ -627,18 +627,18 @@ public:
   static const SubKind subkind = StrFindLastOf;
   static const unsigned numKids = 2;
   
-  ref<Expr> str, tofind;
+  klee::ref<Expr> str, tofind;
 
 public:  
-  StrFindExpr(const ref<Expr> &_str, const ref<Expr> &_tofind) : 
+  StrFindExpr(const klee::ref<Expr> &_str, const klee::ref<Expr> &_tofind) : 
     str(_str), tofind(_tofind) {}
 
-  static ref<Expr> alloc(const ref<Expr> &_str, const ref<Expr> &_tofind) {
-    ref<Expr> r(new StrFindExpr(_str, _tofind));
+  static klee::ref<Expr> alloc(const klee::ref<Expr> &_str, const klee::ref<Expr> &_tofind) {
+    klee::ref<Expr> r(new StrFindExpr(_str, _tofind));
     r->computeHash();
     return r;
   }
-  static ref<Expr> create(const ref<Expr> &e1, const ref<Expr> &e2) {
+  static klee::ref<Expr> create(const klee::ref<Expr> &e1, const klee::ref<Expr> &e2) {
     return alloc(e1, e2);
   }
   
@@ -656,7 +656,7 @@ public:
   SubKind getSubKind() const { return StrFind; }
 
   unsigned getNumKids() const { return numKids; }
-  ref<Expr> getKid(unsigned i) const {
+  klee::ref<Expr> getKid(unsigned i) const {
     switch (i) {
     case 0:
       return str;
@@ -667,7 +667,7 @@ public:
     }
   }
 
-  ref<Expr> rebuild(ref<Expr> kids[]) const 
+  klee::ref<Expr> rebuild(klee::ref<Expr> kids[]) const 
   { return alloc(kids[0], kids[1]); }
 
 public:
@@ -680,8 +680,8 @@ public:
 
   bool isSymbolic() { return str->isSymbolic() || tofind->isSymbolic(); };
   
-  ref<Expr> resolveStrExpr(StrConstraint & constr, TravPurpose pur);
-  ref<Expr> makeAliasConstraint(StrConstraint& constr, ref<Expr>& e);
+  klee::ref<Expr> resolveStrExpr(StrConstraint & constr, TravPurpose pur);
+  klee::ref<Expr> makeAliasConstraint(StrConstraint& constr, klee::ref<Expr>& e);
 
 };
 
@@ -695,21 +695,21 @@ public:
   static const SubKind subkind = StrCompare;
   static const unsigned numKids = 4;
   
-  ref<Expr> str, pos, len, tocompare;
+  klee::ref<Expr> str, pos, len, tocompare;
 
 public:  
-  StrCompareExpr(const ref<Expr> &_str, const ref<Expr> &_pos, 
-		 const ref<Expr> &_len, const ref<Expr> &_tocompare) : 
+  StrCompareExpr(const klee::ref<Expr> &_str, const klee::ref<Expr> &_pos, 
+		 const klee::ref<Expr> &_len, const klee::ref<Expr> &_tocompare) : 
     str(_str), pos(_pos), len(_len), tocompare(_tocompare) {}
 
-  static ref<Expr> alloc(const ref<Expr> &_str, const ref<Expr> &_pos, 
-			 const ref<Expr> &_len, const ref<Expr> &_tocompare) {
-    ref<Expr> r(new StrCompareExpr(_str, _pos, _len, _tocompare));
+  static klee::ref<Expr> alloc(const klee::ref<Expr> &_str, const klee::ref<Expr> &_pos, 
+			 const klee::ref<Expr> &_len, const klee::ref<Expr> &_tocompare) {
+    klee::ref<Expr> r(new StrCompareExpr(_str, _pos, _len, _tocompare));
     r->computeHash();
     return r;
   }
-  static ref<Expr> create(const ref<Expr> &_str, const ref<Expr> &_pos, 
-			  const ref<Expr> &_len, const ref<Expr> &_tocompare) {
+  static klee::ref<Expr> create(const klee::ref<Expr> &_str, const klee::ref<Expr> &_pos, 
+			  const klee::ref<Expr> &_len, const klee::ref<Expr> &_tocompare) {
     return alloc(_str, _pos, _len, _tocompare);
   }
   
@@ -731,7 +731,7 @@ public:
   SubKind getSubKind() const { return StrCompare; }
 
   unsigned getNumKids() const { return numKids; }
-  ref<Expr> getKid(unsigned i) const {
+  klee::ref<Expr> getKid(unsigned i) const {
     switch (i) {
     case 0:
       return str;
@@ -744,7 +744,7 @@ public:
     }
   }
 
-  ref<Expr> rebuild(ref<Expr> kids[]) const { 
+  klee::ref<Expr> rebuild(klee::ref<Expr> kids[]) const { 
     return create(kids[0], kids[1], kids[2], kids[3]); 
   }
 
@@ -757,8 +757,8 @@ public:
   static bool classof(const StrCompareExpr *) { return true; }
 
   bool isSymbolic() { return str->isSymbolic() || tocompare->isSymbolic(); };
-  ref<Expr> resolveStrExpr(StrConstraint & constr, TravPurpose pur);
-  ref<Expr> makeAliasConstraint(StrConstraint &constr, ref<Expr> &e);
+  klee::ref<Expr> resolveStrExpr(StrConstraint & constr, TravPurpose pur);
+  klee::ref<Expr> makeAliasConstraint(StrConstraint &constr, klee::ref<Expr> &e);
 
 };
 
@@ -769,16 +769,16 @@ public:
 
 #define STRING_EXPR_CLASS(_class_kind)                               \
 class _class_kind ## Expr : public StrExpr {                         \
-  ref<Expr> left;                                                    \
-  ref<Expr> right;                                                   \
+  klee::ref<Expr> left;                                                    \
+  klee::ref<Expr> right;                                                   \
 public:                                                              \
   static const SubKind subkind = _class_kind;                        \
   static const unsigned numKids = 2;                                 \
 public:                                                              \
-    _class_kind ## Expr(const ref<Expr> &l,                          \
-                        const ref<Expr> &r) : left(l), right(r) {}   \
-    static ref<Expr> alloc(const ref<Expr> &l, const ref<Expr> &r) { \
-      ref<Expr> res(new _class_kind ## Expr (l, r));                 \
+    _class_kind ## Expr(const klee::ref<Expr> &l,                          \
+                        const klee::ref<Expr> &r) : left(l), right(r) {}   \
+    static klee::ref<Expr> alloc(const klee::ref<Expr> &l, const klee::ref<Expr> &r) { \
+      klee::ref<Expr> res(new _class_kind ## Expr (l, r));                 \
       res->computeHash();                                            \
       return res;                                                    \
     }                                                                \
@@ -787,16 +787,16 @@ public:                                                              \
       os << " == ";                                                  \
       right->print(os);                                              \
     }                                                                \
-    static ref<Expr> create(const ref<Expr> &l, const ref<Expr> &r) {\
+    static klee::ref<Expr> create(const klee::ref<Expr> &l, const klee::ref<Expr> &r) {\
       return alloc(l, r);					     \
     };								     \
     Width getWidth() const { return Expr::Int8; }		     \
     SubKind getSubKind() const { return _class_kind; }               \
-    virtual ref<Expr> rebuild(ref<Expr> kids[]) const {              \
+    virtual klee::ref<Expr> rebuild(klee::ref<Expr> kids[]) const {              \
       return create(kids[0], kids[1]);                               \
     }                                                                \
     unsigned getNumKids() const { return numKids; }                  \
-    ref<Expr> getKid(unsigned i) const                               \
+    klee::ref<Expr> getKid(unsigned i) const                               \
        { return i == 0 ? left : right; }			     \
     static bool classof(const Expr *E) {                             \
       return E->getKind() == Expr::String;                           \
@@ -809,8 +809,8 @@ public:                                                              \
     }	                                                             \
     bool isSymbolic() {                                              \
       return (left->isSymbolic() || right->isSymbolic()); }	     \
-    ref<Expr> resolveStrExpr(StrConstraint &constr, TravPurpose pur);\
-    ref<Expr> makeAliasConstraint(StrConstraint &constr, ref<Expr> &e); \
+    klee::ref<Expr> resolveStrExpr(StrConstraint &constr, TravPurpose pur);\
+    klee::ref<Expr> makeAliasConstraint(StrConstraint &constr, klee::ref<Expr> &e); \
 };                                                                   \
 
 

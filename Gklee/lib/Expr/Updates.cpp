@@ -16,8 +16,8 @@ using namespace klee;
 ///
 
 UpdateNode::UpdateNode(const UpdateNode *_next, 
-                       const ref<Expr> &_index, 
-                       const ref<Expr> &_value) 
+                       const klee::ref<Expr> &_index, 
+                       const klee::ref<Expr> &_value) 
   : refCount(0),
     next(_next),
     index(_index),
@@ -83,7 +83,7 @@ UpdateList &UpdateList::operator=(const UpdateList &b) {
   return *this;
 }
 
-void UpdateList::extend(const ref<Expr> &index, const ref<Expr> &value) {
+void UpdateList::extend(const klee::ref<Expr> &index, const klee::ref<Expr> &value) {
   if (head) --head->refCount;
   head = new UpdateNode(head, index, value);
   ++head->refCount;

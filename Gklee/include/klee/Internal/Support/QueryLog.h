@@ -26,11 +26,11 @@ namespace klee {
       Cex
     };
     
-    typedef std::vector< ref<Expr> > exprs_ty;
+    typedef std::vector< klee::ref<Expr> > exprs_ty;
     exprs_ty exprs;
 
     Type type;
-    ref<Expr> query;
+    klee::ref<Expr> query;
     unsigned instruction;
     std::vector<const Array*> objects;
     

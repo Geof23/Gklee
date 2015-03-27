@@ -144,7 +144,7 @@ ObjectState::ObjectState(const ObjectState &os)
     object->refCount++;
 
   if (os.knownSymbolics) {
-    knownSymbolics = new ref<Expr>[size];
+    knownSymbolics = new klee::ref<Expr>[size];
     for (unsigned i=0; i<size; i++)
       knownSymbolics[i] = os.knownSymbolics[i];
   }
@@ -180,14 +180,14 @@ const UpdateList &ObjectState::getUpdates() const {
     // careful to get the interaction with the cache right. In particular we
     // should avoid creating UpdateNode instances we never use.
     unsigned NumWrites = updates.head ? updates.head->getSize() : 0;
-    std::vector< std::pair< ref<Expr>, ref<Expr> > > Writes(NumWrites);
+    std::vector< std::pair< klee::ref<Expr>, klee::ref<Expr> > > Writes(NumWrites);
     const UpdateNode *un = updates.head;
     for (unsigned i = NumWrites; i != 0; un = un->next) {
       --i;
       Writes[i] = std::make_pair(un->index, un->value);
     }
 
-    std::vector< ref<ConstantExpr> > Contents(size);
+    std::vector< klee::ref<ConstantExpr> > Contents(size);
 
     // Initialize to zeros.
     for (unsigned i = 0, e = size; i != e; ++i)
@@ -285,7 +285,7 @@ isByteConcrete(i) => !isByteKnownSymbolic(i)
 !isByteFlushed(i) => (isByteConcrete(i) || isByteKnownSymbolic(i))
  */
 
-void ObjectState::fastRangeCheckOffset(ref<Expr> offset,
+void ObjectState::fastRangeCheckOffset(klee::ref<Expr> offset,
                                        unsigned *base_r,
                                        unsigned *size_r) const {
   *base_r = 0;
@@ -384,7 +384,7 @@ void ObjectState::setKnownSymbolic(unsigned offset,
     knownSymbolics[offset] = value;
   } else {
     if (value) {
-      knownSymbolics = new ref<Expr>[size];
+      knownSymbolics = new klee::ref<Expr>[size];
       knownSymbolics[offset] = value;
     }
   }
@@ -392,7 +392,7 @@ void ObjectState::setKnownSymbolic(unsigned offset,
 
 /***/
 
-ref<Expr> ObjectState::read8(unsigned offset) const {
+klee::ref<Expr> ObjectState::read8(unsigned offset) const {
   if (isByteConcrete(offset)) {
     return ConstantExpr::create(concreteStore[offset], Expr::Int8);
   } else if (isByteKnownSymbolic(offset)) {
@@ -405,7 +405,7 @@ ref<Expr> ObjectState::read8(unsigned offset) const {
   }    
 }
 
-ref<Expr> ObjectState::read8(ref<Expr> offset) const {
+klee::ref<Expr> ObjectState::read8(klee::ref<Expr> offset) const {
   assert(!isa<ConstantExpr>(offset) && "constant offset passed to symbolic read8");
   unsigned base, size;
   fastRangeCheckOffset(offset, &base, &size);
@@ -431,7 +431,7 @@ void ObjectState::write8(unsigned offset, uint8_t value) {
   markByteUnflushed(offset);
 }
 
-void ObjectState::write8(unsigned offset, ref<Expr> value) {
+void ObjectState::write8(unsigned offset, klee::ref<Expr> value) {
   // can happen when ExtractExpr special cases
   if (ConstantExpr *CE = dyn_cast<ConstantExpr>(value)) {
     write8(offset, (uint8_t) CE->getZExtValue(8));
@@ -443,7 +443,7 @@ void ObjectState::write8(unsigned offset, ref<Expr> value) {
   }
 }
 
-void ObjectState::write8(ref<Expr> offset, ref<Expr> value) {
+void ObjectState::write8(klee::ref<Expr> offset, klee::ref<Expr> value) {
   assert(!isa<ConstantExpr>(offset) && "constant offset passed to symbolic write8");
   unsigned base, size;
   fastRangeCheckOffset(offset, &base, &size);
@@ -462,7 +462,7 @@ void ObjectState::write8(ref<Expr> offset, ref<Expr> value) {
 
 /***/
 
-ref<Expr> ObjectState::read(ref<Expr> offset, Expr::Width width) const {
+klee::ref<Expr> ObjectState::read(klee::ref<Expr> offset, Expr::Width width) const {
   // Truncate offset to 32-bits.
   offset = ZExtExpr::create(offset, Expr::Int32);
 
@@ -477,10 +477,10 @@ ref<Expr> ObjectState::read(ref<Expr> offset, Expr::Width width) const {
   // Otherwise, follow the slow general case.
   unsigned NumBytes = width / 8;
   assert(width == NumBytes * 8 && "Invalid write size!");
-  ref<Expr> Res(0);
+  klee::ref<Expr> Res(0);
   for (unsigned i = 0; i != NumBytes; ++i) {
     unsigned idx = Context::get().isLittleEndian() ? i : (NumBytes - i - 1);
-    ref<Expr> Byte = read8(AddExpr::create(offset, 
+    klee::ref<Expr> Byte = read8(AddExpr::create(offset, 
                                            ConstantExpr::create(idx, 
                                                                 Expr::Int32)));
     Res = i ? ConcatExpr::create(Byte, Res) : Byte;
@@ -489,7 +489,7 @@ ref<Expr> ObjectState::read(ref<Expr> offset, Expr::Width width) const {
   return Res;
 }
 
-ref<Expr> ObjectState::read(unsigned offset, Expr::Width width) const {
+klee::ref<Expr> ObjectState::read(unsigned offset, Expr::Width width) const {
   // Treat bool specially, it is the only non-byte sized write we allow.
   if (width == Expr::Bool)
     return ExtractExpr::create(read8(offset), 0, Expr::Bool);
@@ -497,17 +497,17 @@ ref<Expr> ObjectState::read(unsigned offset, Expr::Width width) const {
   // Otherwise, follow the slow general case.
   unsigned NumBytes = width / 8;
   assert(width == NumBytes * 8 && "Invalid write size!");
-  ref<Expr> Res(0);
+  klee::ref<Expr> Res(0);
   for (unsigned i = 0; i != NumBytes; ++i) {
     unsigned idx = Context::get().isLittleEndian() ? i : (NumBytes - i - 1);
-    ref<Expr> Byte = read8(offset + idx);
+    klee::ref<Expr> Byte = read8(offset + idx);
     Res = i ? ConcatExpr::create(Byte, Res) : Byte;
   }
 
   return Res;
 }
 
-void ObjectState::write(ref<Expr> offset, ref<Expr> value) {
+void ObjectState::write(klee::ref<Expr> offset, klee::ref<Expr> value) {
   // Truncate offset to 32-bits.
   offset = ZExtExpr::create(offset, Expr::Int32);
 
@@ -534,7 +534,7 @@ void ObjectState::write(ref<Expr> offset, ref<Expr> value) {
   }
 }
 
-void ObjectState::write(unsigned offset, ref<Expr> value) {
+void ObjectState::write(unsigned offset, klee::ref<Expr> value) {
   // Check for writes of constant values.
   if (ConstantExpr *CE = dyn_cast<ConstantExpr>(value)) {
     Expr::Width w = CE->getWidth();
@@ -603,7 +603,7 @@ void ObjectState::print() {
                << " concrete? " << isByteConcrete(i)
                << " known-sym? " << isByteKnownSymbolic(i)
                << " flushed? " << isByteFlushed(i) << " = ";
-    ref<Expr> e = read8(i);
+    klee::ref<Expr> e = read8(i);
     std::cerr << e << "\n";
   }
 

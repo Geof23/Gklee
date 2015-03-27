@@ -18,7 +18,7 @@ class StrConstraint {
 
 public:
 
-  typedef std::vector < ref<Expr> > ConstrsType;
+  typedef std::vector < klee::ref<Expr> > ConstrsType;
 
   // another solution; not used now
 /*   typedef std::map <Expr*, const Array*> ExprSymVarMap; */
@@ -69,8 +69,8 @@ public:
   }
 
       
-  void addConstraint(ref<Expr> c) { constrs.addConstraint(c); }
-  void addLenConstraint(ref<Expr> c) { len_constrs.addConstraint(c); }
+  void addConstraint(klee::ref<Expr> c) { constrs.addConstraint(c); }
+  void addLenConstraint(klee::ref<Expr> c) { len_constrs.addConstraint(c); }
 
   void addSymLen(const Array* c) {
     for (std::set<const Array*>::const_iterator ii = symlens.begin();
@@ -113,11 +113,11 @@ public:
 
   // consult the solver to get the (unique) value of an expression;
   // this value is calculated based on the known assignment.
-  bool getValue(ref<Expr> expr, ref<ConstantExpr> &result) {
+  bool getValue(klee::ref<Expr> expr, klee::ref<ConstantExpr> &result) {
      return solver->getValue(Query(assgn_constrs, expr), result);
   }
 
-/*   unsigned get_value(ref<Expr> expr) { */
+/*   unsigned get_value(klee::ref<Expr> expr) { */
 /*     return var2values[expr2vars[expr.get()]]; */
 /*   } */
 
@@ -126,24 +126,24 @@ public:
 /*   } */
 
   // build constraints on the lengths of string expressions
-  static ref<Expr> makeLengthConstraint(StrConstraint& constr, ref<Expr> expr) {
+  static klee::ref<Expr> makeLengthConstraint(StrConstraint& constr, klee::ref<Expr> expr) {
     return resolveStrExpr(constr, expr, Expr::MakeStrLen);
   }
 
   // build constraints on the contents (values) of string expressions
-  static ref<Expr> makeStrConstraint(StrConstraint& constr, ref<Expr> expr) {
+  static klee::ref<Expr> makeStrConstraint(StrConstraint& constr, klee::ref<Expr> expr) {
     return resolveStrExpr(constr, expr, Expr::MakeStrExpr);
   }
 
   // build string constraints
-  static ref<Expr> resolveStrExpr(StrConstraint& constr, ref<Expr> expr, 
+  static klee::ref<Expr> resolveStrExpr(StrConstraint& constr, klee::ref<Expr> expr, 
 				  Expr::TravPurpose pur) {
     constr.len_constrs.clear();     // clear previous results
     constr.involveStr = false;      // recalculate this flag
 
     for (ConstraintManager::const_iterator ii = constr.constrs.begin(); 
 	 ii != constr.constrs.end(); ii++) {
-      ref<Expr> res = (*ii)->resolveStrExpr(constr, pur);
+      klee::ref<Expr> res = (*ii)->resolveStrExpr(constr, pur);
 /*       std::cout << "\n res = "; */
 /*       res->dump(); */
       constr.addLenConstraint(res);

@@ -30,11 +30,11 @@ static void updateWarpDefVec(WarpDefVec &, MemoryAccessVec &,
 static void dumpTmpMemorySet(MemoryAccessVec &);
 
 // return true if bank conflict exists...
-static bool checkReadBankConflictExprsCap1x(ref<Expr> &addr1, ref<Expr> &addr2, 
+static bool checkReadBankConflictExprsCap1x(klee::ref<Expr> &addr1, klee::ref<Expr> &addr2, 
                                             Executor &executor, ExecutionState &state, 
-                                            unsigned BankNum, ref<Expr> &bankSeq, 
-                                            ref<Expr> &bcCond, unsigned &queryNum) {
-  ref<Expr> origEq = EqExpr::create(addr1, addr2);
+                                            unsigned BankNum, klee::ref<Expr> &bankSeq, 
+                                            klee::ref<Expr> &bcCond, unsigned &queryNum) {
+  klee::ref<Expr> origEq = EqExpr::create(addr1, addr2);
   bool result = false;
   bool unknown = false;
   bool success = AddressSpaceUtil::evaluateQueryMustBeTrue(executor, state, origEq, result, unknown);
@@ -43,13 +43,13 @@ static bool checkReadBankConflictExprsCap1x(ref<Expr> &addr1, ref<Expr> &addr2,
     if (result) return false; // broadcast...
   }
  
-  ref<Expr> tmpExpr = NeExpr::create(addr1, addr2);
-  ref<Expr> bankSize = ConstantExpr::create(BankNum * 4, addr1->getWidth());
-  ref<Expr> wordSize = ConstantExpr::create(4, addr1->getWidth());
-  ref<Expr> a1 = UDivExpr::create(URemExpr::create(addr1, bankSize), wordSize);
-  ref<Expr> a2 = UDivExpr::create(URemExpr::create(addr2, bankSize), wordSize);
-  ref<Expr> expr = EqExpr::create(a1, a2);
-  ref<Expr> andExpr = AndExpr::create(tmpExpr, expr);
+  klee::ref<Expr> tmpExpr = NeExpr::create(addr1, addr2);
+  klee::ref<Expr> bankSize = ConstantExpr::create(BankNum * 4, addr1->getWidth());
+  klee::ref<Expr> wordSize = ConstantExpr::create(4, addr1->getWidth());
+  klee::ref<Expr> a1 = UDivExpr::create(URemExpr::create(addr1, bankSize), wordSize);
+  klee::ref<Expr> a2 = UDivExpr::create(URemExpr::create(addr2, bankSize), wordSize);
+  klee::ref<Expr> expr = EqExpr::create(a1, a2);
+  klee::ref<Expr> andExpr = AndExpr::create(tmpExpr, expr);
 
   success = AddressSpaceUtil::evaluateQueryMustBeFalse(executor, state, andExpr, result, unknown);
   queryNum++;
@@ -65,15 +65,15 @@ static bool checkReadBankConflictExprsCap1x(ref<Expr> &addr1, ref<Expr> &addr2,
 }
 
 // return true if bank conflict exists...
-static bool checkWriteBankConflictExprsCap1x(ref<Expr> &addr1, ref<Expr> &addr2, 
+static bool checkWriteBankConflictExprsCap1x(klee::ref<Expr> &addr1, klee::ref<Expr> &addr2, 
                                              Executor &executor, ExecutionState &state, 
-                                             unsigned BankNum, ref<Expr> &bankSeq, 
-                                             ref<Expr> &bcCond, unsigned &queryNum) {
-  ref<Expr> bankSize = ConstantExpr::create(BankNum * 4, addr1->getWidth());
-  ref<Expr> wordSize = ConstantExpr::create(4, addr1->getWidth());
-  ref<Expr> a1 = UDivExpr::create(URemExpr::create(addr1, bankSize), wordSize);
-  ref<Expr> a2 = UDivExpr::create(URemExpr::create(addr2, bankSize), wordSize);
-  ref<Expr> expr = EqExpr::create(a1, a2);
+                                             unsigned BankNum, klee::ref<Expr> &bankSeq, 
+                                             klee::ref<Expr> &bcCond, unsigned &queryNum) {
+  klee::ref<Expr> bankSize = ConstantExpr::create(BankNum * 4, addr1->getWidth());
+  klee::ref<Expr> wordSize = ConstantExpr::create(4, addr1->getWidth());
+  klee::ref<Expr> a1 = UDivExpr::create(URemExpr::create(addr1, bankSize), wordSize);
+  klee::ref<Expr> a2 = UDivExpr::create(URemExpr::create(addr2, bankSize), wordSize);
+  klee::ref<Expr> expr = EqExpr::create(a1, a2);
 
   bool result = false;
   bool unknown = false;
@@ -91,15 +91,15 @@ static bool checkWriteBankConflictExprsCap1x(ref<Expr> &addr1, ref<Expr> &addr2,
   return false;
 }
 
-static bool checkBankConflictExprsCap2x(ref<Expr> &addr1, ref<Expr> &addr2, 
+static bool checkBankConflictExprsCap2x(klee::ref<Expr> &addr1, klee::ref<Expr> &addr2, 
                                         Executor &executor, ExecutionState &state,
-                                        unsigned BankNum, ref<Expr> &bankSeq, 
-                                        ref<Expr> &bcCond, unsigned &queryNum) {
+                                        unsigned BankNum, klee::ref<Expr> &bankSeq, 
+                                        klee::ref<Expr> &bcCond, unsigned &queryNum) {
   // Eliminate the same word ...
-  ref<Expr> wordSize = ConstantExpr::create(4, addr1->getWidth());
-  ref<Expr> a1 = UDivExpr::create(addr1, wordSize);
-  ref<Expr> a2 = UDivExpr::create(addr2, wordSize);
-  ref<Expr> expr = EqExpr::create(a1, a2);
+  klee::ref<Expr> wordSize = ConstantExpr::create(4, addr1->getWidth());
+  klee::ref<Expr> a1 = UDivExpr::create(addr1, wordSize);
+  klee::ref<Expr> a2 = UDivExpr::create(addr2, wordSize);
+  klee::ref<Expr> expr = EqExpr::create(a1, a2);
 
   bool result = false;
   bool unknown = false;
@@ -109,12 +109,12 @@ static bool checkBankConflictExprsCap2x(ref<Expr> &addr1, ref<Expr> &addr2,
     if (result) return false; // broadcast...
   }
 
-  ref<Expr> tmpExpr = NeExpr::create(a1, a2);
-  ref<Expr> bankSize = ConstantExpr::create(BankNum * 4, addr1->getWidth());
-  ref<Expr> b1 = UDivExpr::create(URemExpr::create(addr1, bankSize), wordSize);
-  ref<Expr> b2 = UDivExpr::create(URemExpr::create(addr2, bankSize), wordSize);
+  klee::ref<Expr> tmpExpr = NeExpr::create(a1, a2);
+  klee::ref<Expr> bankSize = ConstantExpr::create(BankNum * 4, addr1->getWidth());
+  klee::ref<Expr> b1 = UDivExpr::create(URemExpr::create(addr1, bankSize), wordSize);
+  klee::ref<Expr> b2 = UDivExpr::create(URemExpr::create(addr2, bankSize), wordSize);
 
-  ref<Expr> andExpr = AndExpr::create(tmpExpr, EqExpr::create(b1, b2));
+  klee::ref<Expr> andExpr = AndExpr::create(tmpExpr, EqExpr::create(b1, b2));
   success = AddressSpaceUtil::evaluateQueryMustBeFalse(executor, state, andExpr, result, unknown);
   queryNum++;
   if (success) {
@@ -129,9 +129,9 @@ static bool checkBankConflictExprsCap2x(ref<Expr> &addr1, ref<Expr> &addr2,
 }
 
 static void dumpBankConflictCap1x(Executor &executor, ExecutionState &state, 
-                                  ref<Expr> &bcCond, const MemoryAccess &ma1, 
+                                  klee::ref<Expr> &bcCond, const MemoryAccess &ma1, 
                                   const MemoryAccess &ma2, 
-                                  bool isWrite, ref<Expr> &bankSeq) {
+                                  bool isWrite, klee::ref<Expr> &bankSeq) {
   std::string str = (isWrite)? "W-W bank conflict" : "R-R bank conflict";
   GKLEE_INFO2 << "********** CAPACITY 1.x Bank Conflict **********" << std::endl;
 
@@ -153,7 +153,7 @@ static bool checkBankConflictCap1x(Executor &executor, ExecutionState &state,
                                    std::vector<InstAccessSet> &instAccessSets,
                                    std::vector<RefDivRegionSetVec> &divRegionSets,
                                    std::vector<SameInstVec> &sameInstSets,
-                                   bool isWrite, ref<Expr> &bcCond, WarpDefVec &bcWDVec, 
+                                   bool isWrite, klee::ref<Expr> &bcCond, WarpDefVec &bcWDVec, 
                                    unsigned &queryNum) {
   MemoryAccessVec tmpRWSet = rwSet;
   bool hasBC = false;
@@ -169,12 +169,12 @@ static bool checkBankConflictCap1x(Executor &executor, ExecutionState &state,
 
     for (MemoryAccessVec::const_iterator ii = bcRWSet.begin(); 
          ii != bcRWSet.end(); ii++) {
-      ref<Expr> addr1 =  ii->offset;
+      klee::ref<Expr> addr1 =  ii->offset;
       MemoryAccessVec::const_iterator jj = ii;
       jj++;
       for (; jj != bcRWSet.end(); jj++) {
-        ref<Expr> addr2 = jj->offset;
-        ref<Expr> bankSeq;
+        klee::ref<Expr> addr2 = jj->offset;
+        klee::ref<Expr> bankSeq;
         bool hasConflict = isWrite ?
                         checkWriteBankConflictExprsCap1x(addr1, addr2, executor, state, GPUConfig::warpsize/2, bankSeq, bcCond, queryNum) :
                         checkReadBankConflictExprsCap1x(addr1, addr2, executor, state, GPUConfig::warpsize/2, bankSeq, bcCond, queryNum);
@@ -203,9 +203,9 @@ static bool checkBankConflictCap1x(Executor &executor, ExecutionState &state,
 }
 
 static void dumpBankConflictCap2x(Executor &executor, ExecutionState &state, 
-                                  ref<Expr> bcCond, const MemoryAccess &ma1, 
+                                  klee::ref<Expr> bcCond, const MemoryAccess &ma1, 
                                   const MemoryAccess &ma2, 
-                                  bool isWrite, ref<Expr> &bankSeq) {
+                                  bool isWrite, klee::ref<Expr> &bankSeq) {
   if(Emacs) AddressSpace::dumpEmacsInfoVect(ma1.bid, ma2.bid, ma1.tid, 
 					    ma2.tid, ma1.instr, ma2.instr, 
 					    isWrite ? "wwbc" : "rrbc");
@@ -230,7 +230,7 @@ static bool checkBankConflictCap2x(Executor &executor, ExecutionState &state,
                                    std::vector<InstAccessSet> &instAccessSets,
                                    std::vector<RefDivRegionSetVec> &divRegionSets, 
                                    std::vector<SameInstVec> &sameInstSets,
-                                   bool isWrite, ref<Expr> &bcCond, WarpDefVec &bcWDVec, 
+                                   bool isWrite, klee::ref<Expr> &bcCond, WarpDefVec &bcWDVec, 
                                    unsigned &queryNum) {
   MemoryAccessVec tmpRWSet = rwSet;
   bool hasBC = false;
@@ -245,12 +245,12 @@ static bool checkBankConflictCap2x(Executor &executor, ExecutionState &state,
     bool hasViolation = false;
 
     for (MemoryAccessVec::const_iterator ii = bcRWSet.begin(); ii != bcRWSet.end(); ii++) {
-      ref<Expr> addr1 = ii->offset;
+      klee::ref<Expr> addr1 = ii->offset;
       MemoryAccessVec::const_iterator jj = ii;
       jj++;
       for (; jj != bcRWSet.end(); jj++) {
-        ref<Expr> addr2 = jj->offset;
-        ref<Expr> bankSeq;
+        klee::ref<Expr> addr2 = jj->offset;
+        klee::ref<Expr> bankSeq;
         bool hasConflict = checkBankConflictExprsCap2x(addr1, addr2, executor, state, 
                                                        GPUConfig::warpsize, bankSeq, 
                                                        bcCond, queryNum); 
@@ -280,7 +280,7 @@ bool AddressSpace::hasBankConflict(Executor &executor, ExecutionState &state,
                                    std::vector<InstAccessSet> &instAccessSets,
                                    std::vector<RefDivRegionSetVec> &divRegionSets,
                                    std::vector<SameInstVec> &sameInstVecSets,
-                                   ref<Expr> &bcCond, WarpDefVec &bcWDVec, 
+                                   klee::ref<Expr> &bcCond, WarpDefVec &bcWDVec, 
                                    bool &Consider, unsigned &queryNum) {
   bool hasReadBC = false;
   bool hasWriteBC = false;
@@ -382,9 +382,9 @@ static int getSegmentSize(Expr::Width width, unsigned &wordsize, unsigned capabi
 }
 
 static void dumpMemoryCoalescingCap0Fail(Executor &executor, ExecutionState &state, 
-                                         ref<Expr> noMCCond, MemoryAccess &access1, 
+                                         klee::ref<Expr> noMCCond, MemoryAccess &access1, 
                                          MemoryAccess &access2, MemoryAccessVec &tmpRWSet,  
-                                         ref<Expr> &lbound, ref<Expr> &ubound, 
+                                         klee::ref<Expr> &lbound, klee::ref<Expr> &ubound, 
                                          unsigned reason, unsigned warpNum, unsigned wordsize) {
   GKLEE_INFO2 << "********** CAPACITY 1.0 or 1.1 half-warp ( " << warpNum << " ) **********" << std::endl;
   if(Emacs) AddressSpace::dumpEmacsInfoVect(access1.bid, access2.bid,
@@ -424,7 +424,7 @@ static void dumpMemoryCoalescingCap0Fail(Executor &executor, ExecutionState &sta
   GKLEE_INFO2 << "**********************************************************************" << std::endl;
 }
 
-void dumpMemoryCoalescingCap0Success(MemoryAccessVec &tmpRWSet, ref<Expr> &lbound, ref<Expr> &ubound,
+void dumpMemoryCoalescingCap0Success(MemoryAccessVec &tmpRWSet, klee::ref<Expr> &lbound, klee::ref<Expr> &ubound,
                                      unsigned warpNum, unsigned wordsize) {
   GKLEE_INFO2 << "********** CAPACITY 1.0 or 1.1 half-warp ( " << warpNum << " ) **********" << std::endl;
 
@@ -471,28 +471,28 @@ static bool checkMemoryCoalescingCap0Size(Executor &executor, ExecutionState &st
                                           MemoryAccessVec &tmpRWSet, std::vector<CorrespondTid> &cTidSets, 
                                           unsigned halfWarpNum, unsigned segSize, 
                                           unsigned threadNum, unsigned wordsize, 
-                                          ref<Expr> &noMCCond, unsigned &queryNum) {
-  ref<Expr> lbound;
-  ref<Expr> ubound;
-  ref<Expr> baseAddr = tmpRWSet[0].mo->getBaseExpr();
-  ref<Expr> segSizeExpr = ConstantExpr::create(segSize, baseAddr->getWidth());
-  ref<Expr> segNumExpr;
+                                          klee::ref<Expr> &noMCCond, unsigned &queryNum) {
+  klee::ref<Expr> lbound;
+  klee::ref<Expr> ubound;
+  klee::ref<Expr> baseAddr = tmpRWSet[0].mo->getBaseExpr();
+  klee::ref<Expr> segSizeExpr = ConstantExpr::create(segSize, baseAddr->getWidth());
+  klee::ref<Expr> segNumExpr;
   bool result = false;
   bool success = false;
   bool hasViolation = false;
-  ref<Expr> cond;
+  klee::ref<Expr> cond;
   unsigned segWarpNum = 0; // The number of different segments all threads in a half 
                            // warp will access 
 
   for (unsigned i = 0; i < tmpRWSet.size(); i++) {
-    ref<Expr> tmpSegNumExpr = UDivExpr::create(tmpRWSet[i].offset, segSizeExpr);
+    klee::ref<Expr> tmpSegNumExpr = UDivExpr::create(tmpRWSet[i].offset, segSizeExpr);
     if (segWarpNum == 0) {
       segWarpNum++;
       segNumExpr = tmpSegNumExpr; 
       lbound = MulExpr::create(segSizeExpr, segNumExpr); 
       ubound = AddExpr::create(lbound, segSizeExpr); 
     } else {
-      ref<Expr> cond = EqExpr::create(segNumExpr, tmpSegNumExpr);
+      klee::ref<Expr> cond = EqExpr::create(segNumExpr, tmpSegNumExpr);
       bool unknown = false;
 
       success = AddressSpaceUtil::evaluateQueryMustBeTrue(executor, state, cond, result, unknown);
@@ -511,10 +511,10 @@ static bool checkMemoryCoalescingCap0Size(Executor &executor, ExecutionState &st
       }
     }
     // Violation of the sequential rule... 
-    ref<Expr> remExpr = URemExpr::create(tmpRWSet[i].offset, segSizeExpr);  
-    ref<Expr> idxExpr = UDivExpr::create(remExpr, ConstantExpr::create(wordsize, baseAddr->getWidth()));
-    ref<Expr> tidExpr = ConstantExpr::create(cTidSets[tmpRWSet[i].tid].rTid, baseAddr->getWidth());
-    ref<Expr> remTidExpr = URemExpr::create(tidExpr, ConstantExpr::create(threadNum, baseAddr->getWidth()));
+    klee::ref<Expr> remExpr = URemExpr::create(tmpRWSet[i].offset, segSizeExpr);  
+    klee::ref<Expr> idxExpr = UDivExpr::create(remExpr, ConstantExpr::create(wordsize, baseAddr->getWidth()));
+    klee::ref<Expr> tidExpr = ConstantExpr::create(cTidSets[tmpRWSet[i].tid].rTid, baseAddr->getWidth());
+    klee::ref<Expr> remTidExpr = URemExpr::create(tidExpr, ConstantExpr::create(threadNum, baseAddr->getWidth()));
     cond = EqExpr::create(remTidExpr, idxExpr);
           
     bool unknown = false;
@@ -549,7 +549,7 @@ static bool checkMemoryCoalescingCap0(Executor &executor, ExecutionState &state,
                                       std::vector<InstAccessSet> &instAccessSets,
                                       std::vector<RefDivRegionSetVec> &divRegionSets,
                                       std::vector<SameInstVec> &sameInstVecSets,
-                                      ref<Expr> &noMCCond, WarpDefVec &nomcWDVec, 
+                                      klee::ref<Expr> &noMCCond, WarpDefVec &nomcWDVec, 
                                       unsigned &queryNum, bool isWrite) {
   bool hasCoalescing = true;
   unsigned halfWarpNum = 0; // The sequence number of half warps
@@ -628,7 +628,7 @@ bool AddressSpace::hasMemoryCoalescingCap0(Executor &executor, ExecutionState &s
                                            std::vector<InstAccessSet> &instAccessSets,
                                            std::vector<RefDivRegionSetVec> &divRegionSets,
                                            std::vector<SameInstVec> &sameInstVecSets,
-                                           ref<Expr> &noMCCond, WarpDefVec &nomcWDVec, 
+                                           klee::ref<Expr> &noMCCond, WarpDefVec &nomcWDVec, 
                                            bool &Consider, unsigned &queryNum) {
   // Default ...
   bool hasReadCoalescing = true;
@@ -656,13 +656,13 @@ bool AddressSpace::hasMemoryCoalescingCap0(Executor &executor, ExecutionState &s
 }
 
 void reduceSegmentSize(Executor &executor, ExecutionState &state, 
-                       ref<Expr> &lbound, ref<Expr> &ubound, int &size) {
+                       klee::ref<Expr> &lbound, klee::ref<Expr> &ubound, int &size) {
   //Solver::Validity result;
   bool result;
-  ref<Expr> tmpDiv1 = UDivExpr::create(lbound, ConstantExpr::create(64, lbound->getWidth()));
-  ref<Expr> tmpDiv2 = UDivExpr::create(ubound, ConstantExpr::create(64, ubound->getWidth()));
+  klee::ref<Expr> tmpDiv1 = UDivExpr::create(lbound, ConstantExpr::create(64, lbound->getWidth()));
+  klee::ref<Expr> tmpDiv2 = UDivExpr::create(ubound, ConstantExpr::create(64, ubound->getWidth()));
 
-  ref<Expr> cond = EqExpr::create(tmpDiv1, tmpDiv2);
+  klee::ref<Expr> cond = EqExpr::create(tmpDiv1, tmpDiv2);
   bool unknown = false;
   bool success = AddressSpaceUtil::evaluateQueryMustBeTrue(executor, state, cond, result, unknown);
   if (success) {
@@ -686,14 +686,14 @@ void reduceSegmentSize(Executor &executor, ExecutionState &state,
 }
 
 void dumpMemoryCoalescingCap1(Executor &executor, ExecutionState &state, 
-                              unsigned segSize, ref<Expr> &segSizeExpr, 
-                              ref<Expr> &numExpr, ref<Expr> &lbound, ref<Expr> &ubound, 
+                              unsigned segSize, klee::ref<Expr> &segSizeExpr, 
+                              klee::ref<Expr> &numExpr, klee::ref<Expr> &lbound, klee::ref<Expr> &ubound, 
                               unsigned threadNum, bool hasViolation, 
                               unsigned accessNum, unsigned totalAccessNum) {
   GKLEE_INFO2 << "+++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
 
-  ref<Expr> start = MulExpr::create(numExpr, segSizeExpr);
-  ref<Expr> end = AddExpr::create(start, segSizeExpr);
+  klee::ref<Expr> start = MulExpr::create(numExpr, segSizeExpr);
+  klee::ref<Expr> end = AddExpr::create(start, segSizeExpr);
   start->dump();
   end->dump();
 
@@ -726,7 +726,7 @@ static bool checkMemoryCoalescingCap1(Executor &executor, ExecutionState &state,
                                       std::vector<InstAccessSet> &instAccessSets, 
                                       std::vector<RefDivRegionSetVec> &divRegionSets, 
                                       std::vector<SameInstVec> &sameInstVecSets,
-                                      ref<Expr> &noMCCond, WarpDefVec &nomcWDVec, 
+                                      klee::ref<Expr> &noMCCond, WarpDefVec &nomcWDVec, 
                                       unsigned &queryNum, bool isWrite) {
   bool hasCoalescing = true;
   unsigned halfWarpNum = 0; // The sequence number of half warps
@@ -749,11 +749,11 @@ static bool checkMemoryCoalescingCap1(Executor &executor, ExecutionState &state,
       GKLEE_INFO << "CAPACITY 1.2 or 1.3: the word size can not be recognized, so move on to another half-warp instruction!" << std::endl;
       break;
     }
-    ref<Expr> baseAddr = tmpRWSet[0].mo->getBaseExpr();
-    ref<Expr> segSizeExpr = ConstantExpr::create(segSize, baseAddr->getWidth());    
-    std::vector < ref<Expr> > segNumExprVec;
-    std::vector < ref<Expr> > lboundVec;
-    std::vector < ref<Expr> > uboundVec; 
+    klee::ref<Expr> baseAddr = tmpRWSet[0].mo->getBaseExpr();
+    klee::ref<Expr> segSizeExpr = ConstantExpr::create(segSize, baseAddr->getWidth());    
+    std::vector < klee::ref<Expr> > segNumExprVec;
+    std::vector < klee::ref<Expr> > lboundVec;
+    std::vector < klee::ref<Expr> > uboundVec; 
     std::vector <unsigned> threadNumVec;
 
     unsigned segWarpNum = 0; // The number of different segments all threads in a half 
@@ -761,7 +761,7 @@ static bool checkMemoryCoalescingCap1(Executor &executor, ExecutionState &state,
 
     for (unsigned i = 0; i < tmpRWSet.size(); i++) {
       // Ensure the access is in bound of the segment...
-      ref<Expr> tmpSegNumExpr = UDivExpr::create(tmpRWSet[i].offset, segSizeExpr);
+      klee::ref<Expr> tmpSegNumExpr = UDivExpr::create(tmpRWSet[i].offset, segSizeExpr);
 
       if (segWarpNum == 0) {
         segWarpNum++;
@@ -776,7 +776,7 @@ static bool checkMemoryCoalescingCap1(Executor &executor, ExecutionState &state,
         bool success = false;
 
         for (; j < segNumExprVec.size(); j++) {
-          ref<Expr> cond = EqExpr::create(segNumExprVec[j], tmpSegNumExpr);
+          klee::ref<Expr> cond = EqExpr::create(segNumExprVec[j], tmpSegNumExpr);
           bool unknown = false;
           success = AddressSpaceUtil::evaluateQueryMustBeTrue(executor, state, cond, result, unknown);
           queryNum++;
@@ -800,7 +800,7 @@ static bool checkMemoryCoalescingCap1(Executor &executor, ExecutionState &state,
         else {
           // update the lbound and ubound
           bool unknown = false;
-          ref<Expr> ucond = UgtExpr::create(tmpRWSet[i].offset, uboundVec[j]); 
+          klee::ref<Expr> ucond = UgtExpr::create(tmpRWSet[i].offset, uboundVec[j]); 
           success = AddressSpaceUtil::evaluateQueryMustBeTrue(executor, state, ucond, result, unknown);
           queryNum++;
           if (success) {
@@ -808,7 +808,7 @@ static bool checkMemoryCoalescingCap1(Executor &executor, ExecutionState &state,
               uboundVec[j] = tmpRWSet[i].offset;
           }
 
-          ref<Expr> lcond = UltExpr::create(tmpRWSet[i].offset, lboundVec[j]); 
+          klee::ref<Expr> lcond = UltExpr::create(tmpRWSet[i].offset, lboundVec[j]); 
           success = AddressSpaceUtil::evaluateQueryMustBeTrue(executor, state, lcond, result, unknown);
           queryNum++;
           if (success) {
@@ -849,7 +849,7 @@ bool AddressSpace::hasMemoryCoalescingCap1(Executor &executor, ExecutionState &s
                                            std::vector<InstAccessSet> &instAccessSets,
                                            std::vector<RefDivRegionSetVec> &divRegionSets, 
                                            std::vector<SameInstVec> &sameInstVecSets,
-                                           ref<Expr> &noMCCond, WarpDefVec &nomcWDVec, 
+                                           klee::ref<Expr> &noMCCond, WarpDefVec &nomcWDVec, 
                                            bool &Consider, unsigned &queryNum) {
   bool hasReadCoalescing = true;
   bool hasWriteCoalescing = true;
@@ -882,7 +882,7 @@ void dumpMemoryCoalescingCap2Begin(unsigned warpNum, unsigned wordsize,
              << " requests" << std::endl;
 }
 
-void dumpMemoryCoalescingCap2Body(ref<Expr> &lbound, ref<Expr> &ubound, 
+void dumpMemoryCoalescingCap2Body(klee::ref<Expr> &lbound, klee::ref<Expr> &ubound, 
                                   unsigned threadNum, bool hasViolation, 
                                   unsigned accessNum, unsigned totalAccessNum) {
   GKLEE_INFO2 << "+++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
@@ -911,7 +911,7 @@ static bool checkMemoryCoalescingCap2(Executor &executor, ExecutionState &state,
                                       std::vector<InstAccessSet> &instAccessSets, 
                                       std::vector<RefDivRegionSetVec> &divRegionSets, 
                                       std::vector<SameInstVec> &sameInstVecSets,
-                                      ref<Expr> &noMCCond, WarpDefVec &nomcWDVec, 
+                                      klee::ref<Expr> &noMCCond, WarpDefVec &nomcWDVec, 
                                       unsigned &queryNum, bool isWrite) {
   bool hasCoalescing = true;
   unsigned warpNum = 0; // The sequence number of half warps
@@ -960,13 +960,13 @@ static bool checkMemoryCoalescingCap2(Executor &executor, ExecutionState &state,
     for (int k = 0; k < reqNum; k++) {
       // cache line is 128...
       unsigned segSize = 128;
-      ref<Expr> baseAddr = tmpRWSet[0].mo->getBaseExpr(); 
-      ref<Expr> segSizeExpr = ConstantExpr::create(segSize, baseAddr->getWidth());
-      ref<Expr> lbound;
-      ref<Expr> ubound;
-      std::vector < ref<Expr> > segNumExprVec;
-      std::vector < ref<Expr> > lboundVec; 
-      std::vector < ref<Expr> > uboundVec; 
+      klee::ref<Expr> baseAddr = tmpRWSet[0].mo->getBaseExpr(); 
+      klee::ref<Expr> segSizeExpr = ConstantExpr::create(segSize, baseAddr->getWidth());
+      klee::ref<Expr> lbound;
+      klee::ref<Expr> ubound;
+      std::vector < klee::ref<Expr> > segNumExprVec;
+      std::vector < klee::ref<Expr> > lboundVec; 
+      std::vector < klee::ref<Expr> > uboundVec; 
       std::vector <unsigned> threadNumVec;
 
       unsigned segWarpNum = 0; // The number of different segments all threads in a half 
@@ -975,7 +975,7 @@ static bool checkMemoryCoalescingCap2(Executor &executor, ExecutionState &state,
       MemoryAccessVec &tmpReqSet = reqSets[k];
       for (unsigned i = 0; i < tmpReqSet.size(); i++) {
         // ensure the access is in bound of segment...
-        ref<Expr> tmpSegNumExpr = UDivExpr::create(tmpReqSet[i].offset, segSizeExpr);
+        klee::ref<Expr> tmpSegNumExpr = UDivExpr::create(tmpReqSet[i].offset, segSizeExpr);
 
         if (segWarpNum == 0) {
           segWarpNum++;
@@ -992,7 +992,7 @@ static bool checkMemoryCoalescingCap2(Executor &executor, ExecutionState &state,
           unsigned j = 0;
 
           for (; j < segNumExprVec.size(); j++) {
-            ref<Expr> cond = EqExpr::create(segNumExprVec[j], tmpSegNumExpr);
+            klee::ref<Expr> cond = EqExpr::create(segNumExprVec[j], tmpSegNumExpr);
             bool unknown = false;
             success = AddressSpaceUtil::evaluateQueryMustBeTrue(executor, state, cond, result, unknown);
             queryNum++;
@@ -1049,7 +1049,7 @@ bool AddressSpace::hasMemoryCoalescingCap2(Executor &executor, ExecutionState &s
                                            std::vector<InstAccessSet> &instAccessSets, 
                                            std::vector<RefDivRegionSetVec> &divRegionSets, 
                                            std::vector<SameInstVec> &sameInstVecSets, 
-                                           ref<Expr> &noMCCond, WarpDefVec &nomcWDVec, 
+                                           klee::ref<Expr> &noMCCond, WarpDefVec &nomcWDVec, 
                                            bool &Consider, unsigned &queryNum) {
   bool hasReadCoalescing = true;
   bool hasWriteCoalescing = true;
@@ -1101,7 +1101,7 @@ bool HierAddressSpace::hasMemoryCoalescing(Executor &executor, ExecutionState &s
   } 
 
   bool Consider = false;
-  ref<Expr> nonMCCond = ConstantExpr::create(1, Expr::Bool);
+  klee::ref<Expr> nonMCCond = ConstantExpr::create(1, Expr::Bool);
   if (capability == 0) {
     hasCoalescing = deviceMemory.hasMemoryCoalescingCap0(executor, state, cTidSets, instAccessSets, 
                                                          divRegionSets, sameInstVecSets, 
@@ -1233,7 +1233,7 @@ bool HierAddressSpace::hasBankConflict(Executor &executor, ExecutionState &state
     if (GPUConfig::verbose > 0)
       ii->dump(true);
 
-    ref<Expr> bcCond = ConstantExpr::create(1, Expr::Bool); 
+    klee::ref<Expr> bcCond = ConstantExpr::create(1, Expr::Bool); 
     bc = ii->hasBankConflict(executor, state, capability, cTidSets, 
                              instAccessSets, divRegionSets,
                              sameInstVecSets, bcCond, bcWDVec, 

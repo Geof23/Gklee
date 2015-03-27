@@ -14,12 +14,12 @@ using namespace llvm;
 unsigned StrExpr::len_id = 0;
 unsigned StrExpr::str_id = 0;
 
-ref<Expr> StrExpr::createMultRead(const Array *array, unsigned index, unsigned nbytes) {
+klee::ref<Expr> StrExpr::createMultRead(const Array *array, unsigned index, unsigned nbytes) {
   assert(nbytes > 0 && "createMultRead: invalid width");
 
   UpdateList ul(array, 0);
   
-  ref<Expr> bvals[255];
+  klee::ref<Expr> bvals[255];
   for (unsigned i = 0; i < nbytes; i++) {
     bvals[i] = ReadExpr::create(ul, ConstantExpr::create(index + i, Int32));
   }
@@ -27,7 +27,7 @@ ref<Expr> StrExpr::createMultRead(const Array *array, unsigned index, unsigned n
 }
 
 
-ref<Expr> StrExpr::createValueRead(const Array *array, Expr::Width w) {
+klee::ref<Expr> StrExpr::createValueRead(const Array *array, Expr::Width w) {
   UpdateList ul(array, 0);
 
   switch (w) {
@@ -58,20 +58,20 @@ ref<Expr> StrExpr::createValueRead(const Array *array, Expr::Width w) {
 }
 
 
-ref<Expr> StrExpr::createLongEq(ref<Expr> e1, ref<Expr> e2, unsigned size, 
+klee::ref<Expr> StrExpr::createLongEq(klee::ref<Expr> e1, klee::ref<Expr> e2, unsigned size, 
 				bool is_eq) {
   
   if (size <= 8) {
-    ref<Expr> e = is_eq ? EqExpr::create(e1, e2) : NeExpr::create(e1, e2);
+    klee::ref<Expr> e = is_eq ? EqExpr::create(e1, e2) : NeExpr::create(e1, e2);
     return is_eq ? EqExpr::create(e1, e2) : NeExpr::create(e1, e2);
   }
   
-  ref<Expr> v = ConstantExpr::create(is_eq ? 1 : 0, Expr::Bool);
+  klee::ref<Expr> v = ConstantExpr::create(is_eq ? 1 : 0, Expr::Bool);
   unsigned i;
   for (i = 0; i < size / 8; i++) {
     int k = i * 64;
-    ref<Expr> p1 = ExtractExpr::create(e1, k, 64);
-    ref<Expr> p2 = ExtractExpr::create(e2, k, 64);
+    klee::ref<Expr> p1 = ExtractExpr::create(e1, k, 64);
+    klee::ref<Expr> p2 = ExtractExpr::create(e2, k, 64);
     if (is_eq) 
       v = AndExpr::create(v,  EqExpr::create(p1, p2));
     else
@@ -80,8 +80,8 @@ ref<Expr> StrExpr::createLongEq(ref<Expr> e1, ref<Expr> e2, unsigned size,
 
   int j = size % 8;
   if (j != 0) {
-    ref<Expr> p1 = ExtractExpr::create(e1, i * 64, j * 8);
-    ref<Expr> p2 = ExtractExpr::create(e2, i * 64, j * 8);
+    klee::ref<Expr> p1 = ExtractExpr::create(e1, i * 64, j * 8);
+    klee::ref<Expr> p2 = ExtractExpr::create(e2, i * 64, j * 8);
     if (is_eq) 
       v = AndExpr::create(v, EqExpr::create(p1, p2));
     else
@@ -99,19 +99,19 @@ ref<Expr> StrExpr::createLongEq(ref<Expr> e1, ref<Expr> e2, unsigned size,
 /*******************    StrDataExpr    ****************/
 
 
-ref<Expr> StrDataExpr::makeLengthConstraint(StrConstraint &constr) {
+klee::ref<Expr> StrDataExpr::makeLengthConstraint(StrConstraint &constr) {
   if (isConstant()) 
     return ConstantExpr::create(value.length(), Expr::Int32);
   else if (getMin() == getMax()) {
     return ConstantExpr::create(getMin(), Expr::Int32);
   }
   else {
-    ref<Expr> vlenExpr = createLengthExpr(array->lenvar);
+    klee::ref<Expr> vlenExpr = createLengthExpr(array->lenvar);
     constr.addSymLen(array->lenvar);
     
     if (!(array->withDependentLength)) {
-      ref<Expr> e1 = UgeExpr::create(vlenExpr, ConstantExpr::create(getMin(), Expr::Int32));
-      ref<Expr> e2 = UleExpr::create(vlenExpr, ConstantExpr::create(getMax(), Expr::Int32));
+      klee::ref<Expr> e1 = UgeExpr::create(vlenExpr, ConstantExpr::create(getMin(), Expr::Int32));
+      klee::ref<Expr> e2 = UleExpr::create(vlenExpr, ConstantExpr::create(getMax(), Expr::Int32));
       constr.addLenConstraint(e1);
       constr.addLenConstraint(e2);
     }
@@ -120,7 +120,7 @@ ref<Expr> StrDataExpr::makeLengthConstraint(StrConstraint &constr) {
   }
 }
 
-ref<Expr> StrDataExpr::resolveStrExpr(StrConstraint &constr, TravPurpose pur) {
+klee::ref<Expr> StrDataExpr::resolveStrExpr(StrConstraint &constr, TravPurpose pur) {
   constr.involveStr = true;
 
   if (pur == MakeStrLen) 
@@ -129,7 +129,7 @@ ref<Expr> StrDataExpr::resolveStrExpr(StrConstraint &constr, TravPurpose pur) {
   // convert the str expressions
   
   if (isConstant()) {
-    ref<Expr> arrExpr;
+    klee::ref<Expr> arrExpr;
     // printf(" value->size = %d \n", value.size());
     for (unsigned i = 0; i < value.size(); i++) {
       if (i == 0)
@@ -140,35 +140,35 @@ ref<Expr> StrDataExpr::resolveStrExpr(StrConstraint &constr, TravPurpose pur) {
     return arrExpr;
   }
   else if (array->size > 0) {
-    ref<Expr> bvals[255];  // byte values
+    klee::ref<Expr> bvals[255];  // byte values
     unsigned index = 0;
     UpdateList ul(array, 0);
     for (unsigned i = 0; i < array->size; i++) {
       bvals[index++] = ReadExpr::create(ul, ConstantExpr::create(i, Int32));
     }
-    ref<Expr> v = ConcatExpr::createN(array->size, bvals);
+    klee::ref<Expr> v = ConcatExpr::createN(array->size, bvals);
     return v;
   }
   else {  // empty string
-    return ref<Expr>(this);
+    return klee::ref<Expr>(this);
   }
 }
 
 
-ref<Expr> StrDataExpr::makeAliasConstraint(StrConstraint& constr, ref<Expr>& e) {
-  return EqExpr::create(ref<Expr>(this), e);
+klee::ref<Expr> StrDataExpr::makeAliasConstraint(StrConstraint& constr, klee::ref<Expr>& e) {
+  return EqExpr::create(klee::ref<Expr>(this), e);
 }
 
 
 /*******************    FindLastOf    *******************/
 
 
-ref<Expr> StrFindLastOfExpr::makeLengthConstraint(StrConstraint &constr) {
-  ref<Expr> len = alias;
+klee::ref<Expr> StrFindLastOfExpr::makeLengthConstraint(StrConstraint &constr) {
+  klee::ref<Expr> len = alias;
   constr.addSymLen(array_alias);
-  ref<Expr> str_len = str->resolveStrExpr(constr, MakeStrLen);
+  klee::ref<Expr> str_len = str->resolveStrExpr(constr, MakeStrLen);
 
-  ref<Expr> len_constr = 
+  klee::ref<Expr> len_constr = 
     OrExpr::create(UltExpr::create(len, str_len),
 		   EqExpr::create(len, ConstantExpr::create(npos, Int32)));
   constr.addLenConstraint(len_constr);
@@ -176,7 +176,7 @@ ref<Expr> StrFindLastOfExpr::makeLengthConstraint(StrConstraint &constr) {
 }
 
 
-ref<Expr> StrFindLastOfExpr::resolveStrExpr(StrConstraint& constr, TravPurpose pur) {
+klee::ref<Expr> StrFindLastOfExpr::resolveStrExpr(StrConstraint& constr, TravPurpose pur) {
   constr.involveStr = true;
 
   if (pur == MakeStrLen) 
@@ -185,16 +185,16 @@ ref<Expr> StrFindLastOfExpr::resolveStrExpr(StrConstraint& constr, TravPurpose p
   // convert the str expression
 
   assert(isa<StrDataExpr>(str) && "FindLastOf: the string element must be a single string!");
-  ref<StrDataExpr> str_exp = cast<StrDataExpr>(str);
+  klee::ref<StrDataExpr> str_exp = cast<StrDataExpr>(str);
 
   unsigned len = str_exp->array->size;
 
-  ref<Expr> found = ConstantExpr::create(0, Bool);
-  ref<Expr> v = ConstantExpr::create(len - 1, Int32);
+  klee::ref<Expr> found = ConstantExpr::create(0, Bool);
+  klee::ref<Expr> v = ConstantExpr::create(len - 1, Int32);
   UpdateList ul(str_exp->array, 0);
   for (unsigned i = len; i != 0; i--) {
     // found = (operator[](i-1) == c) || found;
-    ref<Expr> e = ReadExpr::create(ul, ConstantExpr::create(i-1, Int32));
+    klee::ref<Expr> e = ReadExpr::create(ul, ConstantExpr::create(i-1, Int32));
     found = OrExpr::create(found, EqExpr::create(e, tofind));
     // v -= !found;
     v = SubExpr::create(v, ZExtExpr::create(NotExpr::create(found), Int32));
@@ -203,25 +203,25 @@ ref<Expr> StrFindLastOfExpr::resolveStrExpr(StrConstraint& constr, TravPurpose p
 }
 
 
-ref<Expr> StrFindLastOfExpr::makeAliasConstraint(StrConstraint& constr, ref<Expr>& e) {
+klee::ref<Expr> StrFindLastOfExpr::makeAliasConstraint(StrConstraint& constr, klee::ref<Expr>& e) {
 #ifdef FLA_DEBUG
   printf("\n StrFindLastOf::makeAliasConstraint \n");
 #endif
 
-  ref<ConstantExpr> e_val;
+  klee::ref<ConstantExpr> e_val;
   if (!constr.getValue(e, e_val))
     assert(0 && "FindLastOf: the index must have a concrete value!");
   unsigned index = e_val->getZExtValue();
 
-  ref<StrDataExpr> str_exp = cast<StrDataExpr>(str);
+  klee::ref<StrDataExpr> str_exp = cast<StrDataExpr>(str);
   unsigned len = str_exp->getSize();
   assert((index == npos || index < len) && "FindLastOf: wrong index or length");
   
   UpdateList ul(str_exp->array, 0);
-  ref<Expr> v;
+  klee::ref<Expr> v;
 
   if (index != npos) {
-    ref<Expr> index_exp = ConstantExpr::create(index, Int32);
+    klee::ref<Expr> index_exp = ConstantExpr::create(index, Int32);
     v = EqExpr::create(tofind, ReadExpr::create(ul, index_exp));
   }
   else {
@@ -229,7 +229,7 @@ ref<Expr> StrFindLastOfExpr::makeAliasConstraint(StrConstraint& constr, ref<Expr
   }
 
   for (unsigned i = index+1; i < len; i++) {
-    ref<Expr> c_exp = ReadExpr::create(ul, ConstantExpr::create(i, Int32));
+    klee::ref<Expr> c_exp = ReadExpr::create(ul, ConstantExpr::create(i, Int32));
     v = AndExpr::create(v, NeExpr::create(c_exp, tofind));
   }
 
@@ -242,7 +242,7 @@ ref<Expr> StrFindLastOfExpr::makeAliasConstraint(StrConstraint& constr, ref<Expr
 /*******************    Length    *******************/
 
 
-ref<Expr> StrLenExpr::resolveStrExpr(StrConstraint & constr, TravPurpose pur) {
+klee::ref<Expr> StrLenExpr::resolveStrExpr(StrConstraint & constr, TravPurpose pur) {
   // return the length expression
   constr.involveStr = true;
   return str->resolveStrExpr(constr, MakeStrLen);
@@ -251,10 +251,10 @@ ref<Expr> StrLenExpr::resolveStrExpr(StrConstraint & constr, TravPurpose pur) {
 
 /*******************    Substr    *******************/
 
-ref<Expr> StrSubStrExpr::makeLengthConstraint(StrConstraint &constr) {
-  ref<Expr> str_len = str->resolveStrExpr(constr, MakeStrLen);
-  ref<Expr> pos_exp = pos->resolveStrExpr(constr, MakeStrLen);
-  ref<Expr> len_exp = len->resolveStrExpr(constr, MakeStrLen);
+klee::ref<Expr> StrSubStrExpr::makeLengthConstraint(StrConstraint &constr) {
+  klee::ref<Expr> str_len = str->resolveStrExpr(constr, MakeStrLen);
+  klee::ref<Expr> pos_exp = pos->resolveStrExpr(constr, MakeStrLen);
+  klee::ref<Expr> len_exp = len->resolveStrExpr(constr, MakeStrLen);
   if (len_exp == ConstantExpr::create(npos, Int32)) {
     return SubExpr::create(str_len, pos_exp);
   }
@@ -263,14 +263,14 @@ ref<Expr> StrSubStrExpr::makeLengthConstraint(StrConstraint &constr) {
     constr.addLenConstraint(AndExpr::create(UleExpr::create(pos_exp, str_len), 
 					    UleExpr::create(len_exp, str_len)));
 
-    ref<Expr> e = UleExpr::create(AddExpr::create(pos_exp, len_exp), str_len);
+    klee::ref<Expr> e = UleExpr::create(AddExpr::create(pos_exp, len_exp), str_len);
     constr.addLenConstraint(e);
     return len_exp;
   }
 }
 
 
-ref<Expr> StrSubStrExpr::resolveStrExpr(StrConstraint & constr, TravPurpose pur) {
+klee::ref<Expr> StrSubStrExpr::resolveStrExpr(StrConstraint & constr, TravPurpose pur) {
   
   constr.involveStr = true;
 
@@ -279,16 +279,16 @@ ref<Expr> StrSubStrExpr::resolveStrExpr(StrConstraint & constr, TravPurpose pur)
 
   // convert the str expression
 
-  ref<StrDataExpr> str_exp = cast<StrDataExpr>(str);
+  klee::ref<StrDataExpr> str_exp = cast<StrDataExpr>(str);
   unsigned str_len_val = str_exp->array->size;
   // printf("len = %u \n", len_val);
 
-  ref<ConstantExpr> pos_exp;
+  klee::ref<ConstantExpr> pos_exp;
   if (!constr.getValue(pos, pos_exp))
     assert(0 && "the pos must have a concrete value!");
   unsigned pos_val = pos_exp->getZExtValue();
 
-  ref<ConstantExpr> len_exp;
+  klee::ref<ConstantExpr> len_exp;
   if (!constr.getValue(len, len_exp))
     assert(0 && "the pos must have a concrete value!");
   unsigned len_val = len_exp->getZExtValue();
@@ -297,42 +297,42 @@ ref<Expr> StrSubStrExpr::resolveStrExpr(StrConstraint & constr, TravPurpose pur)
   unsigned size = len_val == npos ? str_len_val - pos_val : len_val;
 
   if (size > 0) {
-    ref<Expr> bvals[255];  // byte values
+    klee::ref<Expr> bvals[255];  // byte values
 
     UpdateList ul(str_exp->array, 0);
     for (unsigned i = 0; i < size; i++) {
       bvals[i] = ReadExpr::create(ul, ConstantExpr::create(pos_val + i, Int32));
     }
-    ref<Expr> v = ConcatExpr::createN(size, bvals);
+    klee::ref<Expr> v = ConcatExpr::createN(size, bvals);
     //   printf("v = ");
     //   v->dump();
     return v;
   }
   else {  // empty string
-    return ref<Expr>(alias);
+    return klee::ref<Expr>(alias);
   }
 }
 
 
-ref<Expr> StrSubStrExpr::makeAliasConstraint(StrConstraint& constr, ref<Expr>& e) {
+klee::ref<Expr> StrSubStrExpr::makeAliasConstraint(StrConstraint& constr, klee::ref<Expr>& e) {
 #ifdef FLA_DEBUG
   printf("\n StrSubStrExpr::makeAliasConstraint \n");
 #endif
 
-  ref<StrDataExpr> str_exp = cast<StrDataExpr>(str);
+  klee::ref<StrDataExpr> str_exp = cast<StrDataExpr>(str);
   unsigned str_len_val = str_exp->array->size;
   // printf("str_len = %u \n", str_len_val);
 
-  ref<StrDataExpr> substr_exp = cast<StrDataExpr>(e);
+  klee::ref<StrDataExpr> substr_exp = cast<StrDataExpr>(e);
   // printf("substr_len = %u \n", substr_exp->array->size);
 
-  ref<ConstantExpr> pos_exp;
+  klee::ref<ConstantExpr> pos_exp;
   if (!constr.getValue(pos, pos_exp))
     assert(0 && "StrSubStrExpr: the pos must have a concrete value!");
   unsigned pos_val = pos_exp->getZExtValue();
   // printf("pos = %u \n", pos_val);
 
-  ref<ConstantExpr> len_exp;
+  klee::ref<ConstantExpr> len_exp;
   if (!constr.getValue(len, len_exp))
     assert(0 && "the pos must have a concrete value!");
   unsigned len_val = len_exp->getZExtValue();
@@ -346,8 +346,8 @@ ref<Expr> StrSubStrExpr::makeAliasConstraint(StrConstraint& constr, ref<Expr>& e
   if (size == 0)   // empty string
     return ConstantExpr::create(1, Bool);
 
-  ref<Expr> bvals[255];  // byte values
-  ref<Expr> sub_bvals[255];  // byte values
+  klee::ref<Expr> bvals[255];  // byte values
+  klee::ref<Expr> sub_bvals[255];  // byte values
 
   UpdateList ul(str_exp->array, 0);
   UpdateList sub_ul(substr_exp->array, 0);
@@ -357,9 +357,9 @@ ref<Expr> StrSubStrExpr::makeAliasConstraint(StrConstraint& constr, ref<Expr>& e
 				    ConstantExpr::create(i, Int32));
   }
 
-  ref<Expr> v = ConcatExpr::createN(size, bvals);
-  ref<Expr> sub_v = ConcatExpr::createN(size, sub_bvals);
-  ref<Expr> eq_v = createLongEq(v, sub_v, size);
+  klee::ref<Expr> v = ConcatExpr::createN(size, bvals);
+  klee::ref<Expr> sub_v = ConcatExpr::createN(size, sub_bvals);
+  klee::ref<Expr> eq_v = createLongEq(v, sub_v, size);
   return eq_v;
 }
 
@@ -367,22 +367,22 @@ ref<Expr> StrSubStrExpr::makeAliasConstraint(StrConstraint& constr, ref<Expr>& e
 /*******************    Find    *******************/
 
 
-ref<Expr> StrFindExpr::resolveStrExpr(StrConstraint& constr, TravPurpose pur) {
+klee::ref<Expr> StrFindExpr::resolveStrExpr(StrConstraint& constr, TravPurpose pur) {
 
   constr.involveStr = true;
 
   if (pur == MakeStrLen) {
-    ref<Expr> _pos = alias;
+    klee::ref<Expr> _pos = alias;
     constr.addSymLen(array_alias);
     
-    ref<Expr> str_len = str->resolveStrExpr(constr, MakeStrLen);
-    ref<Expr> tofind_len = tofind->resolveStrExpr(constr, MakeStrLen);
+    klee::ref<Expr> str_len = str->resolveStrExpr(constr, MakeStrLen);
+    klee::ref<Expr> tofind_len = tofind->resolveStrExpr(constr, MakeStrLen);
 
     // pos == -1 \/ pos + tofind_len <= str_len
-    ref<Expr> not_npos = 
+    klee::ref<Expr> not_npos = 
       AndExpr::create(UleExpr::create(_pos, str_len), // prevent bit-vector over-flowing
 		      UleExpr::create(AddExpr::create(_pos, tofind_len), str_len));
-    ref<Expr> len_constr = 
+    klee::ref<Expr> len_constr = 
       OrExpr::create(not_npos,
 		     EqExpr::create(_pos, ConstantExpr::create(npos, Int32)));
 
@@ -394,20 +394,20 @@ ref<Expr> StrFindExpr::resolveStrExpr(StrConstraint& constr, TravPurpose pur) {
 }
 
 
-ref<Expr> StrFindExpr::makeAliasConstraint(StrConstraint& constr, ref<Expr>& e) {
+klee::ref<Expr> StrFindExpr::makeAliasConstraint(StrConstraint& constr, klee::ref<Expr>& e) {
 #ifdef FLA_DEBUG
   printf("\n StrFind::makeAliasConstraint \n");
 #endif
 
   constr.involveStr = true;
 
-  ref<ConstantExpr> e_val;
+  klee::ref<ConstantExpr> e_val;
   if (!constr.getValue(e, e_val))
     assert(0 && "Find: the index must have a concrete value!");
   unsigned index = e_val->getZExtValue();
   // printf("index = %u \n", index);
 
-  ref<StrDataExpr> str_exp = cast<StrDataExpr>(str);
+  klee::ref<StrDataExpr> str_exp = cast<StrDataExpr>(str);
   unsigned str_len = str_exp->getSize();
   // printf("str_len = %u \n", str_len);
   unsigned tofind_len = cast<StrDataExpr>(tofind)->getSize();
@@ -420,8 +420,8 @@ ref<Expr> StrFindExpr::makeAliasConstraint(StrConstraint& constr, ref<Expr>& e) 
     return ConstantExpr::create(1, Bool);
   }
 
-  ref<Expr> tofind_exp = tofind->resolveStrExpr(constr, MakeStrExpr);
-  ref<Expr> v;
+  klee::ref<Expr> tofind_exp = tofind->resolveStrExpr(constr, MakeStrExpr);
+  klee::ref<Expr> v;
 
   // determined by the contents of the strings
   bool b = index == npos;
@@ -437,7 +437,7 @@ ref<Expr> StrFindExpr::makeAliasConstraint(StrConstraint& constr, ref<Expr>& e) 
 
   // forall j < index: str[j, j + tofind_len] != tofind
   for (unsigned i = 0; i < (b ? str_len - tofind_len + 1 : index); i++) {
-    ref<Expr> s_exp = createMultRead(str_exp->array, i, tofind_len);
+    klee::ref<Expr> s_exp = createMultRead(str_exp->array, i, tofind_len);
     v = AndExpr::create(v, createLongEq(tofind_exp, s_exp, tofind_len, false));
   }
   return v;
@@ -447,19 +447,19 @@ ref<Expr> StrFindExpr::makeAliasConstraint(StrConstraint& constr, ref<Expr>& e) 
 /*******************    Compare    *******************/
 
 
-ref<Expr> StrCompareExpr::resolveStrExpr(StrConstraint &constr, TravPurpose pur) {
+klee::ref<Expr> StrCompareExpr::resolveStrExpr(StrConstraint &constr, TravPurpose pur) {
   constr.involveStr = true;
 
   if (pur == MakeStrLen) {
-    ref<Expr> _res = alias;
+    klee::ref<Expr> _res = alias;
     constr.addSymLen(array_alias);
     
-    ref<Expr> str_len = str->resolveStrExpr(constr, MakeStrLen);
-    ref<Expr> tocompare_len = tocompare->resolveStrExpr(constr, MakeStrLen);
+    klee::ref<Expr> str_len = str->resolveStrExpr(constr, MakeStrLen);
+    klee::ref<Expr> tocompare_len = tocompare->resolveStrExpr(constr, MakeStrLen);
     // (res == 0 ==> (tocompare_len == len)) &&
     // (pos + len <= str_len) 
     constr.addLenConstraint(UleExpr::create(AddExpr::create(pos, len), str_len));
-    ref<Expr> len_constr = 
+    klee::ref<Expr> len_constr = 
       OrExpr::create(NeExpr::create(_res, ConstantExpr::create(0, Int32)), 
 		     EqExpr::create(tocompare_len, len));
     constr.addLenConstraint(len_constr);
@@ -471,29 +471,29 @@ ref<Expr> StrCompareExpr::resolveStrExpr(StrConstraint &constr, TravPurpose pur)
 }
 
 
-ref<Expr> StrCompareExpr::makeAliasConstraint(StrConstraint& constr, ref<Expr>& res) {
+klee::ref<Expr> StrCompareExpr::makeAliasConstraint(StrConstraint& constr, klee::ref<Expr>& res) {
 #ifdef FLA_DEBUG
   printf("\n StrCompareExpr::makeAliasConstraint \n");
 #endif
 
-  ref<StrDataExpr> str_exp = cast<StrDataExpr>(str);
+  klee::ref<StrDataExpr> str_exp = cast<StrDataExpr>(str);
 
-  ref<StrDataExpr> tocompare_exp = cast<StrDataExpr>(tocompare);
+  klee::ref<StrDataExpr> tocompare_exp = cast<StrDataExpr>(tocompare);
   unsigned tocompare_len = tocompare_exp->getSize();
 
-  ref<ConstantExpr> pos_exp;
+  klee::ref<ConstantExpr> pos_exp;
   if (!constr.getValue(pos, pos_exp))
     assert(0 && "StrCompare: the pos must have a concrete value!");
 //   unsigned pos_val = pos_exp->getZExtValue();
   // printf("pos = %u \n", pos_val);
 
-  ref<ConstantExpr> len_exp;
+  klee::ref<ConstantExpr> len_exp;
   if (!constr.getValue(len, len_exp))
     assert(0 && "StrCompare: the len must have a concrete value!");
   unsigned len_val = len_exp->getZExtValue();
   // printf("len = %u \n", len_val);
 
-  ref<ConstantExpr> res_exp;
+  klee::ref<ConstantExpr> res_exp;
   if (!constr.getValue(res, res_exp))
     assert(0 && "StrCompare: the result must have a concrete value!");
   unsigned res_val = res_exp->getZExtValue();
@@ -507,13 +507,13 @@ ref<Expr> StrCompareExpr::makeAliasConstraint(StrConstraint& constr, ref<Expr>& 
   }
 
   if (res_val == 0) {  // equal
-    ref<Expr> str_v = createMultRead(str_exp->array, 0, len_val);
-    ref<Expr> tocompare_v = tocompare_exp->resolveStrExpr(constr, MakeStrExpr);
+    klee::ref<Expr> str_v = createMultRead(str_exp->array, 0, len_val);
+    klee::ref<Expr> tocompare_v = tocompare_exp->resolveStrExpr(constr, MakeStrExpr);
     return createLongEq(str_v, tocompare_v, len_val);
   }
   else if (len_val == tocompare_len) { // the lengths are equal; but the contents are different
-    ref<Expr> str_v = createMultRead(str_exp->array, 0, len_val);
-    ref<Expr> tocompare_v = tocompare_exp->resolveStrExpr(constr, MakeStrExpr);
+    klee::ref<Expr> str_v = createMultRead(str_exp->array, 0, len_val);
+    klee::ref<Expr> tocompare_v = tocompare_exp->resolveStrExpr(constr, MakeStrExpr);
     return createLongEq(str_v, tocompare_v, len_val, false);
   }
   else  // the lengths are different; no need to compare the contents
@@ -524,37 +524,37 @@ ref<Expr> StrCompareExpr::makeAliasConstraint(StrConstraint& constr, ref<Expr>& 
 /*********************     ==    *********************/
 
 
-ref<Expr> StrEqExpr::resolveStrExpr(StrConstraint& constr, TravPurpose pur) {
+klee::ref<Expr> StrEqExpr::resolveStrExpr(StrConstraint& constr, TravPurpose pur) {
 
   constr.involveStr = true;
 
   if (pur == MakeStrLen) {
-    ref<Expr> left_len = left->resolveStrExpr(constr, MakeStrLen);
-    ref<Expr> right_len = right->resolveStrExpr(constr, MakeStrLen);
+    klee::ref<Expr> left_len = left->resolveStrExpr(constr, MakeStrLen);
+    klee::ref<Expr> right_len = right->resolveStrExpr(constr, MakeStrLen);
     return ZExtExpr::create(EqExpr::create(left_len, right_len), Int8);
   }
   else {
-    ref<Expr> e = EqExpr::create(left->resolveStrExpr(constr, pur),
+    klee::ref<Expr> e = EqExpr::create(left->resolveStrExpr(constr, pur),
 				 right->resolveStrExpr(constr, pur));
     return ZExtExpr::create(e, Int8);
   }
 }
 
 
-ref<Expr> StrEqExpr::makeAliasConstraint(StrConstraint& constr, ref<Expr>& res) {
+klee::ref<Expr> StrEqExpr::makeAliasConstraint(StrConstraint& constr, klee::ref<Expr>& res) {
 #ifdef FLA_DEBUG
   printf("\n StrEqExpr::makeAliasConstraint \n");
 #endif
 
-  ref<StrDataExpr> left_exp = cast<StrDataExpr>(left);
+  klee::ref<StrDataExpr> left_exp = cast<StrDataExpr>(left);
   unsigned left_len = left_exp->getSize();
   // printf("left_len = %u \n", left_len);
 
-  ref<StrDataExpr> right_exp = cast<StrDataExpr>(right);
+  klee::ref<StrDataExpr> right_exp = cast<StrDataExpr>(right);
   unsigned right_len = right_exp->getSize();
   // printf("right_len = %u \n", right_len);
 
-//   ref<ConstantExpr> res_exp;
+//   klee::ref<ConstantExpr> res_exp;
 //   if (!constr.getValue(res, res_exp))
 //     assert(0 && "StrEq: the result must have a concrete value!");
 //   unsigned res_val = res_exp->getZExtValue();
@@ -568,9 +568,9 @@ ref<Expr> StrEqExpr::makeAliasConstraint(StrConstraint& constr, ref<Expr>& res) 
      return EqExpr::create(res, ConstantExpr::create(1, Int8));
   }
 
-  ref<Expr> left_v = left->resolveStrExpr(constr, MakeStrExpr);
-  ref<Expr> right_v = right->resolveStrExpr(constr, MakeStrExpr);
-  ref<Expr> cmp_v = createLongEq(left_v, right_v, left_len);
-  ref<Expr> v = ZExtExpr::create(cmp_v, Int8);
+  klee::ref<Expr> left_v = left->resolveStrExpr(constr, MakeStrExpr);
+  klee::ref<Expr> right_v = right->resolveStrExpr(constr, MakeStrExpr);
+  klee::ref<Expr> cmp_v = createLongEq(left_v, right_v, left_len);
+  klee::ref<Expr> v = ZExtExpr::create(cmp_v, Int8);
   return EqExpr::create(v, res);
 }

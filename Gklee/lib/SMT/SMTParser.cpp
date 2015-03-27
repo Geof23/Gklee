@@ -170,11 +170,11 @@ void SMTParser::DeclareExpr(std::string name, Expr::Width w) {
   
   Array *arr = new Array(name, w / 8);
   
-  ref<Expr> *kids = new ref<Expr>[w/8];
+  klee::ref<Expr> *kids = new klee::ref<Expr>[w/8];
   for (unsigned i=0; i < w/8; i++)
     kids[i] = builder->Read(UpdateList(arr, NULL), 
 			    builder->Constant(i, 32));
-  ref<Expr> var = ConcatExpr::createN(w/8, kids); // XXX: move to builder?
+  klee::ref<Expr> var = ConcatExpr::createN(w/8, kids); // XXX: move to builder?
   delete [] kids;
   
   AddVar(name, var);

@@ -16,7 +16,7 @@ namespace klee {
   class MemoryObject;
 
   struct Cell {
-    ref<Expr> value;
+    klee::ref<Expr> value;
   };
 }
 

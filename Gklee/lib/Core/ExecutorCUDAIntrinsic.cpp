@@ -193,7 +193,7 @@ void Executor::encounterBarrier(ExecutionState &state,
 
     if (!UseSymbolicConfig) {
       // check races on shared memory 
-      ref<Expr> shareRaceCond = klee::ConstantExpr::create(1, Expr::Bool);
+      klee::ref<Expr> shareRaceCond = klee::ConstantExpr::create(1, Expr::Bool);
       if (state.addressSpace.hasRaceInShare(*this, state, state.cTidSets, shareRaceCond)) {
         terminateStateOnExecError(state, "execution halts on encounering a (shared) race");
       }
@@ -207,7 +207,7 @@ void Executor::encounterBarrier(ExecutionState &state,
 
     if (!UseSymbolicConfig) {
       // check races on the device and CPU memory
-      ref<Expr> globalRaceCond = klee::ConstantExpr::create(1, Expr::Bool);
+      klee::ref<Expr> globalRaceCond = klee::ConstantExpr::create(1, Expr::Bool);
       if (state.addressSpace.hasRaceInGlobal(*this, state, state.cTidSets, globalRaceCond, BINum, is_end_GPU_barrier)) {
         terminateStateOnExecError(state, "execution halts on encounering a (global) race");
       }
@@ -281,12 +281,12 @@ void Executor::handleEndGPU(ExecutionState &state,
 // __mul64hi, __umul64hi, __mul24hi, __umul24hi, __mulhi, __umulhi 
 static void executeMulHiIntrinsic(Executor &executor, ExecutionState &state, 
                                   KInstruction *target, std::string fName, 
-                                  std::vector< ref<Expr> > &arguments) {
-  ref<Expr> result;
+                                  std::vector< klee::ref<Expr> > &arguments) {
+  klee::ref<Expr> result;
   if (fName.find("64") != std::string::npos) { // __mul64hi, __umul64hi
     assert(arguments[0]->getWidth() == Expr::Int64 && "arguments 0's width is wrong");  
     assert(arguments[1]->getWidth() == Expr::Int64 && "arguments 1's width is wrong");  
-    ref<Expr> tmpA, tmpB;
+    klee::ref<Expr> tmpA, tmpB;
     if (fName.find("umul64hi") != std::string::npos) {
       tmpA = ZExtExpr::create(arguments[0], 128); 
       tmpB = ZExtExpr::create(arguments[1], 128); 
@@ -305,7 +305,7 @@ static void executeMulHiIntrinsic(Executor &executor, ExecutionState &state,
   } else { // __mulhi, __umulhi
     assert(arguments[0]->getWidth() == Expr::Int32 && "arguments 0's width is wrong");  
     assert(arguments[1]->getWidth() == Expr::Int32 && "arguments 1's width is wrong");  
-    ref<Expr> tmpA, tmpB;
+    klee::ref<Expr> tmpA, tmpB;
     if (fName.find("umulhi") != std::string::npos) {
       tmpA = ZExtExpr::create(arguments[0], 64); 
       tmpB = ZExtExpr::create(arguments[1], 64); 
@@ -325,8 +325,8 @@ static void executeMulHiIntrinsic(Executor &executor, ExecutionState &state,
 // __saturatef
 static void executeSaturateIntrinsic(Executor &executor, ExecutionState &state, 
                                      KInstruction *target, std::string fName, 
-                                     std::vector< ref<Expr> > &arguments) {
-  ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], "__saturatef floating point");
+                                     std::vector< klee::ref<Expr> > &arguments) {
+  klee::ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], "__saturatef floating point");
   if (!fpWidthToSemantics(va->getWidth()))
     return executor.terminateStateOnExecErrorPublic(state, "Unsupported saturate operation");
   
@@ -361,9 +361,9 @@ static void executeSaturateIntrinsic(Executor &executor, ExecutionState &state,
 // __usad, __sad
 static void executeSadIntrinsic(Executor &executor, ExecutionState &state, 
                                 KInstruction *target, std::string fName, 
-                                std::vector< ref<Expr> > &arguments) {
-  ref<Expr> Res;
-  ref<Expr> geCond; 
+                                std::vector< klee::ref<Expr> > &arguments) {
+  klee::ref<Expr> Res;
+  klee::ref<Expr> geCond; 
   if (fName.find("__usad") != std::string::npos)
     geCond = UgeExpr::create(arguments[0], arguments[1]); 
   else
@@ -398,9 +398,9 @@ static APFloat::roundingMode determineRoundingMode(std::string fName) {
 // fdividef, __fdividef, fdivide
 static void executeFDivideIntrinsic(Executor &executor, ExecutionState &state, 
                                     KInstruction *target, std::string fName, 
-                                    std::vector< ref<Expr> > &arguments) {
-  ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], "__fdivide floating point");
-  ref<klee::ConstantExpr> vb = executor.toConstantPublic(state, arguments[1], "__fdivide floating point");
+                                    std::vector< klee::ref<Expr> > &arguments) {
+  klee::ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], "__fdivide floating point");
+  klee::ref<klee::ConstantExpr> vb = executor.toConstantPublic(state, arguments[1], "__fdivide floating point");
   
   if (!fpWidthToSemantics(va->getWidth()) ||
       !fpWidthToSemantics(vb->getWidth()))
@@ -439,10 +439,10 @@ static bool compareSubNormal(APFloat &value, bool isNeg) {
 
 static void handleSpecialFloatValue(Executor &executor, ExecutionState &state, 
                                     KInstruction *target, std::string fName, 
-                                    std::vector< ref<Expr> > &arguments, 
+                                    std::vector< klee::ref<Expr> > &arguments, 
                                     bool &special) {
   std::cout << "handleSpecialFloatValue" << std::endl;
-  ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], 
+  klee::ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], 
                                                          "__{sin,cos,rcp,sqrt}_ floating point");
   if (!fpWidthToSemantics(va->getWidth()))
     return executor.terminateStateOnExecErrorPublic(state, "Unsupported operation");
@@ -591,13 +591,13 @@ static void handleSpecialFloatValue(Executor &executor, ExecutionState &state,
 // __tanf, tanf, tan
 static void executeParTriangleOpIntrinsic(Executor &executor, ExecutionState &state, 
                                           KInstruction *target, std::string fName, 
-                                          std::vector< ref<Expr> > &arguments) {
+                                          std::vector< klee::ref<Expr> > &arguments) {
   if (fName.find("sin") != std::string::npos) { // __sinf, sinf, sin
     bool special = false;
     handleSpecialFloatValue(executor, state, target, fName, arguments, special);
 
     if (!special) {
-      ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], "sin floating point");
+      klee::ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], "sin floating point");
       llvm::APFloat value(va->getAPValue());
       if (va->getWidth() == Expr::Int32) {
         float f = value.convertToFloat();
@@ -624,7 +624,7 @@ static void executeParTriangleOpIntrinsic(Executor &executor, ExecutionState &st
     handleSpecialFloatValue(executor, state, target, fName, arguments, special);
 
     if (!special) {
-      ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], "cos floating point");
+      klee::ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], "cos floating point");
       llvm::APFloat value(va->getAPValue());
       if (va->getWidth() == Expr::Int32) {
         float f = value.convertToFloat();
@@ -647,7 +647,7 @@ static void executeParTriangleOpIntrinsic(Executor &executor, ExecutionState &st
       }
     }
   } else { // __tanf, tanf, tan
-    ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], "tan floating point");
+    klee::ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], "tan floating point");
     llvm::APFloat value(va->getAPValue());
     if (va->getWidth() == Expr::Int32) {
       float f = value.convertToFloat();
@@ -668,10 +668,10 @@ static void executeParTriangleOpIntrinsic(Executor &executor, ExecutionState &st
 // __fadd_, __dadd_
 static void executeFloatAddIntrinsic(Executor &executor, ExecutionState &state, 
                                      KInstruction *target, std::string fName, 
-                                     std::vector< ref<Expr> >& arguments) {
-  ref<klee::ConstantExpr> left = executor.toConstantPublic(state, arguments[0],
+                                     std::vector< klee::ref<Expr> >& arguments) {
+  klee::ref<klee::ConstantExpr> left = executor.toConstantPublic(state, arguments[0],
                                                      "__{f,d}add_ floating point");
-  ref<klee::ConstantExpr> right = executor.toConstantPublic(state, arguments[1],
+  klee::ref<klee::ConstantExpr> right = executor.toConstantPublic(state, arguments[1],
                                                       "__{f,d}add_ floating point");
   if (!fpWidthToSemantics(left->getWidth()) ||
       !fpWidthToSemantics(right->getWidth()))
@@ -686,10 +686,10 @@ static void executeFloatAddIntrinsic(Executor &executor, ExecutionState &state,
 // __fmul_, __dmul_
 static void executeFloatMulIntrinsic(Executor &executor, ExecutionState &state, 
                                      KInstruction *target, std::string fName, 
-                                     std::vector< ref<Expr> > &arguments) {
-  ref<klee::ConstantExpr> left = executor.toConstantPublic(state, arguments[0],
+                                     std::vector< klee::ref<Expr> > &arguments) {
+  klee::ref<klee::ConstantExpr> left = executor.toConstantPublic(state, arguments[0],
                                                "__{f,d}mul_ floating point");
-  ref<klee::ConstantExpr> right = executor.toConstantPublic(state, arguments[1],
+  klee::ref<klee::ConstantExpr> right = executor.toConstantPublic(state, arguments[1],
                                                 "__{f,d}mul_ floating point");
   if (!fpWidthToSemantics(left->getWidth()) ||
       !fpWidthToSemantics(right->getWidth()))
@@ -704,12 +704,12 @@ static void executeFloatMulIntrinsic(Executor &executor, ExecutionState &state,
 // __fmaf_, __fma_, fmaf, fma
 static void executeFloatFmaIntrinsic(Executor &executor, ExecutionState &state, 
                                      KInstruction *target, std::string fName, 
-                                     std::vector< ref<Expr> > &arguments) {
-  ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0],
+                                     std::vector< klee::ref<Expr> > &arguments) {
+  klee::ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0],
                                                          "__fma_ floating point");
-  ref<klee::ConstantExpr> vb = executor.toConstantPublic(state, arguments[1],
+  klee::ref<klee::ConstantExpr> vb = executor.toConstantPublic(state, arguments[1],
                                                          "__fma_ floating point");
-  ref<klee::ConstantExpr> vc = executor.toConstantPublic(state, arguments[2],
+  klee::ref<klee::ConstantExpr> vc = executor.toConstantPublic(state, arguments[2],
                                                          "__fma_ floating point");
   if (!fpWidthToSemantics(va->getWidth()) ||
       !fpWidthToSemantics(vb->getWidth()) ||
@@ -726,12 +726,12 @@ static void executeFloatFmaIntrinsic(Executor &executor, ExecutionState &state,
 // __frcp_, __drcp_ 
 static void executeFloatRcpIntrinsic(Executor &executor, ExecutionState &state, 
                                      KInstruction *target, std::string fName, 
-                                     std::vector< ref<Expr> > &arguments) {
+                                     std::vector< klee::ref<Expr> > &arguments) {
   bool special = false;
   handleSpecialFloatValue(executor, state, target, fName, arguments, special);
   
   if (!special) {
-    ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], "__fma_ floating point");
+    klee::ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], "__fma_ floating point");
     if (!fpWidthToSemantics(va->getWidth()))
       return executor.terminateStateOnExecErrorPublic(state, "Unsupported FRcp operation");
 
@@ -755,12 +755,12 @@ static void executeFloatRcpIntrinsic(Executor &executor, ExecutionState &state,
 // __fsqrt_, __dsqrt_, rsqrtf, rsqrt, sqrtf
 static void executeFloatSqrtIntrinsic(Executor &executor, ExecutionState &state, 
                                       KInstruction *target, std::string fName, 
-                                      std::vector< ref<Expr> > &arguments) {
+                                      std::vector< klee::ref<Expr> > &arguments) {
   bool special = false;
   handleSpecialFloatValue(executor, state, target, fName, arguments, special);
   
   if (!special) {
-    ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], "__sqrt_ floating point");
+    klee::ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], "__sqrt_ floating point");
     llvm::APFloat value(va->getAPValue());
     llvm::APFloat Res(value.getSemantics());
 
@@ -800,10 +800,10 @@ static void executeFloatSqrtIntrinsic(Executor &executor, ExecutionState &state,
 // __fdiv_, __ddiv_
 static void executeFloatDivIntrinsic(Executor &executor, ExecutionState &state, 
                                      KInstruction *target, std::string fName, 
-                                     std::vector< ref<Expr> > &arguments) {
-  ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], 
+                                     std::vector< klee::ref<Expr> > &arguments) {
+  klee::ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], 
                                                          "__div_ floating point");
-  ref<klee::ConstantExpr> vb = executor.toConstantPublic(state, arguments[1], 
+  klee::ref<klee::ConstantExpr> vb = executor.toConstantPublic(state, arguments[1], 
                                                          "__div_ floating point");
   if (!fpWidthToSemantics(va->getWidth()) || 
       !fpWidthToSemantics(vb->getWidth()))
@@ -820,7 +820,7 @@ static void executeFloatDivIntrinsic(Executor &executor, ExecutionState &state,
 // powf
 static void executeParExponentialOpIntrinsic(Executor &executor, ExecutionState &state, 
                                              KInstruction *target, std::string fName, 
-                                             std::vector< ref<Expr> > &arguments) {
+                                             std::vector< klee::ref<Expr> > &arguments) {
   if (fName.find("exp") != std::string::npos) { 
     // __expf, __exp10f, 
     // expf, exp2f, exp10f, expm1f
@@ -829,7 +829,7 @@ static void executeParExponentialOpIntrinsic(Executor &executor, ExecutionState 
     handleSpecialFloatValue(executor, state, target, fName, arguments, special);
     
     if (!special) {
-      ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], "expf floating point");
+      klee::ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], "expf floating point");
       llvm::APFloat value(va->getAPValue());
       llvm::APFloat Res(value.getSemantics());
 
@@ -880,7 +880,7 @@ static void executeParExponentialOpIntrinsic(Executor &executor, ExecutionState 
       handleSpecialFloatValue(executor, state, target, fName, arguments, special);
     
     if (!special) {
-      ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], "log floating point");
+      klee::ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], "log floating point");
       llvm::APFloat value(va->getAPValue());
       if (va->getWidth() == Expr::Int32) {
         float f = value.convertToFloat();
@@ -917,8 +917,8 @@ static void executeParExponentialOpIntrinsic(Executor &executor, ExecutionState 
       }
     } 
   } else { // powf
-    ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], "powf floating point");
-    ref<klee::ConstantExpr> vb = executor.toConstantPublic(state, arguments[1], "powf floating point");
+    klee::ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], "powf floating point");
+    klee::ref<klee::ConstantExpr> vb = executor.toConstantPublic(state, arguments[1], "powf floating point");
 
     if (!fpWidthToSemantics(va->getWidth()) ||
         !fpWidthToSemantics(vb->getWidth()))
@@ -949,9 +949,9 @@ static void executeParExponentialOpIntrinsic(Executor &executor, ExecutionState 
 
 static void fpComparisonOp(Executor &executor, ExecutionState &state, 
                            KInstruction *target, std::string fName, 
-                           std::vector< ref<Expr> > &arguments, bool isMin) {
-  ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], "floating point");
-  ref<klee::ConstantExpr> vb = executor.toConstantPublic(state, arguments[1], "floating point");
+                           std::vector< klee::ref<Expr> > &arguments, bool isMin) {
+  klee::ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], "floating point");
+  klee::ref<klee::ConstantExpr> vb = executor.toConstantPublic(state, arguments[1], "floating point");
 
   if (!fpWidthToSemantics(va->getWidth()) ||
       !fpWidthToSemantics(vb->getWidth()))
@@ -972,8 +972,8 @@ static void fpComparisonOp(Executor &executor, ExecutionState &state,
 
 static void integerComparisonOp(Executor &executor, ExecutionState &state, 
                                 KInstruction *target, std::string fName, 
-                                std::vector< ref<Expr> > &arguments, bool isMin) {
-  ref<Expr> cond;
+                                std::vector< klee::ref<Expr> > &arguments, bool isMin) {
+  klee::ref<Expr> cond;
   if (isMin) {
     if (fName.find("umin") != std::string::npos 
          || fName.find("ullmin") != std::string::npos)
@@ -1001,7 +1001,7 @@ static void integerComparisonOp(Executor &executor, ExecutionState &state,
 // max, umax, llmax, ullmax, fmaxf, fmax
 static void executeParComparisonOpIntrinsic(Executor &executor, ExecutionState &state, 
                                             KInstruction *target, std::string fName, 
-                                            std::vector< ref<Expr> > &arguments) {
+                                            std::vector< klee::ref<Expr> > &arguments) {
   if (fName.find("min") != std::string::npos) {
     if (fName.find("fmin") != std::string::npos) {
       fpComparisonOp(executor, state, target, fName, arguments, true); 
@@ -1038,28 +1038,28 @@ static uint64_t reverseBits(uint64_t a, unsigned numBits) {
 // clz, ffs, popc, brev, byte_perm 
 static void executeParBitWiseOpIntrinsic(Executor &executor, ExecutionState &state, 
                                          KInstruction *target, std::string fName, 
-                                         std::vector< ref<Expr> > &arguments) {
+                                         std::vector< klee::ref<Expr> > &arguments) {
   if (fName.find("clz") != std::string::npos) {
-    ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], 
+    klee::ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], 
                                                            "__clz integer");
 
     llvm::APInt value = va->getAPValue();
     unsigned clz = value.countLeadingZeros();
     executor.bindLocal(target, state, klee::ConstantExpr::alloc(APInt(32, clz, true))); 
   } else if (fName.find("ffs") != std::string::npos) {
-    ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], 
+    klee::ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], 
                                                            "__ffs integer");
     llvm::APInt value = va->getAPValue();
     unsigned ffs = value.countTrailingZeros();
     executor.bindLocal(target, state, klee::ConstantExpr::alloc(APInt(32, ffs, true))); 
   } else if (fName.find("popc") != std::string::npos) {
-    ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], 
+    klee::ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], 
                                                            "__popc integer");
     llvm::APInt value = va->getAPValue();
     unsigned popc = value.countPopulation();
     executor.bindLocal(target, state, klee::ConstantExpr::alloc(APInt(32, popc, true))); 
   } else if (fName.find("brev") != std::string::npos) {
-    ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], 
+    klee::ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], 
                                                            "__brev integer");
     llvm::APInt value = va->getAPValue();
     const uint64_t *tmp = value.getRawData();
@@ -1071,11 +1071,11 @@ static void executeParBitWiseOpIntrinsic(Executor &executor, ExecutionState &sta
       executor.bindLocal(target, state, klee::ConstantExpr::alloc(APInt(64, a)));
     }
   } else {
-    ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], 
+    klee::ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], 
                                                            "__perm_byte integer");
-    ref<klee::ConstantExpr> vb = executor.toConstantPublic(state, arguments[1], 
+    klee::ref<klee::ConstantExpr> vb = executor.toConstantPublic(state, arguments[1], 
                                                            "__perm_byte integer");
-    ref<klee::ConstantExpr> vc = executor.toConstantPublic(state, arguments[2], 
+    klee::ref<klee::ConstantExpr> vc = executor.toConstantPublic(state, arguments[2], 
                                                            "__perm_byte integer");
     llvm::APInt VA = va->getAPValue();
     llvm::APInt VB = vb->getAPValue();
@@ -1119,20 +1119,20 @@ static void executeParBitWiseOpIntrinsic(Executor &executor, ExecutionState &sta
 // rhadd, urhadd, hadd, uhadd
 static void executeParAddOpIntrinsic(Executor &executor, ExecutionState &state, 
                                      KInstruction *target, std::string fName, 
-                                     std::vector< ref<Expr> > &arguments) {
-  ref<Expr> result;
+                                     std::vector< klee::ref<Expr> > &arguments) {
+  klee::ref<Expr> result;
   if (fName.find("rhadd") != std::string::npos) { // __rhadd, __urhadd
-    ref<Expr> orExpr = OrExpr::create(arguments[0], arguments[1]); 
-    ref<Expr> xorExpr = XorExpr::create(arguments[0], arguments[1]); 
-    ref<Expr> oneExpr = klee::ConstantExpr::create(1, Expr::Int32);
+    klee::ref<Expr> orExpr = OrExpr::create(arguments[0], arguments[1]); 
+    klee::ref<Expr> xorExpr = XorExpr::create(arguments[0], arguments[1]); 
+    klee::ref<Expr> oneExpr = klee::ConstantExpr::create(1, Expr::Int32);
     if (fName.find("urhadd") != std::string::npos)
       result = SubExpr::create(orExpr, LShrExpr::create(xorExpr, oneExpr)); 
     else 
       result = SubExpr::create(orExpr, AShrExpr::create(xorExpr, oneExpr)); 
   } else { // __hadd, __uhadd 
-    ref<Expr> andExpr = AndExpr::create(arguments[0], arguments[1]); 
-    ref<Expr> xorExpr = XorExpr::create(arguments[0], arguments[1]); 
-    ref<Expr> oneExpr = klee::ConstantExpr::create(1, Expr::Int32);
+    klee::ref<Expr> andExpr = AndExpr::create(arguments[0], arguments[1]); 
+    klee::ref<Expr> xorExpr = XorExpr::create(arguments[0], arguments[1]); 
+    klee::ref<Expr> oneExpr = klee::ConstantExpr::create(1, Expr::Int32);
     if (fName.find("uhadd") != std::string::npos)
       result = AddExpr::create(andExpr, LShrExpr::create(xorExpr, oneExpr)); 
     else 
@@ -1145,9 +1145,9 @@ static void executeParAddOpIntrinsic(Executor &executor, ExecutionState &state,
 // abs, labs, llabs, fabs, fabsf 
 static void executeAbsOpIntrinsic(Executor &executor, ExecutionState &state, 
                                   KInstruction *target, std::string fName, 
-                                  std::vector< ref<Expr> > &arguments) {
+                                  std::vector< klee::ref<Expr> > &arguments) {
   if (fName.find("fabs") != std::string::npos) {
-    ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], 
+    klee::ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], 
                                                            "__fabs integer");
     if (!fpWidthToSemantics(va->getWidth()))
       return executor.terminateStateOnExecErrorPublic(state, "Unsupported operation");
@@ -1166,8 +1166,8 @@ static void executeAbsOpIntrinsic(Executor &executor, ExecutionState &state,
     } else
       executor.bindLocal(target, state, arguments[0]);
   } else {
-    ref<Expr> zeroExpr = klee::ConstantExpr::create(0, arguments[0]->getWidth());   
-    ref<Expr> geCond = SgeExpr::create(arguments[0], zeroExpr);
+    klee::ref<Expr> zeroExpr = klee::ConstantExpr::create(0, arguments[0]->getWidth());   
+    klee::ref<Expr> geCond = SgeExpr::create(arguments[0], zeroExpr);
     
     Executor::StatePair branches = executor.forkAsPublic(state, geCond, true); 
     if (branches.first) {
@@ -1181,11 +1181,11 @@ static void executeAbsOpIntrinsic(Executor &executor, ExecutionState &state,
 
 static void executeParFPConversionOpIntrinsic(Executor &executor, ExecutionState &state, 
                                               KInstruction *target, std::string fName, 
-                                              std::vector< ref<Expr> > &arguments) {
+                                              std::vector< klee::ref<Expr> > &arguments) {
   if (fName.find("saturate") != std::string::npos) {
     executeSaturateIntrinsic(executor, state, target, fName, arguments);
   } else if (fName.find("floor") != std::string::npos) {
-    ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], 
+    klee::ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], 
                                                            "floor fp operation");  
     if (!fpWidthToSemantics(va->getWidth()))
       return executor.terminateStateOnExecErrorPublic(state, "Unsupported operation");
@@ -1201,7 +1201,7 @@ static void executeParFPConversionOpIntrinsic(Executor &executor, ExecutionState
       executor.bindLocal(target, state, klee::ConstantExpr::alloc(Res.bitcastToAPInt()));
     }
   } else if (fName.find("ceil") != std::string::npos) {
-    ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], 
+    klee::ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], 
                                                            "ceil fp operation");  
     if (!fpWidthToSemantics(va->getWidth()))
       return executor.terminateStateOnExecErrorPublic(state, "Unsupported operation");
@@ -1217,7 +1217,7 @@ static void executeParFPConversionOpIntrinsic(Executor &executor, ExecutionState
       executor.bindLocal(target, state, klee::ConstantExpr::alloc(Res.bitcastToAPInt()));
     }
   } else if (fName.find("round") != std::string::npos) {
-    ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], 
+    klee::ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], 
                                                            "round fp operation");  
     if (!fpWidthToSemantics(va->getWidth()))
       return executor.terminateStateOnExecErrorPublic(state, "Unsupported operation");
@@ -1233,7 +1233,7 @@ static void executeParFPConversionOpIntrinsic(Executor &executor, ExecutionState
       executor.bindLocal(target, state, klee::ConstantExpr::alloc(Res.bitcastToAPInt()));
     }
   } else if (fName.find("trunc") != std::string::npos) { // trunc
-    ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], 
+    klee::ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], 
                                                            "trunc fp operation");  
     if (!fpWidthToSemantics(va->getWidth()))
       return executor.terminateStateOnExecErrorPublic(state, "Unsupported operation");
@@ -1249,9 +1249,9 @@ static void executeParFPConversionOpIntrinsic(Executor &executor, ExecutionState
       executor.bindLocal(target, state, klee::ConstantExpr::alloc(Res.bitcastToAPInt()));
     }
   } else { // fmod
-    ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], 
+    klee::ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], 
                                                            "trunc fp operation");
-    ref<klee::ConstantExpr> vb = executor.toConstantPublic(state, arguments[1], 
+    klee::ref<klee::ConstantExpr> vb = executor.toConstantPublic(state, arguments[1], 
                                                            "trunc fp operation");
     if (!fpWidthToSemantics(va->getWidth()) 
          || !fpWidthToSemantics(vb->getWidth()))
@@ -1330,7 +1330,7 @@ static bool executeCUDAArithmetic(Executor &executor,
                                   ExecutionState &state,
                                   KInstruction *target, 
                                   Function *f,
-                                  std::vector< ref<Expr> > &arguments) {
+                                  std::vector< klee::ref<Expr> > &arguments) {
   std::string fName = f->getName().str();
   bool intrinsicFound = true;
 
@@ -1378,11 +1378,11 @@ static bool executeCUDAArithmetic(Executor &executor,
 
 static void executeCUDAFPToSI(Executor &executor, ExecutionState &state, 
                               KInstruction *target, std::string fName, 
-                              std::vector< ref<Expr> > &arguments) {
+                              std::vector< klee::ref<Expr> > &arguments) {
   CallSite cs(target->inst);
   Value *si = cs.getCalledValue();
   Expr::Width resultType = executor.getWidthForLLVMType(si->getType());
-  ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0],
+  klee::ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0],
                                                          "floating point");
   if (!fpWidthToSemantics(va->getWidth()))
     return executor.terminateStateOnExecErrorPublic(state, "Unsupported FPToSI operation");
@@ -1398,11 +1398,11 @@ static void executeCUDAFPToSI(Executor &executor, ExecutionState &state,
 
 static void executeCUDAFPToUI(Executor &executor, ExecutionState &state, 
                               KInstruction *target, std::string fName, 
-                              std::vector< ref<Expr> > &arguments) {
+                              std::vector< klee::ref<Expr> > &arguments) {
   CallSite cs(target->inst);
   Value *ui = cs.getCalledValue();
   Expr::Width resultType = executor.getWidthForLLVMType(ui->getType());
-  ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0],
+  klee::ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0],
                                                          "floating point");
   if (!fpWidthToSemantics(va->getWidth()))
     return executor.terminateStateOnExecErrorPublic(state, "Unsupported FPToUI operation");
@@ -1418,11 +1418,11 @@ static void executeCUDAFPToUI(Executor &executor, ExecutionState &state,
 
 static void executeCUDASIToFP(Executor &executor, ExecutionState &state, 
                               KInstruction *target, std::string fName, 
-                              std::vector< ref<Expr> > &arguments) {
+                              std::vector< klee::ref<Expr> > &arguments) {
   CallSite cs(target->inst);
   Value *fp = cs.getCalledValue();
   Expr::Width resultType = executor.getWidthForLLVMType(fp->getType());
-  ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0],
+  klee::ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0],
                                                          "floating point");
   const llvm::fltSemantics *semantics = fpWidthToSemantics(resultType);
   if (!semantics)
@@ -1435,11 +1435,11 @@ static void executeCUDASIToFP(Executor &executor, ExecutionState &state,
 
 static void executeCUDAUIToFP(Executor &executor, ExecutionState &state, 
                               KInstruction *target, std::string fName, 
-                              std::vector< ref<Expr> > &arguments) {
+                              std::vector< klee::ref<Expr> > &arguments) {
   CallSite cs(target->inst);
   Value *fp = cs.getCalledValue();
   Expr::Width resultType = executor.getWidthForLLVMType(fp->getType());
-  ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0],
+  klee::ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0],
                                                          "floating point");
   const llvm::fltSemantics *semantics = fpWidthToSemantics(resultType);
   if (!semantics)
@@ -1452,8 +1452,8 @@ static void executeCUDAUIToFP(Executor &executor, ExecutionState &state,
 
 static void executeCUDAFPToHiOrLoInt(Executor &executor, ExecutionState &state, 
                                      KInstruction *target, std::string fName, 
-                                     std::vector< ref<Expr> > &arguments) {
-  ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0],
+                                     std::vector< klee::ref<Expr> > &arguments) {
+  klee::ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0],
                                                          "floating point");
   if (!fpWidthToSemantics(va->getWidth()))
     return executor.terminateStateOnExecErrorPublic(state, "Unsupported double2hiint operation");
@@ -1475,7 +1475,7 @@ static bool executeCUDAConversion(Executor &executor,
                                   ExecutionState &state,
                                   KInstruction *target, 
                                   Function *f,
-                                  std::vector< ref<Expr> > &arguments) {
+                                  std::vector< klee::ref<Expr> > &arguments) {
   bool intrinsicFound = true;
   std::string fName = f->getName().str();
 
@@ -1506,9 +1506,9 @@ static bool executeCUDAConversion(Executor &executor,
     executeCUDAFPToHiOrLoInt(executor, state, target, fName, arguments);
   } else if (fName.find("hiloint2double") != std::string::npos) { // hiloint2double
     llvm::APInt tmp(64, 0);
-    ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], 
+    klee::ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], 
                                                            "hiloint2double op"); 
-    ref<klee::ConstantExpr> vb = executor.toConstantPublic(state, arguments[1], 
+    klee::ref<klee::ConstantExpr> vb = executor.toConstantPublic(state, arguments[1], 
                                                            "hiloint2double op"); 
     llvm::APInt VA = va->getAPValue();
     llvm::APInt VB = vb->getAPValue();
@@ -1521,7 +1521,7 @@ static bool executeCUDAConversion(Executor &executor,
     executor.bindLocal(target, state, klee::ConstantExpr::alloc(fp.bitcastToAPInt()));
   } else if (fName.find("float_as_int") != std::string::npos
               || fName.find("double_as_longlong") != std::string::npos) {
-    ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], 
+    klee::ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], 
                                                            "bitcast to int or longlong");
     if (!fpWidthToSemantics(va->getWidth()))
       executor.terminateStateOnExecErrorPublic(state, "Unsupported bitcast operation");
@@ -1534,7 +1534,7 @@ static bool executeCUDAConversion(Executor &executor,
     const llvm::fltSemantics *semantics = fpWidthToSemantics(resultType);
     if (!semantics)
       executor.terminateStateOnExecErrorPublic(state, "Unsupported bitcast operation");
-    ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], 
+    klee::ref<klee::ConstantExpr> va = executor.toConstantPublic(state, arguments[0], 
                                                            "bitcast to fp");
     llvm::APFloat FP(va->getAPValue());
     executor.bindLocal(target, state, klee::ConstantExpr::alloc(FP.bitcastToAPInt()));
@@ -1545,7 +1545,7 @@ static bool executeCUDAConversion(Executor &executor,
 }
 
 void Executor::executeCUDAIntrinsics(ExecutionState &state, KInstruction *target, 
-                                     Function *f, std::vector< ref<Expr> > &arguments, 
+                                     Function *f, std::vector< klee::ref<Expr> > &arguments, 
                                      unsigned seqNum) {
 
   std::string fName = f->getName().str();
