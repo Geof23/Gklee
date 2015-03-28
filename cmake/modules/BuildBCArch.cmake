@@ -2,33 +2,53 @@ message( "we entered BuildBCArch.cmake . . ." )
 
 set( BC_FLAGS -I${HOME}/Gklee/include -I${HOME}/Gklee/runtime/Intrinsic -I${HOME}/llvm/src/LLVM/include -I${BINARIES}/Gklee/include -D_GNU_SOURCE -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -D__NO_INLINE__ -g -fPIC -std=gnu89 -g -O2 -Wall -W -Wno-unused-parameter -Wwrite-strings )
 
-file( GLOB files ${SOURCE}/*.c )
+set( BCC_FLAGS -I${HOME}/Gklee/include -I${HOME}/Gklee/runtime/Intrinsic -I${HOME}/llvm/src/LLVM/include -I${BINARIES}/Gklee/include -D_GNU_SOURCE -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -D__NO_INLINE__ -g -fPIC -g -O2 -Wall -W -Wno-unused-parameter -Wwrite-strings )
+
+
+file( GLOB files ${SOURCE}/*.c* )
 
 foreach (SF ${files} )
+  # string( FIND SF "cpp$" CPP )
+  # message( "for ${SF}, CPP is ${CPP}" )
+  message( "testing for cpp with ${SF}" )
+  if( SF MATCHES cpp )
+    message( "match" )
+    message( "clang++ command: ${BBBIN}/clang++ ${BCC_FLAGS} ${SF} -o ${SF}.ll -S -emit-llvm" )
+    execute_process( COMMAND ${BBBIN}/clang++ ${BCC_FLAGS} ${SF} -o ${SF}.ll -S -emit-llvm
+      OUTPUT_VARIABLE OUT
+      ERROR_VARIABLE OUT
+      )
+  else()
+    message( "no match" )
     message( "clang command: ${BBBIN}/clang ${BC_FLAGS} ${SF} -o ${SF}.ll -S -emit-llvm" )
     execute_process( COMMAND ${BBBIN}/clang ${BC_FLAGS} ${SF} -o ${SF}.ll -S -emit-llvm
       OUTPUT_VARIABLE OUT
       ERROR_VARIABLE OUT
       )
-    message( "output from clang is ${OUT}" )
-    message( "llvm-as command: ${BBBIN}/llvm-as ${SF}.ll -o - | ${BBBIN}/opt -std-compile-opts -o ${SF}.bc" )
-    execute_process( COMMAND ${BBBIN}/llvm-as ${SF}.ll -o - 
-      COMMAND ${BBBIN}/opt -std-compile-opts -o ${SF}.bc
-      OUTPUT_VARIABLE OUT
-      ERROR_VARIABLE OUT
-      )
-    message( "output from llvm-as is ${OUT}" )
+  endif()
+  message( "output from clang is ${OUT}" )
+  message( "llvm-as command: ${BBBIN}/llvm-as ${SF}.ll -o - | ${BBBIN}/opt -std-compile-opts -o ${SF}.bc" )
+  execute_process( COMMAND ${BBBIN}/llvm-as ${SF}.ll -o - 
+    COMMAND ${BBBIN}/opt -std-compile-opts -o ${SF}.bc
+    OUTPUT_VARIABLE OUT
+    ERROR_VARIABLE OUT
+    )
+  message( "output from llvm-as is ${OUT}" )
 endforeach(SF)
 
 message( "building ${DEST}" )
 file( REMOVE ${DEST} )
-file( GLOB BCS ${SOURCE}/*.c.bc )
+file( GLOB BCS ${SOURCE}/*.c*.bc )
 message( "building ${DEST} with ${BBBIN}/llvm-ar rcsf ${DEST} ${BCS}" )
 execute_process( COMMAND ${BBBIN}/llvm-ar rcsf ${DEST} ${BCS}
       OUTPUT_VARIABLE OUT
       ERROR_VARIABLE OUT
       )
 message( "output from llvm-ar is ${OUT}" )  
+file( GLOB BC ${SOURCE}/*.bc )
+file( REMOVE ${BC} )
+file( GLOB LL ${SOURCE}/*.ll )
+file( REMOVE ${LL} )
 
 # set( LLVM_BIN ${CMAKE_SOURCE_DIR}/llvm/src/LLVM-build/bin )
 # set( CLANG_BIN ${CMAKE_SOURCE_DIR}/llvm/tools/clang/src/CLANG-build/bin )
