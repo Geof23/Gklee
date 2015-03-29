@@ -3,15 +3,42 @@ it supports almost all of CUDA intrinsic functions in kernel code and majority
 of CUDA runtimes in host code. For more details, please visit GKLEE's homepage:
 www.cs.utah.edu/fv/GKLEE
 
-======================= Build GKLEE ToolChain ===========================
+=============== Obtain and Build GKLEE ToolChain, and REQUIREMENTS ============
 
-1. Before you install the GKLEE toolchain, please ensure "flex" and "bison"
-   are both installed in your Linux system.
+1. Installing GKLEE requires that you have CMake installed on your system.
+   Please be sure to have at least version 3.0.  You may download CMake
+   from this location: http://www.cmake.org/download/.  Also, you must have
+   git installed to obtain the sources.  Obviously, an internet connection
+   is also needed.
 
-2. In the 'Gklee' dir, and run the script 'BuildGklee'. 
-   You will be asked to build Clang/LLVM and GKLEE with the 
-   "Release" or "Debug" mode. This script is able to download 
-   and build all necessary parts automatically.
+2. Choose a location for the GKLEE source.  You may have already done so,
+   but if not, obtain the GKLEE package from github.
+   a. CD to the location that you'd like for the GKLEE directory
+   b. execute 'git clone https://github.com/Geof23/Gklee
+
+3. Choose a build directory (for the out-of-source build).  For convenience,
+   you may do it within your top level GKLEE directory:  
+   a. cd Gklee
+   b. mkdir build && cd build
+   
+*** IMPORTANT ***
+    If your system has multiple versions of gcc installed, you must tell CMake
+    to use the most recent one.  Here's a procedure:
+    a. from your terminal (running Bash) type 'gcc[tab - tab]'
+    b. if you see a list that includes something like 'gcc gcc-[version number 1] 
+       gcc-[version number 2]' you have multiple installations.
+    (This problem will be eliminated in future versions of GKLEE)
+***
+
+4. Generate the Makefiles: 
+   a. If you don't have multiple gcc versions, you may simply execute 'cmake ..'
+      (assuming you created your build directory under the top level Gklee folder --
+      otherwise 'cmake [path to Gklee top level folder]'
+   b. If you do have multiple gcc versions, inform CMake by calling like this, 
+      assuming your latest gcc version is gcc-4.9:
+      'cmake gcc=gcc-4.9 g++=g++4.9 [path to Gklee]'
+
+5. Build Gklee: execute 'make -j [number of cores to build with]'
 
 ======================= Set Environment Variables =========================
 
@@ -22,10 +49,8 @@ www.cs.utah.edu/fv/GKLEE
    -- Create an environment file including the following lines
 
    export KLEE_HOME_DIR=/Path/To/Gklee
-   export PATH=$KLEE_HOME_DIR/bin:$KLEE_HOME_DIR/Gklee/Release+Asserts/bin:$KLEE_HOME_DIR/llvm/Release+Asserts/bin:$PATH
+   export PATH=$KLEE_HOME_DIR/bin:$PATH
 
-   NOTE: The above environment variables are present under the "Release" building mode, you should adjust "Release" to "Debug" accordingly
-         if you build GKLEE under the "Debug" mode.
 
 ======================= Run GKLEE =========================
 
@@ -35,8 +60,8 @@ After building GKLEE and setting environment variables properly, you could run G
 
    gklee-nvcc xxx.cu [-o executable] [other options used in nvcc ...] 
    
-   NOTE: if you do not specify a executable name, gklee-nvcc will use the prefix of the CUDA program 
-   as the default name
+   NOTE: if you do not specify a executable name, gklee-nvcc will use the prefix 
+   of the CUDA program as the default name
 
 2. Run your program with GKLEE command
 
@@ -45,3 +70,19 @@ After building GKLEE and setting environment variables properly, you could run G
 
 3. The test cases will be generated in the same dir where you execute gklee, 
    and appear as 'klee-out-[number]' and 'klee-last'.
+
+======================== Using TaintAnalysis: Gklee 'SESA' ============================
+
+The taint analyser consists of three llvm passes, which performs a combination of 
+use-def chain analysis and alias analysis to perform taint analysis on CUDA kernels.
+
+To run the analyser:
+
+sesa < [input_llvm_bytecode] > [output_llvm_bytecode]
+
+1. The taint analyser outputs informative messages on which variables shall 
+be symbolized in a file named "summary.txt"
+
+2. The taint analyser annotates the input llvm bytecode with LLVM metadata 
+and generates the new llvm bytecode containing LLVM annotations that are used 
+to prune redundant flows in the symbolic execution stage.
