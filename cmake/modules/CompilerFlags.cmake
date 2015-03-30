@@ -36,8 +36,6 @@ add_cxx_flag_if_supported("-fno-rtti")
 add_cxx_flag_if_supported("-Wno-unused_parameter")
 add_cxx_flag_if_supported("-Wwrite-strings")
 
-if( CMAKE_BUILD_TYPE EQUALS
-
 add_definitions("-D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -D_GNU_SOURCE")
 
 option(TUNE_NATIVE "Use -mtune=native" OFF)
