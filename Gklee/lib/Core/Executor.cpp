@@ -1248,7 +1248,7 @@ Executor::toConstant(ExecutionState &state,
   klee::ref<ConstantExpr> value;
   bool success = solver->getValue(state, e, value);
   assert(success && "FIXME: Unhandled solver failure");
-  (void) success;
+  (void) success; //what is this line?
   ExecutorUtil::copyBackConstraintUnderSymbolic(state);
     
   std::ostringstream os;
@@ -1855,7 +1855,7 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
 #endif
           std::map<BasicBlock*, klee::ref<Expr> >::iterator it =
             targets.insert(std::make_pair(caseSuccessor,
-                           ConstantExpr::alloc(0, Expr::Bool))).first;
+																					ConstantExpr::alloc(0, Expr::Bool))).first;
           it->second = OrExpr::create(match, it->second);
         }
       }
@@ -2547,6 +2547,29 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
       return terminateStateOnExecError(state, "Unsupported FPToUI operation");
 
     llvm::APFloat Arg(arg->getAPValue());
+
+    bool dangerous;
+    bool success = solver->mayBeTrue(state, isNeg, dangerous);
+    assert(success && "FIXME: Unhandled solver failure");
+    (void) success; //I don't know the purpose of this line TODO
+    if( dangerous ){
+      std::cout << "possible incorrect cast, negative fp to uint type at:" <<
+				std::endl;
+      if(MDNode *N = i->getMetadata("dbg")) {
+				DILocation Loc(N);
+				StringRef File = Loc.getFilename();
+				StringRef Dir = Loc.getDirectory();
+				std::cout << Loc.getLineNumber() << ":" << Dir.str() << "/" << File.str() <<
+					":" << std::endl;
+      }
+      if (state.tinfo.is_GPU_mode) {
+				std::cout << "bid: " << state.tinfo.get_cur_bid() 
+									<< ", tid: " << state.tinfo.get_cur_tid() << std::endl;
+				std::cout << "inst: " << std::endl;
+      }
+			i->dump();
+    }
+
     uint64_t value = 0;
     bool isExact = true;
     Arg.convertToInteger(&value, resultType, false,
