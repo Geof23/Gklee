@@ -62,7 +62,20 @@ set( CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules )
 #does system check for basic capabilities (for settings in config.h.in, including e.g. PACKAGE_BUGREPORT)
 include( ${CMAKE_MODULE_PATH}/Introspect.cmake )
 
-CONFIGURE_FILE( Gklee/include/klee/Config/config.h.in Gklee/include/klee/Config/config.h)
+CONFIGURE_FILE( Gklee/include/klee/Config/config.h.in Gklee/include/klee/Config/config.h )
+
+find_package(Doxygen)
+if(DOXYGEN_FOUND)
+  message( "Found Doxygen" )
+  CONFIGURE_FILE( doc/Doxyfile.in doc/Doxyfile )
+  add_custom_target(doc
+    ${DOXYGEN_EXECUTABLE} ${CMAKE_BINARY_DIR}/doc/Doxyfile
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/doc
+    COMMENT "Generating API documentation with Doxygen" VERBATIM
+    )
+else()
+  message( "No Doxygen found" )
+endif(DOXYGEN_FOUND)
 
 
 #installs external projects -- stp and llvm
