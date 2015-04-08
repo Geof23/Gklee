@@ -3,7 +3,7 @@ it supports almost all of CUDA intrinsic functions in kernel code and majority
 of CUDA runtimes in host code. For more details, please visit GKLEE's homepage:
 www.cs.utah.edu/fv/GKLEE
 
-This repository has been forked from https://github.com/PengPengHub/Gklee
+This is a fork of the original Github version of GKLEE, https://github.com/PengPengHub/Gklee
 
 =============== Obtain and Build GKLEE ToolChain, and REQUIREMENTS ============
 
