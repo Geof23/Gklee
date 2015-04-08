@@ -10,11 +10,6 @@ macro(add_cxx_flag_if_supported flagname)
   endif()
 endmacro()
 
-if(BUILD_SHARED_LIBS)
-    message(STATUS "Building shared library currently broken due to mix of C++/C code")
-    add_cxx_flag_if_supported("-fPIC")
-endif()
-
 add_cxx_flag_if_supported("-std=c++11")
 add_cxx_flag_if_supported("-Wall")
 #add_cxx_flag_if_supported("-Wextra")

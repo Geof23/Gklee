@@ -26,34 +26,6 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 message(STATUS "Doing a ${CMAKE_BUILD_TYPE} build")
 
-# -----------------------------------------------------------------------------
-# Option to enable/disable assertions
-# -----------------------------------------------------------------------------
-
-# Filter out definition of NDEBUG from the default build configuration flags.
-# We will add this ourselves if we want to disable assertions
-foreach (build_config ${build_types})
-    string(TOUPPER ${build_config} upper_case_build_config)
-    foreach (language CXX C)
-        set(VAR_TO_MODIFY "CMAKE_${language}_FLAGS_${upper_case_build_config}")
-        string(REGEX REPLACE "(^| )[/-]D *NDEBUG($| )"
-                             " "
-                             replacement
-                             "${${VAR_TO_MODIFY}}"
-              )
-        #message("Original (${VAR_TO_MODIFY}) is ${${VAR_TO_MODIFY}} replacement is ${replacement}")
-        set(${VAR_TO_MODIFY} "${replacement}" CACHE STRING "Default flags for ${build_config} configuration" FORCE)
-    endforeach()
-endforeach()
-
-option(ENABLE_ASSERTIONS "Build with assertions enabled" ON)
-if (ENABLE_ASSERTIONS)
-    # NDEBUG was already removed.
-else()
-    # Note this definition doesn't appear in the cache variables.
-    add_definitions( "-DNDEBUG" )
-endif()
-
 # Search paths for custom CMake modules
 set( CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules )
 #set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH};${LLVM_SRC}/src/LLVM/cmake/modules )
@@ -90,7 +62,33 @@ message( "CMAKE_MODULE_PATH is ${CMAKE_MODULE_PATH}" )
 # -----------------------------------------------------------------------------
 include( ${CMAKE_MODULE_PATH}/CompilerFlags.cmake )
 
+# -----------------------------------------------------------------------------
+# Option to enable/disable assertions
+# -----------------------------------------------------------------------------
 
+# Filter out definition of NDEBUG from the default build configuration flags.
+# We will add this ourselves if we want to disable assertions
+foreach (build_config ${build_types})
+    string(TOUPPER ${build_config} upper_case_build_config)
+    foreach (language CXX C)
+        set(VAR_TO_MODIFY "CMAKE_${language}_FLAGS_${upper_case_build_config}")
+        string(REGEX REPLACE "(^| )[/-]D *NDEBUG($| )"
+                             " "
+                             replacement
+                             "${${VAR_TO_MODIFY}}"
+              )
+        #message("Original (${VAR_TO_MODIFY}) is ${${VAR_TO_MODIFY}} replacement is ${replacement}")
+        set(${VAR_TO_MODIFY} "${replacement}" CACHE STRING "Default flags for ${build_config} configuration" FORCE)
+    endforeach()
+endforeach()
+
+option(ENABLE_ASSERTIONS "Build with assertions enabled" ON)
+if (ENABLE_ASSERTIONS)
+    # NDEBUG was already removed.
+else()
+    # Note this definition doesn't appear in the cache variables.
+    add_definitions( "-DNDEBUG" )
+endif()
 
 add_custom_target(uninstall
     COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
