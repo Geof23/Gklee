@@ -1,10 +1,15 @@
 #include <stdio.h>
 
-__global__ void dumbkernel(){
-   printf("we made it to dumbkernel\n");
+__global__ void dumbkernel(bool *input){
+   // if( input[threadIdx.x] ){
+   //    printf("we made it to dumbkernel\n");
+   // }
 }
 
+#define SZ 25
 
 int main(){
-    dumbkernel<<<1, 1>>>();
+    bool *devDummy;
+    cudaMalloc( (void**) &devDummy, sizeof(bool) * SZ);
+    dumbkernel<<<1, 32>>>(devDummy);
 }
