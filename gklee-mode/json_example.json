@@ -1,0 +1,23 @@
+{
+    "race-type": "write-write",
+
+    "variables": {
+	"var_0": "0",
+	"var_1": "1",
+	"array_0": ["0", "1", "2"]
+    },
+
+    "raced_on": "array_0[1]",
+
+    "thread_id_a": "0",
+
+    "thread_id_b": "1",
+
+    "source_line_a": "2000",
+
+    "source_line_b": "1985",
+
+    "llvm_bytecode_a": "%0 = sext i32 %X to i64"
+
+    "llvm_bytecode_b": "%0 = sext i32 %X to i64"
+}
