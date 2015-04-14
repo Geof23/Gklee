@@ -377,7 +377,7 @@ static bool checkVolatileMissing(Executor &executor, ExecutionState &state,
             GKLEE_INFO2 << "These two threads access common memory location, "
                         << "it is better to set shared variables as volatile!" << std::endl;
 	    //ADD EMACS INFO CALL HERE!!!
- 	    if (Emacs) AddressSpace::dumpEmacsInfoVect(ii->bid, jj->bid, tid1, tid2, ii->instr, jj->instr, "mv");
+ 	    //if (Emacs) AddressSpace::dumpEmacsInfoVect(ii->bid, jj->bid, tid1, tid2, ii->instr, jj->instr, "mv");
             vmissing = true;
 	  }
         }
@@ -511,8 +511,13 @@ static bool checkWWRace(Executor &executor, ExecutionState &state,
           }
 	  ii->dump(executor, state, raceCond);
           jj->dump(executor, state, raceCond);
-	  if (Emacs) AddressSpace::dumpEmacsInfoVect(ii->bid, jj->bid, tid1, tid2, 
-                                                     ii->instr, jj->instr, benign ? "wwrwb" : "wwrw");
+
+	  if (Emacs) {
+	    AddressSpace::dumpJsonEmacs( benign ? "wwrb" : "wwr", "hello world", tid1, tid2, ii->instr, jj->instr);
+	  }
+
+	  // if (Emacs) AddressSpace::dumpEmacsInfoVect(ii->bid, jj->bid, tid1, tid2, 
+          //                                           ii->instr, jj->instr, benign ? "wwrwb" : "wwrw");
           if (benign) return false;
 	  else return true;
         }
@@ -541,7 +546,11 @@ static bool checkWWRace(Executor &executor, ExecutionState &state,
           }
 	  ii->dump(executor, state, raceCond);
           jj->dump(executor, state, raceCond);
-	  if (Emacs) AddressSpace::dumpEmacsInfoVect(ii->bid, jj->bid, tid1, tid2, ii->instr, jj->instr, benign? "wwraw" : "wwrawb");
+	  if (Emacs) {
+	    AddressSpace::dumpJsonEmacs(benign ? "wwb" : "ww", "hello world", tid1, tid2, ii->instr, jj->instr);
+	  }
+
+	  //if (Emacs) AddressSpace::dumpEmacsInfoVect(ii->bid, jj->bid, tid1, tid2, ii->instr, jj->instr, benign? "wwraw" : "wwrawb");
           if (benign) return false;
 	  else return true;
         }
@@ -581,7 +590,11 @@ static bool checkRWRace(Executor &executor, ExecutionState &state,
         }
 	ii->dump(executor, state, raceCond);
         jj->dump(executor, state, raceCond);
-	if(Emacs) AddressSpace::dumpEmacsInfoVect(ii->bid, jj->bid, tid1, tid2, ii->instr, jj->instr, "rwraw");
+	  if (Emacs) {
+	    AddressSpace::dumpJsonEmacs(benign ? "rwb" : "rw", "hello world", tid1, tid2, ii->instr, jj->instr);
+	  }
+
+	  //if(Emacs) AddressSpace::dumpEmacsInfoVect(ii->bid, jj->bid, tid1, tid2, ii->instr, jj->instr, "rwraw");
         if (benign) return false;
 	else return true;
       }
@@ -639,8 +652,13 @@ static bool checkWWRacePureCS(Executor &executor, ExecutionState &state,
                  && checkConflictExprs(executor, state, raceCond, queryNum, 
                                        offset1, width1, offset2, width2)
                    && fenceRelation(*ii, *jj, withinBlock)) {
- 	    if (Emacs) AddressSpace::dumpEmacsInfoVect(ii->bid, jj->bid, tid1, tid2, 
-	    			                       ii->instr, jj->instr, "ww");
+
+	  if (Emacs) {
+	    AddressSpace::dumpJsonEmacs("ww", "hello world", tid1, tid2, ii->instr, jj->instr);
+	  }
+
+	  //if (Emacs) AddressSpace::dumpEmacsInfoVect(ii->bid, jj->bid, tid1, tid2, 
+	  // 			                       ii->instr, jj->instr, "ww");
             bool benign = false;
             if (!checkValuesSame(executor, state, ii->val, jj->val)) {
               GKLEE_INFO2 << "Under the pure canonical schedule, within a block, "
@@ -681,8 +699,9 @@ static bool checkWWRacePureCS(Executor &executor, ExecutionState &state,
                  && checkConflictExprs(executor, state, raceCond, queryNum, 
                                        offset1, width1, offset2, width2)
                    && fenceRelation(*ii, *jj, withinBlock)) {
- 	    if (Emacs) AddressSpace::dumpEmacsInfoVect(ii->bid, jj->bid, tid1, tid2, 
-	    			                       ii->instr, jj->instr, "ww");
+
+	  // 	    if (Emacs) AddressSpace::dumpEmacsInfoVect(ii->bid, jj->bid, tid1, tid2, 
+	  //			                       ii->instr, jj->instr, "ww");
             bool benign = false;
             if (!checkValuesSame(executor, state, ii->val, jj->val)) {
               GKLEE_INFO2 << "Under the pure canonical schedule, across different blocks, "
@@ -696,6 +715,10 @@ static bool checkWWRacePureCS(Executor &executor, ExecutionState &state,
                           << std::endl;
               benign = true;
             }
+	  if (Emacs) {
+	    AddressSpace::dumpJsonEmacs(benign ? "wwb" : "ww", "hello world", tid1, tid2, ii->instr, jj->instr);
+	  }
+
             ii->dump(executor, state, raceCond);
 	    jj->dump(executor, state, raceCond);
             if (benign) return false;
@@ -730,8 +753,12 @@ static bool checkRWRacePureCS(Executor &executor, ExecutionState &state,
               && checkConflictExprs(executor, state, raceCond, queryNum, 
                                     offset1, width1, offset2, width2)
                 && fenceRelation(*ii, *jj, withinBlock)) {
- 	  if (Emacs) AddressSpace::dumpEmacsInfoVect(ii->bid, jj->bid, tid1, tid2, 
-                                                     ii->instr, jj->instr, "rw");
+	  if (Emacs) {
+	    AddressSpace::dumpJsonEmacs("ww", "hello world", tid1, tid2, ii->instr, jj->instr);
+	  }
+
+	  // 	  if (Emacs) AddressSpace::dumpEmacsInfoVect(ii->bid, jj->bid, tid1, tid2, 
+	  //                                         ii->instr, jj->instr, "rw");
           GKLEE_INFO2 << "Under the pure canonical schedule, "
                       << "thread " << tid1 << " and " << tid2
 	              << " incur a Write-Read race (Actual) on " 
@@ -777,6 +804,32 @@ static bool belongToDifferentBB(const MemoryAccessVec &vec1, const MemoryAccessV
     else 
       return true;
   } else return true;
+}
+
+template <typename V>
+void AddressSpace::emacsInfo(const string& field, const V& value){
+  GKLEE_INFO << "emacs:    \"" << field << "\": \"" << value << "\"," << std::endl;
+}
+
+void AddressSpace::dumpJsonEmacs(string race_type, string raced_on, 
+				 unsigned tid_a, unsigned tid_b,
+				 const Instruction* i_a, const Instruction* i_b) {
+  MDNode *N = NULL;
+  if(i_a) N = i_a->getMetadata("dbg");
+  MDNode *N2 = NULL;
+  if(i_b) N2 = i_b->getMetadata("dbg");
+  if(N && N2){
+    DILocation Loc(N); 
+    DILocation Loc2(N2);
+    GKLEE_INFO << "emacs:{" << std::endl;
+    emacsInfo("race-type", race_type);
+    //    emacsInfo("raced-on", raced_on);
+    emacsInfo("thread-id-a", tid_a);
+    emacsInfo("thread-id-b", tid_b);
+    emacsInfo("source-line-a", Loc.getLineNumber());
+    emacsInfo("source-line-b", Loc2.getLineNumber());
+    GKLEE_INFO << "emacs:}" << std::endl;
+  }
 }
  
 //static 
@@ -909,10 +962,19 @@ bool AddressSpace::checkDivergeBranchRace(Executor &executor, ExecutionState &st
           }
 	  ii->dump(executor, state, raceCond);
           jj->dump(executor, state, raceCond);	  
-	  if (Emacs){
-	    if(isWW) dumpEmacsInfoVect(ii->bid, jj->bid, tid1, tid2, ii->instr, jj->instr, benign ? "wwbdb" : "wwbd");
-	    else dumpEmacsInfoVect(ii->bid, jj->bid, tid1, tid2, ii->instr, jj->instr, "rwbd");
+
+	  if (Emacs) {
+	    if (isWW) {
+	      AddressSpace::dumpJsonEmacs(benign ? "wwb" : "ww", "hello world", tid1, tid2, ii->instr, jj->instr);
+	    } else {
+	      AddressSpace::dumpJsonEmacs("rwb", "hello world", tid1, tid2, ii->instr, jj->instr);
+	    }
 	  }
+
+	  //	  if (Emacs){
+	  //if(isWW) dumpEmacsInfoVect(ii->bid, jj->bid, tid1, tid2, ii->instr, jj->instr, benign ? "wwbdb" : "wwbd");
+	  //else dumpEmacsInfoVect(ii->bid, jj->bid, tid1, tid2, ii->instr, jj->instr, "rwbd");
+	  //}
           if (benign) return false;
           else return true;
         }

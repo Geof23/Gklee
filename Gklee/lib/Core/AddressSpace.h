@@ -305,6 +305,14 @@ namespace klee {
       symGlobalWriteSets = b.symGlobalWriteSets;
     }
     ~AddressSpace() {}
+    
+    template <typename V>
+    static void emacsInfo(const std::string& field, const V& value);
+    static void dumpJsonEmacs(std::string race_type, 
+			      std::string raced_on, 
+			      unsigned tid_a, unsigned tid_b,
+			      const llvm::Instruction* i_a, 
+			      const llvm::Instruction* i_b);
 
     /// Output an information vector that gklee-mode.el (Emacs)
     /// can easily interpret
