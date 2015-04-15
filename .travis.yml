@@ -1,6 +1,5 @@
 language: cpp
 compiler:
   - gcc
-  - clang
 # Change this to your needs
-script: mkdir build && cd build && cmake .. && make
+script: mkdir temp && cd temp && wget http://www.cmake.org/files/v3.2/cmake-3.2.2-Linux-x86_64.tar.gz && tar -zxf cmake* && rm *.gz && cd .. && mkdir build && cd build && ../temp/cmake*/bin/cmake .. && make
