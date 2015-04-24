@@ -1577,5 +1577,10 @@ void Executor::executeCUDAIntrinsics(ExecutionState &state, KInstruction *target
     }
   }
 
-  callExternalFunction(state, target, f, arguments);
+  //temp fix for cleanup problem (see branch) 
+  if( fName != "__cxa_atexit" ){ //&& 
+    //fName.find( "GLOBAL" ) == std::string::npos ){
+    callExternalFunction(state, target, f, arguments);
+  }
+  //  callExternalFunction(state, target, f, arguments);
 }
