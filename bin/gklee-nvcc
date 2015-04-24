@@ -63,8 +63,8 @@ my $CFLAGSDEVICE = "-emit-llvm -c -g -O0 -x cuda -Xclang -fgpu-device";
 # ExternAttribute.txt or KernelSet.txt files.  This should be handled
 # in clang.patch, as that's where these files are generated from.
 # the problem is that they're opened in append mode
-exec( "rm kernelSet.txt 2> /dev/null" );
-exec( "rm ExternAttribute.txt 2> /dev/null" );
+system( "rm kernelSet.txt 2> /dev/null" );
+system( "rm ExternAttribute.txt 2> /dev/null" );
 
 
 if ($objFile ne "") {
