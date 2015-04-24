@@ -4287,7 +4287,7 @@ void Executor::callExternalFunction(ExecutionState &state,
     std::ostringstream os;
     os << "calling external: " << function->getName().str() << "(";
     for (unsigned i=0; i<arguments.size(); i++) {
-      os << arguments[i];
+      //os << arguments[i];
       if (i != arguments.size()-1)
 	os << ", ";
     }

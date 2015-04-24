@@ -26,6 +26,10 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 message(STATUS "Doing a ${CMAKE_BUILD_TYPE} build")
 
+if( DO_GLIBCXX_DEBUG )
+  set( GLIBCXX -DGLIBCXX_DEBUG )
+endif()
+
 # Search paths for custom CMake modules
 set( CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules )
 #set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH};${LLVM_SRC}/src/LLVM/cmake/modules )

@@ -11,7 +11,7 @@ ExternalProject_add(
    URL_MD5 71610289bbc819e3e15fdd562809a2d7
 		#we're going to abuse PATCH_COMMAND by adding Clang (along with its patch), compiler-rt and TaintAnalysis to the llvm tree here
 		PATCH_COMMAND cd ${LLVM_SRC}/src/LLVM/tools && wget http://www.llvm.org/releases/3.2/clang-3.2.src.tar.gz && tar -zxf clang-3.2.src.tar.gz && mv clang-3.2.src clang && rm clang-3.2.src.tar.gz && cd clang && cp ${CMAKE_SOURCE_DIR}/clang.patch ./ && patch -p1 < clang.patch && cd ${LLVM_SRC}/src/LLVM/projects && wget http://www.llvm.org/releases/3.2/compiler-rt-3.2.src.tar.gz && tar -zxf compiler-rt-3.2.src.tar.gz && mv compiler-rt-3.2.src compiler-rt && rm compiler-rt-3.2.src.tar.gz 
-   CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_SOURCE_DIR} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+   CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_SOURCE_DIR} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} "-DCMAKE_CXX_FLAGS=${GLIBCXX} -std=c++11"
 )
 
 # 

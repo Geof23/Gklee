@@ -37,7 +37,7 @@ namespace {
   llvm::cl::opt<bool>
   PCAllConstWidths("pc-all-const-widths",  llvm::cl::init(false));
 }
-
+namespace ExprPPrint {
 /// PrintContext - Helper class for storing extra information for
 /// the pretty printer.
 class PrintContext {
@@ -79,6 +79,7 @@ public:
     return *this;
   }
 };
+}
 
 class PPrinter : public ExprPPrinter {
 public:
@@ -162,7 +163,7 @@ private:
     }
   }
 
-  void printUpdateList(const UpdateList &updates, PrintContext &PC) {
+  void printUpdateList(const UpdateList &updates, ExprPPrint::PrintContext &PC) {
     const UpdateNode *head = updates.head;
 
     // Special case empty list.
@@ -222,7 +223,7 @@ private:
     PC << " @ " << updates.root->name;
   }
 
-  void printWidth(PrintContext &PC, klee::ref<Expr> e) {
+  void printWidth(ExprPPrint::PrintContext &PC, klee::ref<Expr> e) {
     if (!shouldPrintWidth(e))
       return;
 
@@ -318,18 +319,19 @@ private:
   }
 #endif
 
-  void printRead(const ReadExpr *re, PrintContext &PC, unsigned indent) {
+  void printRead(const ReadExpr *re, ExprPPrint::PrintContext &PC, unsigned indent) {
     print(re->index, PC);
     printSeparator(PC, isVerySimple(re->index), indent);
     printUpdateList(re->updates, PC);
   }
 
-  void printExtract(const ExtractExpr *ee, PrintContext &PC, unsigned indent) {
+  void printExtract(const ExtractExpr *ee, ExprPPrint::PrintContext &PC, unsigned indent) {
     PC << ee->offset << ' ';
     print(ee->expr, PC);
   }
 
-  void printExpr(const Expr *ep, PrintContext &PC, unsigned indent, bool printConstWidth=false) {
+  void printExpr(const Expr *ep, ExprPPrint::PrintContext &PC, 
+		 unsigned indent, bool printConstWidth=false) {
     bool simple = hasSimpleKids(ep);
     
     print(ep->getKid(0), PC);
@@ -366,12 +368,12 @@ public:
   }
 
   void print(const klee::ref<Expr> &e, unsigned level=0) {
-    PrintContext PC(os);
+    ExprPPrint::PrintContext PC(os);
     PC.pos = level;
     print(e, PC);
   }
 
-  void printConst(const klee::ref<ConstantExpr> &e, PrintContext &PC, 
+  void printConst(const klee::ref<ConstantExpr> &e, ExprPPrint::PrintContext &PC, 
                   bool printWidth) {
     if (e->getWidth() == Expr::Bool)
       PC << (e->isTrue() ? "true" : "false");
@@ -395,7 +397,7 @@ public:
     }    
   }
 
-  void print(const klee::ref<Expr> &e, PrintContext &PC, bool printConstWidth=false) {
+  void print(const klee::ref<Expr> &e, ExprPPrint::PrintContext &PC, bool printConstWidth=false) {
     if (ConstantExpr *CE = dyn_cast<ConstantExpr>(e))
       printConst(CE, PC, printConstWidth);
     else {
@@ -452,7 +454,7 @@ public:
 
   /* Public utility functions */
 
-  void printSeparator(PrintContext &PC, bool simple, unsigned indent) {
+  void printSeparator(ExprPPrint::PrintContext &PC, bool simple, unsigned indent) {
     if (simple) {
       PC << ' ';
     } else {
@@ -473,7 +475,7 @@ void ExprPPrinter::printOne(std::ostream &os,
 
   // FIXME: Need to figure out what to do here. Probably print as a
   // "forward declaration" with whatever syntax we pick for that.
-  PrintContext PC(os);
+  ExprPPrint::PrintContext PC(os);
   PC << message << ": ";
   p.print(e, PC);
   PC.breakLine();
@@ -481,11 +483,13 @@ void ExprPPrinter::printOne(std::ostream &os,
 
 void ExprPPrinter::printSingleExpr(std::ostream &os, const klee::ref<Expr> &e) {
   PPrinter p(os);
+
   p.scan(e);
 
   // FIXME: Need to figure out what to do here. Probably print as a
   // "forward declaration" with whatever syntax we pick for that.
-  PrintContext PC(os);
+  ExprPPrint::PrintContext PC(os);
+
   p.print(e, PC);
 }
 
@@ -513,7 +517,7 @@ void ExprPPrinter::printQuery(std::ostream &os,
   for (const klee::ref<Expr> *it = evalExprsBegin; it != evalExprsEnd; ++it)
     p.scan(*it);
 
-  PrintContext PC(os);
+  ExprPPrint::PrintContext PC(os);
   
   // Print array declarations.
   if (printArrayDecls) {

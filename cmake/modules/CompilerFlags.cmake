@@ -31,7 +31,7 @@ add_cxx_flag_if_supported("-fno-rtti")
 add_cxx_flag_if_supported("-Wno-unused_parameter")
 add_cxx_flag_if_supported("-Wwrite-strings")
 
-add_definitions("-D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -D_GNU_SOURCE")
+add_definitions("-D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -D_GNU_SOURCE ${GLIBCXX}")
 
 option(TUNE_NATIVE "Use -mtune=native" OFF)
 if(TUNE_NATIVE)
@@ -63,8 +63,6 @@ if (SANITIZE)
     add_cxx_flag("-Wno-bitfield-constant-conversion")
 endif()
 
-message( "done checking flags.  They're now: ${CMAKE_CXX_FLAGS}" )
-
 if( CMAKE_BUILD_TYPE MATCHES Debug )
   add_cxx_flag( "-O0" )
   add_cxx_flag( "-g" )
@@ -79,6 +77,9 @@ endif()
 if( CMAKE_BUILD_TYPE MATCHES MinSizeRel )
   add_cxx_flag( "-Os" )
 endif()
+
+message( "done checking flags.  They're now: ${CMAKE_CXX_FLAGS}" )
+
 # IF ( MSVC ) # visual c++ (VS 2013)
 
 #     # Disabled Warnings:
