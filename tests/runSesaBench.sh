@@ -9,6 +9,8 @@ function checkRes {
    fi
 }
 
+echo "Beginning $0 at $(pwd) on $(hostname)"
+
 GKP=gklee_p.results
 SE=gklee_sesa.results
 CON=concrete
@@ -28,12 +30,15 @@ else
     git pull
     checkRes $?
 fi
+
+echo "Setup completed"
     
 TESTHOME=$(pwd)
 
 #LoneStar
 ##################
 SECTION=BFS_ATOMIC
+echo "Beginning $SECTION"
 cd $TESTHOME/LoneStar/apps/bfs/BFS_ATOMIC
 checkRes $? cd
 
@@ -61,6 +66,7 @@ gklee --symbolic-config --race-prune --max-sym-array-size=1024 --avoid-oob-check
 
 ##############
 SECTION=BFS_LS
+echo "Beginning $SECTION"
 cd $TESTHOME/LoneStar/apps/bfs/BFS_LS
 checkRes $? cd
 
@@ -84,6 +90,7 @@ gklee --symbolic-config --race-prune --avoid-oob-check bfs_ls.new 2>&1 | tee $TE
 
 #####################
 SECTION=BFS_WORKLISTA
+echo "Beginning $SECTION"
 cd $TESTHOME/LoneStar/apps/bfs/BFS_WORKLISTA
 checkRes $? cd
 
@@ -107,6 +114,7 @@ gklee --symbolic-config --race-prune --max-sym-array-size=1024 --avoid-oob-check
 
 ##########################
 SECTION=BFS_WORKLISTW
+echo "Beginning $SECTION"
 cd $TESTHOME/LoneStar/apps/bfs/BFS_WORKLISTW
 checkRes $? cd
 gklee-nvcc -o bfs_worklistw main.cu -I ../../../include -DVARIANT=BFS_WORKLISTW
@@ -129,6 +137,7 @@ gklee --symbolic-config --race-prune --max-sym-array-size=1024 --avoid-oob-check
 
 ###################
 SECTION=bh
+echo "Beginning $SECTION"
 cd $TESTHOME/LoneStar/apps/bh
 checkRes $? cd 
 
@@ -152,6 +161,7 @@ gklee --symbolic-config --race-prune --avoid-oob-check bh.new 2>&1 | tee $TESTHO
 
 ################
 SECTION=SSSP_WLN
+echo "Beginning $SECTION"
 cd $TESTHOME/LoneStar/apps/sssp/SSSP_WLN
 checkRes $? cd 
 
@@ -175,6 +185,7 @@ gklee --symbolic-config --race-prune --avoid-oob-check sssp_wln.new 2>&1 | tee $
 
 ####################
 SECTION=SSSP_LS
+echo "Beginning $SECTION"
 cd $TESTHOME/LoneStar/apps/sssp/SSSP_LS
 checkRes $? cd 
 

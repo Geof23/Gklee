@@ -7,6 +7,9 @@ function checkRes {
 #       exit "$1"
    fi
 }
+
+echo "Setting up Parboil tests"
+
 cd SESABench
 tar -zxf ../pb2.5driver.tgz
 
@@ -15,6 +18,7 @@ cd SESABench/Table-3-Parboil
 TESTHOME=$(pwd)
 
 SECTION=spmv
+echo "Beginning $SECTION"
 
 cd $TESTHOME/spmv
 
@@ -30,6 +34,7 @@ gklee --symbolic-config spmv 2>&1 | tee $TESTHOME/gklee_out_$SECTION
 ########################################
 
 SECTION=histo_final
+echo "Beginning $SECTION"
 
 cd $TESTHOME/histo/histo_final
 
@@ -46,6 +51,7 @@ gklee --symbolic-config histo 2>&1 | tee $TESTHOME/gklee_out_$SECTION
 
 ##########################
 SECTION=histo_prescan
+echo "Beginning $SECTION"
 
 cd $TESTHOME/histo/histo_prescan
 
@@ -84,6 +90,7 @@ gklee --symbolic-config histo.sym.new 2>&1 $TESTHOME/gklee_out_$SECTION_sym
 
 ##################
 SECTION=mri_binning
+echo "Beginning $SECTION"
 cd $TESTHOME/mri-gridding/mri_binning
 #./mri-gridding/mri_binning/README
 
@@ -111,6 +118,7 @@ gklee --symbolic-config mri-gridding 2>&1 | tee $TESTHOME/gklee_out_$SECTION
 
 ######################
 SECTION=mri_gridding
+echo "Beginning $SECTION"
 cd $TESTHOME/mri-gridding/mri_gridding
 #./mri-gridding/mri_gridding/README
 #Build mri-gridding:
@@ -125,6 +133,7 @@ gklee --symbolic-config mri-gridding 2>&1 | tee $TESTHOME/gklee_out_$SECTION
 
 #####################
 SECTION=$TESTHOME/stencil
+echo "Beginning $SECTION"
 cd $TESTHOME/stencil
 #./stencil/README
 #Build:
@@ -137,6 +146,7 @@ gklee --symbolic-config --max-time=7200 stencil.new 2>&1 | tee $TESTHOME/gklee_o
 
 ######################
 SECTION=bfs
+echo "Beginning $SECTION"
 cd=$TESTHOME/bfs
 # ./bfs/README
 # Build bfs:
@@ -150,6 +160,7 @@ gklee --symbolic-config --max-sym-array-size=2048 main.new 2>&1 | tee $TESTHOME/
 
 ######################
 SECTION=cutcp
+echo "Beginning $SECTION"
 cd=$TESTHOME/cutcp
 ##  ./cutcp/README
 # # How to build cutcp:
@@ -162,7 +173,6 @@ cd=$TESTHOME/cutcp
 # gklee-nvcc cutoff6overlap.cu -I$TESTHOME/../parboil/common/include -O3 -c -o build/cutoff6overlap.o -D_SYM
 # llvm-link -o cutcp cutcpu.o cutoff6overlap.o excl.o main.o output.o readatom.o
 
-# #
-How to run with GKLEEp: skipped by Peng
+# #How to run with GKLEEp: skipped by Peng
 
 
