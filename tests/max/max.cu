@@ -23,7 +23,7 @@ __global__ void mmax(int* in, int* out)
     rslt[idx] = temp;
     lim /= 2;
   }
-  if (idx = 0)
+  if (idx == 0)
     *out = rslt[0];
 }
 

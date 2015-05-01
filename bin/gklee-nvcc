@@ -41,6 +41,8 @@ my $gkleeHomeDir = $ENV{"KLEE_HOME_DIR"};
 my $symbolCmd = "-include $gkleeHomeDir/Gklee/include/klee/klee.h";
 my $headerCmd = "-include $gkleeHomeDir/Gklee/include/klee/gklee.h";
 my $cudaRuntime = "-D__CUDACC__ -I $gkleeHomeDir/Gklee/include/cuda -include cuda_runtime.h";
+#this help cleanup a flood of warnings about our custom attributes
+my $suppFlags = "-Wno-attributes -Wno-ignored-attributes";
 
 my $cudaPrefix = `basename $cudaFile .cu`;
 chomp($cudaPrefix);
@@ -68,9 +70,9 @@ system( "rm ExternAttribute.txt 2> /dev/null" );
 
 
 if ($objFile ne "") {
-  system("$CC $CFLAGSDEVICE $cmdLine $symbolCmd $headerCmd $cudaRuntime");
+  system("$CC $CFLAGSDEVICE $cmdLine $symbolCmd $headerCmd $cudaRuntime $suppFlags");
 } else {
-  system("$CC $CFLAGSDEVICE $cmdLine -o $cudaPrefix $symbolCmd $headerCmd $cudaRuntime");
+  system("$CC $CFLAGSDEVICE $cmdLine -o $cudaPrefix $symbolCmd $headerCmd $cudaRuntime $suppFlags");
 }
 
 if (-e "a.out") {
