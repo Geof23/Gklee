@@ -1,4 +1,0 @@
-write write
-read write
-benign read write
-benign write write

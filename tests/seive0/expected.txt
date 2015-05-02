@@ -1,2 +1,0 @@
-read write
-benign read write
