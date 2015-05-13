@@ -81,19 +81,19 @@ diff -urN clang-3.2.src/include/clang/Frontend/CodeGenOptions.def clang/include/
  CODEGENOPT(CXAAtExit         , 1, 1) ///< Use __cxa_atexit for calling destructors.
  CODEGENOPT(CXXCtorDtorAliases, 1, 0) ///< Emit complete ctors/dtors as linker
                                       ///< aliases to base ctors when possible.
-diff -urN clang-3.2.src/lib/CodeGen/CodeGenModule.cpp clang/lib/CodeGen/CodeGenModule.cpp
 --- clang-3.2.src/lib/CodeGen/CodeGenModule.cpp	2012-11-21 23:10:56.000000000 -0700
-+++ clang/lib/CodeGen/CodeGenModule.cpp	2013-08-05 16:49:18.866523041 -0600
-@@ -45,6 +45,8 @@
++++ clang/lib/CodeGen/CodeGenModule.cpp	2015-05-12 22:17:24.634187097 -0600
+@@ -45,6 +45,9 @@
  #include "llvm/DataLayout.h"
  #include "llvm/Support/CallSite.h"
  #include "llvm/Support/ErrorHandling.h"
 +#include <iostream>
 +#include <fstream>
++#include <cstdlib>
  using namespace clang;
  using namespace CodeGen;
  
-@@ -953,6 +955,18 @@
+@@ -953,6 +956,19 @@
    } else {
      const VarDecl *VD = cast<VarDecl>(Global);
      assert(VD->isFileVarDecl() && "Cannot emit local var decl as global.");
@@ -101,7 +101,8 @@ diff -urN clang-3.2.src/lib/CodeGen/CodeGenModule.cpp clang/lib/CodeGen/CodeGenM
 +      if (Global->hasAttr<GPUSharedAttr>()) {
 +        // shared variables ...
 +        std::ofstream extAttrFile;
-+        extAttrFile.open("ExternAttribute.txt", std::ios::app);
++				std::string tname(std::getenv("GN_TARGET"));
++        extAttrFile.open(tname + ".ExternAttribute.txt", std::ios::app);
 +        std::string info = VD->getNameAsString();
 +        info += " : shared";
 +        extAttrFile << info.c_str() << std::endl;
@@ -112,7 +113,7 @@ diff -urN clang-3.2.src/lib/CodeGen/CodeGenModule.cpp clang/lib/CodeGen/CodeGenM
  
      if (VD->isThisDeclarationADefinition() != VarDecl::Definition)
        return;
-@@ -1206,6 +1220,15 @@
+@@ -1206,7 +1222,16 @@
      Ty = getTypes().ConvertType(cast<ValueDecl>(GD.getDecl())->getType());
    
    StringRef MangledName = getMangledName(GD);
@@ -127,6 +128,7 @@ diff -urN clang-3.2.src/lib/CodeGen/CodeGenModule.cpp clang/lib/CodeGen/CodeGenM
 +  }
    return GetOrCreateLLVMFunction(MangledName, Ty, GD, ForVTable);
  }
+ 
  
 diff -urN clang-3.2.src/lib/Frontend/CompilerInvocation.cpp clang/lib/Frontend/CompilerInvocation.cpp
 --- clang-3.2.src/lib/Frontend/CompilerInvocation.cpp	2012-11-21 01:33:40.000000000 -0700

@@ -86,6 +86,7 @@
 #include <sstream>
 #include <vector>
 #include <string>
+#include <dirent.h>
 
 #include <sys/mman.h>
 
@@ -3622,18 +3623,23 @@ static std::string strip(std::string &in) {
 }
 
 void Executor::configurateGPUKernelSet() {     
-  const char* c_file = "kernelSet.txt";                                                              
-
-  std::ifstream f(c_file);                                                          
-  assert(f.is_open() && "unable to open kernelSet.txt file");                      
-  while (!f.eof()) {
-    std::string line;
-    std::getline(f, line);
-    line = strip(line);                                                           
-    if (!line.empty())
-      kernelSet.insert(line);                                         
-  } 
-  f.close();
+	//  const char* c_file = "kernelSet.txt";                                                              
+	while( true ){
+		struct dirent* di = readdir(".");
+		if(!di) break;
+		std::string dname(di->d_name);
+		if( dname.find("kernelSet.txt") != std::string::npos ){
+			std::ifstream f(dname);                                                          
+			assert(f.is_open() && "unable to open " + dname + " file");                      
+			while (!f.eof()) {
+				std::string line;
+				std::getline(f, line);
+				line = strip(line);                                                           
+				if (!line.empty())
+					kernelSet.insert(line);                                         
+			} 
+			f.close();
+		}
 }
 
 void Executor::run(ExecutionState &initialState) {
