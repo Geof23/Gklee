@@ -68,7 +68,7 @@ my $CFLAGSDEVICE = "-emit-llvm -c -g -O0 -x cuda -Xclang -fgpu-device";
 system( "rm kernelSet.txt 2> /dev/null" );
 system( "rm ExternAttribute.txt 2> /dev/null" );
 
-system( "export GN_TARGET=$cudaPrefix" );  #clang will read this and write as the previous two lines
+$ENV{ GN_TARGET }=$cudaPrefix;
 
 if ($objFile ne "") {
   system("$CC $CFLAGSDEVICE $cmdLine $symbolCmd $headerCmd $cudaRuntime $suppFlags");

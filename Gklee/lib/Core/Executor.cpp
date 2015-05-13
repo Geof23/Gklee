@@ -3624,13 +3624,14 @@ static std::string strip(std::string &in) {
 
 void Executor::configurateGPUKernelSet() {     
 	//  const char* c_file = "kernelSet.txt";                                                              
-	while( true ){
-		struct dirent* di = readdir(".");
+	DIR* dir = opendir(".");
+	while( dir ){
+		struct dirent* di = readdir( dir );
 		if(!di) break;
 		std::string dname(di->d_name);
-		if( dname.find("kernelSet.txt") != std::string::npos ){
-			std::ifstream f(dname);                                                          
-			assert(f.is_open() && "unable to open " + dname + " file");                      
+		if( dname.find( "kernelSet.txt" ) != std::string::npos ){
+			std::ifstream f( dname.c_str() );                                                          
+			assert(f.is_open() && std::string("unable to open " + dname + " file" ).c_str());                      
 			while (!f.eof()) {
 				std::string line;
 				std::getline(f, line);
@@ -3640,6 +3641,7 @@ void Executor::configurateGPUKernelSet() {
 			} 
 			f.close();
 		}
+	}
 }
 
 void Executor::run(ExecutionState &initialState) {
