@@ -82,7 +82,7 @@ diff -urN clang-3.2.src/include/clang/Frontend/CodeGenOptions.def clang/include/
  CODEGENOPT(CXXCtorDtorAliases, 1, 0) ///< Emit complete ctors/dtors as linker
                                       ///< aliases to base ctors when possible.
 --- clang-3.2.src/lib/CodeGen/CodeGenModule.cpp	2012-11-21 23:10:56.000000000 -0700
-+++ clang/lib/CodeGen/CodeGenModule.cpp	2015-05-12 22:17:24.634187097 -0600
++++ clang/lib/CodeGen/CodeGenModule.cpp	2015-05-12 22:59:24.430152368 -0600
 @@ -45,6 +45,9 @@
  #include "llvm/DataLayout.h"
  #include "llvm/Support/CallSite.h"
@@ -102,7 +102,7 @@ diff -urN clang-3.2.src/include/clang/Frontend/CodeGenOptions.def clang/include/
 +        // shared variables ...
 +        std::ofstream extAttrFile;
 +				std::string tname(std::getenv("GN_TARGET"));
-+        extAttrFile.open(tname + ".ExternAttribute.txt", std::ios::app);
++        extAttrFile.open(std::string(tname + ".ExternAttribute.txt").c_str(), std::ios::app);
 +        std::string info = VD->getNameAsString();
 +        info += " : shared";
 +        extAttrFile << info.c_str() << std::endl;
@@ -113,7 +113,7 @@ diff -urN clang-3.2.src/include/clang/Frontend/CodeGenOptions.def clang/include/
  
      if (VD->isThisDeclarationADefinition() != VarDecl::Definition)
        return;
-@@ -1206,7 +1222,16 @@
+@@ -1206,6 +1222,16 @@
      Ty = getTypes().ConvertType(cast<ValueDecl>(GD.getDecl())->getType());
    
    StringRef MangledName = getMangledName(GD);
@@ -121,14 +121,14 @@ diff -urN clang-3.2.src/include/clang/Frontend/CodeGenOptions.def clang/include/
 +       && CodeGenOpts.GPUDevice) {
 +    if (GD.getDecl()->hasAttr<GPUGlobalAttr>()) {
 +      std::ofstream kernelSetFile;
-+      kernelSetFile.open("kernelSet.txt", std::ios::app);
++			std::string tname(std::getenv("GN_TARGET"));
++      kernelSetFile.open(std::string(tname + ".kernelSet.txt").c_str(), std::ios::app);
 +      kernelSetFile << MangledName.str() << std::endl;
 +      kernelSetFile.close();
 +    }
 +  }
    return GetOrCreateLLVMFunction(MangledName, Ty, GD, ForVTable);
  }
- 
  
 diff -urN clang-3.2.src/lib/Frontend/CompilerInvocation.cpp clang/lib/Frontend/CompilerInvocation.cpp
 --- clang-3.2.src/lib/Frontend/CompilerInvocation.cpp	2012-11-21 01:33:40.000000000 -0700
