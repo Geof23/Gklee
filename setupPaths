@@ -1,0 +1,5 @@
+#!/bin/bash
+
+export KLEE_HOME_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+export PATH=$KLEE_HOME_DIR/bin:$PATH
