@@ -1,0 +1,1 @@
+find llvm/src/LLVM/lib llvm/src/LLVM/include Gklee/lib Gklee/include \( -name '*.cpp' -o -name '*.h' -o -name '*.hpp' -o -name '*.lex' -o -name '*.yak' -o -name '*.c' \) > index.cscope
