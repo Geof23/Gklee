@@ -310,7 +310,10 @@ void ParaTree::dumpAllNodes(ParaTreeNode *node) const {
 }
 
 void ParaTree::dumpParaTree() const {
-  dumpAllNodes(root);
+  if( root != NULL ){
+    dumpAllNodes(root);
+    std::cout << "ParaTree root is null" << std::endl;
+  }
 }
 
 bool ParaTree::isRootNull() const {

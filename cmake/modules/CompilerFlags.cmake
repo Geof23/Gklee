@@ -22,6 +22,8 @@ add_cxx_flag_if_supported("-Wno-deprecated")
 add_cxx_flag_if_supported("-Wstrict-aliasing")
 add_cxx_flag_if_supported("-Wpointer-arith")
 add_cxx_flag_if_supported("-Wheader-guard")
+#I dunno if we can enable exceptions -- seemed to have a problem with   sys::SetInterruptFunction(interrupt_handle);
+#called in main.cpp
 add_cxx_flag_if_supported("-fno-exceptions")
 add_cxx_flag_if_supported("-fPIC")
 add_cxx_flag_if_supported("-Woverloaded-virtual")

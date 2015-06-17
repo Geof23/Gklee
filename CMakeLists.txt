@@ -100,3 +100,11 @@ add_custom_target(uninstall
 
 add_subdirectory(Gklee)
 
+# add_custom_command( TARGET ./compile_commands.json POST_BUILD
+#   COMMAND file( READ ../llvm/src/LLVM-build/compile_commands.json CC.json )
+#   COMMAND file( APPEND ./compile_commands.json ${CC.json} )
+#   COMMAND file( READ ../llvm/projects/TaintAnalysis/src/TaintAnalysis-build/compile_commands.json CC.json )
+#   COMMAND file( APPEND ./compile_commands.json ${CC.json} )
+#   COMMAND file( READ ../Gklee/STP/src/STP-build/compile_commands.json CC.json )
+#   COMMAND file( APPEND ./compile_commands.json ${CC.json} )
+#   )

@@ -3,6 +3,7 @@
 // FIXME: This does not belong here.
 #include "../lib/Core/Common.h"
 #include "klee/GPUConfig.h"
+#include "klee/logging.h"
 
 #include "klee/ExecutionState.h"
 #include "klee/Expr.h"
@@ -216,6 +217,10 @@ namespace {
               cl::desc("Specify the external library"), 
               cl::init(""));
 
+  cl::opt<unsigned>
+  LogLevel("log-level",
+	       cl::desc("Specify the logging level"),
+	       cl::init(0));
 }
 
 extern cl::opt<double> MaxTime;
@@ -1181,6 +1186,8 @@ int main(int argc, char **argv, char **envp) {
   sys::PrintStackTraceOnErrorSignal();
 
   configurateGPU();
+  
+  Gklee::Logging Log( "trace.log", LogLevel );
 
   if (Watchdog) {
     if (MaxTime==0) {
@@ -1242,7 +1249,7 @@ int main(int argc, char **argv, char **envp) {
 
       return 0;
     }
-  }
+}
 
   sys::SetInterruptFunction(interrupt_handle);
 

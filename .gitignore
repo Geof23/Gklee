@@ -2,9 +2,9 @@
 klee-out-*
 *.bc
 *.ll
-*Gklee/STP
-build
-include
-lib
-llvm
-share
+/Gklee/Gklee/STP
+/build
+/include
+/lib
+/llvm
+/share
