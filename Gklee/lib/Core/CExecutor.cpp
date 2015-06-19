@@ -44,6 +44,8 @@
 #include "klee/Internal/Support/FloatEvaluation.h"
 #include "klee/Internal/System/Time.h"
 
+#include "klee/logging.h"
+
 #include "llvm/Attributes.h"
 #include "llvm/BasicBlock.h"
 #include "llvm/Constants.h"
@@ -828,6 +830,7 @@ void Executor::executeMemoryOperation(ExecutionState &state,
                                       klee::ref<Expr> value /* undef if read */,
                                       KInstruction *target, 
                                       unsigned seqNum, bool isAtomic) {
+  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, address );
   Expr::Width type = (isWrite ? value->getWidth() : 
 		      getWidthForLLVMType(target->inst->getType()));
   unsigned bytes = Expr::getMinBytesForWidth(type);
@@ -880,6 +883,7 @@ void Executor::executeMemoryOperation(ExecutionState &state,
     }
     
     klee::ref<Expr> offset = mo->getOffsetExpr(address);
+    Gklee::Logging::outItem( "offset", offset );
    
     bool inBounds;
     solver->setTimeout(stpTimeout);
@@ -908,10 +912,13 @@ void Executor::executeMemoryOperation(ExecutionState &state,
                                    inBounds);
     }
 
+    Gklee::Logging::outItem( "oob?", std::to_string( !inBounds ));
     solver->setTimeout(0);
     if (!success) {
       state.setPC(state.getPrevPC());
+      Gklee::Logging::outItem( "query time out", "" );
       terminateStateEarly(state, "query timed out");
+      Gklee::Logging::exitFunc();
       return;
     }
 
@@ -938,6 +945,7 @@ void Executor::executeMemoryOperation(ExecutionState &state,
           } else {
             if (state.tinfo.is_GPU_mode) {
               klee::ref<Expr> accessExpr = state.getTDCCondition();
+	      Gklee::Logging::outItem( "accessExpr", accessExpr );
 	      state.addressSpace.addWrite(mo, offset, value, type, 
 	  	  		          state.tinfo.get_cur_bid(), 
                                           state.tinfo.get_cur_tid(),
@@ -950,6 +958,8 @@ void Executor::executeMemoryOperation(ExecutionState &state,
       } else {
         // memory type inference
         klee::ref<Expr> result = os->read(offset, type);
+
+	Gklee::Logging::outItem( "read result", result );
 
         if (!UseSymbolicConfig) {
           if (state.tinfo.is_GPU_mode) {
@@ -971,15 +981,17 @@ void Executor::executeMemoryOperation(ExecutionState &state,
           }
         }
 
-        if (interpreterOpts.MakeConcreteSymbolic)
+        if (interpreterOpts.MakeConcreteSymbolic){
           result = replaceReadWithSymbolic(state, result);
+	  Gklee::Logging::outItem( "symbolic read replacement", result );
+	}
  
         if (!isAtomic)
           bindLocal(target, state, result);
         else
           atomicRes = result;
       }
-
+      Gklee::Logging::exitFunc();
       return;
     }
   } 
@@ -1037,6 +1049,7 @@ void Executor::executeMemoryOperation(ExecutionState &state,
                             getAddressInfo(*unbound, address));
     }
   }
+  Gklee::Logging::exitFunc();
 }
 
 void Executor::executeNoMemoryCoalescing(ExecutionState &state, klee::ref<Expr> &noMCCond) {

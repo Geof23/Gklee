@@ -67,6 +67,28 @@ Logging::enterFunc( const std::string& fName,
   }
 }
 
+void
+Logging::enterFunc( const std::string& fName, 
+		    const klee::ref<klee::Expr>& cond ){
+  if( level <= maxDepth ){
+    assert(lstream.is_open() && "You must instantiate Logging before calling its methods");
+    if( !first ){
+      lstream << ",";
+    }
+    first = false;
+    lstream << std::endl;
+    tab();
+    ++level;
+    lstream << "\"" << fName << "_" << count++ << "\":" << " {" << std::endl;
+    tab();
+    lstream << "\"data\": \"";
+    if( !cond.isNull() ){
+      cond->print( lstream );
+    }
+    lstream << "\"";
+  }
+}
+
 // void
 // Logging::outList( const std::string& name,
 		  
@@ -82,19 +104,34 @@ Logging::outItem( const std::string& name,
   }
 }
 
-// void 
-// Logging::outInstruction( const llvm::Instruction& val ){
+void
+Logging::outItem( const std::string& name,
+		  const klee::ref<klee::Expr>& cond ){
+  if( level <= maxDepth){
+    assert(lstream.is_open() && "You must instantiate Logging before calling its methods");
+    lstream << "," << std::endl;
+    tab();
+    lstream << "\"" << name << "_" << count++ << "\": " << "\"";
+    if( !cond.isNull() ){
+      cond->print( lstream );
+    }
+    lstream << "\"";
+  }
+}
+
+void 
+Logging::outInstruction( const llvm::Instruction& val ){
   
-//   if( level <= maxDepth ){
-//     assert( lstream.is_open() && "You must instantiate Logging before calling its methods");
-//     lstream << "," << std::endl;
-//     tab();
-//     lstream << "\"Instruction_" << count++ << "\": " << "\"";
-//       llvm::raw_os_ostream roo( lstream );
-//       val.print( *(dynamic_cast< llvm::raw_ostream* >( &roo )), (llvm::AssemblyAnnotationWriter*)NULL);
-//     lstream << "\"";
-//   }
-// }
+  if( level <= maxDepth ){
+    assert( lstream.is_open() && "You must instantiate Logging before calling its methods");
+    lstream << "," << std::endl;
+    tab();
+    lstream << "\"Instruction_" << count++ << "\": " << "\"";
+      llvm::raw_os_ostream roo( lstream );
+      val.print( *(dynamic_cast< llvm::raw_ostream* >( &roo )), (llvm::AssemblyAnnotationWriter*)NULL);
+    lstream << "\"";
+  }
+}
 
 void
 Logging::exitFunc(){

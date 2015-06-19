@@ -19,6 +19,8 @@
 #include <llvm/Support/Casting.h>
 #include <llvm/Instruction.h>
 
+#include "klee/Expr.h"
+
 
 namespace Gklee {
 
@@ -31,7 +33,9 @@ class Logging{
   Logging( const std::string& logFile, size_t maxDepth);
   ~Logging();
   static void enterFunc( const std::string& fName, const std::string& data );
+  static void enterFunc( const std::string& fName, const klee::ref<klee::Expr>& cond );  
   static void outItem( const std::string& name, const std::string& data );
+  static void outItem( const std::string& name, const klee::ref<klee::Expr>& cond );
   template <typename V>
   static void outLLVMObj( const V& val );
   static void outInstruction( const llvm::Instruction& val );
@@ -45,24 +49,23 @@ class Logging{
   static size_t count;
 };
 // used for LLVM objects (i.e. Value and Type) that have print methods
-template <typename V>
-void 
-Logging::outLLVMObj( const V& val ){
-  
-  /* if( level <= maxDepth ){ */
-  /*   assert( lstream.is_open() && "You must instantiate Logging before calling its methods"); */
-  /*   lstream << "," << std::endl; */
-  /*   tab(); */
-  /*   lstream << "\"Instruction_" << count++ << "\": " << "\""; */
-  /*   if( llvm::isa< llvm::Instruction >( val ) ){ */
-  /*     llvm::raw_os_ostream roo( lstream ); */
-  /*     val.print( *(dynamic_cast< llvm::raw_ostream* >( &roo )), (llvm::AssemblyAnnotationWriter*)NULL); */
-  /*   }else{ */
-  /*     val.print( lstream ); */
-  /*   } */
-  /*   lstream << "\""; */
-  /* } */
-}
+/* template <typename V> */
+/* void  */
+/* Logging::outLLVMObj( const V& val ){ */
+/*   if( level <= maxDepth ){ */
+/*     assert( lstream.is_open() && "You must instantiate Logging before calling its methods"); */
+/*     lstream << "," << std::endl; */
+/*     tab(); */
+/*     lstream << "\"Instruction_" << count++ << "\": " << "\""; */
+/*     if( llvm::isa< llvm::Instruction >( val ) ){ */
+/*       llvm::raw_os_ostream roo( lstream ); */
+/*       val.print( *(dynamic_cast< llvm::raw_ostream* >( &roo )), (llvm::AssemblyAnnotationWriter*)NULL); */
+/*     }else{ */
+/*       val.print( lstream ); */
+/*     } */
+/*     lstream << "\""; */
+/*   } */
+/* } */
 
 
 }
