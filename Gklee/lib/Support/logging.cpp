@@ -17,9 +17,10 @@ using namespace Gklee;
 std::ofstream Logging::lstream;
 size_t Logging::maxDepth;
 size_t Logging::level;
+bool Logging::first = true;
+size_t Logging::count = 0;
 
-
-Logging::Logging( std::string logFile, size_t maxDepth ){ 
+Logging::Logging( const std::string& logFile, size_t maxDepth ){ 
   //  std::string logFile( "log.txt" );
   level = 0;
   Logging::maxDepth = maxDepth;
@@ -29,6 +30,7 @@ Logging::Logging( std::string logFile, size_t maxDepth ){
     lstream.open( logFile, std::ofstream::out |
 		  std::ofstream::trunc);
     lstream << "{";
+    ++level;
   }
 }
 
@@ -42,55 +44,65 @@ Logging::~Logging(){
 inline
 void
 Logging::tab(){
-  lstream.width( level );
-  lstream.fill( '\t' );
+  for( size_t w = 0; w < level; ++w ){
+    lstream << '\t';
+  }
 }
 
 void
-Logging::enterFunc(  std::string fName, 
-		     std::string data ){
-  if( level < maxDepth ){
+Logging::enterFunc( const std::string& fName, 
+		    const std::string& data ){
+  if( level <= maxDepth ){
     assert(lstream.is_open() && "You must instantiate Logging before calling its methods");
-    if( level > 0 ) lstream << ",";
+    if( !first ){
+      lstream << ",";
+    }
+    first = false;
     lstream << std::endl;
-    ++level;
     tab();
-    lstream << "\"" << fName << "\":" << " {" << std::endl;
+    ++level;
+    lstream << "\"" << fName << "_" << count++ << "\":" << " {" << std::endl;
     tab();
     lstream << "\"data\": \"" << data << "\"";
   }
 }
 
+// void
+// Logging::outList( const std::string& name,
+		  
+
 void
-Logging::outItem(std::string name,
-		 std::string data){
-  if( level < maxDepth){
+Logging::outItem( const std::string& name,
+		  const std::string& data){
+  if( level <= maxDepth){
     assert(lstream.is_open() && "You must instantiate Logging before calling its methods");
     lstream << "," << std::endl;
     tab();
-    lstream << "\"" << name << "\": " << "\"" << data << "\"";
+    lstream << "\"" << name << "_" << count++ << "\": " << "\"" << data << "\"";
   }
 }
 
-void 
-Logging::outInstruction( llvm::Value& val ){
-    if( level < maxDepth){
-    assert(lstream.is_open() && "You must instantiate Logging before calling its methods");
-    lstream << "," << std::endl;
-    tab();
-    lstream << "\"Instruction\": " << "\"";
-    //    val.print( lstream );
-    lstream << "\"";
-  }
-}
+// void 
+// Logging::outInstruction( const llvm::Instruction& val ){
+  
+//   if( level <= maxDepth ){
+//     assert( lstream.is_open() && "You must instantiate Logging before calling its methods");
+//     lstream << "," << std::endl;
+//     tab();
+//     lstream << "\"Instruction_" << count++ << "\": " << "\"";
+//       llvm::raw_os_ostream roo( lstream );
+//       val.print( *(dynamic_cast< llvm::raw_ostream* >( &roo )), (llvm::AssemblyAnnotationWriter*)NULL);
+//     lstream << "\"";
+//   }
+// }
 
 void
 Logging::exitFunc(){
-  if( level < maxDepth ){
+  if( level <= maxDepth ){
     assert(lstream.is_open() && "You must instantiate Logging before calling its methods");
     lstream << std::endl;
     --level;
     tab();
-    lstream << "}" << std::endl;
+    lstream << "}";
   }
 }

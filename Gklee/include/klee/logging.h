@@ -15,27 +15,56 @@
 #include <exception>
 
 #include <llvm/Value.h>
+#include <llvm/Support/raw_os_ostream.h>
+#include <llvm/Support/Casting.h>
+#include <llvm/Instruction.h>
+
 
 namespace Gklee {
 
-class loggingException : std::exception {
-  const char* what() const noexcept {return "You may only have one instance of Logging\n";}
-  };
+/* class loggingException : std::exception { */
+/*   const char* what() const noexcept {return "You may only have one instance of Logging\n";} */
+/*   }; */
 
 class Logging{
  public:
-  Logging( std::string logFile, size_t maxDepth);
+  Logging( const std::string& logFile, size_t maxDepth);
   ~Logging();
-  static void enterFunc( std::string fName, std::string data );
-  static void outItem( std::string name, std::string data );
-  static void outInstruction( llvm::Value& val );
+  static void enterFunc( const std::string& fName, const std::string& data );
+  static void outItem( const std::string& name, const std::string& data );
+  template <typename V>
+  static void outLLVMObj( const V& val );
+  static void outInstruction( const llvm::Instruction& val );
   static void exitFunc();
  private:
   static std::ofstream lstream;
   static size_t level;
   static void tab();
   static size_t maxDepth;
+  static bool first;
+  static size_t count;
 };
+// used for LLVM objects (i.e. Value and Type) that have print methods
+template <typename V>
+void 
+Logging::outLLVMObj( const V& val ){
+  
+  /* if( level <= maxDepth ){ */
+  /*   assert( lstream.is_open() && "You must instantiate Logging before calling its methods"); */
+  /*   lstream << "," << std::endl; */
+  /*   tab(); */
+  /*   lstream << "\"Instruction_" << count++ << "\": " << "\""; */
+  /*   if( llvm::isa< llvm::Instruction >( val ) ){ */
+  /*     llvm::raw_os_ostream roo( lstream ); */
+  /*     val.print( *(dynamic_cast< llvm::raw_ostream* >( &roo )), (llvm::AssemblyAnnotationWriter*)NULL); */
+  /*   }else{ */
+  /*     val.print( lstream ); */
+  /*   } */
+  /*   lstream << "\""; */
+  /* } */
+}
+
+
 }
 	  
 #endif
