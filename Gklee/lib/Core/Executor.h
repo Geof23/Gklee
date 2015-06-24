@@ -28,6 +28,7 @@
 
 #include "CUDA.h"
 #include "PathReduction.h"
+#include "klee/logging.h"
 
 struct KTest;
 

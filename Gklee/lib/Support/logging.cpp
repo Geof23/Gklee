@@ -12,7 +12,7 @@
 
 //using namespace llvm;
 //using namespace klee;
-using namespace Gklee;
+namespace Gklee {
 
 std::ofstream Logging::lstream;
 size_t Logging::maxDepth;
@@ -49,9 +49,14 @@ Logging::tab(){
   }
 }
 
-void
-Logging::enterFunc( const std::string& fName, 
-		    const std::string& data ){
+
+///
+/// Returns true if the Logging object is accepting output,
+/// also performs propper indentation prior to output line and leading comma
+inline
+bool
+Logging::initLeadComma( bool newCall ){
+  bool retVal = true;
   if( level <= maxDepth ){
     assert(lstream.is_open() && "You must instantiate Logging before calling its methods");
     if( !first ){
@@ -60,25 +65,57 @@ Logging::enterFunc( const std::string& fName,
     first = false;
     lstream << std::endl;
     tab();
-    ++level;
+    if( newCall ){
+      ++level;
+    }
+  }else{
+    retVal = false;
+  }
+  return retVal;
+}
+
+template <>
+void
+Logging::enterFunc( const klee::KFunction& kfunc,
+		    const std::string& fName ){
+  if( initLeadComma( true )){
+    lstream << "\"" << fName << "_" << count++ << "\":" << " {" << std::endl;
+    tab();
+    lstream << "\"frameName\": \"";
+    lstream << kfunc.function->getName().str() << "\"";
+    //<< data << "\"";
+  }
+}
+
+template <>
+void
+Logging::enterFunc( const std::string& data, 
+		    const std::string& fName ){
+  if( initLeadComma( true )){
     lstream << "\"" << fName << "_" << count++ << "\":" << " {" << std::endl;
     tab();
     lstream << "\"data\": \"" << data << "\"";
   }
 }
 
+template <>
 void
-Logging::enterFunc( const std::string& fName, 
-		    const klee::ref<klee::Expr>& cond ){
-  if( level <= maxDepth ){
-    assert(lstream.is_open() && "You must instantiate Logging before calling its methods");
-    if( !first ){
-      lstream << ",";
-    }
-    first = false;
-    lstream << std::endl;
+Logging::enterFunc( const llvm::Instruction& i,
+		    const std::string& fName ){
+  if( initLeadComma( true )){
+    lstream << "\"" << fName << "_" << count++ << "\":" << " {" << std::endl;
     tab();
-    ++level;
+    lstream << "\"";
+    outInstruction( i );
+    lstream << "\"";
+  }
+}
+
+template <>
+void
+Logging::enterFunc( const klee::ref<klee::Expr>& cond,
+		    const std::string& fName ){
+  if( initLeadComma( true )){
     lstream << "\"" << fName << "_" << count++ << "\":" << " {" << std::endl;
     tab();
     lstream << "\"data\": \"";
@@ -89,28 +126,45 @@ Logging::enterFunc( const std::string& fName,
   }
 }
 
-// void
-// Logging::outList( const std::string& name,
-		  
-
+template <>
 void
-Logging::outItem( const std::string& name,
-		  const std::string& data){
-  if( level <= maxDepth){
-    assert(lstream.is_open() && "You must instantiate Logging before calling its methods");
-    lstream << "," << std::endl;
+Logging::enterFunc( const llvm::Instruction& i1,
+		    const llvm::Instruction& i2,
+		    const std::string& fName ){
+  if( initLeadComma( true )){
+    lstream << "\"" << fName << "_" << count++ << "\":" << " {" << std::endl;
     tab();
+    lstream << "\"";
+    outInstruction( i1 );
+    lstream << ":";
+    outInstruction( i2 );
+    lstream << "\"";
+  }
+}
+
+template<>
+void
+Logging::outItem( const std::string& data,
+		  const std::string& name ){
+  if( initLeadComma()){
     lstream << "\"" << name << "_" << count++ << "\": " << "\"" << data << "\"";
   }
 }
 
+template <>
 void
-Logging::outItem( const std::string& name,
-		  const klee::ref<klee::Expr>& cond ){
-  if( level <= maxDepth){
-    assert(lstream.is_open() && "You must instantiate Logging before calling its methods");
-    lstream << "," << std::endl;
-    tab();
+Logging::outItem( const klee::KFunction& kfunc,
+		  const std::string& name ){
+  if( initLeadComma()){
+    lstream << "\"" << name << "_" << count++ << "\": " << "\"" << kfunc.function->getName().str()  << "\"";
+  }
+}
+
+template <>
+void
+Logging::outItem( const klee::ref<klee::Expr>& cond,
+		  const std::string& name ){
+  if( initLeadComma()){
     lstream << "\"" << name << "_" << count++ << "\": " << "\"";
     if( !cond.isNull() ){
       cond->print( lstream );
@@ -121,16 +175,9 @@ Logging::outItem( const std::string& name,
 
 void 
 Logging::outInstruction( const llvm::Instruction& val ){
-  
-  if( level <= maxDepth ){
-    assert( lstream.is_open() && "You must instantiate Logging before calling its methods");
-    lstream << "," << std::endl;
-    tab();
-    lstream << "\"Instruction_" << count++ << "\": " << "\"";
-      llvm::raw_os_ostream roo( lstream );
-      val.print( *(dynamic_cast< llvm::raw_ostream* >( &roo )), (llvm::AssemblyAnnotationWriter*)NULL);
-    lstream << "\"";
-  }
+  llvm::raw_os_ostream roo( lstream );
+  val.print( *(dynamic_cast< llvm::raw_ostream* >( &roo )), 
+	     (llvm::AssemblyAnnotationWriter*)NULL);
 }
 
 void
@@ -142,4 +189,6 @@ Logging::exitFunc(){
     tab();
     lstream << "}";
   }
+}
+
 }

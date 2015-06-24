@@ -16,6 +16,8 @@
 
 #include "klee/Expr.h"
 
+#include "klee/logging.h"
+
 #include "Memory.h"
 #if LLVM_VERSION_CODE >= LLVM_VERSION(3, 3)
 #include "llvm/IR/Function.h"
@@ -49,7 +51,9 @@ using namespace runtime;
 StackFrame::StackFrame(KInstIterator _caller, KFunction *_kf)
   : caller(_caller), kf(_kf), callPathNode(0), 
     minDistToUncoveredOnReturn(0), varargs(0) {
+  Gklee::Logging::enterFunc< std::string >( "new stack frame" , __PRETTY_FUNCTION__ );  
   locals = new Cell[kf->numRegisters];
+  Gklee::Logging::exitFunc();
 }
 
 StackFrame::StackFrame(const StackFrame &s) 
@@ -59,14 +63,17 @@ StackFrame::StackFrame(const StackFrame &s)
     allocas(s.allocas),
     minDistToUncoveredOnReturn(s.minDistToUncoveredOnReturn),
     varargs(s.varargs) {
+  Gklee::Logging::enterFunc< std::string >( "new stack frame" , __PRETTY_FUNCTION__ );
   // std::cout << "Copying stackframe \n";
   locals = new Cell[s.kf->numRegisters];
   for (unsigned i=0; i<s.kf->numRegisters; i++)
     locals[i] = s.locals[i];
+  Gklee::Logging::exitFunc();
 }
 
 StackFrame& StackFrame::operator=(const StackFrame& s) {
   // std::cout << "Assigning stackframe \n";
+  Gklee::Logging::enterFunc< std::string >( "new stack frame" , __PRETTY_FUNCTION__ );
   if (this != &s) {
     caller = s.caller;
     kf = s.kf;
@@ -78,11 +85,14 @@ StackFrame& StackFrame::operator=(const StackFrame& s) {
     for (unsigned i=0; i<s.kf->numRegisters; i++)
       locals[i] = s.locals[i];
   }
+  Gklee::Logging::exitFunc();
   return *this;
 }
 
 StackFrame::~StackFrame() { 
+  Gklee::Logging::enterFunc< std::string >( "" , __PRETTY_FUNCTION__ );
   delete[] locals; 
+  Gklee::Logging::exitFunc();
 }
 
 /***/
@@ -106,7 +116,9 @@ ExecutionState::ExecutionState(KFunction *kf)
     ptreeNode(0), 
     maxKernelSharedSize(0)
 {
+  Gklee::Logging::enterFunc< std::string >( "create ExecutionState" , __PRETTY_FUNCTION__ );
   pushAllFrames(0, kf);
+  Gklee::Logging::exitFunc();
 }
 
 ExecutionState::ExecutionState(const std::vector<klee::ref<Expr> > &assumptions) 
@@ -119,9 +131,12 @@ ExecutionState::ExecutionState(const std::vector<klee::ref<Expr> > &assumptions)
     queryCost(0.),
     ptreeNode(0), 
     maxKernelSharedSize(0) {
+  Gklee::Logging::enterFunc( assumptions[0] , __PRETTY_FUNCTION__ );
+  Gklee::Logging::exitFunc();
 }
 
 ExecutionState::~ExecutionState() {
+  Gklee::Logging::enterFunc< std::string >( "" , __PRETTY_FUNCTION__ );  
   for (unsigned int i=0; i<symbolics.size(); i++)
   {
     const MemoryObject *mo = symbolics[i].first;
@@ -131,6 +146,7 @@ ExecutionState::~ExecutionState() {
       delete mo;
   }
   popAllFrames();
+  Gklee::Logging::exitFunc();
 }
 
 ExecutionState::ExecutionState(const ExecutionState& state)
@@ -168,11 +184,14 @@ ExecutionState::ExecutionState(const ExecutionState& state)
     shadowObjects(state.shadowObjects),
     incomingBBIndex(state.incomingBBIndex)
 {
+  Gklee::Logging::enterFunc< std::string >( "" , __PRETTY_FUNCTION__ );  
   for (unsigned int i=0; i<symbolics.size(); i++)
     symbolics[i].first->refCount++;
+  Gklee::Logging::exitFunc();
 }
 
 ExecutionState *ExecutionState::branch() {
+  Gklee::Logging::enterFunc< std::string >( "" , __PRETTY_FUNCTION__ );  
   depth++;
 
   ExecutionState *falseState = new ExecutionState(*this);
@@ -181,11 +200,13 @@ ExecutionState *ExecutionState::branch() {
 
   weight *= .5;
   falseState->weight -= weight;
-
+  Gklee::Logging::exitFunc();
   return falseState;
 }
 
 static void constructMemoryAccessSets(HierAddressSpace &addressSpace, bool PureCS) {
+  Gklee::Logging::enterFunc( addressSpace.bcCondComb , __PRETTY_FUNCTION__ );  
+
   if (!UseSymbolicConfig) {
     MemoryAccessSetVec setVec;          
     addressSpace.deviceMemory.MemAccessSets.push_back(setVec); 
@@ -197,6 +218,7 @@ static void constructMemoryAccessSets(HierAddressSpace &addressSpace, bool PureC
       addressSpace.cpuMemory.MemAccessSetsPureCS.push_back(setVecPureCS);
     }
   }
+  Gklee::Logging::exitFunc();
 }
 
 void ExecutionState::setCorrespondTidSets() {
@@ -204,7 +226,7 @@ void ExecutionState::setCorrespondTidSets() {
   unsigned rTid = 0;
   unsigned warpNum = 0;
   unsigned tmpWarpNum = 0;
-
+  Gklee::Logging::enterFunc< std::string >( "construct cTidSets, tinfo initThreadInfo" , __PRETTY_FUNCTION__ );
   constructMemoryAccessSets(addressSpace, true);
   unsigned num_threads = tinfo.get_num_threads();
 
@@ -226,8 +248,14 @@ void ExecutionState::setCorrespondTidSets() {
     klee::ref<Expr> expr = ConstantExpr::create(1, Expr::Bool);
     cTidSets.push_back(CorrespondTid(curBid, rTid, warpNum, 
                                      false, false, false, expr));
+    Gklee::Logging::outItem( std::string( "new cTidSet" ), std::string("bid:tid:warp;") +
+			     std::to_string( curBid ) +
+			     std::to_string( rTid ) +
+			     std::to_string( warpNum ));
   }
   tinfo.setInitThreadInfo(cTidSets);
+  Gklee::Logging::outItem< std::string >( "created cTidSets" , "initialize tinfo" );
+  Gklee::Logging::exitFunc();
 }
 
 void ExecutionState::clearCorrespondTidSets() {
@@ -245,17 +273,20 @@ unsigned ExecutionState::getKernelNum() {
 // create all the stacks; should be called only when the state is created
 // a thread should never call this function
 void ExecutionState::pushAllFrames(KInstIterator caller, KFunction *kf) {
+  Gklee::Logging::enterFunc< std::string >( "" , __PRETTY_FUNCTION__ );  
   for (unsigned i = 0; i < tinfo.get_num_threads(); i++) {
     stack_ty stk;
     stk.push_back(StackFrame(caller, kf));
     stacks.push_back(stk);
     incomingBBIndex.push_back(0);
   }
+  Gklee::Logging::exitFunc();
 }
 
 // destroy all the stacks; should be called only when the execution state is 
 // released a thread should never call this function
 void ExecutionState::popAllFrames() {
+  Gklee::Logging::enterFunc< std::string >( "" , __PRETTY_FUNCTION__ );  
   unsigned i = 0;
   for (stacks_ty::iterator ii = stacks.begin(); ii != stacks.end(); ii++) {
     if (ii->size() > 0) {
@@ -275,40 +306,57 @@ void ExecutionState::popAllFrames() {
     }
     i++;
   }
+  Gklee::Logging::exitFunc();
 }
 
 void ExecutionState::pushFrame(KInstIterator caller, KFunction *kf) {
+  Gklee::Logging::enterFunc( *kf , __PRETTY_FUNCTION__ );
   getCurStack().push_back(StackFrame(caller,kf));
+  Gklee::Logging::exitFunc();
 }
 
 void ExecutionState::popFrame() {
+  Gklee::Logging::enterFunc< std::string >( "" , __PRETTY_FUNCTION__ );
   StackFrame &sf = getCurStack().back();
+  Gklee::Logging::outItem( *( sf.kf ), "popping (discarding) frame" );
   for (std::vector<const MemoryObject*>::iterator it = sf.allocas.begin(), 
 	 ie = sf.allocas.end(); it != ie; ++it)
     addressSpace.unbindObject(*it);
   getCurStack().pop_back();
+  Gklee::Logging::exitFunc();
 }
 
 void ExecutionState::addSymbolic(const MemoryObject *mo, const Array *array) {
+  Gklee::Logging::enterFunc( mo->getName(), __PRETTY_FUNCTION__ );
   mo->refCount++;
   symbolics.push_back(std::make_pair(mo, array));
+  Gklee::Logging::exitFunc();
 }
 
 ///
 
 std::string ExecutionState::getFnAlias(std::string fn) {
+  Gklee::Logging::enterFunc( fn , __PRETTY_FUNCTION__ );
   std::map < std::string, std::string >::iterator it = fnAliases.find(fn);
-  if (it != fnAliases.end())
+  if (it != fnAliases.end()){
+    Gklee::Logging::exitFunc();
     return it->second;
-  else return "";
+  }else{
+    Gklee::Logging::exitFunc();
+    return "";
+  }
 }
 
 void ExecutionState::addFnAlias(std::string old_fn, std::string new_fn) {
+  Gklee::Logging::enterFunc( new_fn , __PRETTY_FUNCTION__ );
   fnAliases[old_fn] = new_fn;
+  Gklee::Logging::exitFunc();
 }
 
 void ExecutionState::removeFnAlias(std::string fn) {
+  Gklee::Logging::enterFunc( fn , __PRETTY_FUNCTION__ );
   fnAliases.erase(fn);
+  Gklee::Logging::exitFunc();
 }
 
 /**/
@@ -529,6 +577,7 @@ void ExecutionState::setPrevPC(KInstIterator _pc) { tinfo.setPrevPC(_pc); }
 void ExecutionState::incPC() { tinfo.incPC(); }
 
 ExecutionState::stack_ty& ExecutionState::getCurStack() { 
+  
   return stacks[tinfo.get_cur_tid()];
 }
 

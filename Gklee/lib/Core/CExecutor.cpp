@@ -830,7 +830,7 @@ void Executor::executeMemoryOperation(ExecutionState &state,
                                       klee::ref<Expr> value /* undef if read */,
                                       KInstruction *target, 
                                       unsigned seqNum, bool isAtomic) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, address );
+  Gklee::Logging::enterFunc( address , __PRETTY_FUNCTION__ );
   Expr::Width type = (isWrite ? value->getWidth() : 
 		      getWidthForLLVMType(target->inst->getType()));
   unsigned bytes = Expr::getMinBytesForWidth(type);
@@ -883,7 +883,7 @@ void Executor::executeMemoryOperation(ExecutionState &state,
     }
     
     klee::ref<Expr> offset = mo->getOffsetExpr(address);
-    Gklee::Logging::outItem( "offset", offset );
+    Gklee::Logging::outItem( offset , "offset" );
    
     bool inBounds;
     solver->setTimeout(stpTimeout);
@@ -912,11 +912,11 @@ void Executor::executeMemoryOperation(ExecutionState &state,
                                    inBounds);
     }
 
-    Gklee::Logging::outItem( "oob?", std::to_string( !inBounds ));
+    Gklee::Logging::outItem( std::to_string( !inBounds ), "oob?" );
     solver->setTimeout(0);
     if (!success) {
       state.setPC(state.getPrevPC());
-      Gklee::Logging::outItem( "query time out", "" );
+      Gklee::Logging::outItem< std::string >( "" , "query time out" );
       terminateStateEarly(state, "query timed out");
       Gklee::Logging::exitFunc();
       return;
@@ -936,6 +936,7 @@ void Executor::executeMemoryOperation(ExecutionState &state,
 
           if (!UseSymbolicConfig) {
             if (state.tinfo.is_GPU_mode) {
+	      Gklee::Logging::outItem< std::string >( "non-symbolic config" , "adding Write" ); 
 	      state.addressSpace.addWrite(mo, offset, value, type, 
 	  	    		          state.tinfo.get_cur_bid(), 
                                           state.tinfo.get_cur_tid(),
@@ -945,7 +946,7 @@ void Executor::executeMemoryOperation(ExecutionState &state,
           } else {
             if (state.tinfo.is_GPU_mode) {
               klee::ref<Expr> accessExpr = state.getTDCCondition();
-	      Gklee::Logging::outItem( "accessExpr", accessExpr );
+	      Gklee::Logging::outItem( accessExpr , "accessExpr, write" );
 	      state.addressSpace.addWrite(mo, offset, value, type, 
 	  	  		          state.tinfo.get_cur_bid(), 
                                           state.tinfo.get_cur_tid(),
@@ -959,10 +960,11 @@ void Executor::executeMemoryOperation(ExecutionState &state,
         // memory type inference
         klee::ref<Expr> result = os->read(offset, type);
 
-	Gklee::Logging::outItem( "read result", result );
+	Gklee::Logging::outItem( result , "read result" );
 
         if (!UseSymbolicConfig) {
           if (state.tinfo.is_GPU_mode) {
+	    Gklee::Logging::outItem< std::string >( "non-symbolic config" , "adding read" ); 
   	    state.addressSpace.addRead(mo, offset, result, type,
 	  			       state.tinfo.get_cur_bid(), 
                                        state.tinfo.get_cur_tid(), 
@@ -972,6 +974,7 @@ void Executor::executeMemoryOperation(ExecutionState &state,
         } else {
           if (state.tinfo.is_GPU_mode) {
             klee::ref<Expr> accessExpr = state.getTDCCondition();
+	    Gklee::Logging::outItem( accessExpr , "accessExpr, read" );
   	    state.addressSpace.addRead(mo, offset, result, type,
 	    			       state.tinfo.get_cur_bid(), 
                                        state.tinfo.get_cur_tid(), 
@@ -983,7 +986,7 @@ void Executor::executeMemoryOperation(ExecutionState &state,
 
         if (interpreterOpts.MakeConcreteSymbolic){
           result = replaceReadWithSymbolic(state, result);
-	  Gklee::Logging::outItem( "symbolic read replacement", result );
+	  Gklee::Logging::outItem( result , "symbolic read replacement" );
 	}
  
         if (!isAtomic)

@@ -127,12 +127,12 @@ bool AddressSpaceUtil::isTwoInstIdentical(llvm::Instruction *inst1,
              && inst1->isIdenticalTo(inst2); 
 }
 
-static void extractInstFromSourceCode(MDNode *N) {
+static void extractInstFromSourceCode(std::ostream& os, MDNode *N) {
   DILocation Loc(N);               // DILocation is in DebugInfo.h
   unsigned Line = Loc.getLineNumber();
   StringRef File = Loc.getFilename();
   StringRef Dir = Loc.getDirectory();
-  std::cout << "Instruction Line: " << Line << ", In File: " 
+  os << "Instruction Line: " << Line << ", In File: " 
             << File.str() << ", With Dir Path: " << Dir.str() 
             << std::endl;
 
@@ -146,17 +146,17 @@ static void extractInstFromSourceCode(MDNode *N) {
       num++;
     } while (num != Line);
     
-    std::cout << "[File: " << filePath << ", Line: " << Line
+    os << "[File: " << filePath << ", Line: " << Line
               << ", Inst: " << cLine << "]" << std::endl;
   } else {
-    std::cout << "Can not open file!" << std::endl;
+    os << "Can not open file!" << std::endl;
   }
 }
 
 void MemoryAccess::dump() const {
   std::cout << "[GKLEE] Inst: " << std::endl;
   if (MDNode *N = instr->getMetadata("dbg")) {  // Here I is an LLVM instruction
-    extractInstFromSourceCode(N);
+    extractInstFromSourceCode(std::cout, N);
     instr->dump();
   } else {
     instr->dump();
@@ -182,7 +182,7 @@ void MemoryAccess::dump(Executor &executor, ExecutionState &state,
                         klee::ref<Expr> cond) const {
   std::cout << "[GKLEE] Inst: " << std::endl;
   if (MDNode *N = instr->getMetadata("dbg")) {  // Here I is an LLVM instruction
-    extractInstFromSourceCode(N);
+    extractInstFromSourceCode(std::cout, N);
     instr->dump();
   } else { 
     instr->dump();
@@ -253,7 +253,7 @@ void MemoryAccess::dump(Executor &executor, ExecutionState &state,
 void InstAccess::dump() const {
   std::cout << "<b" << bid << ", t" << tid << ">:  ";
   if (MDNode *N = inst->getMetadata("dbg")) {
-    extractInstFromSourceCode(N);
+    extractInstFromSourceCode(std::cout, N);
   } else {
     inst->dump();
   }
@@ -480,10 +480,13 @@ static bool checkWWRace(Executor &executor, ExecutionState &state,
                         MemoryAccessVec &vec1, MemoryAccessVec &vec2, 
                         bool withinwarp, klee::ref<Expr> &raceCond, 
                         unsigned &queryNum) {
+  Gklee::Logging::enterFunc( raceCond , __PRETTY_FUNCTION__ );
   if (!accessSameMemoryRegion(executor, state, 
                               vec1.begin()->mo->getBaseExpr(), 
-                              vec2.begin()->mo->getBaseExpr())) 
+                              vec2.begin()->mo->getBaseExpr())) {
+    Gklee::Logging::exitFunc();
     return false;
+  }
   
   if (withinwarp) {
     for (MemoryAccessVec::iterator ii = vec1.begin(); ii != vec1.end(); ii++) {
@@ -513,6 +516,7 @@ static bool checkWWRace(Executor &executor, ExecutionState &state,
           jj->dump(executor, state, raceCond);
 	  if (Emacs) AddressSpace::dumpEmacsInfoVect(ii->bid, jj->bid, tid1, tid2, 
                                                      ii->instr, jj->instr, benign ? "wwrwb" : "wwrw");
+	  Gklee::Logging::exitFunc();
           if (benign) return false;
 	  else return true;
         }
@@ -542,21 +546,26 @@ static bool checkWWRace(Executor &executor, ExecutionState &state,
 	  ii->dump(executor, state, raceCond);
           jj->dump(executor, state, raceCond);
 	  if (Emacs) AddressSpace::dumpEmacsInfoVect(ii->bid, jj->bid, tid1, tid2, ii->instr, jj->instr, benign? "wwraw" : "wwrawb");
+	  Gklee::Logging::exitFunc();
           if (benign) return false;
 	  else return true;
         }
       }
     }
   }
+  Gklee::Logging::exitFunc();
   return false;
 }
 
 static bool checkRWRace(Executor &executor, ExecutionState &state, 
                         MemoryAccessVec &vec1, MemoryAccessVec &vec2, 
                         klee::ref<Expr> &raceCond, unsigned &queryNum) {
+  Gklee::Logging::enterFunc( raceCond , __PRETTY_FUNCTION__ );
   if (!accessSameMemoryRegion(executor, state, vec1.begin()->mo->getBaseExpr(), 
-                              vec2.begin()->mo->getBaseExpr())) 
+                              vec2.begin()->mo->getBaseExpr())) {
+    Gklee::Logging::exitFunc();
     return false;
+  }
   
   // Definitely different warps...
   for (MemoryAccessVec::iterator ii = vec1.begin(); ii != vec1.end(); ii++) {
@@ -582,11 +591,13 @@ static bool checkRWRace(Executor &executor, ExecutionState &state,
 	ii->dump(executor, state, raceCond);
         jj->dump(executor, state, raceCond);
 	if(Emacs) AddressSpace::dumpEmacsInfoVect(ii->bid, jj->bid, tid1, tid2, ii->instr, jj->instr, "rwraw");
+	Gklee::Logging::exitFunc();
         if (benign) return false;
 	else return true;
       }
     }
   }
+  Gklee::Logging::exitFunc();
   return false;
 }
 
@@ -618,6 +629,7 @@ static bool checkWWRacePureCS(Executor &executor, ExecutionState &state,
                               MemoryAccessVec &vec1, MemoryAccessVec &vec2, 
                               bool withinBlock, klee::ref<Expr> &raceCond, 
                               unsigned &queryNum) {
+  Gklee::Logging::enterFunc( raceCond , __PRETTY_FUNCTION__ );
   if (withinBlock) {
     for (MemoryAccessVec::iterator ii = vec1.begin(); ii != vec1.end(); ii++) {
       klee::ref<Expr> base1 = ii->mo->getBaseExpr();
@@ -656,6 +668,7 @@ static bool checkWWRacePureCS(Executor &executor, ExecutionState &state,
             }
             ii->dump(executor, state, raceCond);
 	    jj->dump(executor, state, raceCond);
+	    Gklee::Logging::exitFunc();
             if (benign) return false;
 	    else return true;
           }
@@ -698,6 +711,7 @@ static bool checkWWRacePureCS(Executor &executor, ExecutionState &state,
             }
             ii->dump(executor, state, raceCond);
 	    jj->dump(executor, state, raceCond);
+	    Gklee::Logging::exitFunc();
             if (benign) return false;
 	    else return true;
           }
@@ -705,6 +719,7 @@ static bool checkWWRacePureCS(Executor &executor, ExecutionState &state,
       } 
     }
   }
+  Gklee::Logging::exitFunc();
   return false;
 }
 
@@ -712,6 +727,7 @@ static bool checkRWRacePureCS(Executor &executor, ExecutionState &state,
                               MemoryAccessVec &vec1, MemoryAccessVec &vec2, 
                               bool withinBlock, klee::ref<Expr> &raceCond, unsigned &queryNum) {
   // check the Read-Write conflict first 
+  Gklee::Logging::enterFunc( raceCond , __PRETTY_FUNCTION__ );
   for (MemoryAccessVec::iterator ii = vec1.begin(); ii != vec1.end(); ii++) {
     klee::ref<Expr> base1 = ii->mo->getBaseExpr();
     klee::ref<Expr> offset1 = ii->offset;
@@ -738,11 +754,13 @@ static bool checkRWRacePureCS(Executor &executor, ExecutionState &state,
                       << std::endl;
           ii->dump(executor, state, raceCond);
 	  jj->dump(executor, state, raceCond);
+	  Gklee::Logging::exitFunc();
 	  return true;
         }
       }
     }
   }
+  Gklee::Logging::exitFunc();
   return false;
 }
 

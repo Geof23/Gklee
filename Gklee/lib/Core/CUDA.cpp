@@ -1,5 +1,6 @@
 #include "CUDA.h"
 #include "AddressSpace.h"
+#include "klee/logging.h"
 
 #include "llvm/Constants.h"
 #include "llvm/Instruction.h"
@@ -340,10 +341,13 @@ void ThreadInfo::updateStateAfterBarriers(std::vector<CorrespondTid> &cTidSets,
 void ThreadInfo::incTid(std::vector<CorrespondTid> &cTidSets, 
                         std::vector<BranchDivRegionSet> &branchDivRegionSets, 
                         bool &newBI, bool &moveToNextWarp, bool &deadlockFound) {
+  Gklee::Logging::enterFunc( std::string("newBI?:") + std::to_string( newBI ), __PRETTY_FUNCTION__ );
   unsigned block_size = GPUConfig::block_size;
   if (is_GPU_mode) {
     // Find next thread which does not encounter synchronization ...
-    if (allThreadsInWarpEncounterBarrier(cTidSets)) {
+    bool ateb = allThreadsInWarpEncounterBarrier(cTidSets);
+    Gklee::Logging::outItem( std::to_string( ateb ), "all threads in warp encounter bar?" );
+    if (ateb) {
       deadlockFound = foundMismatchBarrierWithinTheBlock(cTidSets, cur_warp_start_tid, 
                                                          cur_warp_end_tid, cur_bid);
       warpInBranch = false;
@@ -356,6 +360,9 @@ void ThreadInfo::incTid(std::vector<CorrespondTid> &cTidSets,
         cur_warp_start_tid = 0;
         cur_warp_end_tid = lastTidInCurrentWarp(cTidSets);
         newBI = true;
+	Gklee::Logging::outItem( std::string( "lastTID:" ) + 
+				 std::to_string( cur_warp_end_tid ),
+				 "finished warp" );
       } else {
         cur_wid = cur_wid + 1; 
         GKLEE_INFO << "Moving from warp " << cur_wid-1 
@@ -371,9 +378,15 @@ void ThreadInfo::incTid(std::vector<CorrespondTid> &cTidSets,
         //          << cur_warp_start_tid << ", cur_warp_end_tid: "
         //          << cur_warp_end_tid << std::endl; 
         cur_tid = cur_warp_start_tid;
+	Gklee::Logging::outItem( std::string( "new curTid:" ) +
+				 std::to_string( cur_tid ),
+				 "advancing cur warp" );
       }
     } else {
       if (warpInBranch) {
+	Gklee::Logging::outItem( std::string( "executeSetsize:" ) +
+				 std::to_string( executeSet.size() ),
+				 "warp in branch" );
         if (executeSet.size() == 0) {
           unsigned brNum = 0;
           bool findDivRegion = findNearestBranchDivRegion(branchDivRegionSets, brNum);
@@ -439,6 +452,11 @@ void ThreadInfo::incTid(std::vector<CorrespondTid> &cTidSets,
     cur_tid = 0;
 
   cur_bid = cur_tid / block_size;
+  Gklee::Logging::outItem( std::string( "cur tid:bid;" ) +
+			  std::to_string( cur_tid ) + ":" + 
+			   std::to_string( cur_bid ),
+			   "on exit" );
+  Gklee::Logging::exitFunc();
 }
 
 void ThreadInfo::incTid() {

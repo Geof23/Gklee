@@ -18,29 +18,32 @@
 #include <llvm/Support/raw_os_ostream.h>
 #include <llvm/Support/Casting.h>
 #include <llvm/Instruction.h>
+#include <llvm/Function.h>
+
+#include "klee/Internal/Module/KModule.h"
 
 #include "klee/Expr.h"
 
 
 namespace Gklee {
 
-/* class loggingException : std::exception { */
-/*   const char* what() const noexcept {return "You may only have one instance of Logging\n";} */
-/*   }; */
-
 class Logging{
  public:
   Logging( const std::string& logFile, size_t maxDepth);
   ~Logging();
-  static void enterFunc( const std::string& fName, const std::string& data );
-  static void enterFunc( const std::string& fName, const klee::ref<klee::Expr>& cond );  
-  static void outItem( const std::string& name, const std::string& data );
-  static void outItem( const std::string& name, const klee::ref<klee::Expr>& cond );
-  template <typename V>
+  template<typename T>
+    static void enterFunc( T const& data, const std::string& fName );
+  template < typename T >
+  static void enterFunc( T const& data1,
+			 T const& data2, const std::string& fName );
+  template < typename T > 
+    static void outItem( T const& data, const std::string& name );
+  template < typename V >
   static void outLLVMObj( const V& val );
-  static void outInstruction( const llvm::Instruction& val );
   static void exitFunc();
  private:
+  static void outInstruction( const llvm::Instruction& val );
+  static bool initLeadComma( bool = false );
   static std::ofstream lstream;
   static size_t level;
   static void tab();
@@ -48,26 +51,37 @@ class Logging{
   static bool first;
   static size_t count;
 };
-// used for LLVM objects (i.e. Value and Type) that have print methods
-/* template <typename V> */
-/* void  */
-/* Logging::outLLVMObj( const V& val ){ */
-/*   if( level <= maxDepth ){ */
-/*     assert( lstream.is_open() && "You must instantiate Logging before calling its methods"); */
-/*     lstream << "," << std::endl; */
+
+///
+/// this is a generic -- see specific implementations in logging.cpp
+///
+
+/* template< typename T > */
+/*   void Logging::enterFunc( const std::string& fName, T const& data ){ */
+/*   if( initLeadComma()){ */
+/*     lstream << "\"" << fName << "_" << count++ << "\":" << " {" << std::endl; */
 /*     tab(); */
-/*     lstream << "\"Instruction_" << count++ << "\": " << "\""; */
-/*     if( llvm::isa< llvm::Instruction >( val ) ){ */
-/*       llvm::raw_os_ostream roo( lstream ); */
-/*       val.print( *(dynamic_cast< llvm::raw_ostream* >( &roo )), (llvm::AssemblyAnnotationWriter*)NULL); */
-/*     }else{ */
-/*       val.print( lstream ); */
-/*     } */
-/*     lstream << "\""; */
+/*     lstream << "\"frameName\": \""; */
+/*     lstream << data << "\""; */
 /*   } */
 /* } */
 
-
+/* template< typename T > */
+/*   void Logging::enterFunc( const std::string& fName, T const& data1, */
+/* 			 T const& data2 ){ */
+/*   if( initLeadComma()){ */
+/*     lstream << "\"" << fName << "_" << count++ << "\":" << " {" << std::endl; */
+/*     tab(); */
+/*     lstream << "\"" << data1 << ":" << data2 << "\""; */
+/*   } */
+/* } */
+/* template < typename T > */
+/* void Logging::outItem( const std::string& name, */
+/* 		       T const& data){ */
+/*   if( initLeadComma()){ */
+/*     lstream << "\"" << name << "_" << count++ << "\": " << "\"" << data << "\""; */
+/*   } */
+/* } */
 }
 	  
 #endif

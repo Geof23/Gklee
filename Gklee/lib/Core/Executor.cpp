@@ -326,7 +326,7 @@ Solver *constructSolverChain(STPSolver *stpSolver,
                              std::string queryPCLogPath,
                              std::string baseSolverQueryPCLogPath) {
 
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "Constructing solver" ); 
+  Gklee::Logging::enterFunc( std::string( "Constructing solver" ) , __PRETTY_FUNCTION__ ); 
   Solver *solver = stpSolver;
 
   if (optionIsSet(queryLoggingOptions,SOLVER_PC))
@@ -423,7 +423,7 @@ Executor::Executor(const InterpreterOptions &opts,
     symRace(false)
 {
 
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "Create STPSolver, postDomtree, memManager");
+  Gklee::Logging::enterFunc( std::string( "Create STPSolver, postDomtree, memManager" ), __PRETTY_FUNCTION__ );
   concreteTotalTime = symTotalTime = 0.0f;
   STPSolver *stpSolver = new STPSolver(UseForkedSTP, STPOptimizeDivides);
   Solver *solver =
@@ -441,7 +441,7 @@ Executor::Executor(const InterpreterOptions &opts,
 
 const Module *Executor::setModule(llvm::Module *module, 
                                   const ModuleOptions &opts) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, module->getModuleIdentifier()); //*module );
+  Gklee::Logging::enterFunc( module->getModuleIdentifier(), __PRETTY_FUNCTION__ ); //*module , __PRETTY_FUNCTION__ );
   assert(!kmodule && module && "can only register one module"); // XXX gross
  if (GPUConfig::verbose > 0) {
    std::cout << "Entered setModule with " << module->getModuleIdentifier() << std::endl;
@@ -471,7 +471,7 @@ const Module *Executor::setModule(llvm::Module *module,
 }
 
 Executor::~Executor() {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "Deleting Executor");
+  Gklee::Logging::enterFunc( std::string( "Deleting Executor" ), __PRETTY_FUNCTION__ );
   delete memory;
   delete externalDispatcher;
   if (processTree)
@@ -539,7 +539,7 @@ Executor::~Executor() {
 MemoryObject * Executor::addExternalObject(ExecutionState &state, 
                                            void *addr, unsigned size, 
                                            bool isReadOnly) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "adding mem obj to state" ); // std::string("obj: ") + 
+  Gklee::Logging::enterFunc< std::string >( std::string( "adding mem obj to state" ) , __PRETTY_FUNCTION__ ); // std::string("obj: ") + 
 			     // std::to_string( (size_t) addr) +
 			     // ":" + std::to_string(size) + "RO?:" + 
 			     // std::to_string( isReadOnly ));
@@ -562,9 +562,10 @@ MemoryObject * Executor::addExternalObject(ExecutionState &state,
 /// This instruction advances the state's PC
 ///
 void Executor::stepInstruction(ExecutionState &state) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, std::string("current PC:") +
+  Gklee::Logging::enterFunc( std::string("current PC:") +
 			     state.getPC()->info->file + ":" +
-    			     std::to_string(state.getPC()->info->line)); 
+    			     std::to_string(state.getPC()->info->line),
+			     __PRETTY_FUNCTION__ ); 
   if (DebugPrintInstructions) {
     printFileLine(state, state.getPC());
     std::cerr << std::setw(10) << stats::instructions << " ";
@@ -581,7 +582,7 @@ void Executor::stepInstruction(ExecutionState &state) {
 
   if (stats::instructions==StopAfterNInstructions)
     haltExecution = true;
-  // Gklee::Logging::outItem( "New PC", std::string( state.getPC()->info->file ) + ":" +
+  // Gklee::Logging::outItem( std::string( "New PC" ), std::string("") + state.getPC()->info->file  + ":" +
   // 			   std::to_string( state.getPC()->info->line )); 
   Gklee::Logging::exitFunc();
 }
@@ -607,8 +608,9 @@ void Executor::transferToBasicBlock(BasicBlock *dst, BasicBlock *src,
   //   std::cout << "Entered " << __FUNCTION__ << 
   // }
   // XXX this lookup has to go ?
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, std::string("dst name:") +
-			     dst->getName().str() + ", src: " + src->getName().str());
+  Gklee::Logging::enterFunc( std::string("dst name:") +
+			     dst->getName().str() + ", src: " + src->getName().str(),
+			     __PRETTY_FUNCTION__ );
   KFunction *kf = state.getCurStack().back().kf;
   unsigned entry = kf->basicBlockEntry[dst];
   state.setPC(&kf->instructions[entry]);
@@ -616,7 +618,7 @@ void Executor::transferToBasicBlock(BasicBlock *dst, BasicBlock *src,
   if (state.getPC()->inst->getOpcode() == Instruction::PHI) {
     PHINode *first = static_cast<PHINode*>(state.getPC()->inst);
     auto newBBI = first->getBasicBlockIndex(src);
-    Gklee::Logging::outItem( "phi node, incomingBBIndex set", std::to_string( newBBI ));
+    Gklee::Logging::outItem( std::to_string( newBBI ), "phi node, incomingBBIndex set" );
     state.incomingBBIndex[state.tinfo.get_cur_tid()]  = newBBI;
   }
   Gklee::Logging::exitFunc();
@@ -628,7 +630,7 @@ void Executor::transferToBasicBlock(BasicBlock *dst, BasicBlock *src,
 void Executor::branch(ExecutionState &state, 
                       const std::vector< klee::ref<Expr> > &conditions,
                       std::vector<ExecutionState*> &result) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, conditions[0] );
+  Gklee::Logging::enterFunc( conditions[0] , __PRETTY_FUNCTION__ );
   TimerStatIncrementer timer(stats::forkTime);
   unsigned N = conditions.size();
   assert(N);
@@ -699,8 +701,9 @@ void Executor::branch(ExecutionState &state,
   for (unsigned i=0; i<N; ++i)
     if (result[i]){
       addConstraint(*result[i], conditions[i]);
-      Gklee::Logging::outItem( "state " + std::to_string( i ) + " cond",
-			       conditions[ i ]);
+      Gklee::Logging::outItem( conditions[ i ],
+			       "state " + std::to_string( i ) + " cond" );
+			       
     }
   Gklee::Logging::exitFunc();
 } 
@@ -713,7 +716,7 @@ bool Executor::identifyConditionType(ExecutionState &state, klee::ref<Expr> &con
   //cond->dump();
 
   // Accumulative
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, cond );
+  Gklee::Logging::enterFunc( cond , __PRETTY_FUNCTION__ );
   if (cond->accum)
     accum = true;
 
@@ -752,17 +755,19 @@ bool Executor::identifyConditionType(ExecutionState &state, klee::ref<Expr> &con
     if (ss.str().find("const_arr") != std::string::npos)
       relatedToSym = true;
   }
-  Gklee::Logging::outItem( "types identified", std::string("relatedBuiltin:") +
+  Gklee::Logging::outItem( std::string("relatedBuiltin:") +
 			   std::to_string( relatedBuiltin ) + " relatedToSym:" +
 			   std::to_string( relatedToSym ) + " accum:" +
-			   std::to_string( accum ));
+			   std::to_string( accum ),
+			   "types identified" );
   Gklee::Logging::exitFunc();
   return relatedBuiltin; 
 }
  
 static unsigned findUnusedThreadSlot(std::vector<CorrespondTid> &cTidSets) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, std::string( "|cTidSets|:") +
-			     std::to_string( cTidSets.size()));
+  Gklee::Logging::enterFunc( std::string( "|cTidSets|:") +
+			     std::to_string( cTidSets.size()),
+			     __PRETTY_FUNCTION__ );
   bool findUnused = false;
   unsigned i = 0;
   for (; i < cTidSets.size(); i++) {
@@ -772,23 +777,24 @@ static unsigned findUnusedThreadSlot(std::vector<CorrespondTid> &cTidSets) {
     }
   }   
   assert(findUnused && "Unused thread slot not found!\n");
-  Gklee::Logging::outItem( "returnResult", std::to_string( i ));
+  Gklee::Logging::outItem( std::to_string( i ), "returnResult" );
   Gklee::Logging::exitFunc();
   return i;
 }
 
 void Executor::evaluateConstraintAsNewFlow(ExecutionState &state, ParaTree &pTree,
                                            klee::ref<Expr> &cond, bool flowCreated) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, cond );  
+  Gklee::Logging::enterFunc( cond , __PRETTY_FUNCTION__ );  
  unsigned cur_bid = state.tinfo.get_cur_bid();
   unsigned cur_tid = state.tinfo.get_cur_tid();
-  Gklee::Logging::outItem( "bid:tid", std::to_string( cur_bid ) + ":" +
-			   std::to_string( cur_tid ));
+  Gklee::Logging::outItem( std::to_string( cur_bid ) + ":" +
+			   std::to_string( cur_tid ),
+			   "bid:tid" );
   if (flowCreated) {
     unsigned idle_tid = findUnusedThreadSlot(state.cTidSets);
     GKLEE_INFO << "create new parametric flow: " << idle_tid 
                << std::endl;
-    Gklee::Logging::outItem( "new pflow", std::to_string( idle_tid ));
+    Gklee::Logging::outItem( std::to_string( idle_tid ), "new pflow" );
     state.tinfo.symExecuteSet.push_back(idle_tid);
     ParaConfig config(cur_bid, idle_tid, cond, 0, 0);
     pTree.updateCurrentNodeOnNewConfig(config, TDC);
@@ -797,7 +803,7 @@ void Executor::evaluateConstraintAsNewFlow(ExecutionState &state, ParaTree &pTre
     // Only explore the 'false' flow ... 
     GKLEE_INFO << "keep using the current flow: " 
                << cur_tid << std::endl;
-    Gklee::Logging::outItem( "keeping current flow", "" );
+    Gklee::Logging::outItem( std::string( "" ) , "keeping current flow" );
     ParaConfig config(cur_bid, cur_tid, cond, 0, 0);
     pTree.updateCurrentNodeOnNewConfig(config, TDC);
     state.tinfo.sym_tdc_eval = 2;
@@ -808,7 +814,7 @@ void Executor::evaluateConstraintAsNewFlow(ExecutionState &state, ParaTree &pTre
 void Executor::evaluateConstraintAsNewFlowUnderRacePrune(ExecutionState &state, ParaTree &pTree,
                                                          klee::ref<Expr> &cond, bool flowCreated,
                                                          BranchInst *bi) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, cond );
+  Gklee::Logging::enterFunc( cond , __PRETTY_FUNCTION__ );
   unsigned cur_bid = state.tinfo.get_cur_bid();
   unsigned cur_tid = state.tinfo.get_cur_tid();
 
@@ -816,7 +822,7 @@ void Executor::evaluateConstraintAsNewFlowUnderRacePrune(ExecutionState &state, 
     unsigned idle_tid = findUnusedThreadSlot(state.cTidSets);
     GKLEE_INFO << "create new parametric flow: " << idle_tid 
                << std::endl;
-    Gklee::Logging::outItem( "new pflow", std::to_string( idle_tid ));
+    Gklee::Logging::outItem( std::to_string( idle_tid ), "new pflow" );
     state.tinfo.symExecuteSet.push_back(idle_tid);
     ParaConfig config(cur_bid, idle_tid, cond, 0, 0);
     pTree.updateCurrentNodeOnNewConfig(config, TDC);
@@ -838,7 +844,7 @@ void Executor::evaluateConstraintAsNewFlowUnderRacePrune(ExecutionState &state, 
     // Only explore the 'false' flow ... 
     GKLEE_INFO << "keep using the current flow: " 
                << cur_tid << std::endl;
-    Gklee::Logging::outItem( "keeping current flow", "" );
+    Gklee::Logging::outItem( std::string( "" ) , "keeping current flow" );
     ParaConfig config(cur_bid, cur_tid, cond, 0, 0);
     pTree.updateCurrentNodeOnNewConfig(config, TDC);
     state.tinfo.sym_tdc_eval = 2;
@@ -848,7 +854,7 @@ void Executor::evaluateConstraintAsNewFlowUnderRacePrune(ExecutionState &state, 
 
 Executor::StatePair 
 Executor::fork(ExecutionState &current, klee::ref<Expr> condition, bool isInternal) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, condition ); 
+  Gklee::Logging::enterFunc( condition , __PRETTY_FUNCTION__ ); 
   Solver::Validity res;
   std::map< ExecutionState*, std::vector<SeedInfo> >::iterator it = 
     seedMap.find(&current);
@@ -881,7 +887,7 @@ Executor::fork(ExecutionState &current, klee::ref<Expr> condition, bool isIntern
       assert(success && "FIXME: Unhandled solver failure");
       (void) success;
       addConstraint(current, EqExpr::create(value, condition));
-      Gklee::Logging::outItem( "adding constraint", value );
+      Gklee::Logging::outItem< klee::ref<klee::Expr> >( value , "adding constraint to current state" );
       condition = value;
     }
   }
@@ -898,6 +904,7 @@ Executor::fork(ExecutionState &current, klee::ref<Expr> condition, bool isIntern
   if (UseSymbolicConfig) {
     isTDCCond = identifyConditionType(current, condition, 
                                       isSymCond, isAccumCond);
+    Gklee::Logging::outItem( std::to_string( isTDCCond ), "isTDCCond" );
     if (current.tinfo.is_GPU_mode) {
       if (isSymCond) {
         // SYM, Accumulative or other kinds of conditionals
@@ -1221,7 +1228,7 @@ Executor::fork(ExecutionState &current, klee::ref<Expr> condition, bool isIntern
 }
 
 void Executor::addConstraint(ExecutionState &state, klee::ref<Expr> condition) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, condition ); 
+  Gklee::Logging::enterFunc( condition , __PRETTY_FUNCTION__ ); 
   if (ConstantExpr *CE = dyn_cast<ConstantExpr>(condition)) {
     assert(CE->isTrue() && "attempt to add invalid constraint");
     Gklee::Logging::exitFunc();
@@ -1258,7 +1265,7 @@ void Executor::addConstraint(ExecutionState &state, klee::ref<Expr> condition) {
 
 const Cell& Executor::evalSharedMemory(ExecutionState &state, klee::ref<Expr> &pointer, 
                                        unsigned index) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, pointer );  
+  Gklee::Logging::enterFunc( pointer , __PRETTY_FUNCTION__ );  
   bool findShared = false;
   std::pair<SharedMemoryObject*, MemoryObject*> tmpPair;
       
@@ -1296,7 +1303,7 @@ const Cell& Executor::evalSharedMemory(ExecutionState &state, klee::ref<Expr> &p
 
   if (!findShared) {
     // the corresponding base addr not found
-    Gklee::Logging::outItem( "shared not found, returning", kmodule->constantTable[index].value );
+    Gklee::Logging::outItem( kmodule->constantTable[index].value , "shared not found, returning" );
     Gklee::Logging::exitFunc();
     return kmodule->constantTable[index];
   } else {
@@ -1305,7 +1312,7 @@ const Cell& Executor::evalSharedMemory(ExecutionState &state, klee::ref<Expr> &p
                                           tmpPair.first->sharedGLMO->getOffsetExpr(pointer));
     shareAddr->ctype = GPUConfig::SHARED;
     tmpPair.first->glCell->value = shareAddr; 
-    Gklee::Logging::outItem( "found shared, addr:", shareAddr );
+    Gklee::Logging::outItem( shareAddr , "found shared, addr:" );
     Gklee::Logging::exitFunc();
     return *(tmpPair.first->glCell);
   }
@@ -1313,7 +1320,7 @@ const Cell& Executor::evalSharedMemory(ExecutionState &state, klee::ref<Expr> &p
  
 const Cell& Executor::eval(KInstruction *ki, unsigned index, 
                            ExecutionState &state) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "Evaluating operand" );  
+  Gklee::Logging::enterFunc< std::string >( "Evaluating operand" , __PRETTY_FUNCTION__ );  
   assert(index < ki->inst->getNumOperands());
   int vnumber = ki->operands[index];
 
@@ -1325,15 +1332,15 @@ const Cell& Executor::eval(KInstruction *ki, unsigned index,
     unsigned index = -vnumber - 2;
     klee::ref<Expr> addr = (kmodule->constantTable[index]).value;
     const Cell& esm = evalSharedMemory(state, addr, index);
-    Gklee::Logging::outItem( "result", esm.value );
-    //Gklee::Logging::outItem( "result", evalSharedMemory(state, addr, index).value );
+    Gklee::Logging::outItem( esm.value , "result" );
+    //Gklee::Logging::outItem( index).value , "result", evalSharedMemory(state, addr );
     Gklee::Logging::exitFunc();
     return esm;
     //return evalSharedMemory(state, addr, index);
   } else {
     unsigned index = vnumber;
     StackFrame &sf = state.getCurStack().back();
-    Gklee::Logging::outItem( "result", sf.locals[index].value );
+    Gklee::Logging::outItem( sf.locals[index].value , "result" );
     Gklee::Logging::exitFunc();
     return sf.locals[index];
   }
@@ -1341,21 +1348,21 @@ const Cell& Executor::eval(KInstruction *ki, unsigned index,
 
 void Executor::bindLocal(KInstruction *target, ExecutionState &state, 
                          klee::ref<Expr> value) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, value );  
+  Gklee::Logging::enterFunc( value , __PRETTY_FUNCTION__ );  
   getDestCell(state, target).value = value;
   Gklee::Logging::exitFunc();
 }
 
 void Executor::bindArgument(KFunction *kf, unsigned index, 
                             ExecutionState &state, klee::ref<Expr> value) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, value );  
+  Gklee::Logging::enterFunc( value , __PRETTY_FUNCTION__ );  
   getArgumentCell(state, kf, index).value = value;
   Gklee::Logging::exitFunc();
 }
 
 klee::ref<Expr> Executor::toUnique(ExecutionState &state, 
                              klee::ref<Expr> &e) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, e );  
+  Gklee::Logging::enterFunc( e , __PRETTY_FUNCTION__ );  
   klee::ref<Expr> result = e;
 
   if (!isa<ConstantExpr>(e)) {
@@ -1374,7 +1381,7 @@ klee::ref<Expr> Executor::toUnique(ExecutionState &state,
     ExecutorUtil::copyBackConstraintUnderSymbolic(state);
     // concretize the arguments 
   }
-  Gklee::Logging::outItem( "result", result );
+  Gklee::Logging::outItem( result , "result" );
   Gklee::Logging::exitFunc();
   return result;
 }
@@ -1386,7 +1393,7 @@ klee::ref<klee::ConstantExpr>
 Executor::toConstant(ExecutionState &state, 
                      klee::ref<Expr> e,
                      const char *reason) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, e );  
+  Gklee::Logging::enterFunc( e , __PRETTY_FUNCTION__ );  
   e = state.constraints.simplifyExpr(e);
   if (ConstantExpr *CE = dyn_cast<ConstantExpr>(e)) {
     CE->ctype = e->ctype;
@@ -1419,7 +1426,7 @@ Executor::toConstant(ExecutionState &state,
   value->ctype = e->ctype; 
   if (UseSymbolicConfig)
     value->accum = e->accum; 
-  Gklee::Logging::outItem( "returning", value );
+  Gklee::Logging::outItem< klee::ref< klee::Expr > >( value , "returning" );
   Gklee::Logging::exitFunc();
   return value;
 }
@@ -1428,13 +1435,13 @@ klee::ref<klee::ConstantExpr>
 Executor::toConstantArguments(ExecutionState &state, 
                               klee::ref<Expr> e, 
                               const char *reason) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, e );  
+  Gklee::Logging::enterFunc( e , __PRETTY_FUNCTION__ );  
   e = state.constraints.simplifyExpr(e);
   if (ConstantExpr *CE = dyn_cast<ConstantExpr>(e)) {
     CE->ctype = e->ctype;
     if (UseSymbolicConfig)
       CE->accum = e->accum;
-    Gklee::Logging::outItem( "returning", CE );
+    Gklee::Logging::outItem< klee::ref< klee::Expr >>( CE , "returning" );
     Gklee::Logging::exitFunc();
     return CE;
   }
@@ -1459,7 +1466,7 @@ Executor::toConstantArguments(ExecutionState &state,
   value->ctype = e->ctype; 
   if (UseSymbolicConfig)
     value->accum = e->accum; 
-  Gklee::Logging::outItem( "returning", value );
+  Gklee::Logging::outItem< klee::ref< klee::Expr >>( value , "returning" );
   Gklee::Logging::exitFunc();
   return value;
 }
@@ -1468,16 +1475,16 @@ klee::ref<klee::ConstantExpr>
 Executor::toConstantPublic(ExecutionState &state, 
                            klee::ref<Expr> e,
                            const char *reason) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, e );  
+  Gklee::Logging::enterFunc( e , __PRETTY_FUNCTION__ );  
   auto cons = toConstant(state, e, reason);
-  Gklee::Logging::outItem( "returning", cons );
+  Gklee::Logging::outItem< klee::ref< klee::Expr >>( cons , "returning" );
   Gklee::Logging::exitFunc();
   return cons;
 }
 
 Executor::StatePair 
 Executor::forkAsPublic(ExecutionState &current, klee::ref<Expr> cond, bool isInternal) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, cond );  
+  Gklee::Logging::enterFunc( cond , __PRETTY_FUNCTION__ );  
   auto f = fork(current, cond, isInternal); 
   Gklee::Logging::exitFunc();
   return f;
@@ -1486,7 +1493,7 @@ Executor::forkAsPublic(ExecutionState &current, klee::ref<Expr> cond, bool isInt
 void Executor::executeGetValue(ExecutionState &state,
                                klee::ref<Expr> e,
                                KInstruction *target) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, e );  
+  Gklee::Logging::enterFunc( e , __PRETTY_FUNCTION__ );  
   e = state.constraints.simplifyExpr(e);
   std::map< ExecutionState*, std::vector<SeedInfo> >::iterator it = 
     seedMap.find(&state);
@@ -1531,7 +1538,7 @@ void Executor::executeGetValue(ExecutionState &state,
 /// Compute the true target of a function call, resolving LLVM and KLEE aliases
 /// and bitcasts.
 Function* Executor::getTargetFunction(Value *calledVal, ExecutionState &state) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
   SmallPtrSet<const GlobalValue*, 3> Visited;
 
   Constant *c = dyn_cast<Constant>(calledVal);
@@ -1542,7 +1549,7 @@ Function* Executor::getTargetFunction(Value *calledVal, ExecutionState &state) {
   while (true) {
     if (GlobalValue *gv = dyn_cast<GlobalValue>(c)) {
       if (!Visited.insert(gv)){
-	Gklee::Logging::outItem( "returning", "0" );
+	Gklee::Logging::outItem< std::string >( "0" , "returning" );
 	Gklee::Logging::exitFunc();
         return 0;
       }
@@ -1559,13 +1566,13 @@ Function* Executor::getTargetFunction(Value *calledVal, ExecutionState &state) {
       }
      
       if (Function *f = dyn_cast<Function>(gv)){
-	Gklee::Logging::outItem( "returning", f->getName() );
+	Gklee::Logging::outItem( f->getName().str() , "returning" );
 	Gklee::Logging::exitFunc();
         return f;
       }else if (GlobalAlias *ga = dyn_cast<GlobalAlias>(gv)){
         c = ga->getAliasee();
       }else{
-	Gklee::Logging::outItem( "returning", "0" );
+	Gklee::Logging::outItem< std::string >( "0" , "returning" );
 	Gklee::Logging::exitFunc();
         return 0;
       }
@@ -1573,12 +1580,12 @@ Function* Executor::getTargetFunction(Value *calledVal, ExecutionState &state) {
       if (ce->getOpcode()==Instruction::BitCast){
         c = ce->getOperand(0);
       }else{
-	Gklee::Logging::outItem( "returning", "0" );
+	Gklee::Logging::outItem< std::string >( "0" , "returning" );
 	Gklee::Logging::exitFunc();
         return 0;
       }
     } else{
-      Gklee::Logging::outItem( "returning", "0" );
+      Gklee::Logging::outItem< std::string >( "0" , "returning" );
       Gklee::Logging::exitFunc();
       return 0;
     }
@@ -1588,11 +1595,11 @@ Function* Executor::getTargetFunction(Value *calledVal, ExecutionState &state) {
 }
 
 static bool isDebugIntrinsic(const Function *f, KModule *KM) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, f->getName() );  
+  Gklee::Logging::enterFunc( f->getName().str() , __PRETTY_FUNCTION__ );  
 #if LLVM_VERSION_CODE < LLVM_VERSION(2, 7)
   // Fast path, getIntrinsicID is slow.
   if (f == KM->dbgStopPointFn){
-    Gklee::Logging::outItem( "returning", "true" );
+    Gklee::Logging::outItem( "true" , "returning" );
     Gklee::Logging::exitFunc();
     return true;
   }
@@ -1603,17 +1610,17 @@ static bool isDebugIntrinsic(const Function *f, KModule *KM) {
   case Intrinsic::dbg_region_end:
   case Intrinsic::dbg_func_start:
   case Intrinsic::dbg_declare:
-    Gklee::Logging::outItem( "returning", "true" );
+    Gklee::Logging::outItem( "true" , "returning" );
     Gklee::Logging::exitFunc();
     return true;
 
   default:
-    Gklee::Logging::outItem( "returning", "false" );
+    Gklee::Logging::outItem( "false" , "returning" );
     Gklee::Logging::exitFunc();
     return false;
   }
 #else
-  Gklee::Logging::outItem( "returning", "false" );
+  Gklee::Logging::outItem< std::string >( "false" , "returning" );
   Gklee::Logging::exitFunc();
   return false;
 #endif
@@ -1635,27 +1642,27 @@ static inline const llvm::fltSemantics * fpWidthToSemantics(unsigned width) {
 }
 
 bool ExecutorUtil::isForkInstruction(Instruction *inst) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
   if (inst->getOpcode() == Instruction::Br) {
     if (BranchInst *bi = cast<BranchInst>(inst)) {
       if (bi->isConditional()){
-	Gklee::Logging::outItem( "returning", "true" );
+	Gklee::Logging::outItem< std::string >( "true" , "returning" );
 	Gklee::Logging::exitFunc();
 	return true;
       }
     }
   } else if (inst->getOpcode() == Instruction::Switch) {
-    Gklee::Logging::outItem( "returning", "true" );
+    Gklee::Logging::outItem< std::string >( "true" , "returning" );
     Gklee::Logging::exitFunc();  
     return true;
   }
-  Gklee::Logging::outItem( "returning", "false" );
+  Gklee::Logging::outItem< std::string >( "false" , "returning" );
   Gklee::Logging::exitFunc();  
   return false;
 }
 
 void Executor::updateBaseCType(ExecutionState &state, klee::ref<Expr> &baseAddr) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, baseAddr );  
+  Gklee::Logging::enterFunc( baseAddr , __PRETTY_FUNCTION__ );  
   ExecutorUtil::copyOutConstraintUnderSymbolic(state);
   // First look up the host memory ...
   MemoryMap &hostObj = state.addressSpace.cpuMemory.objects;  
@@ -1677,7 +1684,7 @@ void Executor::updateBaseCType(ExecutionState &state, klee::ref<Expr> &baseAddr)
       if (res != Solver::False) {
         baseAddr->ctype = mo->ctype;
         assert(baseAddr->ctype == GPUConfig::HOST && "The ctype mismatches");
-	Gklee::Logging::outItem( "type", "HOST" );
+	Gklee::Logging::outItem< std::string >( "HOST" , "type" );
         break;
       }
     }
@@ -1703,7 +1710,7 @@ void Executor::updateBaseCType(ExecutionState &state, klee::ref<Expr> &baseAddr)
         if (res == Solver::True || res == Solver::Unknown) {
           baseAddr->ctype = mo->ctype;
           assert(baseAddr->ctype == GPUConfig::DEVICE && "The ctype mismatches");
-	  Gklee::Logging::outItem( "type", "DEVICE" );
+	  Gklee::Logging::outItem< std::string >( "DEVICE" , "type" );
           break;
         }
       }
@@ -1730,7 +1737,7 @@ void Executor::updateBaseCType(ExecutionState &state, klee::ref<Expr> &baseAddr)
         if (res == Solver::True || res == Solver::Unknown) {
           baseAddr->ctype = mo->ctype;
           assert(baseAddr->ctype == GPUConfig::SHARED && "The ctype mismatches");
-	  Gklee::Logging::outItem( "type", "SHARED" );
+	  Gklee::Logging::outItem< std::string >( "SHARED" , "type" );
           break;
         }
       }
@@ -1757,7 +1764,7 @@ void Executor::updateBaseCType(ExecutionState &state, klee::ref<Expr> &baseAddr)
         if (res == Solver::True || res == Solver::Unknown) {
           baseAddr->ctype = mo->ctype;
           assert(baseAddr->ctype == GPUConfig::LOCAL && "The ctype mismatches");
-	  Gklee::Logging::outItem( "type", "LOCAL" );
+	  Gklee::Logging::outItem< std::string >( "LOCAL" , "type" );
           break;
         }
       }
@@ -1769,30 +1776,30 @@ void Executor::updateBaseCType(ExecutionState &state, klee::ref<Expr> &baseAddr)
 
 // useRealGrid argument means the GridSize or SymGridSize will be used
 void ExecutorUtil::constructSymConfigEncodedConstraint(ExecutionState &state) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
 
   // Two symbolic blocks
   klee::ref<Expr> blockConstraint;
   state.constructBlockEncodedConstraint(blockConstraint, 0);
-  Gklee::Logging::outItem( "blockConstraint", blockConstraint );
+  Gklee::Logging::outItem( blockConstraint , "blockConstraint" );
   addConfigConstraint(state, blockConstraint);
   state.constructBlockEncodedConstraint(blockConstraint, 1);
-  Gklee::Logging::outItem( "blockConstraint", blockConstraint );
+  Gklee::Logging::outItem( blockConstraint , "blockConstraint" );
   addConfigConstraint(state, blockConstraint);
     
   // Two symbolic threads
   klee::ref<Expr> threadConstraint;
   state.constructThreadEncodedConstraint(threadConstraint, 0);
-  Gklee::Logging::outItem( "threadConstraint", threadConstraint );
+  Gklee::Logging::outItem( threadConstraint , "threadConstraint" );
   addConfigConstraint(state, threadConstraint);
   state.constructThreadEncodedConstraint(threadConstraint, 1);
-  Gklee::Logging::outItem( "threadConstraint", threadConstraint );
+  Gklee::Logging::outItem( threadConstraint , "threadConstraint" );
   addConfigConstraint(state, threadConstraint);
   Gklee::Logging::exitFunc();
 }
 
 void ExecutorUtil::constructSymBlockDimPrecondition(ExecutionState &state) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
   // Two unbounded symbolic blocks
   state.constructUnboundedBlockEncodedConstraint(0);
   state.constructUnboundedBlockEncodedConstraint(1);
@@ -1804,23 +1811,23 @@ void ExecutorUtil::constructSymBlockDimPrecondition(ExecutionState &state) {
 }
 
 void ExecutorUtil::copyOutConstraint(ExecutionState &state, bool ignoreCur) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
   state.paraConstraints = state.constraints; 
   constructSymConfigEncodedConstraint(state);
   klee::ref<Expr> cond = state.getTDCCondition(ignoreCur);
-  Gklee::Logging::outItem( "TDCCondition", cond );
+  Gklee::Logging::outItem( cond , "TDCCondition" );
   addConfigConstraint(state, cond);
   Gklee::Logging::exitFunc();
 }
 
 void ExecutorUtil::copyBackConstraint(ExecutionState &state) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
   state.constraints = state.paraConstraints; 
   Gklee::Logging::exitFunc();
 }
 
 void ExecutorUtil::copyOutConstraintUnderSymbolic(ExecutionState &state, bool ignoreCur) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
   if (UseSymbolicConfig
        && state.tinfo.is_GPU_mode)
       copyOutConstraint(state, ignoreCur);
@@ -1828,7 +1835,7 @@ void ExecutorUtil::copyOutConstraintUnderSymbolic(ExecutionState &state, bool ig
 }
 
 void ExecutorUtil::copyBackConstraintUnderSymbolic(ExecutionState &state) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
   if (UseSymbolicConfig)
     if (state.tinfo.is_GPU_mode) 
       copyBackConstraint(state);
@@ -1836,7 +1843,7 @@ void ExecutorUtil::copyBackConstraintUnderSymbolic(ExecutionState &state) {
 }
 
 void ExecutorUtil::addConfigConstraint(ExecutionState &state, klee::ref<Expr> condition) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
   if (isa<ConstantExpr>(condition)){
     Gklee::Logging::exitFunc();
     return;
@@ -1847,7 +1854,7 @@ void ExecutorUtil::addConfigConstraint(ExecutionState &state, klee::ref<Expr> co
 
 void Executor::updateCType(ExecutionState &state, llvm::Value* value, 
                            klee::ref<Expr> &base, bool is_GPU_mode) { 
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, base );  
+  Gklee::Logging::enterFunc( base , __PRETTY_FUNCTION__ );  
   if (base->ctype == GPUConfig::UNKNOWN) {
     if (value) // value != NULL
       base->ctype = CUDAUtil::getUpdatedCType(value, is_GPU_mode);
@@ -1868,11 +1875,9 @@ void Executor::updateCType(ExecutionState &state, llvm::Value* value,
 
 void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
   
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
-
   Instruction *i = ki->inst;
 
-  Gklee::Logging::outInstruction( *i );
+  Gklee::Logging::enterFunc( *i , __PRETTY_FUNCTION__ );  
 
   unsigned seqNum = 0;
 
@@ -1924,7 +1929,7 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
     if (!isVoidReturn) {
       result = eval(ki, 0, state).value;
     }
-    Gklee::Logging::outItem( "return result", result );
+    Gklee::Logging::outItem( result , "return result" );
     
     if (state.getCurStack().size() <= 1) {
       assert(!caller && "caller set on initial stack frame");
@@ -1961,7 +1966,7 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
               result = ZExtExpr::create(result, to);
             }
           }
-	  Gklee::Logging::outItem( "binding result", result );
+	  Gklee::Logging::outItem( result , "binding result" );
           bindLocal(kcaller, state, result);
         }
       } else {
@@ -2010,7 +2015,7 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
       assert(bi->getCondition() == bi->getOperand(0) &&
              "Wrong operand index!");
       klee::ref<Expr> cond = eval(ki, 0, state).value;
-      Gklee::Logging::outItem( "branch condition", cond );
+      Gklee::Logging::outItem( cond , "branch condition" );
 
       if (RacePrune) { 
         if (bi->hasMetadata()) {
@@ -2035,13 +2040,13 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
 
       // per thread coverage
       if (branches.first) {
-	Gklee::Logging::outItem( "branching", "first" );
+	Gklee::Logging::outItem< std::string >( "first" , "branching" );
         if (!RacePrune)
           bc_cov_monitor.markTakenBranch(&state, true);
         transferToBasicBlock(bi->getSuccessor(0), bi->getParent(), *branches.first);
       }
       if (branches.second) {
-	Gklee::Logging::outItem( "branching", "second" );
+	Gklee::Logging::outItem< std::string >( "second" , "branching" );
         if (!RacePrune)
 	  bc_cov_monitor.markTakenBranch(&state, false);
         transferToBasicBlock(bi->getSuccessor(1), bi->getParent(), *branches.second);
@@ -2052,7 +2057,7 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
   case Instruction::Switch: {
     SwitchInst *si = cast<SwitchInst>(i);
     klee::ref<Expr> cond = eval(ki, 0, state).value;
-    Gklee::Logging::outItem( "switch condition", cond );
+    Gklee::Logging::outItem( cond , "switch condition" );
     BasicBlock *bb = si->getParent();
 
     cond = toUnique(state, cond);
@@ -2077,7 +2082,7 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
       for (SwitchInst::CaseIt i = si->case_begin(), e = si->case_end();
            i != e; ++i) {
         klee::ref<Expr> value = evalConstant(i.getCaseValue());
-	Gklee::Logging::outItem( "case value", value );
+	Gklee::Logging::outItem( value , "case value" );
 #else
       for (unsigned i=1, cases = si->getNumCases(); i<cases; ++i) {
         klee::ref<Expr> value = evalConstant(si->getCaseValue(i));
@@ -2113,7 +2118,7 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
       for (std::map<BasicBlock*, klee::ref<Expr> >::iterator it = 
              targets.begin(), ie = targets.end();
            it != ie; ++it){
-	Gklee::Logging::outItem( "adding condition", it->second );
+	Gklee::Logging::outItem( it->second , "adding condition" );
         conditions.push_back(it->second);
       }
       
@@ -2147,7 +2152,7 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
     unsigned numArgs = cs.arg_size();
     Value *fp = cs.getCalledValue();
     Function *f = getTargetFunction(fp, state);
-    Gklee::Logging::outItem( "target function", f->getName());
+    Gklee::Logging::outItem( f->getName().str(), "target function" );
     // Skip debug intrinsics, we can't evaluate their metadata arguments.
     if (f && isDebugIntrinsic(f, kmodule))
       break;
@@ -2162,7 +2167,7 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
 
     for (unsigned j=0; j<numArgs; ++j){
       auto arg = eval(ki, j+1, state).value;
-      Gklee::Logging::outItem( "arg", arg );
+      Gklee::Logging::outItem( arg , "arg" );
       arguments.push_back( arg );
     }
      
@@ -2206,7 +2211,7 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
     } else {
       klee::ref<Expr> v = eval(ki, 0, state).value;
 
-      Gklee::Logging::outItem( "value", v );
+      Gklee::Logging::outItem( v , "op 0 value" );
 
       ExecutionState *free = &state;
       bool hasInvalid = false, first = true;
@@ -2250,7 +2255,7 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
 #else
     klee::ref<Expr> result = eval(ki, state.incomingBBIndex[state.tinfo.get_cur_tid()] * 2, state).value;
 #endif
-    Gklee::Logging::outItem( "phi result", result );
+    Gklee::Logging::outItem( result , "phi result" );
     bindLocal(ki, state, result);
 
     break;
@@ -2265,7 +2270,7 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
     klee::ref<Expr> tExpr = eval(ki, 1, state).value;
     klee::ref<Expr> fExpr = eval(ki, 2, state).value;
     klee::ref<Expr> result = SelectExpr::create(cond, tExpr, fExpr);
-    Gklee::Logging::outItem( "select result", result );
+    Gklee::Logging::outItem( result , "select result" );
     bindLocal(ki, state, result);
     break;
   }
@@ -2535,7 +2540,7 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
       klee::ref<Expr> count = eval(ki, 0, state).value;
       count = Expr::createZExtToPointerWidth(count);
       size = MulExpr::create(size, count);
-      Gklee::Logging::outItem( "array alloc size", size );
+      Gklee::Logging::outItem( size , "array alloc size" );
     }
     bool isLocal = i->getOpcode()==Instruction::Alloca;
     executeAlloc(state, size, isLocal, ki);
@@ -2547,7 +2552,7 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
 #if LLVM_VERSION_CODE < LLVM_VERSION(2, 7)
   case Instruction::Free: {
     klee::ref<Expr> base = eval(ki, 0, state).value;
-    Gklee::Logging::outItem( "free addr", base );
+    Gklee::Logging::outItem( base , "free addr" );
     executeFree(state, base);
     break;
   }
@@ -2557,16 +2562,16 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
     KGEPInstruction *kgepi = static_cast<KGEPInstruction*>(ki);
 
     klee::ref<Expr> base = eval(ki, 0, state).value;
-    Gklee::Logging::outItem( "load addr", base );
+    Gklee::Logging::outItem( base , "load addr" );
     updateCType(state, kgepi->inst->getOperand(0), 
                 base, state.tinfo.is_GPU_mode);
 
     if (UseSymbolicConfig) {
       if (accumTaintSet.find(i) != accumTaintSet.end()) {
-	Gklee::Logging::outItem( "in taint set", "true" );
+	Gklee::Logging::outItem< std::string >( "true" , "in taint set" );
         accumStore = true;
       }
-      Gklee::Logging::outItem( "in taint set", "false" );
+      Gklee::Logging::outItem< std::string >( "false" , "in taint set" );
     }
       
     executeMemoryOperation(state, false, base, 0, ki, seqNum);
@@ -2583,7 +2588,7 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
     updateCType(state, kgepi->inst->getOperand(1), 
                 base, state.tinfo.is_GPU_mode);
 
-    Gklee::Logging::outItem( "store addr", base );
+    Gklee::Logging::outItem( base , "store addr" );
     executeMemoryOperation(state, true, base, value, ki, seqNum);
     //    if(GPUConfig::verbose > 0){
       //dumpInfo(writeSet, "Completed store", state);
@@ -3083,7 +3088,7 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
 void Executor::constructSharedMemory(ExecutionState &state, unsigned bid) {
   // Fake that there is an Alloca instruction occurring here
   // The parameter is obtained by referring the global objects.
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, std::string( "bid:") + 
+  Gklee::Logging::enterFunc< std::string >( __PRETTY_FUNCTION__, std::string( "bid:") + 
 			     std::to_string( bid ));  
   std::map<const llvm::GlobalValue*, MemoryObject*>::iterator it;
   for (it = globalObjects.begin(); it != globalObjects.end(); it++) {
@@ -3107,7 +3112,7 @@ void Executor::constructSharedMemory(ExecutionState &state, unsigned bid) {
             std::cout << "The newly constructed shared memory base addr: " << std::endl;
             sharemo->getBaseExpr()->dump();   
           }
-	  Gklee::Logging::outItem( "base addr", sharemo->getBaseExpr() );
+	  Gklee::Logging::outItem< klee::ref< klee::Expr >>( sharemo->getBaseExpr() , "base addr" );
           Cell *c = new Cell();
           SharedMemoryObject *shareMemObj = new SharedMemoryObject(state.getKernelNum(), glmo, c);
           std::string str;
@@ -3131,7 +3136,7 @@ void Executor::constructSharedMemory(ExecutionState &state, unsigned bid) {
 
 // clear the shared memories ...
 void Executor::clearSharedMemory(ExecutionState &state) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
   /*unsigned i = 0;
   std::cout << "size: " << sharedObjects.size() << std::endl;
   std::vector< std::pair<MemoryObject*, MemoryObject*> >::iterator vit;
@@ -3150,7 +3155,7 @@ void Executor::callIntrinsicFunction(ExecutionState &state,
 				     KInstruction *ki,
 				     Function *f,
 				     std::vector< klee::ref<Expr> > &arguments) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, f->getName());  
+  Gklee::Logging::enterFunc( f->getName().str(), __PRETTY_FUNCTION__ );  
   std::string f_name = f->getName();
   bool b = false;
   llvm::Module* currModule = kmodule->module;
@@ -3184,7 +3189,7 @@ void Executor::callIntrinsicFunction(ExecutionState &state,
 
 static bool enterRealGPUKernel(std::string kernelName, 
                                std::set<std::string> &kernelSet) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+  Gklee::Logging::enterFunc( std::string( "Searching kernelset.txt" ), __PRETTY_FUNCTION__ );  
   bool isReal = false;
   for (std::set<std::string>::iterator si = kernelSet.begin(); 
        si != kernelSet.end(); si++) {
@@ -3193,7 +3198,7 @@ static bool enterRealGPUKernel(std::string kernelName,
       break;
     }
   }
-  Gklee::Logging::outItem( "return", std::to_string( isReal ));
+  Gklee::Logging::outItem( std::to_string( isReal ), "return" );
   Gklee::Logging::exitFunc();
   return isReal;
 }
@@ -3204,7 +3209,7 @@ void Executor::executeCall(ExecutionState &state,
                            std::vector< klee::ref<Expr> > &arguments, 
                            unsigned seqNum) {
 
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, f->getName().str());  
+  Gklee::Logging::enterFunc( f->getName().str(), __PRETTY_FUNCTION__ );  
   if (state.tinfo.kernel_call) {
     if (f) {
       std::string kernelName = f->getName().str();
@@ -3224,6 +3229,7 @@ void Executor::executeCall(ExecutionState &state,
       // ExecutionState::varargs
     case Intrinsic::vastart:  {
       StackFrame &sf = state.getCurStack().back();
+      
       assert(sf.varargs && 
              "vastart called in function with no vararg object");
 
@@ -3292,8 +3298,8 @@ void Executor::executeCall(ExecutionState &state,
     KFunction *kf = kmodule->functionMap[f];
     state.pushFrame(state.getPrevPC(), kf);
     state.setPC(kf->instructions);
-        
-    if (statsTracker)
+    Gklee::Logging::outItem< std::string >( "show caller and kf info" , "pushing new stack frame on current stack" );
+     if (statsTracker)
       statsTracker->framePushed(state, &state.getCurStack()[state.getCurStack().size()-2]);
  
      // TODO: support "byval" parameter attribute
@@ -3358,7 +3364,7 @@ void Executor::executeCall(ExecutionState &state,
         }
       }
     }
-
+    Gklee::Logging::outItem< std::string >( "list arg names" , "Binding arguments" );
     unsigned numFormals = f->arg_size();
     for (unsigned i=0; i<numFormals; ++i) 
       bindArgument(kf, i, state, arguments[i]);
@@ -3368,7 +3374,7 @@ void Executor::executeCall(ExecutionState &state,
 
 
 void Executor::printFileLine(ExecutionState &state, KInstruction *ki) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
   const InstructionInfo &ii = *ki->info;
   if (ii.file != "") 
     std::cerr << "     " << ii.file << ":" << ii.line << ":";
@@ -3379,9 +3385,10 @@ void Executor::printFileLine(ExecutionState &state, KInstruction *ki) {
 
 
 void Executor::updateStates(ExecutionState *current) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
   if (searcher) {
     searcher->update(current, addedStates, removedStates);
+    Gklee::Logging::outItem< std::string >( "updating with added and removed states" , "searcher" );
   }
   
   states.insert(addedStates.begin(), addedStates.end());
@@ -3398,7 +3405,7 @@ void Executor::updateStates(ExecutionState *current) {
       seedMap.find(es);
     if (it3 != seedMap.end())
       seedMap.erase(it3);
-    Gklee::Logging::outItem( "removing ptree node from current state", "" );
+    Gklee::Logging::outItem< std::string >( "" , "removing ptree node from current state" );
     processTree->remove(es->ptreeNode);
     delete es;
   }
@@ -3407,7 +3414,7 @@ void Executor::updateStates(ExecutionState *current) {
 }
 
 void Executor::contextSwitchToNextThread(ExecutionState &state) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
   if (!UseSymbolicConfig) {
     bool moveToNextWarp = false;
     bool hasDeadlock = false;
@@ -3439,7 +3446,7 @@ void Executor::contextSwitchToNextThread(ExecutionState &state) {
                      << time << std::endl;
           state.concreteTimeVec.push_back(time);
           concreteStart = clock();  
-	  Gklee::Logging::outItem( "moving to next warp", "" );
+	  Gklee::Logging::outItem< std::string >( "" , "moving to next warp" );
           if (state.tinfo.allEndKernel) {
             kernelFunc = NULL;
             state.tinfo.is_GPU_mode = false;
@@ -3461,7 +3468,7 @@ void Executor::contextSwitchToNextThread(ExecutionState &state) {
     bool newBI = false;
     state.tinfo.incParametricFlow(state.cTidSets, state.getCurrentParaTree(), 
                                   newBI);
-    Gklee::Logging::outItem( "inc parametric flow", "" );
+    Gklee::Logging::outItem< std::string >( "" , "inc parametric flow" );
     if (newBI) {
       symEnd = clock();
       double time = (double)(symEnd-symStart)/CLOCKS_PER_SEC;
@@ -3490,7 +3497,7 @@ void Executor::contextSwitchToNextThread(ExecutionState &state) {
 }
 
 void Executor::bindModuleConstants() {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
   for (std::vector<KFunction*>::iterator it = kmodule->functions.begin(),
          ie = kmodule->functions.end(); it != ie; ++it) {
     KFunction *kf = *it;
@@ -3507,7 +3514,7 @@ void Executor::bindModuleConstants() {
 }
 
 static bool determineBranchType(Instruction *inst) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
   if (inst->getOpcode() == Instruction::Br) {
     Gklee::Logging::exitFunc();
     return true;
@@ -3520,7 +3527,7 @@ static bool determineBranchType(Instruction *inst) {
 static klee::ref<Expr> constructInheritExpr(ExecutionState &state, 
                                       ParaTree &paraTree, klee::ref<Expr> &tdcCond) {
 
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, tdcCond );  
+  Gklee::Logging::enterFunc( tdcCond , __PRETTY_FUNCTION__ );  
   ParaTreeNode *current = paraTree.getCurrentNode();
   klee::ref<Expr> expr;
   if (current == NULL) {
@@ -3540,7 +3547,7 @@ static klee::ref<Expr> constructInheritExpr(ExecutionState &state,
   // Simplify the inherit condition 
   expr = state.constraints.simplifyExpr(expr);
   tdcCond = state.constraints.simplifyExpr(tdcCond);
-  Gklee::Logging::outItem( "return", expr );
+  Gklee::Logging::outItem( expr , "return" );
   Gklee::Logging::exitFunc();
   return expr;
 }
@@ -3549,10 +3556,10 @@ static klee::ref<Expr> constructInheritExpr(ExecutionState &state,
 // Fork a new parametric flow based on BDC (block-dependent conditional) 
 // or TDC (thread-dependent conditional)
 bool Executor::forkNewParametricFlow(ExecutionState &state, KInstruction *ki) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
   Instruction *i = ki->inst;
   klee::ref<Expr> cond = eval(ki, 0, state).value;
-  Gklee::Logging::outItem( "new para flow cond", cond );
+  Gklee::Logging::outItem( cond , "new para flow cond" );
   //std::cout << "cond in forkNewSymbolicFlow: " << std::endl;
   //cond->dump();
 
@@ -3570,7 +3577,7 @@ bool Executor::forkNewParametricFlow(ExecutionState &state, KInstruction *ki) {
     klee::ref<Expr> inheritCond = constructInheritExpr(state, pTree, tdcCond);
     ParaTreeNode *paraNode = new ParaTreeNode(i, postDom, SYM, isCondBr, 
                                               false, inheritCond, tdcCond);
-    Gklee::Logging::outItem( "constructed new paraNode", "related to sym" );
+    Gklee::Logging::outItem< std::string >( "related to sym" , "constructed new paraNode" );
     pTree.insertNodeIntoParaTree(paraNode);
     ParaConfig config(state.tinfo.get_cur_bid(), 
                       state.tinfo.get_cur_tid(), 
@@ -3589,7 +3596,7 @@ bool Executor::forkNewParametricFlow(ExecutionState &state, KInstruction *ki) {
 
         ParaTreeNode *paraNode = new ParaTreeNode(i, postDom, TDC, isCondBr, 
                                                   false, inheritCond, tdcCond);
-	Gklee::Logging::outItem( "constructed new paraNode", "related to builtin" );
+	Gklee::Logging::outItem< std::string >( "related to builtin" , "constructed new paraNode" );
         pTree.insertNodeIntoParaTree(paraNode);
         state.tinfo.warpInBranch = true;
         // update two branches of BDC or TDC
@@ -3657,14 +3664,14 @@ bool Executor::forkNewParametricFlow(ExecutionState &state, KInstruction *ki) {
       builtInFork = true;
     }
   }
-  Gklee::Logging::outItem( "return", std::to_string( builtInFork ));
+  Gklee::Logging::outItem( std::to_string( builtInFork ), "return" );
   Gklee::Logging::exitFunc();
   return builtInFork; 
 }
 
 bool Executor::forkNewParametricFlowUnderRacePrune(ExecutionState &state, 
                                                    KInstruction *ki) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
   Instruction *i = ki->inst;
   klee::ref<Expr> cond = eval(ki, 0, state).value;
   //std::cout << "cond in forkNewSymbolicFlow in [RacePrune]: " << std::endl;
@@ -3785,7 +3792,7 @@ bool Executor::forkNewParametricFlowUnderRacePrune(ExecutionState &state,
 }
 
 static void constructSymInputVec(ExecutionState &state) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
   std::string bidArray = "bid_arr";
   std::string tidArray = "tid_arr";
 
@@ -3804,7 +3811,7 @@ static void constructSymInputVec(ExecutionState &state) {
 }
 
 void Executor::updateParaTreeSet(ExecutionState &state) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
   ParaTreeVec paraTreeVec;
   for (unsigned i = 0; i < state.cTidSets.size(); i++) {
     if (state.cTidSets[i].slotUsed) {
@@ -3819,7 +3826,7 @@ void Executor::updateParaTreeSet(ExecutionState &state) {
 } 
 
 void Executor::updateParaTreeSetUnderRacePrune(ExecutionState &state) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
   ParaTreeVec paraTreeVec;
   bool firstNonKeep = false;
   unsigned nonKeep = 0;
@@ -3865,7 +3872,7 @@ void Executor::updateParaTreeSetUnderRacePrune(ExecutionState &state) {
 }
 
 void Executor::handleEnterGPUMode(ExecutionState &state) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
   GKLEE_INFO2 << "Start executing a GPU kernel \n\n";
   state.tinfo.kernel_call = false;
   state.tinfo.is_GPU_mode = true;
@@ -3877,6 +3884,9 @@ void Executor::handleEnterGPUMode(ExecutionState &state) {
   
   state.incKernelNum();
   state.BINum = 1;
+  Gklee::Logging::outItem( std::string( "BI#:1, Kern#:" ) +
+			   std::to_string( state.kernelNum ),
+			   "inc kernel# and set BINum" );
   // handle 'extern __shared__' case ...
   if (state.maxKernelSharedSize > 0) {
     initializeExternalSharedGlobals(state); 
@@ -3884,6 +3894,7 @@ void Executor::handleEnterGPUMode(ExecutionState &state) {
   // now synchronize the PCs of all the threads
   // the stacks of each thread should be equal to that of thread 0
   state.tinfo.synchronizePCs();
+  Gklee::Logging::outItem< std::string >( "PCs and stacks" , "Synch threads" );
   for (unsigned i = 1; i < state.tinfo.get_num_threads(); i++)
     state.stacks[i] = state.stacks[0];
 
@@ -3912,13 +3923,17 @@ void Executor::handleEnterGPUMode(ExecutionState &state) {
     updateParaTreeSet(state);
     constructSymInputVec(state);
     symStart = clock();
+    Gklee::Logging::outItem(std::string( "symExecuteSet, ") +
+			    "symParaTreeVec, push new paraTreeSet, " +
+			    "push empty to state.tinfo.symExecuteSet",
+			    "Clearing state" );
   }
   Gklee::Logging::exitFunc();
 }
 
 void Executor::updateConstantTable(unsigned kernelNum) {
   // update the constant table according to the externSharedSet 
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
   unsigned i = 0;
   for (; i < externSharedSet.size(); i++) {
     ExternSharedVar &var = externSharedSet[i][0];
@@ -3938,7 +3953,7 @@ void Executor::updateConstantTable(unsigned kernelNum) {
 }
 
 static std::string strip(std::string &in) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
   unsigned len = in.size();
   unsigned lead = 0, trail = len;
   while (lead<len && isspace(in[lead]))
@@ -3952,7 +3967,7 @@ static std::string strip(std::string &in) {
 
  void Executor::configurateGPUKernelSet() {     
    //  const char* c_file = "kernelSet.txt";                                                              
-   Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+   Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
    DIR* dir = opendir(".");
    while( dir ){
      struct dirent* di = readdir( dir );
@@ -3976,7 +3991,7 @@ static std::string strip(std::string &in) {
 
 void Executor::run(ExecutionState &initialState) {
 
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, initialState.getPC()->info->file );
+  Gklee::Logging::enterFunc( initialState.getPC()->info->file , __PRETTY_FUNCTION__ );
    
   bindModuleConstants();
 
@@ -4112,7 +4127,7 @@ void Executor::run(ExecutionState &initialState) {
             }
           } else state.tinfo.just_enter_GPU_mode = false;
         }
-      } else {
+      } else { //SYMBOLIC CONFIG!
         if (!state.tinfo.just_enter_GPU_mode) {
           if (!kernelFunc) {
             kernelFunc = ki->inst->getParent()->getParent(); 
@@ -4189,7 +4204,7 @@ void Executor::run(ExecutionState &initialState) {
 
 std::string Executor::getAddressInfo(ExecutionState &state, 
                                      klee::ref<Expr> address) const{
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
   std::ostringstream info;
   info << "\taddress: " << address << "\n";
   uint64_t example;
@@ -4242,7 +4257,7 @@ std::string Executor::getAddressInfo(ExecutionState &state,
 }
 
 void Executor::terminateState(ExecutionState &state) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
   if (replayOut && replayPosition!=replayOut->numObjects) {
     klee_warning_once(replayOut, 
                       "replay did not consume all objects in test input.");
@@ -4270,7 +4285,7 @@ void Executor::terminateState(ExecutionState &state) {
 }
 
 void Executor::concludeExploredTime(ExecutionState &state) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
   double totalTime = 0.0;
   if (UseSymbolicConfig) {
     unsigned pathNum = interpreterHandler->getNumPathsExplored();
@@ -4342,7 +4357,7 @@ void Executor::concludeExploredTime(ExecutionState &state) {
 }
 
 void Executor::concludeRateStatistics(ExecutionState &state) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
   unsigned pathNum = interpreterHandler->getNumPathsExplored();
   pathNum++;
   std::cout << "path num explored here: " << pathNum << std::endl; 
@@ -4444,7 +4459,7 @@ void Executor::concludeRateStatistics(ExecutionState &state) {
 }
 
 void Executor::processPerformDefectTestCase(ExecutionState &state) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
   if (!PerformTest){
     Gklee::Logging::exitFunc();
     return;
@@ -4462,7 +4477,7 @@ void Executor::processPerformDefectTestCase(ExecutionState &state) {
 
 void Executor::terminateStateEarly(ExecutionState &state, 
                                    const Twine &message) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
   if (!OnlyOutputStatesCoveringNew || state.coveredNew ||
       (AlwaysOutputSeeds && seedMap.count(&state))) {
     interpreterHandler->processTestCase(state, (message + "\n").str().c_str(),
@@ -4477,7 +4492,7 @@ void Executor::terminateStateEarly(ExecutionState &state,
 }
 
 void Executor::terminateStateOnExit(ExecutionState &state) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
   if (!OnlyOutputStatesCoveringNew || state.coveredNew || 
       (AlwaysOutputSeeds && seedMap.count(&state))) {
     interpreterHandler->processTestCase(state, 0, 0);
@@ -4503,7 +4518,7 @@ void Executor::terminateStateOnError(ExecutionState &state,
                                      const llvm::Twine &messaget,
                                      const char *suffix,
                                      const llvm::Twine &info) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
   std::string message = messaget.str();
   static std::set< std::pair<Instruction*, std::string> > emittedErrors;
   const InstructionInfo &ii = *state.getPrevPC()->info;
@@ -4582,7 +4597,7 @@ void Executor::callExternalFunction(ExecutionState &state,
                                     Function *function,
                                     std::vector< klee::ref<Expr> > &arguments) {
 
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
   // check if specialFunctionHandler wants it
   if (specialFunctionHandler->handle(state, function, target, arguments)){
     Gklee::Logging::exitFunc();
@@ -4688,7 +4703,7 @@ void Executor::callExternalFunction(ExecutionState &state,
 
 klee::ref<Expr> Executor::replaceReadWithSymbolic(ExecutionState &state, 
                                             klee::ref<Expr> e) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
   unsigned n = interpreterOpts.MakeConcreteSymbolic;
   if (!n || replayOut || replayPath){
     Gklee::Logging::exitFunc();
@@ -4722,7 +4737,7 @@ void Executor::executeMakeSymbolic(ExecutionState &state,
                                    const MemoryObject *mo,
                                    const std::string &name) {
 
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
   // Create a new object state for the memory object (instead of a copy).
   if (!replayOut) {
     // Find a unique name for this array.  First try the original name,
@@ -4813,7 +4828,7 @@ void Executor::runFunctionAsMain(Function *f,
 				 int argc,
 				 char **argv,
 				 char **envp) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
   std::vector<klee::ref<Expr> > arguments;
 
   // force deterministic initialization of memory objects
@@ -4921,7 +4936,7 @@ void Executor::runFunctionAsMain(Function *f,
 }
 
 unsigned Executor::getPathStreamID(const ExecutionState &state) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
   assert(pathWriter);
   auto id = state.pathOS.getID();
   Gklee::Logging::exitFunc();
@@ -4929,7 +4944,7 @@ unsigned Executor::getPathStreamID(const ExecutionState &state) {
 }
 
 unsigned Executor::getSymbolicPathStreamID(const ExecutionState &state) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
   assert(symPathWriter);
   auto id = state.symPathOS.getID();
   Gklee::Logging::exitFunc();
@@ -4939,7 +4954,7 @@ unsigned Executor::getSymbolicPathStreamID(const ExecutionState &state) {
 void Executor::getConstraintLog(const ExecutionState &state,
                                 std::string &res,
                                 bool asCVC) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
   if (asCVC) {
     Query query(state.constraints, ConstantExpr::alloc(0, Expr::Bool));
     char *log = solver->stpSolver->getConstraintLog(query);
@@ -4954,7 +4969,7 @@ void Executor::getConstraintLog(const ExecutionState &state,
 }
 
 bool Executor::getSymbolicConfig(ExecutionState &state, klee::ref<Expr> cond) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
   solver->setTimeout(stpTimeout);
 
   ExecutionState tmp(state); 
@@ -5001,7 +5016,7 @@ bool Executor::getSymbolicConfigSolution(ExecutionState &state, klee::ref<Expr> 
                                          std::vector<SymBlockID_t> &symBlockIDs, 
                                          std::vector<SymThreadID_t> &symThreadIDs, 
                                          SymBlockDim_t &symBlockDim) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
   solver->setTimeout(stpTimeout);
 
   ExecutionState tmp(state);
@@ -5107,7 +5122,7 @@ bool Executor::getSymbolicConfigSolution(ExecutionState &state, klee::ref<Expr> 
 
 bool Executor::dumpOffsetValue(const ExecutionState &state, 
                                klee::ref<Expr> offset) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
   solver->setTimeout(stpTimeout);
 
   ExecutionState tmp(state);
@@ -5177,7 +5192,7 @@ bool Executor::getConditionSolution(const ExecutionState &state,
                                     std::pair<std::string,
                                     std::vector<unsigned char> > >
                                     &res) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, condition );  
+  Gklee::Logging::enterFunc( condition , __PRETTY_FUNCTION__ );  
   solver->setTimeout(stpTimeout);
 
   ExecutionState tmp(state);
@@ -5205,7 +5220,7 @@ bool Executor::getSymbolicSolution(const ExecutionState &state,
                                    std::pair<std::string,
                                    std::vector<unsigned char> > >
                                    &res) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
   solver->setTimeout(stpTimeout);
 
   ExecutionState tmp(state);
@@ -5246,18 +5261,18 @@ bool Executor::getSymbolicSolution(const ExecutionState &state,
     res.push_back(std::make_pair(state.symbolics[i].first->name, values[i]));
     // dumpInfo += state.symbolics[i].first->name + std::to_string( values[i] );
   }
-  // Gklee::Logging::outItem( "sym info: ", dumpInfo );
+  // Gklee::Logging::outItem( dumpInfo , "sym info: " );
   Gklee::Logging::exitFunc();
   return true;
 }
 
 void Executor::getCoveredLines(const ExecutionState &state,
                                std::map<const std::string*, std::set<unsigned> > &res) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
   res = state.coveredLines;
   std::string clines;
   for(auto x: state.coveredLines) clines +=  *x.first;
-  Gklee::Logging::outItem( "covered lines: ", clines );
+  Gklee::Logging::outItem( clines , "covered lines: " );
   Gklee::Logging::exitFunc();  
 }
 
@@ -5266,7 +5281,7 @@ void Executor::doImpliedValueConcretization(ExecutionState &state,
                                             klee::ref<ConstantExpr> value) {
   abort(); // FIXME: Broken until we sort out how to do the write back.
 
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
   if (DebugCheckForImpliedValues)
     ImpliedValue::checkForImpliedValues(solver->solver, e, value);
 
@@ -5298,10 +5313,10 @@ void Executor::doImpliedValueConcretization(ExecutionState &state,
 }
 
 Expr::Width Executor::getWidthForLLVMType(LLVM_TYPE_Q llvm::Type *type) const {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
   //  Gklee::Logging::outLLVMObj< llvm::Type >( *type );
   auto tsib = kmodule->targetData->getTypeSizeInBits(type);
-  Gklee::Logging::outItem( "type size: ", std::to_string( tsib )); 
+  Gklee::Logging::outItem( std::to_string( tsib ), "type size: " ); 
   Gklee::Logging::exitFunc();
   return tsib;
 }
@@ -5310,7 +5325,7 @@ Expr::Width Executor::getWidthForLLVMType(LLVM_TYPE_Q llvm::Type *type) const {
 
 Interpreter *Interpreter::create(const InterpreterOptions &opts,
                                  InterpreterHandler *ih) {
-  Gklee::Logging::enterFunc( __PRETTY_FUNCTION__, "");  
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
   auto e = new Executor(opts, ih);
   Gklee::Logging::exitFunc();
   return e;
