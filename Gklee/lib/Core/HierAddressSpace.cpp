@@ -153,29 +153,29 @@ static void extractInstFromSourceCode(std::ostream& os, MDNode *N) {
   }
 }
 
-void MemoryAccess::dump() const {
-  std::cout << "[GKLEE] Inst: " << std::endl;
+void MemoryAccess::dump( std::ostream& oss) const {
+  oss << "[GKLEE] Inst: " << std::endl;
   if (MDNode *N = instr->getMetadata("dbg")) {  // Here I is an LLVM instruction
-    extractInstFromSourceCode(std::cout, N);
+    extractInstFromSourceCode(oss, N);
     instr->dump();
   } else {
     instr->dump();
   }
 
   if (is_write) 
-    std::cout << "<W: ";
+    oss << "<W: ";
   else 
-    std::cout << "<R: ";
+    oss << "<R: ";
 
   if (mo->name.compare("unnamed") != 0)
-    std::cout << mo->name << ", ";
+    oss << mo->name << ", ";
   else
-    std::cout << mo->address << ", ";
+    oss << mo->address << ", ";
 
-  offset->print(std::cout);
-  std::cout << ":";
-  val->print(std::cout);
-  std::cout << ", b" << bid << ", t" << tid << "> " << std::endl;
+  offset->print(oss);
+  oss << ":";
+  val->print(oss);
+  oss << ", b" << bid << ", t" << tid << "> " << std::endl;
 }
 
 void MemoryAccess::dump(Executor &executor, ExecutionState &state, 
@@ -2208,21 +2208,23 @@ void AddressSpace::clearSymGlobalMemoryAccessSets() {
     symGlobalWriteSets[i].clear();
 }
 
-void AddressSpace::dump(bool rwset_only) {
+void AddressSpace::dump(bool rwset_only, std::ostream& oss, size_t indent) const {
   if (!rwset_only) {
     for (MemoryMap::iterator it = objects.begin(), ie = objects.end(); 
 	 it != ie; ++it) {
       const MemoryObject *mo = it->first;
       const ObjectState *os = it->second;
+      //if( indent > 0 ) oss << std::string( indent, '\t' );
       if (mo->name != "unnamed") 
-	GKLEE_INFO << mo->name << " (" << mo->address << ") := ";
+	oss << mo->name << " (" << mo->address << ") := ";
       else
-	GKLEE_INFO << mo->address << " := ";
+	oss << mo->address << " := ";
       for (unsigned k = 0; k < os->size/4; k++) {
-	os->read(k * 4, 32)->print(std::cout);
-	std::cout << " ";
+	os->read(k * 4, 32)->print(oss);
+	oss << " ";
       }
-      std::cout << std::endl;
+      oss << std::endl;
+      if( indent > 0 ) oss << std::string( indent, '\t' );
       // os->read(0, os->size * 8)->dump();
     }
   }
@@ -2230,14 +2232,16 @@ void AddressSpace::dump(bool rwset_only) {
   if (!readSet.empty()) {
     GKLEE_INFO << "Read Set: \n";
     for (MemoryAccessVec::const_iterator ii = readSet.begin(); ii != readSet.end(); ii++)
-      ii->dump();
-    std::cout << std::endl;
+      ii->dump( oss );
+    oss << std::endl;
+    if( indent > 0 ) oss << std::string( indent, '\t' );
   }
   if (!writeSet.empty()) {
     GKLEE_INFO << "Write Set: \n";
     for (MemoryAccessVec::const_iterator ii = writeSet.begin(); ii != writeSet.end(); ii++)
-      ii->dump();
-    std::cout << std::endl;
+      ii->dump( oss );
+    oss << std::endl;
+    if( indent > 0 ) oss << std::string( indent, '\t' );
   }
 }
 

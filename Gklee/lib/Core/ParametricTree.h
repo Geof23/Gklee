@@ -81,39 +81,12 @@ public:
   std::vector< std::set<unsigned> > divergeThreadSet; // used for checking porting race 
 
   ParaTreeNode(llvm::Instruction *_brInst, llvm::BasicBlock *_postDom,
-               SymBrType _symBrType, bool _isCondBr, bool _allSync, 
-               klee::ref<Expr> _inheritCond, klee::ref<Expr> _tdcCond):
-               brInst(_brInst), postDom(_postDom), 
-               symBrType(_symBrType), isCondBr(_isCondBr), 
-               allSync(_allSync), inheritCond(_inheritCond), 
-               tdcCond(_tdcCond) {
-    whichSuccessor = 0;
-    parent = NULL;
-  }
+	       SymBrType _symBrType, bool _isCondBr, bool _allSync, 
+	       klee::ref<Expr> _inheritCond, klee::ref<Expr> _tdcCond);
+  ParaTreeNode(const ParaTreeNode &node);
 
-  ParaTreeNode(const ParaTreeNode &node) :
-  brInst(node.brInst), postDom(node.postDom), 
-  symBrType(node.symBrType), 
-  isCondBr(node.isCondBr), allSync(node.allSync), 
-  whichSuccessor(node.whichSuccessor), 
-  inheritCond(node.inheritCond), 
-  tdcCond(node.tdcCond),
-  repThreadSet(node.repThreadSet), 
-  divergeThreadSet(node.divergeThreadSet) {
-    parent = NULL;
-    successorConfigVec = node.successorConfigVec;
-    unsigned size = node.successorTreeNodes.size();
-    for (unsigned i = 0; i < size; i++)
-      successorTreeNodes.push_back(NULL);  
-  }
-
-  ~ParaTreeNode() {
-    successorConfigVec.clear();
-    successorTreeNodes.clear();
-    repThreadSet.clear();
-    divergeThreadSet.clear();
-  }
-
+  ~ParaTreeNode();
+  
   void dumpParaTreeNode();
 };
 

@@ -1,5 +1,47 @@
 #include "CUDA.h"
 #include "ParametricTree.h"
+#include "klee/logging.h"
+
+
+ParaTreeNode::ParaTreeNode(llvm::Instruction *_brInst, llvm::BasicBlock *_postDom,
+	     SymBrType _symBrType, bool _isCondBr, bool _allSync, 
+	     klee::ref<Expr> _inheritCond, klee::ref<Expr> _tdcCond):
+  brInst(_brInst), postDom(_postDom), 
+  symBrType(_symBrType), isCondBr(_isCondBr), 
+  allSync(_allSync), inheritCond(_inheritCond), 
+  tdcCond(_tdcCond) {
+  Gklee::Logging::enterFunc( _inheritCond, _tdcCond, __PRETTY_FUNCTION__ );
+  whichSuccessor = 0;
+  parent = NULL;
+  Gklee::Logging::exitFunc();
+  }
+
+ParaTreeNode::ParaTreeNode(const ParaTreeNode &node) :
+  brInst(node.brInst), postDom(node.postDom), 
+  symBrType(node.symBrType), 
+  isCondBr(node.isCondBr), allSync(node.allSync), 
+  whichSuccessor(node.whichSuccessor), 
+  inheritCond(node.inheritCond), 
+  tdcCond(node.tdcCond),
+  repThreadSet(node.repThreadSet), 
+  divergeThreadSet(node.divergeThreadSet) {
+    Gklee::Logging::enterFunc( node.inheritCond, node.tdcCond, __PRETTY_FUNCTION__ );
+    parent = NULL;
+    successorConfigVec = node.successorConfigVec;
+    unsigned size = node.successorTreeNodes.size();
+    for (unsigned i = 0; i < size; i++)
+      successorTreeNodes.push_back(NULL);  
+    Gklee::Logging::exitFunc();
+  }
+
+ParaTreeNode::~ParaTreeNode() {
+    Gklee::Logging::enterFunc< std::string >( "destroying node", __PRETTY_FUNCTION__ );
+    successorConfigVec.clear();
+    successorTreeNodes.clear();
+    repThreadSet.clear();
+    divergeThreadSet.clear();
+    Gklee::Logging::exitFunc();
+  }
 
 void ParaTreeNode::dumpParaTreeNode() {
   if (brInst) { 

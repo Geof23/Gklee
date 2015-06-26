@@ -306,8 +306,8 @@ klee::ref<Expr> Expr::createIsZero(klee::ref<Expr> e) {
   return EqExpr::create(e, ConstantExpr::create(0, e->getWidth()));
 }
 
-void Expr::print(std::ostream &os) const {
-  ExprPPrinter::printSingleExpr(os, const_cast<Expr*>(this));
+void Expr::print(std::ostream &os, bool noNewline ) const {
+  ExprPPrinter::printSingleExpr(os, const_cast<Expr*>(this), noNewline );
 }
 
 void Expr::dump() const {

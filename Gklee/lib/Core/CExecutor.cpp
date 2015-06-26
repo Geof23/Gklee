@@ -235,7 +235,7 @@ void Executor::initializeGlobalObject(ExecutionState &state, ObjectState *os,
 void Executor::handleBuiltInVariablesAsSymbolic(ExecutionState &state, MemoryObject *mo, 
                                                 std::string vname) {
   // starting from a single symbolic thread ..
-  
+  Gklee::Logging::enterFunc< std::string >( vname, __PRETTY_FUNCTION__ );
   if (vname == "threadIdx") {
     if (GPUConfig::verbose > 0)
       GKLEE_INFO << "Found built-in variable: " << vname << "\n";
@@ -314,11 +314,12 @@ void Executor::handleBuiltInVariablesAsSymbolic(ExecutionState &state, MemoryObj
     state.addressSpace.getAddressSpace(GPUConfig::HOST).bindObject(state.tinfo.sym_gdim_mo, gdimos);
     state.addSymbolic(state.tinfo.sym_gdim_mo, symGDimArray);
   }
+  Gklee::Logging::exitFunc();
 }
 
 void Executor::handleBuiltInVariables(ExecutionState &state, MemoryObject* mo, 
 				      std::string vname) {
-  
+  Gklee::Logging::enterFunc< std::string >( vname, __PRETTY_FUNCTION__ );
   if (GPUConfig::verbose > 0 && 
       vname.compare(0, 5, "llvm.") && vname.compare(0, 4, ".str")) {   // don't print LLVM variables
     llvm::errs() << "Global: " << vname << " : " 
@@ -398,9 +399,11 @@ void Executor::handleBuiltInVariables(ExecutionState &state, MemoryObject* mo,
     state.tinfo.grid_size_os = os;
     builtInSet.insert(vname);
   }
+  Gklee::Logging::exitFunc();
 }
 
 void Executor::initializeMissedBuiltInVariables(ExecutionState &state) {
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );
   std::vector<std::string> totalVec;
   totalVec.push_back("gridDim");
   totalVec.push_back("blockDim");
@@ -429,12 +432,14 @@ void Executor::initializeMissedBuiltInVariables(ExecutionState &state) {
       builtInSet.insert(totalVec[i]);
     } 
   }
+  Gklee::Logging::exitFunc();
 }
 
 extern void *__dso_handle __attribute__ ((__weak__));
 
 // Handle extern __shared__ case ...
 void Executor::initializeExternalSharedGlobals(ExecutionState &state) {
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );
   Module *m = kmodule->module;
 
   for (Module::const_global_iterator gi = m->global_begin(),
@@ -495,9 +500,11 @@ void Executor::initializeExternalSharedGlobals(ExecutionState &state) {
       }
     }
   }
+  Gklee::Logging::exitFunc();
 }
 
 void Executor::initializeGlobals(ExecutionState &state) {
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );
   Module *m = kmodule->module;
 
   if (m->getModuleInlineAsm() != "")
@@ -512,6 +519,7 @@ void Executor::initializeGlobals(ExecutionState &state) {
   // since reading/writing via a function pointer is unsupported anyway.
   for (Module::iterator i = m->begin(), ie = m->end(); i != ie; ++i) {
     Function *f = i;
+    Gklee::Logging::outItem( f->getName().str(), "adding function to Executor global addresses" );
     klee::ref<ConstantExpr> addr(0);
 
     // If the symbol has external weak linkage then it is implicitly
@@ -569,6 +577,7 @@ void Executor::initializeGlobals(ExecutionState &state) {
       MemoryObject *mo = memory->allocate(size, false, true, false, 
                                           is_GPU_mode, i);
       std::string vname = i->getName().str();
+      Gklee::Logging::outItem( vname, "adding global variable" );
 
       // handle built-in variables
       if (UseSymbolicConfig)
@@ -624,6 +633,7 @@ void Executor::initializeGlobals(ExecutionState &state) {
                               is_GPU_mode, &*i);
 	mo->setName(i->getName().str());
       }
+      Gklee::Logging::outItem( *mo, mo->getName() );
       assert(mo && "out of memory");
       std::string vname = i->getName().str();
 
@@ -673,6 +683,8 @@ void Executor::initializeGlobals(ExecutionState &state) {
     std::cout << "\n **************** The contents of the memories (excluding the CPU memory)\n";
     state.addressSpace.dump();
   }
+  Gklee::Logging::outItem( state.addressSpace, "total memory state" );
+  Gklee::Logging::exitFunc();
 }
 
 template <typename TypeIt>
@@ -1056,6 +1068,7 @@ void Executor::executeMemoryOperation(ExecutionState &state,
 }
 
 void Executor::executeNoMemoryCoalescing(ExecutionState &state, klee::ref<Expr> &noMCCond) {
+  Gklee::Logging::enterFunc( noMCCond, std::string( __PRETTY_FUNCTION__ ));
   if (GPUConfig::verbose > 0){
     std::cout << "No memory coalescing condition: " << std::endl;
     noMCCond->dump();
@@ -1066,6 +1079,7 @@ void Executor::executeNoMemoryCoalescing(ExecutionState &state, klee::ref<Expr> 
   interpreterHandler->processTestCase(*anoState, "execution encounters the performance defect of non-memory coalescing", "mc.err", suffix);
   traceInfo.empty();
   delete anoState;
+  Gklee::Logging::exitFunc();
 }
 
 void Executor::executeBankConflict(ExecutionState &state, klee::ref<Expr> &bcCond) {
@@ -1130,6 +1144,7 @@ void Executor::executeAlloc(ExecutionState &state,
                             KInstruction *target,
                             bool zeroMemory,
                             const ObjectState *reallocFrom) {
+  Gklee::Logging::enterFunc( size, std::string( __PRETTY_FUNCTION__ ));
   size = toUnique(state, size);
 
   if (ConstantExpr *CE = dyn_cast<ConstantExpr>(size)) {
@@ -1147,6 +1162,7 @@ void Executor::executeAlloc(ExecutionState &state,
                 ConstantExpr::alloc(0, Context::get().getPointerWidth()));
     } else {
       ObjectState *os = bindObjectInState(state, mo, isLocal);
+      Gklee::Logging::outItem< klee::ref< klee::Expr >>( mo->getBaseExpr(), std::string( "bound constant size object in state" ));
       if (zeroMemory) {
         os->initializeToZero();
       } else {
@@ -1178,6 +1194,7 @@ void Executor::executeAlloc(ExecutionState &state,
     ExecutorUtil::copyOutConstraintUnderSymbolic(state);
 
     bool success = solver->getValue(state, size, example);
+    Gklee::Logging::outItem< klee::ref< klee::Expr >>( example, "unknown alloc size" );
     assert(success && "FIXME: Unhandled solver failure");
     (void) success;
     
@@ -1243,6 +1260,7 @@ void Executor::executeAlloc(ExecutionState &state,
       executeAlloc(*fixedSize.first, example, isLocal, 
                    target, zeroMemory, reallocFrom);
   }
+  Gklee::Logging::exitFunc();
 }
 
 void Executor::executeFree(ExecutionState &state,

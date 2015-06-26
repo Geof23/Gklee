@@ -89,7 +89,7 @@ namespace klee {
       mo = new MemoryObject(ma.mo);
     };
     
-    void dump() const;
+    void dump( std::ostream& oss = std::cout ) const;
     void dump(Executor &executor, 
               ExecutionState &state, 
               klee::ref<Expr> cond) const;
@@ -480,7 +480,7 @@ namespace klee {
     /// print out the content of the address space
     void clearGlobalMemoryAccessSets(); 
     void clearSymGlobalMemoryAccessSets(); 
-    void dump(bool rwset_only = false);
+    void dump( bool rwset_only = false, std::ostream& oss = GKLEE_INFO, size_t indent = 0 ) const;
     void clearAccessSet() { 
       readSet.clear(); 
       writeSet.clear(); 

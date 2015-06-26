@@ -59,7 +59,7 @@ public:
 
   void breakLine(unsigned indent=0) {
     os << newline;
-    if (indent)
+    if (indent && newline.length() > 0 )
       os << std::setw(indent) << ' ';
     pos = indent;
   }
@@ -481,8 +481,11 @@ void ExprPPrinter::printOne(std::ostream &os,
   PC.breakLine();
 }
 
-void ExprPPrinter::printSingleExpr(std::ostream &os, const klee::ref<Expr> &e) {
+void ExprPPrinter::printSingleExpr(std::ostream &os, const klee::ref<Expr> &e,
+				   bool noNewline ) {
   PPrinter p(os);
+
+  if( noNewline ) p.setNewline("");
 
   p.scan(e);
 
@@ -490,6 +493,8 @@ void ExprPPrinter::printSingleExpr(std::ostream &os, const klee::ref<Expr> &e) {
   // "forward declaration" with whatever syntax we pick for that.
   ExprPPrint::PrintContext PC(os);
 
+  if( noNewline ) PC.setNewline("");
+  
   p.print(e, PC);
 }
 

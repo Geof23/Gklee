@@ -227,7 +227,7 @@ void ExecutionState::setCorrespondTidSets() {
   unsigned warpNum = 0;
   unsigned tmpWarpNum = 0;
   Gklee::Logging::enterFunc< std::string >( "construct cTidSets, tinfo initThreadInfo" , __PRETTY_FUNCTION__ );
-  constructMemoryAccessSets(addressSpace, true);
+  constructMemoryAccessSets(addressSpace, true); //not used for symbolic-config
   unsigned num_threads = tinfo.get_num_threads();
 
   for (unsigned i = 0; i < num_threads; i++, rTid++) {
@@ -248,10 +248,11 @@ void ExecutionState::setCorrespondTidSets() {
     klee::ref<Expr> expr = ConstantExpr::create(1, Expr::Bool);
     cTidSets.push_back(CorrespondTid(curBid, rTid, warpNum, 
                                      false, false, false, expr));
-    Gklee::Logging::outItem( std::string( "new cTidSet" ), std::string("bid:tid:warp;") +
-			     std::to_string( curBid ) +
-			     std::to_string( rTid ) +
-			     std::to_string( warpNum ));
+    Gklee::Logging::outItem( std::string("bid:tid:warp;") +
+			     std::to_string( curBid ) + ":" +
+			     std::to_string( rTid ) + ":" +
+			     std::to_string( warpNum ),
+			     std::string( "new cTidSet" ) );
   }
   tinfo.setInitThreadInfo(cTidSets);
   Gklee::Logging::outItem< std::string >( "created cTidSets" , "initialize tinfo" );
@@ -273,7 +274,9 @@ unsigned ExecutionState::getKernelNum() {
 // create all the stacks; should be called only when the state is created
 // a thread should never call this function
 void ExecutionState::pushAllFrames(KInstIterator caller, KFunction *kf) {
-  Gklee::Logging::enterFunc< std::string >( "" , __PRETTY_FUNCTION__ );  
+  Gklee::Logging::enterFunc< std::string >( std::string( "threads: " ) +
+					    std::to_string( tinfo.get_num_threads() ), 
+					    __PRETTY_FUNCTION__ );  
   for (unsigned i = 0; i < tinfo.get_num_threads(); i++) {
     stack_ty stk;
     stk.push_back(StackFrame(caller, kf));
@@ -286,7 +289,9 @@ void ExecutionState::pushAllFrames(KInstIterator caller, KFunction *kf) {
 // destroy all the stacks; should be called only when the execution state is 
 // released a thread should never call this function
 void ExecutionState::popAllFrames() {
-  Gklee::Logging::enterFunc< std::string >( "" , __PRETTY_FUNCTION__ );  
+  Gklee::Logging::enterFunc< std::string >( std::string( "stacks: " ) +
+					    std::to_string( stacks.size()), 
+					    __PRETTY_FUNCTION__ );  
   unsigned i = 0;
   for (stacks_ty::iterator ii = stacks.begin(); ii != stacks.end(); ii++) {
     if (ii->size() > 0) {
@@ -310,7 +315,7 @@ void ExecutionState::popAllFrames() {
 }
 
 void ExecutionState::pushFrame(KInstIterator caller, KFunction *kf) {
-  Gklee::Logging::enterFunc( *kf , __PRETTY_FUNCTION__ );
+  Gklee::Logging::enterFunc( *kf, __PRETTY_FUNCTION__ );
   getCurStack().push_back(StackFrame(caller,kf));
   Gklee::Logging::exitFunc();
 }
@@ -327,7 +332,9 @@ void ExecutionState::popFrame() {
 }
 
 void ExecutionState::addSymbolic(const MemoryObject *mo, const Array *array) {
-  Gklee::Logging::enterFunc( mo->getName(), __PRETTY_FUNCTION__ );
+  Gklee::Logging::enterFunc( std::string( "mo name: " ) +
+			     mo->getName() + " array name: " +
+			     array->name, __PRETTY_FUNCTION__ );
   mo->refCount++;
   symbolics.push_back(std::make_pair(mo, array));
   Gklee::Logging::exitFunc();

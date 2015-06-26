@@ -193,7 +193,7 @@ public:
   virtual unsigned getNumKids() const = 0;
   virtual klee::ref<Expr> getKid(unsigned i) const = 0;
     
-  virtual void print(std::ostream &os) const;
+  virtual void print(std::ostream &os, bool noNewline = false) const;
 
   /// dump - Print the expression to stderr.
   void dump() const;

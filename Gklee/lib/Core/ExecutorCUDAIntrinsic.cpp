@@ -91,6 +91,9 @@ void Executor::encounterBarrier(ExecutionState &state,
 	   		        KInstruction *target,
 				bool is_end_GPU_barrier, 
                                 bool &allThreadsBarrier) {
+  Gklee::Logging::enterFunc< std::string >( std::string( "current thread: " ) + 
+					    std::to_string( state.tinfo.get_cur_tid()),
+					    __PRETTY_FUNCTION__ );
   if (GPUConfig::verbose > 0 || UseSymbolicConfig)
     std::cout << "Thread " << state.tinfo.get_cur_tid()
 	      << " reaches a barrier: moving to the next thread.\n";
@@ -107,7 +110,7 @@ void Executor::encounterBarrier(ExecutionState &state,
     allThreadsBarrier = SimdSchedule ? state.allThreadsEncounterBarrier() : state.tinfo.at_last_tid();
   else 
     allThreadsBarrier = state.allSymbolicThreadsEncounterBarrier();
-
+  Gklee::Logging::outItem< std::string >( std::to_string( allThreadsBarrier ), "all threads at barrier" );
   if (allThreadsBarrier) {
     unsigned BINum = state.tinfo.numBars[tid].first.size();
 
@@ -137,7 +140,7 @@ void Executor::encounterBarrier(ExecutionState &state,
 	  }
 	}
       }
-    } else {
+    } else { //symbolic config
       // Check if the memory access is thread parametric ...
       if (state.addressSpace.hasMismatchBarrierInParametricFlow(*this, state)) {
         std::cout << "Found a deadlock: #barriers at the flows:\n";
@@ -240,12 +243,15 @@ void Executor::encounterBarrier(ExecutionState &state,
   if (!UseSymbolicConfig) {
     if (!SimdSchedule) state.tinfo.incTid();
   }
+  Gklee::Logging::exitFunc();
 }
 
 void Executor::handleBarrier(ExecutionState &state,
 	   		     KInstruction *target) {
+  Gklee::Logging::enterFunc< std::string>( "", __PRETTY_FUNCTION__ );
   bool allThreadsBarrier = false;
   encounterBarrier(state, target, false, allThreadsBarrier);
+  Gklee::Logging::exitFunc();
 }
 
 void Executor::handleMemfence(ExecutionState &state, 
@@ -1547,24 +1553,32 @@ static bool executeCUDAConversion(Executor &executor,
 void Executor::executeCUDAIntrinsics(ExecutionState &state, KInstruction *target, 
                                      Function *f, std::vector< klee::ref<Expr> > &arguments, 
                                      unsigned seqNum) {
-
+  Gklee::Logging::enterFunc( arguments, __PRETTY_FUNCTION__ );
+  Gklee::Logging::outItem< std::string >( f->getName(), "func name" );
   std::string fName = f->getName().str();
 
   // Some functions in host code are also able to reuse those functions
   if (state.tinfo.is_GPU_mode) {
-    if (executeCUDAArithmetic(*this, state, target, f, arguments))
+    if (executeCUDAArithmetic(*this, state, target, f, arguments)){
+      Gklee::Logging::exitFunc();
       return;
+    }
 
-    if (executeCUDAConversion(*this, state, target, f, arguments))
+    if (executeCUDAConversion(*this, state, target, f, arguments)){
+      Gklee::Logging::exitFunc();
       return;
+    }
 
-    if (executeCUDAAtomic(state, target, fName, arguments, seqNum))
+    if (executeCUDAAtomic(state, target, fName, arguments, seqNum)) {
+      Gklee::Logging::exitFunc();
       return;
+    }
 
     for (unsigned i = 0; i < NELEMS(CUDAMemfence); i++) {
       if (fName.find(CUDAMemfence[i]) != std::string::npos) {
         // No need to write function body for thread_fence intrinsics
         handleMemfence(state, target);
+	Gklee::Logging::exitFunc();
         return; 
       }
     }
@@ -1572,15 +1586,18 @@ void Executor::executeCUDAIntrinsics(ExecutionState &state, KInstruction *target
     for (unsigned i = 0; i < NELEMS(CUDASync); i++) {
       if (fName.find(CUDASync[i]) != std::string::npos) {
         handleBarrier(state, target);
+	Gklee::Logging::exitFunc();
         return; 
       }
     }
   }
 
-  //temp fix for cleanup problem (see branch) 
+  //temp fix for cleanup problem (see branch) -- this should be unnecessary, as it's handled in kleeUclibc, I 
+  // think we're neglecting to use that
   if( fName != "__cxa_atexit" ){ //&& 
     //fName.find( "GLOBAL" ) == std::string::npos ){
     callExternalFunction(state, target, f, arguments);
   }
   //  callExternalFunction(state, target, f, arguments);
+  Gklee::Logging::exitFunc();
 }

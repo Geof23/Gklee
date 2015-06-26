@@ -1642,7 +1642,7 @@ static inline const llvm::fltSemantics * fpWidthToSemantics(unsigned width) {
 }
 
 bool ExecutorUtil::isForkInstruction(Instruction *inst) {
-  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
+  Gklee::Logging::enterFunc( *inst, __PRETTY_FUNCTION__ );  
   if (inst->getOpcode() == Instruction::Br) {
     if (BranchInst *bi = cast<BranchInst>(inst)) {
       if (bi->isConditional()){
@@ -3088,8 +3088,9 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
 void Executor::constructSharedMemory(ExecutionState &state, unsigned bid) {
   // Fake that there is an Alloca instruction occurring here
   // The parameter is obtained by referring the global objects.
-  Gklee::Logging::enterFunc< std::string >( __PRETTY_FUNCTION__, std::string( "bid:") + 
-			     std::to_string( bid ));  
+  Gklee::Logging::enterFunc< std::string >( std::string( "bid:") + 
+					    std::to_string( bid ),
+					    __PRETTY_FUNCTION__ );  
   std::map<const llvm::GlobalValue*, MemoryObject*>::iterator it;
   for (it = globalObjects.begin(); it != globalObjects.end(); it++) {
     MemoryObject* glmo = (*it).second;
@@ -3218,6 +3219,8 @@ void Executor::executeCall(ExecutionState &state,
   }
 
   if (f && f->isDeclaration()) {
+    Gklee::Logging::outItem( std::string( "intrinsic?" ), 
+			     std::string( "func is declaration" ));
     //std::cout << "execute declaration: " << f->getName().str() << std::endl;
     switch(f->getIntrinsicID()) {
     case Intrinsic::not_intrinsic:
@@ -3341,6 +3344,9 @@ void Executor::executeCall(ExecutionState &state,
 
       MemoryObject *mo = sf.varargs = memory->allocate(size, true, false, false, 
                                                        state.tinfo.is_GPU_mode, state.getPrevPC()->inst);
+
+      
+      Gklee::Logging::outItem( *(mo->allocSite), "allocated args" );
       if (!mo) {
         terminateStateOnExecError(state, "out of memory (varargs)");
         symRace = true;
@@ -3464,7 +3470,7 @@ void Executor::contextSwitchToNextThread(ExecutionState &state) {
         }
       }
     }
-  } else {
+  } else { //symbolic config
     bool newBI = false;
     state.tinfo.incParametricFlow(state.cTidSets, state.getCurrentParaTree(), 
                                   newBI);
@@ -3895,6 +3901,9 @@ void Executor::handleEnterGPUMode(ExecutionState &state) {
   // the stacks of each thread should be equal to that of thread 0
   state.tinfo.synchronizePCs();
   Gklee::Logging::outItem< std::string >( "PCs and stacks" , "Synch threads" );
+  Gklee::Logging::outItem< std::string >( "Creating stack for each thread" , 
+					  std::to_string( state.tinfo.get_num_threads() ) +
+					  " threads" );
   for (unsigned i = 1; i < state.tinfo.get_num_threads(); i++)
     state.stacks[i] = state.stacks[0];
 
@@ -3904,6 +3913,9 @@ void Executor::handleEnterGPUMode(ExecutionState &state) {
   // set the corresponding tid sets...
   state.setCorrespondTidSets();
 
+  Gklee::Logging::outItem( std::string( "num blocks: " ) + 
+			   std::to_string( GPUConfig::num_blocks ),
+			   std::string( "constructing shared memory" ));
   // Then construct the shared memory region for each block... 
   for (unsigned bid = 0; bid < GPUConfig::num_blocks; bid++)
     constructSharedMemory(state, bid);
@@ -3981,6 +3993,7 @@ static std::string strip(std::string &in) {
 	 std::getline(f, line);
 	 line = strip(line);                                                           
 	 if (!line.empty())
+	   Gklee::Logging::outItem( line, dname + " item" );
 	   kernelSet.insert(line);                                         
        } 
        f.close();
@@ -4828,7 +4841,7 @@ void Executor::runFunctionAsMain(Function *f,
 				 int argc,
 				 char **argv,
 				 char **envp) {
-  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );  
+  Gklee::Logging::enterFunc< std::string >( f->getName(), __PRETTY_FUNCTION__ );  
   std::vector<klee::ref<Expr> > arguments;
 
   // force deterministic initialization of memory objects
@@ -4857,6 +4870,7 @@ void Executor::runFunctionAsMain(Function *f,
                                 is_GPU_mode, f->begin()->begin());
       
       arguments.push_back(argvMO->getBaseExpr());
+      Gklee::Logging::outItem< klee::ref< klee::Expr >>( argvMO->getBaseExpr(), "argument expression" );
 
       if (++ai!=ae) {
         uint64_t envp_start = argvMO->address + (argc+1)*NumPtrBytes;

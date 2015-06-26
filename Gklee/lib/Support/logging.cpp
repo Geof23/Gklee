@@ -8,10 +8,16 @@
 // JSON format, hierarchical by call graph
 //------------------------------------------------------------------//
 #include <cassert>
+#include <llvm/Support/raw_os_ostream.h>
+#include <llvm/Function.h>
+#include "klee/Internal/Module/KModule.h"
+
+#include "../Core/Memory.h"
+#include "../Core/AddressSpace.h"
+
+#include "klee/Expr.h"
 #include "klee/logging.h"
 
-//using namespace llvm;
-//using namespace klee;
 namespace Gklee {
 
 std::ofstream Logging::lstream;
@@ -19,6 +25,17 @@ size_t Logging::maxDepth;
 size_t Logging::level;
 bool Logging::first = true;
 size_t Logging::count = 0;
+
+template <>
+void
+Logging::enterFunc( const std::string& data, 
+		    const std::string& fName ){
+  if( initLeadComma( true )){
+    lstream << "\"" << fName << "_" << count++ << "\":" << " {" << std::endl;
+    tab();
+    lstream << "\"data\": \"" << data << "\"";
+  }
+}
 
 Logging::Logging( const std::string& logFile, size_t maxDepth ){ 
   //  std::string logFile( "log.txt" );
@@ -76,6 +93,20 @@ Logging::initLeadComma( bool newCall ){
 
 template <>
 void
+Logging::enterFunc( const klee::MemoryObject& mo,
+		    const std::string& fName ){
+  if( initLeadComma( true )){
+    lstream << "\"" << fName << "_" << count++ << "\":" << " {" << std::endl;
+    tab();
+    lstream << "\"allocInfo\": \"";
+    std::string ai;
+    mo.getAllocInfo( ai );
+    lstream << ai << "\"";
+  }
+}
+
+template <>
+void
 Logging::enterFunc( const klee::KFunction& kfunc,
 		    const std::string& fName ){
   if( initLeadComma( true )){
@@ -84,17 +115,6 @@ Logging::enterFunc( const klee::KFunction& kfunc,
     lstream << "\"frameName\": \"";
     lstream << kfunc.function->getName().str() << "\"";
     //<< data << "\"";
-  }
-}
-
-template <>
-void
-Logging::enterFunc( const std::string& data, 
-		    const std::string& fName ){
-  if( initLeadComma( true )){
-    lstream << "\"" << fName << "_" << count++ << "\":" << " {" << std::endl;
-    tab();
-    lstream << "\"data\": \"" << data << "\"";
   }
 }
 
@@ -120,9 +140,27 @@ Logging::enterFunc( const klee::ref<klee::Expr>& cond,
     tab();
     lstream << "\"data\": \"";
     if( !cond.isNull() ){
-      cond->print( lstream );
+      cond->print( lstream, true );
     }
     lstream << "\"";
+  }
+}
+
+template <>
+void
+Logging::enterFunc( const std::vector<klee::ref<klee::Expr>>& conds,
+		    const std::string& fName ){
+  if( initLeadComma( true )){
+    lstream << "\"" << fName << "_" << count++ << "\":" << " {" << std::endl;
+    tab();
+    size_t cnt = 0;
+    for(auto cond: conds){
+      if( !cond.isNull() ){
+	lstream << " \"cond_" << cnt++ << ":";
+	cond->print( lstream, true );
+	lstream << "\"";
+      }
+    }
   }
 }
 
@@ -142,12 +180,85 @@ Logging::enterFunc( const llvm::Instruction& i1,
   }
 }
 
+template <>
+void
+Logging::enterFunc( const klee::ref< klee::Expr >& e1,
+		    const klee::ref< klee::Expr >& e2,
+		    const std::string& fName ){
+  if( initLeadComma( true )){
+    lstream << "\"" << fName << "_" << count++ << "\":" << " {" << std::endl;
+    tab();
+    lstream << "\"";
+    e1->print( lstream, true );
+    lstream << ":";
+    e2->print( lstream, true );
+    lstream << "\"";
+  }
+}
+
+template<>
+void
+Logging::outItem( const klee::HierAddressSpace& as,
+		  const std::string& name ){
+  if( initLeadComma()){
+    lstream << "\"" << name << "_" << count++ << "\": \"cpu:" << std::endl;
+    tab();
+    as.cpuMemory.dump( false, lstream, level+1 );
+    lstream << std::endl;
+    tab();
+    lstream << " device:" << std::endl;
+    tab();
+    as.deviceMemory.dump( false, lstream, level+1 );
+    lstream << std::endl;
+    tab();
+    lstream << " shared:" << std::endl;
+    tab();
+    for(size_t i = 0; i < as.sharedMemories.size(); ++i){
+      lstream << "(" << i << "):" << std::endl;
+      tab();
+      as.sharedMemories[i].dump( false, lstream, level+1 );
+    }
+    lstream << std::endl;
+    tab();
+    lstream << " local (tid):" << std::endl;
+    tab();
+    for(size_t i = 0; i < as.localMemories.size(); ++i){
+      lstream << "(" << i << "):" << std::endl;
+      tab();
+      as.localMemories[i].dump( false, lstream, level+1 );
+    }
+    lstream << "\"";
+  }
+}
+
+template<>
+void
+Logging::outItem( const klee::MemoryObject& mo,
+		  const std::string& name ){
+  if( initLeadComma()){
+    std::string ai;
+    mo.getAllocInfo( ai );
+    lstream << "\"" << name << "_" << count++ << "\": " << "\"" << ai << "\"";
+  }
+}
+
 template<>
 void
 Logging::outItem( const std::string& data,
 		  const std::string& name ){
   if( initLeadComma()){
     lstream << "\"" << name << "_" << count++ << "\": " << "\"" << data << "\"";
+  }
+}
+
+template<>
+void
+Logging::outItem( const llvm::Value& data,
+		  const std::string& name ){
+  if( initLeadComma()){
+    lstream << "\"" << name << "_" << count++ << "\": " << "\"";
+    outInstruction( data );
+    lstream << "\"";
   }
 }
 
@@ -167,14 +278,15 @@ Logging::outItem( const klee::ref<klee::Expr>& cond,
   if( initLeadComma()){
     lstream << "\"" << name << "_" << count++ << "\": " << "\"";
     if( !cond.isNull() ){
-      cond->print( lstream );
+      cond->print( lstream, true );
     }
     lstream << "\"";
   }
 }
 
 void 
-Logging::outInstruction( const llvm::Instruction& val ){
+//Logging::outInstruction( const llvm::Instruction& val ){
+Logging::outInstruction( const llvm::Value& val ){ //instruction is 2nd order subclass of value
   llvm::raw_os_ostream roo( lstream );
   val.print( *(dynamic_cast< llvm::raw_ostream* >( &roo )), 
 	     (llvm::AssemblyAnnotationWriter*)NULL);
@@ -190,5 +302,4 @@ Logging::exitFunc(){
     lstream << "}";
   }
 }
-
 }

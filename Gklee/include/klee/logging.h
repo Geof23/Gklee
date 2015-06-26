@@ -12,18 +12,8 @@
 
 #include <string>
 #include <fstream>
-#include <exception>
 
 #include <llvm/Value.h>
-#include <llvm/Support/raw_os_ostream.h>
-#include <llvm/Support/Casting.h>
-#include <llvm/Instruction.h>
-#include <llvm/Function.h>
-
-#include "klee/Internal/Module/KModule.h"
-
-#include "klee/Expr.h"
-
 
 namespace Gklee {
 
@@ -34,15 +24,15 @@ class Logging{
   template<typename T>
     static void enterFunc( T const& data, const std::string& fName );
   template < typename T >
-  static void enterFunc( T const& data1,
-			 T const& data2, const std::string& fName );
+    static void enterFunc( T const& data1,
+			   T const& data2, const std::string& fName );
   template < typename T > 
     static void outItem( T const& data, const std::string& name );
   template < typename V >
-  static void outLLVMObj( const V& val );
+    static void outLLVMObj( const V& val );
   static void exitFunc();
  private:
-  static void outInstruction( const llvm::Instruction& val );
+  static void outInstruction( const llvm::Value& val );
   static bool initLeadComma( bool = false );
   static std::ofstream lstream;
   static size_t level;

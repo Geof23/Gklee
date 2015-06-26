@@ -1,6 +1,7 @@
 #include "Executor.h"
 #include "klee/Expr.h"
 #include "klee/util/ExprUtil.h"
+#include "klee/logging.h"
 #include "AddressSpace.h"
 #include "TimingSolver.h"
 #include "llvm/Support/CommandLine.h"
@@ -1672,8 +1673,11 @@ bool HierAddressSpace::hasSymVolatileMissing(Executor &executor,
 }
 
 bool HierAddressSpace::hasSymRaceInShare(Executor &executor, ExecutionState &state) {
-  if (GPUConfig::check_level == 0)  // skip checking
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );
+  if (GPUConfig::check_level == 0){  // skip checking
+    Gklee::Logging::exitFunc();
     return false;
+  }
 
   bool race = false;
   std::vector<AddressSpace>::iterator ii = sharedMemories.begin();
@@ -1685,8 +1689,10 @@ bool HierAddressSpace::hasSymRaceInShare(Executor &executor, ExecutionState &sta
   bool hasRace = false;
   if (!SimdSchedule) {
     hasRace = ii->hasSymRaceInSharePureCS(executor, state);
+    Gklee::Logging::outItem( std::to_string( hasRace ), "has race Canonical" );
   } else {
     hasRace = ii->hasSymRaceInShare(executor, state);
+    Gklee::Logging::outItem( std::to_string( hasRace ), "has race SIMD" );
   }
 
   if (hasRace) {
@@ -1695,23 +1701,29 @@ bool HierAddressSpace::hasSymRaceInShare(Executor &executor, ExecutionState &sta
   } else {
     GKLEE_INFO << "********** no races found at SharedMemory ***********" << std::endl;
   }
-  
+  Gklee::Logging::exitFunc();
   return race;
 }
 
 bool HierAddressSpace::hasSymRaceInGlobal(Executor &executor, ExecutionState &state, bool is_end_GPU_barrier) {
-  if (GPUConfig::check_level == 0)
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );
+  if (GPUConfig::check_level == 0){
+    Gklee::Logging::exitFunc();
     return false;
+  }
 
   GKLEE_INFO2 << "********** (Symbolic Config) Start checking races at DeviceMemory (Within Same Block) " 
               << " **********\n";
 
   bool race = false;
   bool hasRace = false;
-  if (!SimdSchedule)
+  if (!SimdSchedule){
     hasRace = deviceMemory.hasSymRaceInGlobalWithinBlockPureCS(executor, state); 
-  else 
+    Gklee::Logging::outItem( std::to_string( hasRace ), "has race SIMD" );
+  }else{ 
     hasRace = deviceMemory.hasSymRaceInGlobalWithinBlock(executor, state);
+    Gklee::Logging::outItem( std::to_string( hasRace ), "has race SIMD" );
+  }
 
   if (hasRace) race = true;
   
@@ -1724,6 +1736,7 @@ bool HierAddressSpace::hasSymRaceInGlobal(Executor &executor, ExecutionState &st
       GKLEE_INFO2 << "********** (Symbolic Config) Start checking races at DeviceMemory (Across Blocks) " 
                   << " **********\n";
       hasRace = deviceMemory.hasSymRaceInGlobalAcrossBlocks(executor, state, !SimdSchedule); 
+      Gklee::Logging::outItem( std::to_string( hasRace ), "has G race inter-block" );
       if (hasRace) race = true;
     }
     deviceMemory.clearSymGlobalMemoryAccessSets();
@@ -1734,7 +1747,7 @@ bool HierAddressSpace::hasSymRaceInGlobal(Executor &executor, ExecutionState &st
   } else {
     GKLEE_INFO << "********* no races found at DeviceMemory **********" << std::endl;
   }
-  
+  Gklee::Logging::exitFunc();
   return race;
 }
 

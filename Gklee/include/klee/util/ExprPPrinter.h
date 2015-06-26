@@ -54,7 +54,8 @@ namespace klee {
     /// Note that if the output stream is not positioned at the
     /// beginning of a line then printing will not resume at the
     /// correct position following any output line breaks.
-    static void printSingleExpr(std::ostream &os, const klee::ref<Expr> &e);
+    static void printSingleExpr(std::ostream &os, const klee::ref<Expr> &e, 
+				bool noNewline = false );
 
     static void printConstraints(std::ostream &os,
                                  const ConstraintManager &constraints);
