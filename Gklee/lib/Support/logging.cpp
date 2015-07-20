@@ -25,21 +25,13 @@ size_t Logging::maxDepth;
 size_t Logging::level;
 bool Logging::first = true;
 size_t Logging::count = 0;
+bool Logging::paused = false;
 
-template <>
-void
-Logging::enterFunc( const std::string& data, 
-		    const std::string& fName ){
-  if( initLeadComma( true )){
-    lstream << "\"" << fName << "_" << count++ << "\":" << " {" << std::endl;
-    tab();
-    lstream << "\"data\": \"" << data << "\"";
-  }
-}
-
-Logging::Logging( const std::string& logFile, size_t maxDepth ){ 
+  Logging::Logging( const std::string& logFile, size_t maxDepth,
+		    bool startNow) { 
   //  std::string logFile( "log.txt" );
   level = 0;
+  paused = !startNow;
   Logging::maxDepth = maxDepth;
   if( maxDepth > 0 ){
     assert( ! lstream.is_open() && "You may only have one instance of Logging" );
@@ -74,7 +66,7 @@ inline
 bool
 Logging::initLeadComma( bool newCall ){
   bool retVal = true;
-  if( level <= maxDepth ){
+  if( !paused && level < maxDepth ){
     assert(lstream.is_open() && "You must instantiate Logging before calling its methods");
     if( !first ){
       lstream << ",";
@@ -89,6 +81,17 @@ Logging::initLeadComma( bool newCall ){
     retVal = false;
   }
   return retVal;
+}
+
+template <>
+void
+Logging::enterFunc( const std::string& data, 
+		    const std::string& fName ){
+  if( initLeadComma( true )){
+    lstream << "\"" << fName << "_" << count++ << "\":" << " {" << std::endl;
+    tab();
+    lstream << "\"data\": \"" << data << "\"";
+  }
 }
 
 template <>
@@ -294,7 +297,7 @@ Logging::outInstruction( const llvm::Value& val ){ //instruction is 2nd order su
 
 void
 Logging::exitFunc(){
-  if( level <= maxDepth ){
+  if( !paused && level < maxDepth ){
     assert(lstream.is_open() && "You must instantiate Logging before calling its methods");
     lstream << std::endl;
     --level;
@@ -302,4 +305,15 @@ Logging::exitFunc(){
     lstream << "}";
   }
 }
+
+void
+Logging::start(){
+  paused = false;
+}
+
+void
+Logging::stop(){
+  paused = true;
+}
+
 }

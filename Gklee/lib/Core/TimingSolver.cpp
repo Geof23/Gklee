@@ -12,6 +12,7 @@
 #include "klee/ExecutionState.h"
 #include "klee/Solver.h"
 #include "klee/Statistics.h"
+#include "klee/logging.h"
 
 #include "CoreStats.h"
 
@@ -23,6 +24,7 @@
 
 using namespace klee;
 using namespace llvm;
+using namespace Gklee;
 
 namespace runtime {
   extern cl::opt<bool> UseSymbolicConfig;
@@ -33,9 +35,12 @@ using namespace runtime;
 bool TimingSolver::evaluate(const ExecutionState& state, klee::ref<Expr> expr,
                             Solver::Validity &result) {
 
+  Logging::enterFunc( expr, __PRETTY_FUNCTION__ );
   // Fast path, to avoid timer and OS overhead.
   if (ConstantExpr *CE = dyn_cast<ConstantExpr>(expr)) {
     result = CE->isTrue() ? Solver::True : Solver::False;
+    Logging::outItem< std::string >( "true", "Exit Val" );
+    Logging::exitFunc();
     return true;
   }
 
@@ -52,6 +57,8 @@ bool TimingSolver::evaluate(const ExecutionState& state, klee::ref<Expr> expr,
   stats::solverTime += delta.usec();
   state.queryCost += delta.usec()/1000000.;
 
+  Logging::outItem( std::to_string( success ), "Exit Val" );
+  Logging::exitFunc();
   return success;
 }
 

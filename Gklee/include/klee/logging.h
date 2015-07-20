@@ -19,7 +19,7 @@ namespace Gklee {
 
 class Logging{
  public:
-  Logging( const std::string& logFile, size_t maxDepth);
+  Logging( const std::string& logFile, size_t maxDepth, bool startNow = true );
   ~Logging();
   template<typename T>
     static void enterFunc( T const& data, const std::string& fName );
@@ -31,6 +31,8 @@ class Logging{
   template < typename V >
     static void outLLVMObj( const V& val );
   static void exitFunc();
+  static void start();
+  static void stop();
  private:
   static void outInstruction( const llvm::Value& val );
   static bool initLeadComma( bool = false );
@@ -40,38 +42,9 @@ class Logging{
   static size_t maxDepth;
   static bool first;
   static size_t count;
+  static bool paused;
 };
 
-///
-/// this is a generic -- see specific implementations in logging.cpp
-///
-
-/* template< typename T > */
-/*   void Logging::enterFunc( const std::string& fName, T const& data ){ */
-/*   if( initLeadComma()){ */
-/*     lstream << "\"" << fName << "_" << count++ << "\":" << " {" << std::endl; */
-/*     tab(); */
-/*     lstream << "\"frameName\": \""; */
-/*     lstream << data << "\""; */
-/*   } */
-/* } */
-
-/* template< typename T > */
-/*   void Logging::enterFunc( const std::string& fName, T const& data1, */
-/* 			 T const& data2 ){ */
-/*   if( initLeadComma()){ */
-/*     lstream << "\"" << fName << "_" << count++ << "\":" << " {" << std::endl; */
-/*     tab(); */
-/*     lstream << "\"" << data1 << ":" << data2 << "\""; */
-/*   } */
-/* } */
-/* template < typename T > */
-/* void Logging::outItem( const std::string& name, */
-/* 		       T const& data){ */
-/*   if( initLeadComma()){ */
-/*     lstream << "\"" << name << "_" << count++ << "\": " << "\"" << data << "\""; */
-/*   } */
-/* } */
 }
 	  
 #endif

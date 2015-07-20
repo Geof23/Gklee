@@ -10,6 +10,7 @@
 
 using namespace llvm;
 using namespace klee;
+using namespace Gklee;
 
 ///
 unsigned GPUConfig::GridSize[3] = {1,1,1};
@@ -43,28 +44,35 @@ namespace runtime {
 //********************************************************************************************
 
 const llvm::GlobalValue* CUDAUtil::getGlobalValue(const llvm::Value* v) {
+  Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );
   if (const llvm::ConstantExpr *ce = dyn_cast<llvm::ConstantExpr>(v)) {
     if (ce->getOpcode() == llvm::Instruction::GetElementPtr) {
       // std::cout << "arg0: " << ce->getOperand(0)->getNameStr() << "\n";
+      Logging::exitFunc();
       return dyn_cast<llvm::GlobalValue> (ce->getOperand(0));
     }
   }
   else if (const llvm::GlobalValue* e = dyn_cast<llvm::GlobalValue>(v)) {
+    Logging::exitFunc();
     return e;
   }
+  Logging::exitFunc();
   return NULL;
 }
 
 GPUConfig::CTYPE CUDAUtil::getCType(const llvm::Value* v, bool is_GPU_mode) {
+  Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );
   // first handle the case where v is a composite expression
   if (const llvm::ConstantExpr *ce = dyn_cast<llvm::ConstantExpr>(v)) {
     if (ce->getOpcode() == llvm::Instruction::BitCast) {
       // std::cout << *ce << " : " << *(ce->getOperand(0)) << std::endl;
+      Logging::exitFunc();
       return getCType(ce->getOperand(0), is_GPU_mode);
     }
   }
   // now v is a atomic expression
   const llvm::GlobalValue* v1 = getGlobalValue(v);
+  Logging::exitFunc();
   if (v1) {
     if (v1->hasSection()) {
       std::string s = v1->getSection();
@@ -93,15 +101,18 @@ GPUConfig::CTYPE CUDAUtil::getCType(const llvm::Value* v, bool is_GPU_mode) {
 }
 
 GPUConfig::CTYPE CUDAUtil::getUpdatedCType(const llvm::Value* v, bool is_GPU_mode) {
+  Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );
   // first handle the case where v is a composite expression
   if (const llvm::ConstantExpr *ce = dyn_cast<llvm::ConstantExpr>(v)) {
     if (ce->getOpcode() == llvm::Instruction::BitCast) {
       // std::cout << *ce << " : " << *(ce->getOperand(0)) << std::endl;
+      Logging::exitFunc();
       return getUpdatedCType(ce->getOperand(0), is_GPU_mode);
     }
   }
   // now v is a atomic expression
   const llvm::GlobalValue* v1 = getGlobalValue(v);
+  Logging::exitFunc();
   if (v1) {
     if (v1->hasSection()) {
       std::string s = v1->getSection();
@@ -162,8 +173,10 @@ ThreadInfo::ThreadInfo() : cur_tid(0), cur_bid(0), cur_wid(0), cur_warp_start_ti
                            builtInFork(false), thread_id_mo(0), 
                            block_id_mo(0), sym_bdim_mo(0), 
                            block_size_os(0), grid_size_os(0) {
+  Logging::enterFunc<std::string>( "create new threadInfo", __PRETTY_FUNCTION__ );
   start_time = clock();
   end_time = start_time;
+  Logging::exitFunc();
 }
 
 ThreadInfo::ThreadInfo(KInstIterator _pc) : cur_tid(0), cur_bid(0), cur_wid(0), 
@@ -182,6 +195,7 @@ ThreadInfo::ThreadInfo(KInstIterator _pc) : cur_tid(0), cur_bid(0), cur_wid(0),
                                             builtInFork(false), thread_id_mo(0), 
                                             block_id_mo(0), sym_bdim_mo(0), 
                                             block_size_os(0), grid_size_os(0) {
+  Logging::enterFunc< std::string >( "creating ThreadInfo from KInstIterator", __PRETTY_FUNCTION__ );
   start_time = clock();
   end_time = start_time;
   std::vector<BarrierInfo> bVec; 
@@ -190,6 +204,7 @@ ThreadInfo::ThreadInfo(KInstIterator _pc) : cur_tid(0), cur_bid(0), cur_wid(0),
     prevPCs.push_back(_pc);
     numBars.push_back(std::make_pair(bVec, false));
   }
+  Logging::exitFunc();
 }
 
 ThreadInfo::ThreadInfo(const ThreadInfo& info) : cur_tid(info.cur_tid), cur_bid(info.cur_bid), 
@@ -212,45 +227,61 @@ ThreadInfo::ThreadInfo(const ThreadInfo& info) : cur_tid(info.cur_tid), cur_bid(
                                                  builtInFork(info.builtInFork), 
                                                  symExecuteSet(info.symExecuteSet),
                                                  symParaTreeVec(info.symParaTreeVec) {
+  Logging::enterFunc< std::string >( "copy creating threadInfo", __PRETTY_FUNCTION__ );
   thread_id_mo = info.thread_id_mo;
   block_id_mo = info.block_id_mo;
   block_size_os = info.block_size_os;
   grid_size_os = info.grid_size_os;
   sym_bdim_mo = info.sym_bdim_mo;
   sym_gdim_mo = info.sym_gdim_mo;
+  Logging::exitFunc();
 }
 
 unsigned ThreadInfo::lastTidInCurrentWarp(std::vector<CorrespondTid>& cTidSets) {
+  Logging::enterFunc< std::string >( "passed cTidSets", __PRETTY_FUNCTION__ );
   unsigned i = cur_warp_start_tid;
-  if (i == GPUConfig::num_threads-1) return i;
-
+  Logging::exitFunc();
+  if (i == GPUConfig::num_threads-1){
+    Logging::exitFunc();
+    return i;
+  }
   while (cTidSets[i].warpNum == cTidSets[i+1].warpNum) {
     i++;
     if (i == GPUConfig::num_threads-1) break;
   }
+  Logging::exitFunc();
   return i;
 }  
 
 static bool threadsInWarpEncounterImplicitBarrier(std::vector<CorrespondTid> &cTidSets, 
                                                   unsigned sTid, unsigned eTid) {
+  Logging::enterFunc<std::string>( "", __PRETTY_FUNCTION__ );
   for (unsigned i = sTid; i <= eTid; ++i) {
-    if (!cTidSets[i].syncEncounter)
+    if (!cTidSets[i].syncEncounter){
+      Logging::exitFunc();
       return false;
+    }
   }  
+  Logging::exitFunc();
   return true;
 }
 
 static bool existThreadsInWarpEncounterSyncthreads(std::vector<CorrespondTid> &cTidSets, 
                                                    unsigned sTid, unsigned eTid) {
+  Logging::enterFunc<std::string>( "", __PRETTY_FUNCTION__ );
   for (unsigned i = sTid; i <= eTid; ++i) {
-    if (cTidSets[i].barrierEncounter)
+    if (cTidSets[i].barrierEncounter){
+      Logging::exitFunc();
       return true;
+    }
   }
+  Logging::exitFunc();
   return false;
 }
 
 static void findMismatchExplicitAndImplicitBarriers(std::vector<CorrespondTid> &cTidSets,
                                                     unsigned sTid, unsigned eTid) {
+  Logging::enterFunc<std::string>( "", __PRETTY_FUNCTION__ );
   std::vector<unsigned> sameTid;
   std::vector<unsigned> diffTid;
 
@@ -282,9 +313,11 @@ static void findMismatchExplicitAndImplicitBarriers(std::vector<CorrespondTid> &
   
   sameTid.clear();
   diffTid.clear();
+  Logging::exitFunc();
 }
 
 static bool findNearestBranchDivRegion(std::vector<BranchDivRegionSet> &branchDivRegionSets, unsigned &brNum) { 
+  Logging::enterFunc<std::string>( "", __PRETTY_FUNCTION__ );
   bool findBrNum = false;
   unsigned size = branchDivRegionSets.size();
   for (int i = size-1; i >= 0; i--) {
@@ -294,35 +327,49 @@ static bool findNearestBranchDivRegion(std::vector<BranchDivRegionSet> &branchDi
       break; 
     }
   }
+  Logging::exitFunc();
   return findBrNum;
 }
 
 bool ThreadInfo::allThreadsInWarpEncounterBarrier(std::vector<CorrespondTid> &cTidSets) {
+  Logging::enterFunc<std::string>( "", __PRETTY_FUNCTION__ );
   for (unsigned i = cur_warp_start_tid; i <= cur_warp_end_tid; i++) {
-    if (!cTidSets[i].barrierEncounter)
+    if (!cTidSets[i].barrierEncounter){
+      Logging::exitFunc();
       return false;
+    }
   }
+  Logging::exitFunc();
   return true;
 }
 
 static bool allThreadsSynchronizedForSpecificBranch(std::vector< std::vector<unsigned> > &nonSyncSets) {
+  Logging::enterFunc<std::string>( "", __PRETTY_FUNCTION__ );
   for (unsigned i = 0; i < nonSyncSets.size(); i++) {
-    if (nonSyncSets[i].size() != 0)
+    if (nonSyncSets[i].size() != 0){
+      Logging::exitFunc();
       return false;
+    }
   }
+  Logging::exitFunc();
   return true;
 }
 
 static bool allThreadsSynchronizedForAllBranches(std::vector<BranchDivRegionSet> &branchDivRegionSets) {
+  Logging::enterFunc<std::string>( "", __PRETTY_FUNCTION__ );
   for (unsigned i = 0; i < branchDivRegionSets.size(); i++) {
-    if (!branchDivRegionSets[i].allSync)
+    if (!branchDivRegionSets[i].allSync){
+      Logging::exitFunc();
       return false;
+    }
   }
+  Logging::exitFunc();
   return true;
 }
 
 void ThreadInfo::updateStateAfterBarriers(std::vector<CorrespondTid> &cTidSets, 
                                           std::vector<BranchDivRegionSet> &branchDivRegionSets) {
+  Logging::enterFunc<std::string>( "", __PRETTY_FUNCTION__ );
   for (int i = branchDivRegionSets.size()-1; i >= 0; i--) {
     if (allThreadsSynchronizedForSpecificBranch(branchDivRegionSets[i].nonSyncSets))
       branchDivRegionSets[i].allSync = true;
@@ -336,6 +383,7 @@ void ThreadInfo::updateStateAfterBarriers(std::vector<CorrespondTid> &cTidSets,
     escapeFromBranch = true;
     executeSet.clear();
   }
+  Logging::exitFunc();
 }
 
 void ThreadInfo::incTid(std::vector<CorrespondTid> &cTidSets, 
@@ -460,6 +508,7 @@ void ThreadInfo::incTid(std::vector<CorrespondTid> &cTidSets,
 }
 
 void ThreadInfo::incTid() {
+  Logging::enterFunc<std::string>( "", __PRETTY_FUNCTION__ );
   unsigned block_size = UseSymbolicConfig? GPUConfig::sym_block_size :
                                            GPUConfig::block_size;
   if (is_GPU_mode) {
@@ -471,20 +520,26 @@ void ThreadInfo::incTid() {
   else  // only one thread
     cur_tid = 0;
   cur_bid = cur_tid / block_size;
+  Logging::exitFunc();
 }
 
 static bool allSymbolicThreadsInSetEncounterBarrier(std::vector<CorrespondTid> &cTidSets, 
                                                     std::vector<unsigned> &set) {
+  Logging::enterFunc<std::string>( "", __PRETTY_FUNCTION__ );
   for (unsigned i = 0; i < set.size(); i++) {
     unsigned tid = set[i];
-    if (!cTidSets[tid].barrierEncounter)
+    if (!cTidSets[tid].barrierEncounter){
+      Logging::exitFunc();
       return false; 
+    }
   }
+  Logging::exitFunc();
   return true;
 }
 
 static void findSymbolicTidFromParaTree(std::vector<CorrespondTid> &cTidSets, 
                                         ParaTree &paraTree, unsigned &sym_cur_tid) {
+  Logging::enterFunc<std::string>( "", __PRETTY_FUNCTION__ );
   ParaTreeNode *current = paraTree.getCurrentNode();
   bool tidFound = false;
  
@@ -508,17 +563,22 @@ static void findSymbolicTidFromParaTree(std::vector<CorrespondTid> &cTidSets,
   }
 
   assert(tidFound && "sym tid not found!");
+  Logging::exitFunc();
 }
 
 void ThreadInfo::dumpSymExecuteSet() {
+  Logging::enterFunc<std::string>( "", __PRETTY_FUNCTION__ );
   for (unsigned i = 0; i < symExecuteSet.size(); i++) {
     std::cout << symExecuteSet[i] << " "; 
   }
   std::cout << std::endl;
+  Logging::exitFunc();
 }
 
 void ThreadInfo::incParametricFlow(std::vector<CorrespondTid> &cTidSets, 
                                    ParaTree &paraTree, bool &newBI) {
+
+  Logging::enterFunc<std::string>( "", __PRETTY_FUNCTION__ );
   // explore a symbolic thread, and a new thread required ...
   if (allSymbolicThreadsInSetEncounterBarrier(cTidSets, symExecuteSet)) {
     // The end of this barrier interval ...
@@ -559,10 +619,13 @@ void ThreadInfo::incParametricFlow(std::vector<CorrespondTid> &cTidSets,
     //std::cout << "The new tid: " << sym_cur_tid << std::endl;
     //setConcreteConfig(paraTree);
   } 
+  Logging::outItem( std::to_string( sym_cur_tid ), "sym_cur_tid" );
+  Logging::exitFunc();
 }
 
 bool ThreadInfo::foundMismatchBarrierWithinTheBlock(std::vector<CorrespondTid> &cTidSets, 
                                                     unsigned bStart, unsigned bEnd, unsigned bNum) {
+  Logging::enterFunc<std::string>( "", __PRETTY_FUNCTION__ );
   bool hasMismatch = false;
   for (unsigned i = bStart+1; i <= bEnd; i++) {
     if (numBars[i].second != numBars[i-1].second) {
@@ -629,25 +692,31 @@ bool ThreadInfo::foundMismatchBarrierWithinTheBlock(std::vector<CorrespondTid> &
     }
   }
 
+  Logging::exitFunc();
   return hasMismatch;
 }
 
 void ThreadInfo::synchronizeBarrierInfo(ParaTreeNode *current) {
+  Logging::enterFunc<std::string>( "", __PRETTY_FUNCTION__ );
   std::vector<ParaConfig> &configVec = current->successorConfigVec;
   unsigned sTid = configVec[0].sym_tid;
   for (unsigned i = 1; i < configVec.size(); i++) {
     unsigned tid = configVec[i].sym_tid;
     numBars[tid] = numBars[sTid];  
   } 
+  Logging::exitFunc();
 }
 
 // check barrier mismatches (deadlocks)
 bool ThreadInfo::hasMismatchBarrier(std::vector<CorrespondTid> &cTidSets) {
+  Logging::enterFunc<std::string>( "", __PRETTY_FUNCTION__ );
   unsigned realTid = cTidSets[cur_tid].rTid;
   // The first thread in each block will skip checking.
   if (GPUConfig::check_level == 0 
-       || realTid == 0)  // skip checking
+      || realTid == 0){  // skip checking
+    Logging::exitFunc();
     return false;
+  }
 
   if (GPUConfig::verbose > 1) {
     std::cout << "\nStart checking mismatch barriers... \n";
@@ -669,5 +738,6 @@ bool ThreadInfo::hasMismatchBarrier(std::vector<CorrespondTid> &cTidSets) {
       break;
     }
   }
+  Logging::exitFunc();
   return hasDeadlock;
 }

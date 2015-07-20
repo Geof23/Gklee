@@ -25,6 +25,7 @@
 
 using namespace llvm;
 using namespace klee;
+using namespace Gklee;
 
 #define PI 3.1415926535897932384626433832795
 
@@ -100,6 +101,8 @@ void Executor::encounterBarrier(ExecutionState &state,
 
   // increase the barrier count
   unsigned tid = state.tinfo.get_cur_tid();
+  Logging::outItem( std::to_string( state.tinfo.get_cur_tid() ), 
+		    "curTID" );
   std::vector<BarrierInfo> &barrierVec = state.tinfo.numBars[tid].first;
   barrierVec.push_back(BarrierInfo(target->inst, target->info->file, target->info->line));
   state.tinfo.numBars[tid].second = is_end_GPU_barrier;

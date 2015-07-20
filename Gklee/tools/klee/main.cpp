@@ -1187,7 +1187,7 @@ int main(int argc, char **argv, char **envp) {
 
   configurateGPU();
   
-  Gklee::Logging Log( "trace.log", LogLevel );
+  Gklee::Logging Log( "trace.log", LogLevel, true ); //set to false to have to call start
 
   if (Watchdog) {
     if (MaxTime==0) {

@@ -38,6 +38,7 @@
 
 using namespace llvm;
 using namespace klee;
+using namespace Gklee;
 
 namespace runtime { 
   cl::opt<bool>
@@ -184,7 +185,7 @@ ExecutionState::ExecutionState(const ExecutionState& state)
     shadowObjects(state.shadowObjects),
     incomingBBIndex(state.incomingBBIndex)
 {
-  Gklee::Logging::enterFunc< std::string >( "" , __PRETTY_FUNCTION__ );  
+  Gklee::Logging::enterFunc< std::string >( "copy construct" , __PRETTY_FUNCTION__ );  
   for (unsigned int i=0; i<symbolics.size(); i++)
     symbolics[i].first->refCount++;
   Gklee::Logging::exitFunc();
@@ -589,6 +590,7 @@ ExecutionState::stack_ty& ExecutionState::getCurStack() {
 }
 
 void ExecutionState::reconfigGPU() {
+  Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );
   // extend the shared memories
   std::vector<AddressSpace> &sharedMems = addressSpace.sharedMemories;  
   unsigned oldsize = sharedMems.size();
@@ -685,9 +687,11 @@ void ExecutionState::reconfigGPU() {
     std::cout << "Please test the verbose one!" << std::endl;
     addressSpace.dump(0x11);
   }
+  Logging::exitFunc();
 }
 
 void ExecutionState::reconfigGPUSymbolic() {
+  Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );
   // extend the shared memories
   std::vector<AddressSpace> &sharedMems = addressSpace.sharedMemories;  
   unsigned oldsize = sharedMems.size();
@@ -779,9 +783,13 @@ void ExecutionState::reconfigGPUSymbolic() {
     std::cout << "Please test the verbose one!" << std::endl;
     addressSpace.dump(0x11);
   }
+  Logging::exitFunc();
 }
 
 void ExecutionState::constructUnboundedBlockEncodedConstraint(unsigned cur_bid) {
+  Logging::enterFunc< std::string >( std::string( "cur_bid: " ) + 
+				     std::to_string( cur_bid ),
+				     __PRETTY_FUNCTION__ );
   ObjectState *os = addressSpace.cpuMemory.findNonConstantObject(tinfo.sym_gdim_mo);
 
   klee::ref<Expr> gdimx = os->read(0, Expr::Int32);
@@ -813,9 +821,14 @@ void ExecutionState::constructUnboundedBlockEncodedConstraint(unsigned cur_bid) 
                                          UgeExpr::create(bidz, ConstantExpr::create(0, Expr::Int32))); 
   klee::ref<Expr> totalExpr = AndExpr::create(AndExpr::create(bidxConstr, bidyConstr), bidzConstr);
   addConstraint(totalExpr);
+  Logging::exitFunc();
 }
 
 void ExecutionState::constructUnboundedThreadEncodedConstraint(unsigned cur_tid) {
+  Logging::enterFunc< std::string >( std::string( "cur_tid: " ) + 
+				     std::to_string( cur_tid ),
+				     __PRETTY_FUNCTION__ );
+  
   ObjectState *os = addressSpace.cpuMemory.findNonConstantObject(tinfo.sym_bdim_mo);
 
   klee::ref<Expr> bdimx = os->read(0, Expr::Int32);
@@ -847,10 +860,12 @@ void ExecutionState::constructUnboundedThreadEncodedConstraint(unsigned cur_tid)
                                          UgeExpr::create(tidz, ConstantExpr::create(0, Expr::Int32))); 
   klee::ref<Expr> totalExpr = AndExpr::create(AndExpr::create(tidxConstr, tidyConstr), tidzConstr);
   addConstraint(totalExpr);
+  Logging::exitFunc();
 }
 
 // construct the block-level encoded constraint ...
 void ExecutionState::constructBlockEncodedConstraint(klee::ref<Expr> &constraint, unsigned cur_bid) {
+  Logging::enterFunc( constraint, __PRETTY_FUNCTION__ );
   ObjectState *os = addressSpace.findNonConstantObject(tinfo.block_id_mo, cur_bid);
   // bid x ...
   klee::ref<Expr> bidx = os->read(0, Expr::Int32);
@@ -866,10 +881,12 @@ void ExecutionState::constructBlockEncodedConstraint(klee::ref<Expr> &constraint
                                     SgeExpr::create(bidz, ConstantExpr::create(0, Expr::Int32)));
   // regardless of number of grid dimensions
   constraint = AndExpr::create(AndExpr::create(xcond, ycond), zcond);
+  Logging::exitFunc();
 }
 
 // construct the thread-level encoded constraint ...
 void ExecutionState::constructThreadEncodedConstraint(klee::ref<Expr> &constraint, unsigned cur_tid) {
+  Logging::enterFunc( constraint, __PRETTY_FUNCTION__ );
   ObjectState *os = addressSpace.findNonConstantObject(tinfo.thread_id_mo, cur_tid);
   // tid x ...
   klee::ref<Expr> tidx = os->read(0, Expr::Int32);
@@ -885,6 +902,7 @@ void ExecutionState::constructThreadEncodedConstraint(klee::ref<Expr> &constrain
                                     SgeExpr::create(tidz, ConstantExpr::create(0, Expr::Int32))); 
   // regardless of number of block dimensions
   constraint = AndExpr::create(AndExpr::create(xcond, ycond), zcond);
+  Logging::exitFunc();
 }
 
 static bool isTwoInstIdentical(llvm::Instruction *inst1, llvm::Instruction *inst2) {
@@ -1139,6 +1157,9 @@ void ExecutionState::updateBranchDivRegionSet(llvm::Instruction *curInst, unsign
 }
 
 void ExecutionState::encounterSyncthreadsBarrier(unsigned cur_tid) {
+  Logging::enterFunc( std::string( "cur_tid: " ) + 
+		      std::to_string( cur_tid ),
+		      __PRETTY_FUNCTION__ );
   if (!UseSymbolicConfig) {
     bool encounter = false;
     cTidSets[cur_tid].syncEncounter = true;
@@ -1161,7 +1182,9 @@ void ExecutionState::encounterSyncthreadsBarrier(unsigned cur_tid) {
     ParaTreeNode *current = getCurrentParaTree().getCurrentNode(); 
     if (current) {
       klee::ref<Expr> expr = getCurrentParaTree().getCurrentNodeTDCExpr(); 
+      Logging::outItem( expr, "current pTree TDC expr" );
       cTidSets[cur_tid].inheritExpr = constraints.simplifyExpr(expr);
+      Logging::outItem( cTidSets[cur_tid].inheritExpr, "current pTree TDC expr (simplified)" );
     }
     //std::cout << "cur_tid: " << cur_tid << std::endl;
     //cTidSets[cur_tid].inheritExpr->dump();
@@ -1175,19 +1198,23 @@ void ExecutionState::encounterSyncthreadsBarrier(unsigned cur_tid) {
     }
     updateStateAfterEncounterBarrier();
   }
+  Logging::exitFunc();
 }
 
 // Indicate that threads encounter the explicit or implicit barrier.
 void ExecutionState::updateStateAfterEncounterBarrier() {
+  Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );
   if (!UseSymbolicConfig) {
     tinfo.updateStateAfterBarriers(cTidSets, addressSpace.branchDivRegionSets);
   } else {
     unsigned cur_tid = tinfo.get_cur_tid();
     getCurrentParaTree().encounterExplicitBarrier(cTidSets, cur_tid);
   }  
+  Logging::exitFunc();
 }
 
 void ExecutionState::moveToNextWarpAfterExplicitBarrier(bool moveToNextBI) {
+  Logging::enterFunc( std::to_string( moveToNextBI ), __PRETTY_FUNCTION__ );
   std::vector<BranchDivRegionSet> &branchDivRegionSets = addressSpace.branchDivRegionSets;
 
   for (unsigned i = 0; i < branchDivRegionSets.size(); i++) {
@@ -1208,6 +1235,7 @@ void ExecutionState::moveToNextWarpAfterExplicitBarrier(bool moveToNextBI) {
       addressSpace.dumpWarpsBranchDivRegionSets();
     addressSpace.warpsBranchDivRegionSets.clear();
   }
+  Logging::exitFunc();
 }
 
 void ExecutionState::restoreCorrespondTidSets() {
@@ -1237,18 +1265,25 @@ bool ExecutionState::allThreadsEncounterBarrier() {
 }
 
 bool ExecutionState::allSymbolicThreadsEncounterBarrier() {
+  Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );
   for (unsigned i = 0; i < cTidSets.size(); i++) {
     if (cTidSets[i].slotUsed) {
       if (i != 1 && !cTidSets[i].barrierEncounter) {
+	Logging::exitFunc();
         return false;
       }
     }
     else break;
   }
+  Logging::exitFunc();
   return true;
 }
 
 void ExecutionState::copyAddressSpaceObjects(unsigned src, unsigned dst) {
+  Logging::enterFunc( std::string( "src:dst " ) +
+		      std::to_string( src ) + ":" +
+		      std::to_string( dst ),
+		      __PRETTY_FUNCTION__ );
   AddressSpace &srcSpace = addressSpace.localMemories[src];
   AddressSpace &dstSpace = addressSpace.localMemories[dst];
   for (MemoryMap::iterator oi = srcSpace.objects.begin(); 
@@ -1258,9 +1293,11 @@ void ExecutionState::copyAddressSpaceObjects(unsigned src, unsigned dst) {
       dstSpace.bindObject(oi->first, tmpOS);
     }
   }
+  Logging::exitFunc();
 } 
 
 void ExecutionState::synchronizeBranchStacks(ParaTreeNode *current) {
+  Logging::enterFunc( *current->brInst, __PRETTY_FUNCTION__ );
   std::vector<ParaConfig> &configVec = current->successorConfigVec;
   unsigned sTid = configVec[0].sym_tid;
   for (unsigned i = 1; i < configVec.size(); i++) {
@@ -1268,9 +1305,11 @@ void ExecutionState::synchronizeBranchStacks(ParaTreeNode *current) {
     stacks[tid] = stacks[sTid];
     copyAddressSpaceObjects(sTid, tid);
   }
+  Logging::exitFunc();
 }
 
 void ExecutionState::symEncounterPostDominator(llvm::Instruction *inst) {
+  Logging::enterFunc( *inst, __PRETTY_FUNCTION__ );
   ParaTree &paraTree = getCurrentParaTree();
   llvm::BasicBlock *curBB = inst->getParent();
   ParaTreeNode *tmp = paraTree.getCurrentNode();
@@ -1292,6 +1331,7 @@ void ExecutionState::symEncounterPostDominator(llvm::Instruction *inst) {
     }
     tmp = tmp->parent;
   }
+  Logging::exitFunc();
 }
 
 ParaTreeSet& ExecutionState::getCurrentParaTreeSet() {

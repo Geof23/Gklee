@@ -2,6 +2,7 @@
 #include "ParametricTree.h"
 #include "klee/logging.h"
 
+using namespace Gklee;
 
 ParaTreeNode::ParaTreeNode(llvm::Instruction *_brInst, llvm::BasicBlock *_postDom,
 	     SymBrType _symBrType, bool _isCondBr, bool _allSync, 
@@ -10,7 +11,7 @@ ParaTreeNode::ParaTreeNode(llvm::Instruction *_brInst, llvm::BasicBlock *_postDo
   symBrType(_symBrType), isCondBr(_isCondBr), 
   allSync(_allSync), inheritCond(_inheritCond), 
   tdcCond(_tdcCond) {
-  Gklee::Logging::enterFunc( _inheritCond, _tdcCond, __PRETTY_FUNCTION__ );
+  Gklee::Logging::enterFunc( *brInst, __PRETTY_FUNCTION__ );
   whichSuccessor = 0;
   parent = NULL;
   Gklee::Logging::exitFunc();
@@ -25,7 +26,7 @@ ParaTreeNode::ParaTreeNode(const ParaTreeNode &node) :
   tdcCond(node.tdcCond),
   repThreadSet(node.repThreadSet), 
   divergeThreadSet(node.divergeThreadSet) {
-    Gklee::Logging::enterFunc( node.inheritCond, node.tdcCond, __PRETTY_FUNCTION__ );
+    Gklee::Logging::enterFunc( *node.brInst, __PRETTY_FUNCTION__ );
     parent = NULL;
     successorConfigVec = node.successorConfigVec;
     unsigned size = node.successorTreeNodes.size();
@@ -68,26 +69,34 @@ void ParaTreeNode::dumpParaTreeNode() {
 }
 
 ParaTree::ParaTree() {
+  Gklee::Logging::enterFunc< std::string >( "creating paraTree", __PRETTY_FUNCTION__ );
   root = current = NULL;
   nodeNum = 0;
+  Gklee::Logging::exitFunc();
 }
 
 ParaTree::ParaTree(const ParaTree &_paraTree) {
+  Gklee::Logging::enterFunc< std::string >( "copy construct paraTree", __PRETTY_FUNCTION__ );
   if (_paraTree.nodeNum == 0) {
     nodeNum = 0;
     root = current = NULL;
+    Gklee::Logging::exitFunc();
     return;
   }
 
   nodeNum = _paraTree.nodeNum;
   root = copyParaTree(_paraTree.root, _paraTree.current);
   root->parent = NULL;
+  Gklee::Logging::exitFunc();
 }
 
 ParaTreeNode* ParaTree::copyParaTree(ParaTreeNode *other, 
                                      ParaTreeNode *otherCurrent) {
-  if (other == NULL) return NULL;
-  
+  Gklee::Logging::enterFunc< std::string >( "copy paraTree", __PRETTY_FUNCTION__ );
+  if (other == NULL){
+    Logging::exitFunc();
+    return NULL;
+  }
   ParaTreeNode *newNode = new ParaTreeNode(*other);
   if (other == otherCurrent) current = newNode;
   std::vector<ParaTreeNode*> &treeNodes = newNode->successorTreeNodes;
@@ -98,12 +107,14 @@ ParaTreeNode* ParaTree::copyParaTree(ParaTreeNode *other,
     treeNodes[i] = copyParaTree(otherTreeNodes[i], otherCurrent);
     if (treeNodes[i] != NULL) treeNodes[i]->parent = newNode;
   }
-
+  Gklee::Logging::exitFunc();
   return newNode;
 }
 
 ParaTree::~ParaTree() {
+  Gklee::Logging::enterFunc< std::string >( "destructor", __PRETTY_FUNCTION__ );
   destroyParaTree(root);
+  Gklee::Logging::exitFunc();
 }
 
 ParaTreeNode *ParaTree::getRootNode() {
@@ -115,14 +126,17 @@ ParaTreeNode *ParaTree::getCurrentNode() {
 }
 
 unsigned ParaTree::getSymbolicTidFromCurrentNode(unsigned exploreNum) {
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );
   std::vector<ParaConfig> &configVec = current->successorConfigVec;
   //std::cout << "exploreNum:" << exploreNum << std::endl;
   assert(exploreNum < configVec.size() && 
          "exploreNum is greater than the number of all successors, check!\n");
+  Gklee::Logging::exitFunc();
   return configVec[exploreNum].sym_tid;
 }
 
 void ParaTree::updateCurrentNodeOnNewConfig(ParaConfig &config, SymBrType symBrType) {
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );
   std::vector<ParaConfig> &configVec = current->successorConfigVec;
   std::vector<ParaTreeNode*> &treeNodes = current->successorTreeNodes;
   configVec.push_back(config);
@@ -150,12 +164,15 @@ void ParaTree::updateCurrentNodeOnNewConfig(ParaConfig &config, SymBrType symBrT
       tmp = tmp->parent;
     }
   }
+  Gklee::Logging::exitFunc();
 }
 
 void ParaTree::insertNodeIntoParaTree(ParaTreeNode *node) {
+  Gklee::Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );
   if (root == NULL) {
     root = current = node;
     nodeNum = 1;
+    Logging::exitFunc();
     return;
   }
 
@@ -178,9 +195,11 @@ void ParaTree::insertNodeIntoParaTree(ParaTreeNode *node) {
   node->parent = current;
   current = node;
   nodeNum++;
+  Logging::exitFunc();
 }
 
 void ParaTree::initializeCurrentNodeRange(unsigned cur_tid, unsigned pos) {
+  Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );
   std::vector<ParaConfig> &configVec = current->successorConfigVec;
   for (unsigned i = 0; i < configVec.size(); i++) {
     if (configVec[i].sym_tid == cur_tid) {
@@ -189,9 +208,11 @@ void ParaTree::initializeCurrentNodeRange(unsigned cur_tid, unsigned pos) {
       break;
     }
   }
+  Logging::exitFunc();
 }
 
 void ParaTree::incrementCurrentNodeRange(unsigned cur_tid, unsigned pos) {
+  Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );
   ParaTreeNode *tmp = current;
 
   while (tmp != NULL) {
@@ -203,9 +224,11 @@ void ParaTree::incrementCurrentNodeRange(unsigned cur_tid, unsigned pos) {
     }
     tmp = tmp->parent;
   }
+  Logging::exitFunc();
 }
 
 void ParaTree::updateConfigVecAfterBarriers(ParaTreeNode *tmpNode) {
+  Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );
   bool allSync = true;
   std::vector<ParaConfig> &configVec = tmpNode->successorConfigVec;
 
@@ -216,9 +239,11 @@ void ParaTree::updateConfigVecAfterBarriers(ParaTreeNode *tmpNode) {
     }
   }
   tmpNode->allSync = allSync;
+  Logging::exitFunc();
 } 
 
 void ParaTree::encounterImplicitBarrier(ParaTreeNode *tmpNode, ParaTreeNode *pNode) {
+  Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );
   std::vector<ParaConfig> &configVec = tmpNode->successorConfigVec;
   std::vector<ParaTreeNode*> &treeNodes = tmpNode->successorTreeNodes;
   unsigned which = tmpNode->whichSuccessor;
@@ -245,10 +270,12 @@ void ParaTree::encounterImplicitBarrier(ParaTreeNode *tmpNode, ParaTreeNode *pNo
         current = tmpNode;
     }
   }
+  Logging::exitFunc();
 }
 
 void ParaTree::encounterExplicitBarrier(std::vector<CorrespondTid> &cTidSets, 
                                         unsigned cur_tid) {
+  Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );
   ParaTreeNode *tmp = current;  
 
   while (tmp != NULL) {
@@ -294,9 +321,11 @@ void ParaTree::encounterExplicitBarrier(std::vector<CorrespondTid> &cTidSets,
   }
 
   if (tmp != NULL) current = tmp;
+  Logging::exitFunc();
 }
 
 void ParaTree::destroyParaTree(ParaTreeNode *node) {
+  Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );
   if (node != NULL) {
     std::vector<ParaTreeNode*> &treeNodes = node->successorTreeNodes;
 
@@ -308,9 +337,11 @@ void ParaTree::destroyParaTree(ParaTreeNode *node) {
     node->parent = NULL;
     delete node;
   } 
+  Logging::exitFunc();
 }
 
 klee::ref<Expr> ParaTree::getCurrentNodeTDCExpr() {
+  Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );
   unsigned which = current->whichSuccessor;
   std::vector<ParaConfig> &configVec = current->successorConfigVec;
   klee::ref<Expr> cond = 0;
@@ -318,24 +349,30 @@ klee::ref<Expr> ParaTree::getCurrentNodeTDCExpr() {
     cond = AndExpr::create(current->tdcCond, configVec[which].cond);  
   else 
     cond = current->tdcCond;
+  Logging::exitFunc();
   return cond;
 }
 
 void ParaTree::negateNonTDCNodeCond() {
+  Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );
   if (current) {
     std::vector<ParaConfig> &configVec = current->successorConfigVec;
     configVec[0].cond = Expr::createIsZero(configVec[0].cond); 
   }
+  Logging::exitFunc();
 }
 
 void ParaTree::resetNonTDCNodeCond() {
+  Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );
   if (current) {
     std::vector<ParaConfig> &configVec = current->successorConfigVec;
     configVec[0].cond = ConstantExpr::create(1, Expr::Bool); 
   }
+  Logging::exitFunc();
 }
 
 void ParaTree::dumpAllNodes(ParaTreeNode *node) const {
+  Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );
   if (node->brInst == NULL)
     std::cout << "[Post Dominator Node]: " << std::endl;
   else 
@@ -349,16 +386,21 @@ void ParaTree::dumpAllNodes(ParaTreeNode *node) const {
       dumpAllNodes(treeNodes[i]);
     }
   }
+  Logging::exitFunc();
 }
 
 void ParaTree::dumpParaTree() const {
+  Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );
   if( root != NULL ){
     dumpAllNodes(root);
     std::cout << "ParaTree root is null" << std::endl;
   }
+  Logging::exitFunc();
 }
 
 bool ParaTree::isRootNull() const {
+  Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );
+  Logging::exitFunc();
   return root == NULL;
 }
 
@@ -367,11 +409,14 @@ unsigned ParaTree::getNodeNum() const {
 }
 
 bool ParaTree::currentSuccessorNull() const {
-  if (current == NULL)
+  Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );
+  if (current == NULL){
+    Logging::exitFunc();
     return true;
-  else {
+  } else {
     unsigned which = current->whichSuccessor;
     std::vector<ParaTreeNode*> &treeNodes = current->successorTreeNodes; 
+    Logging::exitFunc();
     return (treeNodes[which] == NULL);  
   }
 }

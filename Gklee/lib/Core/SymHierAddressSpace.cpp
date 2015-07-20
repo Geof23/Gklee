@@ -12,6 +12,7 @@
 
 using namespace llvm;
 using namespace klee;
+using namespace Gklee;
 
 namespace runtime {
   cl::opt<bool>
@@ -26,6 +27,7 @@ using namespace runtime;
 
 static bool isCurrentConfigFulfilled(Executor &executor, ExecutionState &state, 
                                      klee::ref<Expr> &configExpr, klee::ref<Expr> &typeExpr) {
+  Logging::enterFunc( configExpr, __PRETTY_FUNCTION__ );
   bool result = false;
   state.paraConstraints = state.constraints;
   if (!UnboundConfig)
@@ -35,11 +37,13 @@ static bool isCurrentConfigFulfilled(Executor &executor, ExecutionState &state,
   
   ExecutorUtil::addConfigConstraint(state, configExpr);
   executor.solver->mayBeTrue(state, typeExpr, result);
+  Logging::exitFunc();
   return result;
 }
 
 void AddressSpaceUtil::updateBuiltInRelatedConstraint(ExecutionState &state, ConstraintManager &constr, 
                                                       klee::ref<Expr> &expr) {
+  Logging::enterFunc( expr, __PRETTY_FUNCTION__ );
   std::map< klee::ref<Expr>, klee::ref<Expr> > equalities; 
   // update bid 
   MemoryObject *bo = state.tinfo.block_id_mo;
@@ -80,14 +84,17 @@ void AddressSpaceUtil::updateBuiltInRelatedConstraint(ExecutionState &state, Con
     klee::ref<Expr> tmp = constr.updateExprThroughReplacement(expr, equalities); 
     expr = constr.simplifyExpr(tmp);  
   }
+  Logging::exitFunc();
 }
 
 void AddressSpaceUtil::updateMemoryAccess(ExecutionState &state, ConstraintManager &constr, 
                                           MemoryAccess &access) {
+  Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );
   AddressSpaceUtil::updateBuiltInRelatedConstraint(state, constr, access.offset);
   AddressSpaceUtil::updateBuiltInRelatedConstraint(state, constr, access.accessCondExpr);
   if (access.val.get() != NULL)
     AddressSpaceUtil::updateBuiltInRelatedConstraint(state, constr, access.val);
+  Logging::exitFunc();
 }
 
 static int getSegmentSize(Expr::Width width, unsigned capability) {
@@ -127,6 +134,7 @@ static int getSegmentSize(Expr::Width width, unsigned capability) {
 
 // Ensure that instructions belong to different BBs ... 
 static bool belongToDifferentBB(MemoryAccess &access1, MemoryAccess &access2) {
+  Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );
   llvm::Instruction *inst1 = access1.instr;
   llvm::Instruction *inst2 = access2.instr;
 
@@ -135,6 +143,7 @@ static bool belongToDifferentBB(MemoryAccess &access1, MemoryAccess &access2) {
   std::string bb1Name = inst1->getParent()->getName().str();
   std::string bb2Name = inst2->getParent()->getName().str();
 
+  Logging::exitFunc();
   if (func1Name.compare(func2Name) == 0) {
     if (bb1Name.compare(bb2Name) == 0)
       return false;
@@ -1825,6 +1834,7 @@ bool HierAddressSpace::foundMismatchBarrierInParametricFlow(ExecutionState &stat
 }
 
 bool HierAddressSpace::hasMismatchBarrierInParametricFlow(Executor &executor, ExecutionState &state) {
+  Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );
   bool hasMismatch = false;
 
   for (unsigned i = 2; i < state.cTidSets.size(); i++) {
@@ -1850,7 +1860,7 @@ bool HierAddressSpace::hasMismatchBarrierInParametricFlow(Executor &executor, Ex
       } 
     }
   } 
-
+  Logging::exitFunc();
   return hasMismatch;
 }
 

@@ -26,7 +26,6 @@
 #include "TimingSolver.h"
 #include "UserSearcher.h"
 #include "../Solver/SolverStats.h"
-
 #include "klee/ExecutionState.h"
 #include "klee/Expr.h"
 #include "klee/Interpreter.h"
@@ -98,6 +97,7 @@
 
 using namespace llvm;
 using namespace klee;
+using namespace Gklee;
 
 namespace runtime {
   cl::opt<bool>
@@ -630,6 +630,7 @@ void Executor::transferToBasicBlock(BasicBlock *dst, BasicBlock *src,
 void Executor::branch(ExecutionState &state, 
                       const std::vector< klee::ref<Expr> > &conditions,
                       std::vector<ExecutionState*> &result) {
+  // Gklee::Logging::start();
   Gklee::Logging::enterFunc( conditions[0] , __PRETTY_FUNCTION__ );
   TimerStatIncrementer timer(stats::forkTime);
   unsigned N = conditions.size();
@@ -706,6 +707,7 @@ void Executor::branch(ExecutionState &state,
 			       
     }
   Gklee::Logging::exitFunc();
+  // Gklee::Logging::stop();
 } 
 
 // True: condition is totally or partially related to built-in variables
@@ -911,10 +913,10 @@ Executor::fork(ExecutionState &current, klee::ref<Expr> condition, bool isIntern
         ExecutorUtil::copyOutConstraint(current, !isInternal);
         success = solver->evaluate(current, condition, res);
         ExecutorUtil::copyBackConstraint(current);
-        if (RacePrune) {
+        if (RacePrune) { 
           if (!isInternal
-               && success 
-                 && res == Solver::Unknown) {
+	      && success 
+	      && res == Solver::Unknown) {
             if (current.brMeta.meta == GG) {
               res = Solver::Unknown;
               current.cTidSets[current.tinfo.get_cur_tid()].keep = true;
@@ -927,7 +929,6 @@ Executor::fork(ExecutionState &current, klee::ref<Expr> condition, bool isIntern
               res = Solver::False;
               current.cTidSets[current.tinfo.get_cur_tid()].keep = true;
             }
-
             current.brMeta.meta = NA;
           } else {
             if (current.tinfo.is_Atomic_op > 0) {
@@ -2011,6 +2012,8 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
     if (bi->isUnconditional()) {
       transferToBasicBlock(bi->getSuccessor(0), bi->getParent(), state);
     } else {
+      // Gklee::Logging::start();
+      // Gklee::Logging::enterFunc( *i, "handling branch case in execute" );
       // FIXME: Find a way that we don't have this hidden dependency.
       assert(bi->getCondition() == bi->getOperand(0) &&
              "Wrong operand index!");
@@ -2052,6 +2055,8 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
         transferToBasicBlock(bi->getSuccessor(1), bi->getParent(), *branches.second);
       }
     }
+    // Gklee::Logging::exitFunc();
+    // Gklee::Logging::stop();
     break;
   }
   case Instruction::Switch: {
@@ -3585,6 +3590,10 @@ bool Executor::forkNewParametricFlow(ExecutionState &state, KInstruction *ki) {
                                               false, inheritCond, tdcCond);
     Gklee::Logging::outItem< std::string >( "related to sym" , "constructed new paraNode" );
     pTree.insertNodeIntoParaTree(paraNode);
+    Logging::outItem< std::string >( std::to_string( state.tinfo.get_cur_bid() ) +
+				     ":" + 
+				     std::to_string( state.tinfo.get_cur_tid() ),
+				     "paraConfig bid:tid" );
     ParaConfig config(state.tinfo.get_cur_bid(), 
                       state.tinfo.get_cur_tid(), 
                       cond, 0, 0);
@@ -3615,6 +3624,7 @@ bool Executor::forkNewParametricFlow(ExecutionState &state, KInstruction *ki) {
         klee::ref<Expr> trueExpr = ConstantExpr::create(1, Expr::Bool);
 
         if (success) {
+	  Logging::outItem( cond, "new cond" );
           if (result) { // Only 'True' flow 
             GKLEE_INFO << "'True' path flow feasible !" << std::endl;
             state.tinfo.sym_tdc_eval = 1;
@@ -3631,6 +3641,10 @@ bool Executor::forkNewParametricFlow(ExecutionState &state, KInstruction *ki) {
               ParaConfig config(state.tinfo.get_cur_bid(), 
                                 state.tinfo.get_cur_tid(), 
                                 cond, 0, 0);
+	      Logging::outItem< std::string >( std::to_string( state.tinfo.get_cur_bid() ) +
+				     ":" + 
+				     std::to_string( state.tinfo.get_cur_tid() ),
+				     "paraConfig bid:tid" );
               pTree.updateCurrentNodeOnNewConfig(config, TDC);
               GKLEE_INFO << "'Else' path flow feasible !" << std::endl;
               klee::ref<Expr> negateExpr = Expr::createIsZero(cond);
