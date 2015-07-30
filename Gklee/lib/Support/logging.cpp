@@ -26,10 +26,14 @@ size_t Logging::level;
 bool Logging::first = true;
 size_t Logging::count = 0;
 bool Logging::paused = false;
+size_t Logging::start_level;
+std::map< std::string, std::string > Logging::Funcs = {{ "void klee::Executor::executeInstruction(klee::ExecutionState&, klee::KInstruction*)", "" }};
+std::stack< std::string > Logging::CallStack;
 
-  Logging::Logging( const std::string& logFile, size_t maxDepth,
+Logging::Logging( const std::string& logFile, size_t maxDepth,
 		    bool startNow) { 
   //  std::string logFile( "log.txt" );
+  
   level = 0;
   paused = !startNow;
   Logging::maxDepth = maxDepth;
@@ -61,12 +65,21 @@ Logging::tab(){
 
 ///
 /// Returns true if the Logging object is accepting output,
-/// also performs propper indentation prior to output line and leading comma
+/// also performs proper indentation prior to output line and leading comma
 inline
 bool
-Logging::initLeadComma( bool newCall ){
+Logging::initLeadComma( const std::string& fun, 
+			bool newCall ){
   bool retVal = true;
-  if( !paused && level < maxDepth ){
+  std::string _fun;
+  if( !fun.empty()){
+    CallStack.push( fun );
+    _fun = fun;
+  }else
+    _fun = CallStack.top();
+
+  if( !paused && level < maxDepth && Funcs.find( _fun ) 
+      != Funcs.end()){
     assert(lstream.is_open() && "You must instantiate Logging before calling its methods");
     if( !first ){
       lstream << ",";
@@ -87,7 +100,7 @@ template <>
 void
 Logging::enterFunc( const std::string& data, 
 		    const std::string& fName ){
-  if( initLeadComma( true )){
+  if( initLeadComma( fName, true )){
     lstream << "\"" << fName << "_" << count++ << "\":" << " {" << std::endl;
     tab();
     lstream << "\"data\": \"" << data << "\"";
@@ -98,7 +111,7 @@ template <>
 void
 Logging::enterFunc( const klee::MemoryObject& mo,
 		    const std::string& fName ){
-  if( initLeadComma( true )){
+  if( initLeadComma( fName, true )){
     lstream << "\"" << fName << "_" << count++ << "\":" << " {" << std::endl;
     tab();
     lstream << "\"allocInfo\": \"";
@@ -112,7 +125,7 @@ template <>
 void
 Logging::enterFunc( const klee::KFunction& kfunc,
 		    const std::string& fName ){
-  if( initLeadComma( true )){
+  if( initLeadComma( fName, true )){
     lstream << "\"" << fName << "_" << count++ << "\":" << " {" << std::endl;
     tab();
     lstream << "\"frameName\": \"";
@@ -125,7 +138,7 @@ template <>
 void
 Logging::enterFunc( const llvm::Instruction& i,
 		    const std::string& fName ){
-  if( initLeadComma( true )){
+  if( initLeadComma( fName, true )){
     lstream << "\"" << fName << "_" << count++ << "\":" << " {" << std::endl;
     tab();
     lstream << "\"";
@@ -138,7 +151,7 @@ template <>
 void
 Logging::enterFunc( const klee::ref<klee::Expr>& cond,
 		    const std::string& fName ){
-  if( initLeadComma( true )){
+  if( initLeadComma( fName, true )){
     lstream << "\"" << fName << "_" << count++ << "\":" << " {" << std::endl;
     tab();
     lstream << "\"data\": \"";
@@ -153,7 +166,7 @@ template <>
 void
 Logging::enterFunc( const std::vector<klee::ref<klee::Expr>>& conds,
 		    const std::string& fName ){
-  if( initLeadComma( true )){
+  if( initLeadComma( fName, true )){
     lstream << "\"" << fName << "_" << count++ << "\":" << " {" << std::endl;
     tab();
     size_t cnt = 0;
@@ -172,7 +185,7 @@ void
 Logging::enterFunc( const llvm::Instruction& i1,
 		    const llvm::Instruction& i2,
 		    const std::string& fName ){
-  if( initLeadComma( true )){
+  if( initLeadComma( fName, true )){
     lstream << "\"" << fName << "_" << count++ << "\":" << " {" << std::endl;
     tab();
     lstream << "\"";
@@ -188,7 +201,7 @@ void
 Logging::enterFunc( const klee::ref< klee::Expr >& e1,
 		    const klee::ref< klee::Expr >& e2,
 		    const std::string& fName ){
-  if( initLeadComma( true )){
+  if( initLeadComma( fName, true )){
     lstream << "\"" << fName << "_" << count++ << "\":" << " {" << std::endl;
     tab();
     lstream << "\"";
@@ -297,7 +310,10 @@ Logging::outInstruction( const llvm::Value& val ){ //instruction is 2nd order su
 
 void
 Logging::exitFunc(){
-  if( !paused && level < maxDepth ){
+  std::string fun = CallStack.top();
+  CallStack.pop();
+  if( !paused && level < maxDepth && Funcs.find( fun ) 
+      != Funcs.end()){
     assert(lstream.is_open() && "You must instantiate Logging before calling its methods");
     lstream << std::endl;
     --level;
@@ -308,12 +324,17 @@ Logging::exitFunc(){
 
 void
 Logging::start(){
+  ++start_level;
   paused = false;
 }
 
 void
 Logging::stop(){
-  paused = true;
+  assert( start_level > 0 && "logging stop called without start" );
+  --start_level;
+  if( start_level == 0 ){
+    paused = true;
+  }
 }
 
 }

@@ -251,7 +251,7 @@ void Executor::encounterBarrier(ExecutionState &state,
 
 void Executor::handleBarrier(ExecutionState &state,
 	   		     KInstruction *target) {
-  Gklee::Logging::enterFunc< std::string>( "", __PRETTY_FUNCTION__ );
+  Gklee::Logging::enterFunc( *target->inst, __PRETTY_FUNCTION__ );
   bool allThreadsBarrier = false;
   encounterBarrier(state, target, false, allThreadsBarrier);
   Gklee::Logging::exitFunc();
@@ -1588,7 +1588,9 @@ void Executor::executeCUDAIntrinsics(ExecutionState &state, KInstruction *target
    
     for (unsigned i = 0; i < NELEMS(CUDASync); i++) {
       if (fName.find(CUDASync[i]) != std::string::npos) {
+	Logging::start(); //TODO flow experiment
         handleBarrier(state, target);
+	Logging::stop(); //TODO flow experiment
 	Gklee::Logging::exitFunc();
         return; 
       }

@@ -1762,6 +1762,7 @@ bool HierAddressSpace::hasSymRaceInGlobal(Executor &executor, ExecutionState &st
 
 static bool determineTwoFlowInSameBlock(Executor &executor, ExecutionState &state, 
                                         klee::ref<Expr> exp1, klee::ref<Expr> exp2) {
+  Logging::enterFunc( exp1, exp2, __PRETTY_FUNCTION__ );
   ExecutionState tmp(state); 
   ConstraintManager constr;
   klee::ref<Expr> tExp2 = exp2;
@@ -1774,7 +1775,7 @@ static bool determineTwoFlowInSameBlock(Executor &executor, ExecutionState &stat
   klee::ref<Expr> diffBlockExpr = AddressSpaceUtil::threadDiffBlockConstraint(tmp);
   bool result = false;
   bool success = executor.solver->mustBeTrue(state, diffBlockExpr, result);
-
+  Logging::exitFunc();
   if (!success)
     return false;
   else 
@@ -1783,6 +1784,7 @@ static bool determineTwoFlowInSameBlock(Executor &executor, ExecutionState &stat
 
 bool HierAddressSpace::foundMismatchBarrierInParametricFlow(ExecutionState &state, 
                                                             unsigned src, unsigned dst) {
+  Logging::enterFunc< std::string >( "", __PRETTY_FUNCTION__ );
   bool hasMismatch = false;
 
   if (state.tinfo.numBars[src].second != state.tinfo.numBars[dst].second) {
@@ -1829,7 +1831,7 @@ bool HierAddressSpace::foundMismatchBarrierInParametricFlow(ExecutionState &stat
       }
     }
   }    
-  
+  Logging::exitFunc();
   return hasMismatch;
 }
 
