@@ -1588,9 +1588,9 @@ void Executor::executeCUDAIntrinsics(ExecutionState &state, KInstruction *target
    
     for (unsigned i = 0; i < NELEMS(CUDASync); i++) {
       if (fName.find(CUDASync[i]) != std::string::npos) {
-	Logging::start(); //TODO flow experiment
+	 //TODO flow experiment
         handleBarrier(state, target);
-	Logging::stop(); //TODO flow experiment
+	 //TODO flow experiment
 	Gklee::Logging::exitFunc();
         return; 
       }

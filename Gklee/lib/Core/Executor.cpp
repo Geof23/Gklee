@@ -801,7 +801,7 @@ static unsigned findUnusedThreadSlot(std::vector<CorrespondTid> &cTidSets) {
 
 void Executor::evaluateConstraintAsNewFlow(ExecutionState &state, ParaTree &pTree,
                                            klee::ref<Expr> &cond, bool flowCreated) {
-  Logging::start();
+  
   Gklee::Logging::enterFunc( cond , __PRETTY_FUNCTION__ );  
   unsigned cur_bid = state.tinfo.get_cur_bid();
   unsigned cur_tid = state.tinfo.get_cur_tid();
@@ -827,13 +827,13 @@ void Executor::evaluateConstraintAsNewFlow(ExecutionState &state, ParaTree &pTre
     state.tinfo.sym_tdc_eval = 2;
   }
   Gklee::Logging::exitFunc();
-  Logging::stop();
+  
 }
 
 void Executor::evaluateConstraintAsNewFlowUnderRacePrune(ExecutionState &state, ParaTree &pTree,
                                                          klee::ref<Expr> &cond, bool flowCreated,
                                                          BranchInst *bi) {
-  Logging::start();
+  
   Gklee::Logging::enterFunc( cond , __PRETTY_FUNCTION__ );
   unsigned cur_bid = state.tinfo.get_cur_bid();
   unsigned cur_tid = state.tinfo.get_cur_tid();
@@ -856,29 +856,33 @@ void Executor::evaluateConstraintAsNewFlowUnderRacePrune(ExecutionState &state, 
         std::cout << "br-S-G" << std::endl;
 
       state.cTidSets[idle_tid].keep = true;
+      Logging::outItem< std::string >( std::to_string( idle_tid ),
+				       "new flow" );
     } else if (bi->getMetadata("br-S-S")) {
-      if (state.cTidSets[cur_tid].keep)
+      if (state.cTidSets[cur_tid].keep){
         state.cTidSets[idle_tid].keep = true;
+	Logging::outItem< std::string >( std::to_string( idle_tid ),
+				       "new flow" );
+      }
     }
   } else {
     // Only explore the 'false' flow ... 
     GKLEE_INFO << "keep using the current flow: " 
                << cur_tid << std::endl;
-    unsigned idle_tid = findUnusedThreadSlot(state.cTidSets);
-    Gklee::Logging::outItem( std::to_string( idle_tid ), 
+    Gklee::Logging::outItem( std::to_string( cur_tid ), 
 			     "keeping current flow, PRUNED ID" );
     ParaConfig config(cur_bid, cur_tid, cond, 0, 0);
     pTree.updateCurrentNodeOnNewConfig(config, TDC);
     state.tinfo.sym_tdc_eval = 2;
   }
   Gklee::Logging::exitFunc();
-  Logging::stop();
+  
 }
 
 Executor::StatePair 
 Executor::fork(ExecutionState &current, klee::ref<Expr> condition, bool isInternal) {
    //TODO flow experiment
-  Logging::start();
+  
   Gklee::Logging::enterFunc( condition , __PRETTY_FUNCTION__ ); 
   Solver::Validity res;
   std::map< ExecutionState*, std::vector<SeedInfo> >::iterator it = 
@@ -1000,7 +1004,7 @@ Executor::fork(ExecutionState &current, klee::ref<Expr> condition, bool isIntern
     current.setPC(current.getPrevPC());
     terminateStateEarly(current, "query timed out");
     Gklee::Logging::exitFunc();
-    Logging::stop();
+    
      //TODO flow experiment
     return StatePair(0, 0);
   }
@@ -1116,7 +1120,7 @@ Executor::fork(ExecutionState &current, klee::ref<Expr> condition, bool isIntern
       current.getCurrentParaTree().resetNonTDCNodeCond();
     }
     Gklee::Logging::exitFunc();
-    Logging::stop();
+    
      //TODO flow experiment
     return StatePair(&current, 0);
   } else if (res==Solver::False) {
@@ -1138,7 +1142,7 @@ Executor::fork(ExecutionState &current, klee::ref<Expr> condition, bool isIntern
       current.getCurrentParaTree().resetNonTDCNodeCond();
     }
     Gklee::Logging::exitFunc();
-    Logging::stop();
+    
      //TODO flow experiment
     return StatePair(0, &current);
   } else {  // both branches are possible
@@ -1152,13 +1156,13 @@ Executor::fork(ExecutionState &current, klee::ref<Expr> condition, bool isIntern
       if (current.tinfo.sym_tdc_eval == 1) {
 	Logging::outItem< std::string >( "returning only true branch", "" );
 	Gklee::Logging::exitFunc();
-	Logging::stop();
+	
 	 //TODO flow experiment
         return StatePair(&current, 0); 
       } else {
 	Logging::outItem< std::string >( "returning only false branch", "" );
 	Gklee::Logging::exitFunc();
-	Logging::stop();
+	
 	 //TODO flow experiment
         return StatePair(0, &current); 
       }
@@ -1171,7 +1175,7 @@ Executor::fork(ExecutionState &current, klee::ref<Expr> condition, bool isIntern
         // only explore the left (true) branch
 	Logging::outItem< std::string >( "only exploring true branch", "" );
 	Gklee::Logging::exitFunc();
-	Logging::stop();
+	
 	 //TODO flow experiment
         return StatePair(&current, 0);
       }
@@ -1183,7 +1187,7 @@ Executor::fork(ExecutionState &current, klee::ref<Expr> condition, bool isIntern
         addConstraint(current, condition);
 	Logging::outItem< std::string >( "only true branch being explored", "" );
 	Gklee::Logging::exitFunc();
-	Logging::stop();
+	
 	 //TODO flow experiment
         return StatePair(&current, 0);
       }
@@ -1274,17 +1278,17 @@ Executor::fork(ExecutionState &current, klee::ref<Expr> condition, bool isIntern
       terminateStateEarly(*trueState, "max-depth exceeded");
       terminateStateEarly(*falseState, "max-depth exceeded");
       Gklee::Logging::exitFunc();
-      Logging::stop();
+      
        //TODO flow experiment
       return StatePair(0, 0);
     }
     Gklee::Logging::exitFunc();
-    Logging::stop();
+    
      //TODO flow experiment
     return StatePair(trueState, falseState);
   }
   Gklee::Logging::exitFunc();
-  Logging::stop();
+  
    //TODO flow experiment
 }
 
@@ -1937,7 +1941,7 @@ void Executor::updateCType(ExecutionState &state, llvm::Value* value,
 void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
   
   Instruction *i = ki->inst;
-  Logging::start();
+  
   Gklee::Logging::enterFunc( *i , __PRETTY_FUNCTION__ );  
 
   unsigned seqNum = 0;
@@ -3143,7 +3147,7 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
     }
   }
   Gklee::Logging::exitFunc();
-  Logging::stop();
+  
 }
 
 // by Peng
@@ -3921,7 +3925,7 @@ void Executor::updateParaTreeSet(ExecutionState &state) {
 } 
 
 void Executor::updateParaTreeSetUnderRacePrune(ExecutionState &state) {
-  Logging::start();
+  
   Gklee::Logging::enterFunc< std::string >( std::string("BI num:") +
 					    std::to_string( state.BINum ), 
 					    __PRETTY_FUNCTION__ );  
@@ -3946,6 +3950,8 @@ void Executor::updateParaTreeSetUnderRacePrune(ExecutionState &state) {
             firstNonKeep = true;
             nonKeep = i;
             state.cTidSets[i].slotUsed = true;
+	    Logging::outItem< std::string >( std::to_string( i ),
+					     "marking slotUsed true in non-keep" );
             paraTreeVec.push_back(ParaTree());
             state.tinfo.symParaTreeVec.push_back(i);
             orExpr = state.cTidSets[i].inheritExpr;
@@ -3975,7 +3981,7 @@ void Executor::updateParaTreeSetUnderRacePrune(ExecutionState &state) {
   }
   state.getCurrentParaTreeSet().push_back(paraTreeVec);
   Gklee::Logging::exitFunc();
-  Logging::stop();
+  
 }
 
 void Executor::handleEnterGPUMode(ExecutionState &state) {
@@ -4031,6 +4037,7 @@ void Executor::handleEnterGPUMode(ExecutionState &state) {
 
     state.cTidSets[0].slotUsed = true;
     state.cTidSets[1].slotUsed = true;
+    Logging::outItem< std::string >( "0:1", "initializing two flows (cTidSets)" );
     // create a para tree vec;
     state.tinfo.symExecuteSet.push_back(0); 
     updateParaTreeSet(state);
@@ -4203,13 +4210,13 @@ void Executor::run(ExecutionState &initialState) {
     if (UseSymbolicConfig && state.tinfo.is_GPU_mode) {
       if (ExecutorUtil::isForkInstruction(ki->inst)) {
 	 //TODO this is for flow study
-	Logging::start();
+	
         if (!RacePrune)
           state.tinfo.builtInFork = forkNewParametricFlow(state, ki);
         else 
           state.tinfo.builtInFork = forkNewParametricFlowUnderRacePrune(state, ki); 
 	 //TODO this is for flow study
-	Logging::stop();
+	
       }
     }
     stepInstruction(state);

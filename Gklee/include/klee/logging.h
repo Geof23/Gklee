@@ -22,8 +22,7 @@ namespace Gklee {
 
 class Logging{
  public:
-  Logging( const std::string& logFile, size_t maxDepth, 
-	   bool startNow = true );
+  Logging( const std::string& logFile );
   ~Logging();
   template<typename T>
     static void enterFunc( T const& data, const std::string& fName );
@@ -35,8 +34,6 @@ class Logging{
   template < typename V >
     static void outLLVMObj( const V& val );
   static void exitFunc();
-  static void start();
-  static void stop();
   /* typedef struct{ */
   /*   bool operator() ( std::string a, std::string b ) const { return a.find( b ) != std::string::npos || */
   /* 	b.find( a ) != std::string::npos; } */
@@ -50,11 +47,8 @@ class Logging{
   static std::ofstream lstream;
   static size_t level;
   static void tab();
-  static size_t maxDepth;
   static bool first;
   static size_t count;
-  static bool paused;
-  static size_t start_level; //this is for recursive start/stop calls, start -> start_level++, stop -> start_level--, enabled -> start_level > 0
 };
 
 }

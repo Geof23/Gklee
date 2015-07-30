@@ -21,24 +21,21 @@
 namespace Gklee {
 
 std::ofstream Logging::lstream;
-size_t Logging::maxDepth;
 size_t Logging::level;
 bool Logging::first = true;
 size_t Logging::count = 0;
-bool Logging::paused = false;
-size_t Logging::start_level;
-Logging::mapType Logging::Funcs = {{ "void klee::Executor::executeInstruction(klee::ExecutionState&, klee::KInstruction*)", "" }};
-// std::map< std::string, std::string > Logging::Funcs = {{ "Executor::executeInstruction", "" }};
+  Logging::mapType Logging::Funcs = {{ "void klee::Executor::executeInstruction(klee::ExecutionState&, klee::KInstruction*)", "" },
+				     {"void klee::Executor::evaluateConstraintAsNewFlow(klee::ExecutionState&, klee::ParaTree&, klee::ref<Expr>&, bool)", ""},
+				     {"void klee::Executor::updateParaTreeSetUnderRacePrune(klee::ExecutionState&)", ""},
+				     {"void klee::Executor::evaluateConstraintAsNewFlowUnderRacePrune(klee::ExecutionState&, klee::ParaTree&, klee::ref<Expr>&, bool, llvm::BranchInst*)", ""},
+				     {"void klee::Executor::handleEnterGPUMode(klee::ExecutionState&)", ""}};
 std::stack< std::string > Logging::CallStack;
 
-Logging::Logging( const std::string& logFile, size_t maxDepth,
-		    bool startNow) { 
+Logging::Logging( const std::string& logFile ) { 
   //  std::string logFile( "log.txt" );
   
   level = 0;
-  paused = !startNow;
-  Logging::maxDepth = maxDepth;
-  if( maxDepth > 0 ){
+  if( Funcs.size() > 0 ){
     assert( ! lstream.is_open() && "You may only have one instance of Logging" );
     // if( lstream.is_open() ) throw loggingException();
     lstream.open( logFile, std::ofstream::out |
@@ -82,8 +79,7 @@ Logging::initLeadComma( const std::string& fun ){
     newCall = false;
   }
 
-  if( !paused && level < maxDepth && Funcs.find( _fun ) 
-      != Funcs.end()){
+  if( Funcs.find( _fun ) != Funcs.end()){
     assert(lstream.is_open() && "You must instantiate Logging before calling its methods");
     if( !first ){
       lstream << ",";
@@ -316,7 +312,7 @@ void
 Logging::exitFunc(){
   std::string fun = CallStack.top();
   CallStack.pop();
-  if( !paused && level < maxDepth && Funcs.find( fun ) 
+  if( Funcs.find( fun ) 
       != Funcs.end()){
     assert(lstream.is_open() && "You must instantiate Logging before calling its methods");
     lstream << std::endl;
@@ -325,20 +321,4 @@ Logging::exitFunc(){
     lstream << "}";
   }
 }
-
-void
-Logging::start(){
-  ++start_level;
-  paused = false;
-}
-
-void
-Logging::stop(){
-  assert( start_level > 0 && "logging stop called without start" );
-  --start_level;
-  if( start_level == 0 ){
-    paused = true;
-  }
-}
-
 }
