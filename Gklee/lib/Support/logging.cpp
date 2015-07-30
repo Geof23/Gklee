@@ -68,15 +68,13 @@ inline
 bool
 Logging::initLeadComma( const std::string& fun ){
   bool retVal = true;
-  bool newCall;
   std::string _fun;
   if( !fun.empty()){
     CallStack.push( fun );
     _fun = fun;
-    newCall = true;
+    level++;
   }else{
     _fun = CallStack.top();
-    newCall = false;
   }
 
   if( Funcs.find( _fun ) != Funcs.end()){
@@ -87,9 +85,6 @@ Logging::initLeadComma( const std::string& fun ){
     first = false;
     lstream << std::endl;
     tab();
-    if( newCall ){
-      ++level;
-    }
   }else{
     retVal = false;
   }
@@ -316,9 +311,9 @@ Logging::exitFunc(){
       != Funcs.end()){
     assert(lstream.is_open() && "You must instantiate Logging before calling its methods");
     lstream << std::endl;
-    --level;
     tab();
     lstream << "}";
   }
+  --level;
 }
 }
