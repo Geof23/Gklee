@@ -27,7 +27,8 @@ bool Logging::first = true;
 size_t Logging::count = 0;
 bool Logging::paused = false;
 size_t Logging::start_level;
-std::map< std::string, std::string > Logging::Funcs = {{ "void klee::Executor::executeInstruction(klee::ExecutionState&, klee::KInstruction*)", "" }};
+Logging::mapType Logging::Funcs = {{ "void klee::Executor::executeInstruction(klee::ExecutionState&, klee::KInstruction*)", "" }};
+// std::map< std::string, std::string > Logging::Funcs = {{ "Executor::executeInstruction", "" }};
 std::stack< std::string > Logging::CallStack;
 
 Logging::Logging( const std::string& logFile, size_t maxDepth,
@@ -68,15 +69,18 @@ Logging::tab(){
 /// also performs proper indentation prior to output line and leading comma
 inline
 bool
-Logging::initLeadComma( const std::string& fun, 
-			bool newCall ){
+Logging::initLeadComma( const std::string& fun ){
   bool retVal = true;
+  bool newCall;
   std::string _fun;
   if( !fun.empty()){
     CallStack.push( fun );
     _fun = fun;
-  }else
+    newCall = true;
+  }else{
     _fun = CallStack.top();
+    newCall = false;
+  }
 
   if( !paused && level < maxDepth && Funcs.find( _fun ) 
       != Funcs.end()){
@@ -100,7 +104,7 @@ template <>
 void
 Logging::enterFunc( const std::string& data, 
 		    const std::string& fName ){
-  if( initLeadComma( fName, true )){
+  if( initLeadComma( fName )){
     lstream << "\"" << fName << "_" << count++ << "\":" << " {" << std::endl;
     tab();
     lstream << "\"data\": \"" << data << "\"";
@@ -111,7 +115,7 @@ template <>
 void
 Logging::enterFunc( const klee::MemoryObject& mo,
 		    const std::string& fName ){
-  if( initLeadComma( fName, true )){
+  if( initLeadComma( fName )){
     lstream << "\"" << fName << "_" << count++ << "\":" << " {" << std::endl;
     tab();
     lstream << "\"allocInfo\": \"";
@@ -125,7 +129,7 @@ template <>
 void
 Logging::enterFunc( const klee::KFunction& kfunc,
 		    const std::string& fName ){
-  if( initLeadComma( fName, true )){
+  if( initLeadComma( fName )){
     lstream << "\"" << fName << "_" << count++ << "\":" << " {" << std::endl;
     tab();
     lstream << "\"frameName\": \"";
@@ -138,7 +142,7 @@ template <>
 void
 Logging::enterFunc( const llvm::Instruction& i,
 		    const std::string& fName ){
-  if( initLeadComma( fName, true )){
+  if( initLeadComma( fName )){
     lstream << "\"" << fName << "_" << count++ << "\":" << " {" << std::endl;
     tab();
     lstream << "\"";
@@ -151,7 +155,7 @@ template <>
 void
 Logging::enterFunc( const klee::ref<klee::Expr>& cond,
 		    const std::string& fName ){
-  if( initLeadComma( fName, true )){
+  if( initLeadComma( fName )){
     lstream << "\"" << fName << "_" << count++ << "\":" << " {" << std::endl;
     tab();
     lstream << "\"data\": \"";
@@ -166,7 +170,7 @@ template <>
 void
 Logging::enterFunc( const std::vector<klee::ref<klee::Expr>>& conds,
 		    const std::string& fName ){
-  if( initLeadComma( fName, true )){
+  if( initLeadComma( fName )){
     lstream << "\"" << fName << "_" << count++ << "\":" << " {" << std::endl;
     tab();
     size_t cnt = 0;
@@ -185,7 +189,7 @@ void
 Logging::enterFunc( const llvm::Instruction& i1,
 		    const llvm::Instruction& i2,
 		    const std::string& fName ){
-  if( initLeadComma( fName, true )){
+  if( initLeadComma( fName )){
     lstream << "\"" << fName << "_" << count++ << "\":" << " {" << std::endl;
     tab();
     lstream << "\"";
@@ -201,7 +205,7 @@ void
 Logging::enterFunc( const klee::ref< klee::Expr >& e1,
 		    const klee::ref< klee::Expr >& e2,
 		    const std::string& fName ){
-  if( initLeadComma( fName, true )){
+  if( initLeadComma( fName )){
     lstream << "\"" << fName << "_" << count++ << "\":" << " {" << std::endl;
     tab();
     lstream << "\"";

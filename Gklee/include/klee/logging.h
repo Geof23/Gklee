@@ -13,7 +13,8 @@
 #include <string>
 #include <fstream>
 #include <stack>
-#include <map>
+#include <unordered_map>
+#include <functional>
 
 #include <llvm/Value.h>
 
@@ -36,12 +37,16 @@ class Logging{
   static void exitFunc();
   static void start();
   static void stop();
+  /* typedef struct{ */
+  /*   bool operator() ( std::string a, std::string b ) const { return a.find( b ) != std::string::npos || */
+  /* 	b.find( a ) != std::string::npos; } */
+  /* } str_eq; */
  private:
-  static std::map< std::string, std::string > Funcs;
+  typedef std::unordered_map< std::string, std::string > mapType;
+  static  mapType Funcs;
   static std::stack< std::string > CallStack;
   static void outInstruction( const llvm::Value& val );
-  static bool initLeadComma( const std::string& fun = std::string(), 
-			     bool = false );
+  static bool initLeadComma( const std::string& fun = std::string() );
   static std::ofstream lstream;
   static size_t level;
   static void tab();

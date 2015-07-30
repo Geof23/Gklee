@@ -240,7 +240,6 @@ ThreadInfo::ThreadInfo(const ThreadInfo& info) : cur_tid(info.cur_tid), cur_bid(
 unsigned ThreadInfo::lastTidInCurrentWarp(std::vector<CorrespondTid>& cTidSets) {
   Logging::enterFunc< std::string >( "passed cTidSets", __PRETTY_FUNCTION__ );
   unsigned i = cur_warp_start_tid;
-  Logging::exitFunc();
   if (i == GPUConfig::num_threads-1){
     Logging::exitFunc();
     return i;
