@@ -414,6 +414,8 @@ void ThreadInfo::incTid(std::vector<CorrespondTid> &cTidSets,
         cur_wid = cur_wid + 1; 
         GKLEE_INFO << "Moving from warp " << cur_wid-1 
                    << " to warp " << cur_wid << std::endl;
+	Logging::outItem( std::to_string( cur_wid ),
+			  "advancing to next warp:" );
         for (unsigned i = 0; i < GPUConfig::num_threads; i++) {
           if (cTidSets[i].warpNum == cur_wid) {
             cur_warp_start_tid = i;

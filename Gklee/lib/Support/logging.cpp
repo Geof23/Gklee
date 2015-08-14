@@ -24,11 +24,15 @@ std::ofstream Logging::lstream;
 size_t Logging::level;
 bool Logging::first = true;
 size_t Logging::count = 0;
-  Logging::mapType Logging::Funcs = {{ "void klee::Executor::executeInstruction(klee::ExecutionState&, klee::KInstruction*)", "" },
-				     {"void klee::Executor::evaluateConstraintAsNewFlow(klee::ExecutionState&, klee::ParaTree&, klee::ref<Expr>&, bool)", ""},
+Logging::mapType Logging::Funcs = {{ "void klee::Executor::executeInstruction(klee::ExecutionState&, klee::KInstruction*)", "" },
+				     {"void klee::Executor::evaluateConstraintAsNewFlow(klee::ExecutionState&, ParaTree&, klee::ref<llvm::Expr>&, bool)", ""},
 				     {"void klee::Executor::updateParaTreeSetUnderRacePrune(klee::ExecutionState&)", ""},
-				     {"void klee::Executor::evaluateConstraintAsNewFlowUnderRacePrune(klee::ExecutionState&, klee::ParaTree&, klee::ref<Expr>&, bool, llvm::BranchInst*)", ""},
-				     {"void klee::Executor::handleEnterGPUMode(klee::ExecutionState&)", ""}};
+				     {"void klee::Executor::evaluateConstraintAsNewFlowUnderRacePrune(klee::ExecutionState&, ParaTree&, klee::ref<llvm::Expr>&, bool, llvm::BranchInst*)", ""},
+				     {"void klee::Executor::handleEnterGPUMode(klee::ExecutionState&)", ""},
+				     {"void klee::ThreadInfo::incTid()", ""},
+				   {"void klee::ThreadInfo::incTid(std::vector<klee::CorrespondTid>&, std::vector<klee::BranchDivRegionSet>&, bool&, bool&, bool&)", ""},
+				   {"void klee::Executor::contextSwitchToNextThread(klee::ExecutionState&)", ""},
+				   {"void klee::ThreadInfo::incParametricFlow(std::vector<CorrespondTid>&, ParaTree&, bool&)", ""}};
 std::stack< std::string > Logging::CallStack;
 
 Logging::Logging( const std::string& logFile ) { 

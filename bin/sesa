@@ -1,7 +1,9 @@
-if[[ -e "summary.txt" ]]
-then
-	rm summary.txt
-fi
+#!/bin/bash
+
+# if[[ -e "summary.txt" ]]
+# then
+# 	rm summary.txt
+# fi
 
 opt -load $KLEE_HOME_DIR/llvm/projects/TaintAnalysis/src/TaintAnalysis-build/lib/alias/libashwin_taint.so -taint $@
 
