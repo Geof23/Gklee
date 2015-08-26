@@ -620,6 +620,25 @@ void ThreadInfo::incParametricFlow(std::vector<CorrespondTid> &cTidSets,
     //std::cout << "The new tid: " << sym_cur_tid << std::endl;
     //setConcreteConfig(paraTree);
   } 
+  //get condition
+  klee::ref< klee::Expr > expr;
+  //ParaTree &paraTree = getCurrentParaTree();
+  ParaTreeNode *current = paraTree.getCurrentNode();
+    
+  if (current != NULL) {
+    unsigned which = current->whichSuccessor;
+    std::vector<ParaConfig> &configVec = current->successorConfigVec;
+    expr = AndExpr::create(current->inheritCond, configVec[which].cond);
+  } else {
+    unsigned tid = get_cur_tid(); //tinfo.get_cur_tid();
+    expr = cTidSets[tid].inheritExpr;
+  }
+  Logging::fgInfo( "contextSwitch", sym_cur_tid, expr );
+  // if sym_tdc_eval ){
+  //   Logging::fgInfo( "contextSwitch", sym_cur_tid, paraTree.getCurrentNode()->tdcCond ); //cTidSets[sym_cur_tid].inheritExpr );
+  // }else{
+  //   Logging::fgInfo( "contextSwitch", sym_cur_tid, cTidSets[sym_cur_tid].inheritExpr );
+  // }
   Logging::outItem( std::to_string( sym_cur_tid ), "sym_cur_tid" );
   Logging::exitFunc();
 }

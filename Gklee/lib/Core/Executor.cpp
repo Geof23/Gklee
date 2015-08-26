@@ -1941,7 +1941,6 @@ void Executor::updateCType(ExecutionState &state, llvm::Value* value,
 void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
   
   Instruction *i = ki->inst;
-  
   Gklee::Logging::enterFunc( *i , __PRETTY_FUNCTION__ );  
 
   unsigned seqNum = 0;
@@ -1986,6 +1985,7 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
   switch (i->getOpcode()) {
     // Control flow
   case Instruction::Ret: {
+    Logging::fgInfo( "encounterRet", std::string("") );
     ReturnInst *ri = cast<ReturnInst>(i);
     KInstIterator kcaller = state.getCurStack().back().caller;
     Instruction *caller = kcaller ? kcaller->inst : 0;
@@ -2108,11 +2108,13 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
       // per thread coverage
       if (branches.first) {
 	Gklee::Logging::outItem< std::string >( "first" , "branching" );
+	Logging::fgInfo( "encounterBranch", *i, cond );
         if (!RacePrune)
           bc_cov_monitor.markTakenBranch(&state, true);
         transferToBasicBlock(bi->getSuccessor(0), bi->getParent(), *branches.first);
       }
       if (branches.second) {
+	Logging::fgInfo( std::string("encounterBranch"), *i, cond );
 	Gklee::Logging::outItem< std::string >( "second" , "branching" );
         if (!RacePrune)
 	  bc_cov_monitor.markTakenBranch(&state, false);
@@ -3527,6 +3529,7 @@ void Executor::contextSwitchToNextThread(ExecutionState &state) {
             kernelFunc = NULL;
             state.tinfo.is_GPU_mode = false;
             is_GPU_mode = false;
+	    Logging::fgInfo( "exitGPU", std::string(""));
             state.addressSpace.clearAccessSet();
             state.addressSpace.clearInstAccessSet(true);
             state.clearCorrespondTidSets();
@@ -3557,6 +3560,7 @@ void Executor::contextSwitchToNextThread(ExecutionState &state) {
       if (state.tinfo.allEndKernel) {
         kernelFunc = NULL;
         state.tinfo.is_GPU_mode = false;
+	Logging::fgInfo( "exitGPU", std::string(""));
         is_GPU_mode = false;
         state.clearCorrespondTidSets();
       } else {
@@ -3933,6 +3937,7 @@ void Executor::updateParaTreeSetUnderRacePrune(ExecutionState &state) {
   bool firstNonKeep = false;
   unsigned nonKeep = 0;
   klee::ref<Expr> orExpr = ConstantExpr::create(1, Expr::Bool);
+  std::vector< unsigned > merged;
   for (unsigned i = 0; i < state.cTidSets.size(); i++) {
     if (i != 1) {
       if (state.cTidSets[i].slotUsed) {
@@ -3944,6 +3949,7 @@ void Executor::updateParaTreeSetUnderRacePrune(ExecutionState &state) {
           paraTreeVec.push_back(ParaTree());
           state.tinfo.symParaTreeVec.push_back(i);
         } else {
+	  merged.push_back( i );
 	  Logging::outItem( std::to_string( i ),
 			      "flow slotUsed keep false" );
           if (!firstNonKeep) {
@@ -3970,6 +3976,7 @@ void Executor::updateParaTreeSetUnderRacePrune(ExecutionState &state) {
     orExpr = state.constraints.simplifyExpr(orExpr); 
     state.cTidSets[nonKeep].inheritExpr = orExpr; 
     Logging::outItem( orExpr, "flow merge or expression" );
+    Logging::fgInfo( "flowMerge", merged, orExpr );
   }
 
   if (paraTreeVec.size() == 0) {
@@ -4011,6 +4018,8 @@ void Executor::handleEnterGPUMode(ExecutionState &state) {
   Gklee::Logging::outItem< std::string >( "Creating stack for each thread" , 
 					  std::to_string( state.tinfo.get_num_threads() ) +
 					  " threads" );
+  Logging::fgInfo( "enterGPU", 
+		  std::to_string( state.tinfo.get_num_threads()) );
   for (unsigned i = 1; i < state.tinfo.get_num_threads(); i++)
     state.stacks[i] = state.stacks[0];
 
@@ -4246,6 +4255,7 @@ void Executor::run(ExecutionState &initialState) {
               kernelFunc = NULL;
               state.tinfo.is_GPU_mode = false;
               is_GPU_mode = false;
+	      Logging::fgInfo( "exitGPU", std::string(""));
               state.addressSpace.clearAccessSet();
               state.addressSpace.clearInstAccessSet(true);
               state.clearCorrespondTidSets();

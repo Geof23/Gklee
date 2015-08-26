@@ -18,6 +18,10 @@
 
 #include <llvm/Value.h>
 
+#include "klee/Expr.h"
+
+#include "FlowGraph.h"
+
 namespace Gklee {
 
 class Logging{
@@ -38,17 +42,25 @@ class Logging{
   /*   bool operator() ( std::string a, std::string b ) const { return a.find( b ) != std::string::npos || */
   /* 	b.find( a ) != std::string::npos; } */
   /* } str_eq; */
+  template < typename T >
+  static void fgInfo( const std::string& type,
+		      const T& data,
+		      const klee::ref<klee::Expr>& cond = klee::ConstantExpr::alloc(1, klee::Expr::Bool) );
+
  private:
+  static std::string getCondString( const klee::ref<klee::Expr>& cond );
   typedef std::unordered_map< std::string, std::string > mapType;
   static  mapType Funcs;
   static std::stack< std::string > CallStack;
   static void outInstruction( const llvm::Value& val );
+  static std::string getInstString( const llvm::Value& val );
   static bool initLeadComma( const std::string& fun = std::string() );
   static std::ofstream lstream;
   static size_t level;
   static void tab();
   static bool first;
   static size_t count;
+  static FlowGraph fg;
 };
 
 }

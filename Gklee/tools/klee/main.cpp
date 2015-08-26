@@ -145,7 +145,7 @@ namespace {
   cl::opt<bool>
   CheckDivZero("check-div-zero", 
                cl::desc("Inject checks for division-by-zero"),
-               cl::init(true));
+               cl::init(false));
 
   cl::opt<std::string>
   OutputDir("output-dir", 

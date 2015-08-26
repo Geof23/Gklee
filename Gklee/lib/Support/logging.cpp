@@ -8,6 +8,7 @@
 // JSON format, hierarchical by call graph
 //------------------------------------------------------------------//
 #include <cassert>
+#include <sstream>
 #include <llvm/Support/raw_os_ostream.h>
 #include <llvm/Function.h>
 #include "klee/Internal/Module/KModule.h"
@@ -24,6 +25,7 @@ std::ofstream Logging::lstream;
 size_t Logging::level;
 bool Logging::first = true;
 size_t Logging::count = 0;
+  FlowGraph Logging::fg( "flowsGraph.dot" );
 Logging::mapType Logging::Funcs = {{ "void klee::Executor::executeInstruction(klee::ExecutionState&, klee::KInstruction*)", "" },
 				     {"void klee::Executor::evaluateConstraintAsNewFlow(klee::ExecutionState&, ParaTree&, klee::ref<llvm::Expr>&, bool)", ""},
 				     {"void klee::Executor::updateParaTreeSetUnderRacePrune(klee::ExecutionState&)", ""},
@@ -97,6 +99,49 @@ Logging::initLeadComma( const std::string& fun ){
 
 template <>
 void
+Logging::fgInfo( const std::string& type,
+		 const std::vector< unsigned >& data,
+		 const klee::ref< klee::Expr >& cond){
+
+  fg.step( type, data, getCondString( cond ));
+}
+
+
+template <>
+void
+Logging::fgInfo( const std::string& type,
+		 const std::string& data,
+		 const klee::ref< klee::Expr >& cond){
+  
+  fg.step( type, data, getCondString( cond ));
+}
+
+template<>
+void
+Logging::fgInfo( const std::string& type,
+		 const llvm::Instruction& val,
+		 const klee::ref< klee::Expr >& cond){
+  fg.step( type, getInstString( val ), getCondString( cond ));
+}
+
+template <>
+void
+Logging::fgInfo( const std::string& type,
+		 const int& val,
+		 const klee::ref< klee::Expr >& cond){
+  fg.step( type, std::to_string( val ), getCondString( cond ));
+}
+
+template <>
+void
+Logging::fgInfo( const std::string& type,
+		 const unsigned int& val,
+		 const klee::ref< klee::Expr >& cond){
+  fg.step( type, std::to_string( val ), getCondString( cond ));
+}
+
+template <>
+void
 Logging::enterFunc( const std::string& data, 
 		    const std::string& fName ){
   if( initLeadComma( fName )){
@@ -138,6 +183,7 @@ void
 Logging::enterFunc( const llvm::Instruction& i,
 		    const std::string& fName ){
   if( initLeadComma( fName )){
+    fgInfo( "genInstruction", getInstString( i ));
     lstream << "\"" << fName << "_" << count++ << "\":" << " {" << std::endl;
     tab();
     lstream << "\"";
@@ -299,6 +345,15 @@ Logging::outItem( const klee::ref<klee::Expr>& cond,
   }
 }
 
+ std::string
+   Logging::getInstString( const llvm::Value& val){
+   std::ostringstream ostr;
+  llvm::raw_os_ostream roo( ostr );
+  val.print( *(dynamic_cast< llvm::raw_ostream* >( &roo )), 
+	     (llvm::AssemblyAnnotationWriter*)NULL);
+  return ostr.str();
+ }
+
 void 
 //Logging::outInstruction( const llvm::Instruction& val ){
 Logging::outInstruction( const llvm::Value& val ){ //instruction is 2nd order subclass of value
@@ -320,4 +375,11 @@ Logging::exitFunc(){
   }
   --level;
 }
+std::string
+Logging::getCondString(const klee::ref< klee::Expr >& cond){
+   std::ostringstream ostr;
+   cond->print( ostr, true);
+  return ostr.str();
+}
+
 }

@@ -252,6 +252,7 @@ void Executor::encounterBarrier(ExecutionState &state,
 void Executor::handleBarrier(ExecutionState &state,
 	   		     KInstruction *target) {
   Gklee::Logging::enterFunc( *target->inst, __PRETTY_FUNCTION__ );
+  Logging::fgInfo( "encounterBarrier", *target->inst );
   bool allThreadsBarrier = false;
   encounterBarrier(state, target, false, allThreadsBarrier);
   Gklee::Logging::exitFunc();
