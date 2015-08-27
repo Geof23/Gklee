@@ -11,6 +11,7 @@ namespace Gklee {
   const string BRANCH_COLOR = "yellow";
   const string BAR_COLOR = "blue";
   const string MERGE_COLOR = "red";
+  const string SPAWN_COLOR = "purple";
 
 string
 FlowGraph::getGraphLabel(const string& inst,
@@ -23,14 +24,26 @@ FlowGraph::getGraphLabel(const string& inst,
 }
 
 string 
-FlowGraph::encodeFlowNode(int fNum, const string& cond){
+FlowGraph::encodeFlowNode(int fNum){
   return string("Flow_") + std::to_string( fNum ) + 
     "_" + std::to_string( counter++ );
 }
 
 void
+FlowGraph::constructFlows(int size){
+  flows.resize( size );
+  for(auto i = 0; i < size; ++i){
+    flows[i] = flow(i);
+  }
+}
+
+void
 FlowGraph::handleStep(flowInfo& fi){
   if( !inKernel && fi.type != enterGPU ) return;
+  if( fi.type != flowMerge && lineBuffer.size() > 0 ){
+    graphF << lineBuffer;
+    lineBuffer = "";
+  }
   //TODO step dump begins
   std::cerr << "type:" << fi.type << "  flow:" << fi.flow << "  instr:" << fi.instr
 	    << "  cond:" << fi.cond << " merged:";
@@ -41,7 +54,7 @@ FlowGraph::handleStep(flowInfo& fi){
   switch( fi.type ){
   case enterGPU:
     inKernel = true;
-    flows.resize( fi.threads );
+    constructFlows( fi.threads );
     flows[ 0 ].pendBr = fi.kName;
     openGraph( fi.kName );
     step("contextSwitch", "0", "true"); //artificially force a context switch to avoid instructions execed before natural context sw hit    
@@ -50,7 +63,7 @@ FlowGraph::handleStep(flowInfo& fi){
     handleRet();
     break;
   case genInstruction:
-    if( fi.instr.find( "br i1" ) == string::npos &&
+    if( fi.instr.find( "br i1" ) == string::npos && //skip branch and barrier
 	fi.instr.find( "call void @__syncthreads()" ) == string::npos ){
       curInsts.push_back( fi.instr );
     }
@@ -62,21 +75,7 @@ FlowGraph::handleStep(flowInfo& fi){
     groupTerm( fi.instr );
     break;
   case contextSwitch:
-    {
-      auto& f = flows[ fi.flow ];
-      if( f.pendBr.length() > 0 &&
-	  // f.head == "" ){
-	  f.connected == true){
-	f.head = encodeFlowNode( fi.flow, fi.cond );
-	graphF << f.head + " [label=\"flow " + to_string( fi.flow ) + ":" + fi.cond + "\" color=" + FLOW_COLOR + "];" << std::endl;
-	connectNodes( f.pendBr, f.head );
-	f.pendBr = "";
-	f.connected = false;
-      }
-      if( currentFlow != fi.flow ){
-	currentFlow = fi.flow;
-      }
-    }
+    handleContextSwitch(fi);
     break;
   case exitGPU:
     handleExit();
@@ -103,6 +102,50 @@ FlowGraph::decode(const string& inst,
     assert( false && string(string("bad call to") + __PRETTY_FUNCTION__).c_str());
   }
   return fi;
+}
+
+  //this is a node creation method
+void
+FlowGraph::handleContextSwitch(flowInfo& fi){
+  if( currentFlow != fi.flow ){
+    if( flows[fi.flow].hitRet ) return;
+    currentFlow = fi.flow;
+    auto& f = flows[ fi.flow ];
+    f.active = true;
+    f.head = encodeFlowNode( fi.flow );
+    string tcond;
+    if( f.lastBarrier != ""){
+      tcond = f.condition;
+      f.lastBarrier = "";
+    } else {
+      
+      tcond = fi.cond;
+    }
+    lineBuffer =  f.head + " [label=\"flow " + to_string( fi.flow ) + ":" + 
+      tcond + "\" color=" + FLOW_COLOR + "];\n";
+    f.prevCondition = f.condition;
+    f.condition = fi.cond;
+    if( f.pendBr.length() > 0 &&
+	f.connected == true){
+      connectNodes( f.pendBr, f.head );
+      f.pendBr = "";
+    }else{ //then this is a spawned flow and we need to make an edge from spawner to this (is it thisIndex - 1?)
+      for(auto s = flows.crbegin() + (flows.size() - currentFlow);
+	  s != flows.crend();
+	  ++s){
+	if( s->active ){
+	  lineBuffer = f.head + " [label=\"flow " + 
+	    to_string( fi.flow ) + ":" + 
+	    s->prevCondition + "\" color=" + FLOW_COLOR + "];\n";
+	  lineBuffer += s->head + " -> " + f.head + 
+	    " [label = \"spawn\" color = " + SPAWN_COLOR +
+	    "];\n";
+	  break;
+	}
+      }
+    }
+    f.connected = false; //TODO -- we may not need this? connected
+  }
 }
 
 struct FlowGraph::flowInfo 
@@ -150,10 +193,28 @@ FlowGraph::decode(const string& inst, const string& data, const string& extra){
 
 void
 FlowGraph::handleMerge(flowInfo& fi){
-  for( auto flow: fi.merged ){
-    graphF << "\"" << flows[ flow ].head << "\" -> \"" << flows[ fi.flow ].head 
-	   << "\" [label = \"" << fi.cond << "\" color = " << MERGE_COLOR <<
-	   " ];" << std::endl;
+  // output updated context switch for this node
+  auto& f = flows[ fi.flow ];
+  //we're assuming that the flow being merged into can't be spawned this bi
+  graphF << f.head + " [label=\"flow " + to_string( fi.flow ) + ":" + 
+      fi.cond + "\" color=" + FLOW_COLOR + "];\n";
+  // create node for merged items, use previous condition
+  for( auto flow = fi.merged.rbegin();
+       *flow != fi.flow && flow != fi.merged.rend(); 
+       ++flow ){
+    flows[*flow].pendBr = "";
+    flows[*flow].active = false;
+    flows[*flow].head = encodeFlowNode( *flow );
+    graphF << flows[*flow].head + " [label=\"flow " + to_string( flows[*flow].index ) + ":" + 
+      flows[*flow].condition + "\" color=" + MERGE_COLOR + "];\n";
+
+    graphF << "\"" << graphLabels[ flows[*flow].lastBarrier ] << 
+      "\" -> \"" << flows[ *flow ].head << "\";" << std::endl;
+    graphF << "\"" << flows[ *flow ].head << "\" -> " <<
+      "\"" << flows[ fi.merged[0] ].head << "\" [label = \"merge " << 
+      fi.cond << "\" color = " <<
+      MERGE_COLOR << "];" << std::endl;
+    flows[ fi.merged[0] ].prevCondition = fi.cond;
   }
 }
 
@@ -170,6 +231,7 @@ FlowGraph::handleRet(){
     connectNodes( flows[ currentFlow ].head,
 		"return" );
   }
+  f.hitRet = true;
 }
 
 void 
@@ -191,20 +253,23 @@ FlowGraph::connectNodes( const string& pre, const string& post){
 void
 FlowGraph::groupTerm( const string& instr, const string& cond ){
   string node;
+  //create branch/barrier (terminator) node in graph, if not created
+  bool barrier = cond == "";
+  if( barrier ) flows[ currentFlow ].lastBarrier = instr;
   if( graphLabels.count( instr ) == 0 ){ //branch not declared in graph
-    node = getGraphLabel( instr, (cond == "" ? "Barrier" : "Branch")); //adds the branch to the graphLabels map
-    string color = cond == "" ? BAR_COLOR : BRANCH_COLOR;
+    node = getGraphLabel( instr, (barrier ? "Barrier" : "Branch")); //adds the branch to the graphLabels map
     graphF << node <<  " [label = <<table>" <<
       "<tr><td>\"" + instr + "\"</td></tr>";
     if( cond == "" ){
-      graphF << "</table>>];" << std::endl;
+      graphF << "</table>> color = " << BAR_COLOR << "];" << std::endl;
     }else{
       graphF << "<tr><td>\"" + cond + "\"</td></tr></table>> color = " +
-	color + "];" << std::endl;
+	BRANCH_COLOR + "];" << std::endl;
     }
   }else{
     node = graphLabels[ instr ];
   }
+  //connect current flow to terminator
   if( flows[ currentFlow ].connected == false &&
       flows[ currentFlow ].head != "" ){
     connectNodes( flows[currentFlow].head, node );

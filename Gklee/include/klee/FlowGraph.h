@@ -14,6 +14,7 @@ public:
   curInsts(), currentFlow(-1){ 
     graphF.open( file, std::ofstream::out |
 		 std::ofstream::trunc);
+    
   }
   ~FlowGraph(){graphF.close();}
   enum fType { 
@@ -50,9 +51,11 @@ public:
 
 
  private:
+  void constructFlows(int count);
+  void handleContextSwitch(flowInfo& fi);
   string getGraphLabel(const string& inst, const string& cond);
   string encodeBranch(const string& inst, const string& cond);
-  string encodeFlowNode(int f, const string& cond);
+  string encodeFlowNode(int f);
   string encodeBarrier(const string& inst);
   struct flowInfo decode(const string& inst, const string& data, const string& extra);
   struct flowInfo decode(const string& inst, 
@@ -64,20 +67,26 @@ public:
   void connectNodes(const string& pre, const string& post);
   void groupTerm( const string& instr,
 		  const string& cond = string(""));
-  //  void clearFlows(const string& newPred);
   void handleExit();
-  /* void getNextLetter(){ return letters[curLetter++ % 26]; } //unsigned overflow OK */
 
   struct flow {
-  flow(): pendBr(""), head(""),
-      connected(true){}
+    flow(int i): pendBr(""), head(""),
+      connected(true), active(false),
+      condition(""), index(i),
+      lastBarrier(""), hitRet(false),
+      prevCondition(""){}
+    flow(){}
     string pendBr;
     string head;
+    string condition;
+    string prevCondition;
     bool connected;
-    //    bool hitBarrier;
+    bool active;
+    int index;
+    string lastBarrier;
+    bool hitRet;
   };
-  /* string letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"; */
-  /* unsigned byte currLetter; */
+  string lineBuffer;
   std::map< string, string > graphLabels; //maps instructions to graph node names (br & bar)
   std::vector< flow > flows;
   std::ofstream graphF;
