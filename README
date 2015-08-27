@@ -88,3 +88,7 @@ be symbolized in a file named "summary.txt"
 2. The taint analyser annotates the input llvm bytecode with LLVM metadata 
 and generates the new llvm bytecode containing LLVM annotations that are used 
 to prune redundant flows in the symbolic execution stage.
+
+3. To run this annotated bytecode in Gklee, you need to add a command line option :
+
+gklee --symbolic-config --race-prune [path to annotated bytecode]
