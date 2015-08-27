@@ -1,0 +1,8 @@
+#!/bin/bash
+
+rdm &
+
+rc -J .
+rc -J ../llvm/src/LLVM-build/
+rc -J ../llvm/projects/TaintAnalysis/src/TaintAnalysis-build/
+rc -J ../Gklee/STP/src/STP-build/
