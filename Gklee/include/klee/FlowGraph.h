@@ -74,7 +74,7 @@ public:
       connected(true), active(false),
       condition(""), index(i),
       lastBarrier(""), hitRet(false),
-      prevCondition(""){}
+      prevCondition(""), lastBranch(""){}
     flow(){}
     string pendBr;
     string head;
@@ -84,6 +84,7 @@ public:
     bool active;
     int index;
     string lastBarrier;
+    string lastBranch;
     bool hitRet;
   };
   string lineBuffer;
