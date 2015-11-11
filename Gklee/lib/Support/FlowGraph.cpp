@@ -50,11 +50,11 @@ FlowGraph::handleStep(flowInfo& fi){
     lineBuffer = "";
   }
   //TODO step dump begins
-  std::cerr << "type:" << fi.type << "  flow:" << fi.flow << "  instr:" << fi.instr
-	    << "  cond:" << fi.cond << " merged:";
-  for( auto i: fi.merged) 
-    std::cerr << i << " ";
-  std::cerr << std::endl;
+  // std::cerr << "type:" << fi.type << "  flow:" << fi.flow << "  instr:" << fi.instr
+  // 	    << "  cond:" << fi.cond << " merged:";
+  // for( auto i: fi.merged) 
+  //   std::cerr << i << " ";
+  // std::cerr << std::endl;
   //TODO step dump ends
   switch( fi.type ){
   case enterGPU:
