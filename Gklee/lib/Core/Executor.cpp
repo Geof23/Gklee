@@ -3816,22 +3816,22 @@ bool Executor::forkNewParametricFlowUnderRacePrune(ExecutionState &state,
         if (success) {
           if (result) { // Only 'True' flow 
 	    Logging::outItem< std::string >( "condition evaluated to True", "");
-            GKLEE_INFO << "'True' path flow feasible in [RacePrune] mode!" 
-                       << std::endl;
+            // GKLEE_INFO << "'True' path flow feasible in [RacePrune] mode!" 
+            //            << std::endl;
             state.tinfo.sym_tdc_eval = 1;
             ParaConfig config(state.tinfo.get_cur_bid(), 
                               state.tinfo.get_cur_tid(), 
                               trueExpr, 0, 0);
             pTree.updateCurrentNodeOnNewConfig(config, TDC);
-            GKLEE_INFO << "'Else' path flow infeasible in [RacePrune] mode!" 
-                       << std::endl;
+            // GKLEE_INFO << "'Else' path flow infeasible in [RacePrune] mode!" 
+            //            << std::endl;
           } else {
             success = solver->mayBeTrue(state, cond, result);
             if (result) { // Both 'True' and 'False' flows
 	      Logging::outItem< std::string >( "condition can be true/false", "");
               BranchInst *bi = cast<BranchInst>(i);
-              GKLEE_INFO << "'True' path flow feasible in [RacePrune] mode!" 
-                         << std::endl;
+              // GKLEE_INFO << "'True' path flow feasible in [RacePrune] mode!" 
+              //            << std::endl;
               state.tinfo.sym_tdc_eval = 1;
               ParaConfig config(state.tinfo.get_cur_bid(), 
                                 state.tinfo.get_cur_tid(), 
@@ -3844,17 +3844,17 @@ bool Executor::forkNewParametricFlowUnderRacePrune(ExecutionState &state,
 		Logging::outItem( std::to_string( state.tinfo.get_cur_tid() ),
 				  "branch G-G or G-S" );
               }
-              GKLEE_INFO << "'Else' path flow feasible in [RacePrune] mode!" 
-                         << std::endl;
+              // GKLEE_INFO << "'Else' path flow feasible in [RacePrune] mode!" 
+              //            << std::endl;
               klee::ref<Expr> negateExpr = Expr::createIsZero(cond);
 	      //	       //TODO flow experiement
               evaluateConstraintAsNewFlowUnderRacePrune(state, pTree, negateExpr, true, bi);
 	      //	       //TODO flow experiment
             } else { // Only 'False' flow
-              GKLEE_INFO << "'True' path flow infeasible in RacePrune mode!" 
-                         << std::endl;
-              GKLEE_INFO << "'Else' path flow feasible in RacePrune mode!" 
-                         << std::endl;
+              // GKLEE_INFO << "'True' path flow infeasible in RacePrune mode!" 
+              //            << std::endl;
+              // GKLEE_INFO << "'Else' path flow feasible in RacePrune mode!" 
+              //            << std::endl;
               evaluateConstraintAsNewFlow(state, pTree, trueExpr, false);
             }
           }

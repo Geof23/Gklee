@@ -20,6 +20,8 @@ set ( LIBS kleeCore kleeModule kleaverSolver
   LLVMCore LLVMSupport pthread dl m stp
 )
 										
+#DEL ME
+SET(CMAKE_EXE_LINKER_FLAGS "-static-libstdc++")
 
 target_link_libraries( klee ${LIBS} )
 

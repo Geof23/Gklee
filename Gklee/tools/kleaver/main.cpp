@@ -289,7 +289,7 @@ int main(int argc, char **argv) {
   }
 #else
   OwningPtr<MemoryBuffer> MB;
-  error_code ec=MemoryBuffer::getFileOrSTDIN(InputFile.c_str(), MB);
+  llvm::error_code ec=MemoryBuffer::getFileOrSTDIN(InputFile.c_str(), MB);
   if (ec) {
     std::cerr << argv[0] << ": error: " << ec.message() << "\n";
     return 1;

@@ -3,6 +3,9 @@ it supports almost all of CUDA intrinsic functions in kernel code and majority
 of CUDA runtimes in host code. For more details, please visit GKLEE's homepage:
 www.cs.utah.edu/fv/GKLEE
 
+Please refer to the tutorial on this wiki, located here:
+https://github.com/Geof23/Gklee/wiki/flows_tutorial
+
 This is a fork of the original Github version of GKLEE, https://github.com/PengPengHub/Gklee
 
 =============== Obtain and Build GKLEE ToolChain, and REQUIREMENTS ============
