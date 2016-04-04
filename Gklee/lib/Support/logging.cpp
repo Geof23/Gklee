@@ -25,7 +25,7 @@ std::ofstream Logging::lstream;
 size_t Logging::level;
 bool Logging::first = true;
 size_t Logging::count = 0;
-  FlowGraph Logging::fg( "flowsGraph.dot" );
+FlowGraph Logging::fg( "flowsGraph.dot" );
 Logging::mapType Logging::Funcs = {{ "void klee::Executor::executeInstruction(klee::ExecutionState&, klee::KInstruction*)", "" },
 				     {"void klee::Executor::evaluateConstraintAsNewFlow(klee::ExecutionState&, ParaTree&, klee::ref<llvm::Expr>&, bool)", ""},
 				     {"void klee::Executor::updateParaTreeSetUnderRacePrune(klee::ExecutionState&)", ""},
@@ -73,6 +73,7 @@ Logging::tab(){
 inline
 bool
 Logging::initLeadComma( const std::string& fun ){
+  if( !lstream.is_open()) return false;
   bool retVal = true;
   std::string _fun;
   if( !fun.empty()){
@@ -364,6 +365,7 @@ Logging::outInstruction( const llvm::Value& val ){ //instruction is 2nd order su
 
 void
 Logging::exitFunc(){
+  if( !lstream.is_open()) return;
   std::string fun = CallStack.top();
   CallStack.pop();
   if( Funcs.find( fun ) 

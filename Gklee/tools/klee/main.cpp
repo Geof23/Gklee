@@ -1187,7 +1187,8 @@ int main(int argc, char **argv, char **envp) {
 
   configurateGPU();
   
-  Gklee::Logging Log( "trace.log" ); //set to false to have to call start //TODO set 'false' for flow study
+  
+  //Gklee::Logging Log( "trace.log" ); //set to false to have to call start //TODO set 'false' for flow study
 
   if (Watchdog) {
     if (MaxTime==0) {
