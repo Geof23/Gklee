@@ -2,40 +2,45 @@ include( ExternalProject )
 
 set( LLVM_SRC ${CMAKE_SOURCE_DIR}/llvm )
 
-message( "We made it into SetupExterns.cmake with CMAKE_SOURCE_DIR ${CMAKE_SOURCE_DIR}" )
+find_program(DOWNLOAD wget)
+find_program(EXTRACT tar)
+find_program(PATCH patch)
+find_program(BASH bash)
+
+set(
+  PCMD 
+  cd ${LLVM_SRC}/src/LLVM/tools && if lbb ! -e clang rbb$<SEMICOLON> then ${DOWNLOAD} http://www.llvm.org/releases/3.2/clang-3.2.src.tar.gz && ${EXTRACT} -zxf clang-3.2.src.tar.gz && mv -f clang-3.2.src clang && rm clang-3.2.src.tar.gz && cd clang && cp ${CMAKE_SOURCE_DIR}/patch/clang.patch ./ && ${PATCH} -p1 -N < clang.patch$<SEMICOLON> fi && cd ${LLVM_SRC}/src/LLVM/projects && if [ ! -e compiler-rt ]$<SEMICOLON> then ${DOWNLOAD} http://www.llvm.org/releases/3.2/compiler-rt-3.2.src.tar.gz && ${EXTRACT} -zxf compiler-rt-3.2.src.tar.gz && mv compiler-rt-3.2.src compiler-rt && rm compiler-rt-3.2.src.tar.gz && cd compiler-rt/lib/asan && cp ${LLVM_SRC}/patch/compiler-rt_lib_asan.patch . && ${PATCH} -p1 -N compiler-rt_lib_asan.patch$<SEMICOLON> fi
+  )
+
+#list(TRANSFORM PCMD REPLACE lbb [ )
+#list(TRANSFORM PCMD REPLACE rbb ] )
+string(REPLACE ";" " " PCMD "${PCMD}")
+#string(REPLACE rbb ] PCMD ${PCMD}) 
+#string(STRIP "${PCMD}" PCMD)
+#separate_arguments(PCMD)
+ExternalProject_add(
+  LLVM
+  PREFIX ${LLVM_SRC}
+  URL http://www.llvm.org/releases/3.2/llvm-3.2.src.tar.gz
+  URL_MD5 71610289bbc819e3e15fdd562809a2d7
+  PATCH_COMMAND ${BASH} -c ${PCMD}
+  CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_SOURCE_DIR} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} 
+  -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_FLAGS=${GLIBCXX} 
+  -std=c++11 -DCMAKE_EXPORT_COMPILE_COMMANDS=${CMAKE_EXPORT_COMPILE_COMMANDS} -DLLVM_TARGETS_TO_BUILD=X86
+  )
 
 ExternalProject_add(
-   LLVM
-   PREFIX ${LLVM_SRC}
-   URL http://www.llvm.org/releases/3.2/llvm-3.2.src.tar.gz
-   URL_MD5 71610289bbc819e3e15fdd562809a2d7
-		#we're going to abuse PATCH_COMMAND by adding Clang (along with its patch), compiler-rt and TaintAnalysis to the llvm tree here
-		PATCH_COMMAND cd ${LLVM_SRC}/src/LLVM/tools && wget http://www.llvm.org/releases/3.2/clang-3.2.src.tar.gz && tar -zxf clang-3.2.src.tar.gz && mv clang-3.2.src clang && rm clang-3.2.src.tar.gz && cd clang && cp ${CMAKE_SOURCE_DIR}/clang.patch ./ && patch -p1 < clang.patch && cd ${LLVM_SRC}/src/LLVM/projects && wget http://www.llvm.org/releases/3.2/compiler-rt-3.2.src.tar.gz && tar -zxf compiler-rt-3.2.src.tar.gz && mv compiler-rt-3.2.src compiler-rt && rm compiler-rt-3.2.src.tar.gz 
-   CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_SOURCE_DIR} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_FLAGS=${GLIBCXX} -std=c++11 -DCMAKE_EXPORT_COMPILE_COMMANDS=${CMAKE_EXPORT_COMPILE_COMMANDS}
-)
-
-# 
-
-# ExternalProject_add(
-#   COMPILER-RT
-#   DEPENDS LLVM
-#   PREFIX ${LLVM_SRC}/projects/compiler-rt
-#   URL http://www.llvm.org/releases/3.2/compiler-rt-3.2.src.tar.gz
-#   # SOURCE_DIR ${LLVM_SRC}/projects/compiler-rt
-#   # BINARY_DIR ${LLVM_SRC}/projects/compiler-rt
-# 	CMAKE_ARGS -DCMAKE_MODULE_PATH=${LLVM_SRC}/src/LLVM/cmake/modules
-#  )
-
-# ExternalProject_add(
-#   CLANG
-#   DEPENDS LLVM COMPILER-RT
-#   PREFIX ${LLVM_SRC}/tools/clang
-#   URL http://www.llvm.org/releases/3.2/clang-3.2.src.tar.gz
-#   PATCH_COMMAND cd ${LLVM_SRC}/tools/clang/src/CLANG && cp ../../../../../clang.patch ./ && patch -p1 < clang.patch
-#   # SOURCE_DIR ${LLVM_SRC}/tools/clang
-#   # BINARY_DIR ${LLVM_SRC}/tools/clang
-#   CMAKE_ARGS -DCLANG_PATH_TO_LLVM_BUILD=${LLVM_SRC}/src/LLVM-build -DCMAKE_MODULE_PATH=${LLVM_SRC}/src/LLVM/cmake/modules
-#  )
+  libcxx
+  DEPENDS LLVM
+  PREFIX ${LLVM_SRC}/libcxx
+  URL https://releases.llvm.org/3.3/libcxx-3.3.src.tar.gz
+  DOWNLOAD_NO_EXTRACT TRUE
+  BUILD_COMMAND ""
+  CONFIGURE_COMMAND ""
+  INSTALL_COMMAND cd ${LLVM_SRC}/libcxx/src && ${EXTRACT} -f libcxx-3.3.src.tar.gz -x libcxx-3.3.src/include && rm -r libcxx && mv libcxx-3.3.src libcxx
+  #&& rm libcxx-3.3.src.tar.gz && mv libcxx-3.3.src libcxx
+  #EXCLUDE_FROM_ALL TRUE
+  )
 
 ExternalProject_add(
   STP
@@ -45,15 +50,16 @@ ExternalProject_add(
   GIT_TAG 40b6ca4757b991f1a054c6f9e900ff5e8b3f49db
   PATCH_COMMAND cd ${CMAKE_SOURCE_DIR}/Gklee/STP/src/STP && cp ${CMAKE_SOURCE_DIR}/stp.patch ./ && patch -p1 < stp.patch
   CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_SOURCE_DIR} -DENABLE_PYTHON_INTERFACE=NO -DENABLE_ASSERTIONS=${ENABLE_ASSERTIONS} -DCMAKE_EXPORT_COMPILE_COMMANDS=${CMAKE_EXPORT_COMPILE_COMMANDS}
-)
+  )
 
 ExternalProject_add(
   TaintAnalysis
   DEPENDS LLVM
   PREFIX ${LLVM_SRC}/projects/TaintAnalysis
   GIT_REPOSITORY https://github.com/Geof23/TaintAnalysis.git
-	#TODO restore tag to correct snapshot
-# GIT_TAG 4755611618c1c539f03dd6629503a0167f137dd7
+  #TODO restore tag to correct snapshot
+  # GIT_TAG 4755611618c1c539f03dd6629503a0167f137dd7
   CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_SOURCE_DIR} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_EXPORT_COMPILE_COMMANDS=${CMAKE_EXPORT_COMPILE_COMMANDS}
-	 
-)
+  
+  )
+

@@ -1,0 +1,10 @@
+--- asan_linux.cc	2021-03-16 05:20:08.830395600 -0700
++++ asan_linux_tmp.cc	2021-03-16 05:08:53.456615900 -0700
+@@ -31,6 +31,7 @@
+ #include <stdio.h>
+ #include <unistd.h>
+ #include <unwind.h>
++#include <signal.h>
+ 
+ #if !ASAN_ANDROID
+ // FIXME: where to get ucontext on Android?
