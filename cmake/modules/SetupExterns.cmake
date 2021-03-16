@@ -9,15 +9,9 @@ find_program(BASH bash)
 
 set(
   PCMD 
-  cd ${LLVM_SRC}/src/LLVM/tools && if lbb ! -e clang rbb$<SEMICOLON> then ${DOWNLOAD} http://www.llvm.org/releases/3.2/clang-3.2.src.tar.gz && ${EXTRACT} -zxf clang-3.2.src.tar.gz && mv -f clang-3.2.src clang && rm clang-3.2.src.tar.gz && cd clang && cp ${CMAKE_SOURCE_DIR}/patch/clang.patch ./ && ${PATCH} -p1 -N < clang.patch$<SEMICOLON> fi && cd ${LLVM_SRC}/src/LLVM/projects && if [ ! -e compiler-rt ]$<SEMICOLON> then ${DOWNLOAD} http://www.llvm.org/releases/3.2/compiler-rt-3.2.src.tar.gz && ${EXTRACT} -zxf compiler-rt-3.2.src.tar.gz && mv compiler-rt-3.2.src compiler-rt && rm compiler-rt-3.2.src.tar.gz && cd compiler-rt/lib/asan && cp ${LLVM_SRC}/patch/compiler-rt_lib_asan.patch . && ${PATCH} -p1 -N compiler-rt_lib_asan.patch$<SEMICOLON> fi
+  cd ${LLVM_SRC}/src/LLVM/tools && if [ ! -e clang ]$<SEMICOLON> then ${DOWNLOAD} http://www.llvm.org/releases/3.2/clang-3.2.src.tar.gz && ${EXTRACT} -zxf clang-3.2.src.tar.gz && mv -f clang-3.2.src clang && rm clang-3.2.src.tar.gz && cd clang && cp ${CMAKE_SOURCE_DIR}/patch/clang.patch ./ && ${PATCH} -p1 -N < clang.patch$<SEMICOLON> fi && cd ${LLVM_SRC}/src/LLVM/projects && if [ ! -e compiler-rt ]$<SEMICOLON> then ${DOWNLOAD} http://www.llvm.org/releases/3.2/compiler-rt-3.2.src.tar.gz && ${EXTRACT} -zxf compiler-rt-3.2.src.tar.gz && mv compiler-rt-3.2.src compiler-rt && rm compiler-rt-3.2.src.tar.gz && cd compiler-rt/lib/asan && cp ${LLVM_SRC}/patch/compiler-rt_lib_asan.patch . && ${PATCH} -p1 -N compiler-rt_lib_asan.patch$<SEMICOLON> fi
   )
-
-#list(TRANSFORM PCMD REPLACE lbb [ )
-#list(TRANSFORM PCMD REPLACE rbb ] )
 string(REPLACE ";" " " PCMD "${PCMD}")
-#string(REPLACE rbb ] PCMD ${PCMD}) 
-#string(STRIP "${PCMD}" PCMD)
-#separate_arguments(PCMD)
 ExternalProject_add(
   LLVM
   PREFIX ${LLVM_SRC}
@@ -38,8 +32,6 @@ ExternalProject_add(
   BUILD_COMMAND ""
   CONFIGURE_COMMAND ""
   INSTALL_COMMAND cd ${LLVM_SRC}/libcxx/src && ${EXTRACT} -f libcxx-3.3.src.tar.gz -x libcxx-3.3.src/include && rm -r libcxx && mv libcxx-3.3.src libcxx
-  #&& rm libcxx-3.3.src.tar.gz && mv libcxx-3.3.src libcxx
-  #EXCLUDE_FROM_ALL TRUE
   )
 
 ExternalProject_add(
@@ -57,8 +49,6 @@ ExternalProject_add(
   DEPENDS LLVM
   PREFIX ${LLVM_SRC}/projects/TaintAnalysis
   GIT_REPOSITORY https://github.com/Geof23/TaintAnalysis.git
-  #TODO restore tag to correct snapshot
-  # GIT_TAG 4755611618c1c539f03dd6629503a0167f137dd7
   CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_SOURCE_DIR} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_EXPORT_COMPILE_COMMANDS=${CMAKE_EXPORT_COMPILE_COMMANDS}
   
   )
