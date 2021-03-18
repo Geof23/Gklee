@@ -1,9 +1,0 @@
-diff -urN stp/lib/Sat/cryptominisat2/CMakeLists.txt stp_patch/lib/Sat/cryptominisat2/CMakeLists.txt 
---- stp/lib/Sat/cryptominisat2/CMakeLists.txt	2015-03-26 20:15:37.523595767 -0600
-+++ stp_patch/lib/Sat/cryptominisat2/CMakeLists.txt	2015-03-26 20:17:46.987599082 -0600
-@@ -21,3 +21,5 @@
-     XorSubsumer.cpp
-     time_mem.cpp
- )
-+
-+add_dependencies(cryptominisat2 ASTKind_header)
