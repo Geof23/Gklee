@@ -1,0 +1,4 @@
+set args  -max-time=0 --symbolic-config --race-prune /mnt/d/git/GkleeTests/read_write_race_0/read_write_race_0.sesa
+handle SIGALRM nostop
+handle SIGTRAP nostop
+
