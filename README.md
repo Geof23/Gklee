@@ -10,9 +10,12 @@ https://github.com/Geof23/Gklee/wiki/flows_tutorial
 
 This is a fork of the original Github version of GKLEE, https://github.com/PengPengHub/Gklee
 
+*Note that GKLEE has been tested on an Ubuntu 20 system, so your mileage may vary with other 'nix distros*
+
 ### Prerequisites for GKLEE
 
 * a *unix* type system
+* a modern c++ compiler (at least c++-11 complete)
 * CMake, version 3.3+
 * boost developer libraries
 * bison
@@ -34,7 +37,7 @@ Many package managers have suitable versions of the prerequisits for your distro
 Here's a quick example of config and GNU Makefile based build (on Ubuntu):
 
 ```bash
-sudo apt-get install cmake libboost-all-dev bison flex python-2.7 perl
+sudo apt-get install g++ cmake libboost-all-dev bison flex python-2.7 perl
 git clone git@github.com:Geof23/Gklee.git
 mkdir Gklee/build
 cd Gklee/build
