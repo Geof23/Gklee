@@ -141,6 +141,11 @@ Logging::fgInfo( const std::string& type,
   fg.step( type, std::to_string( val ), getCondString( cond ));
 }
 
+void
+Logging::handleExecInst(const llvm::Instruction& i){
+  if(fg.isInKernel()) fgInfo( "genInstruction", getInstString( i ));
+}
+
 template <>
 void
 Logging::enterFunc( const std::string& data, 

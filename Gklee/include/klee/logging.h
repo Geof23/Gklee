@@ -46,6 +46,7 @@ class Logging{
   static void fgInfo( const std::string& type,
 		      const T& data,
 		      const klee::ref<klee::Expr>& cond = klee::ConstantExpr::alloc(1, klee::Expr::Bool) );
+  static void handleExecInst(const llvm::Instruction& i);
 
  private:
   static std::string getCondString( const klee::ref<klee::Expr>& cond );

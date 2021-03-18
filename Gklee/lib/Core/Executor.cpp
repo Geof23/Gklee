@@ -1942,7 +1942,7 @@ void Executor::executeInstruction(ExecutionState &state, KInstruction *ki) {
   
   Instruction *i = ki->inst;
   Gklee::Logging::enterFunc( *i , __PRETTY_FUNCTION__ );  
-
+  Gklee::Logging::handleExecInst( *i );
   unsigned seqNum = 0;
 
   bool isFork = false;

@@ -44,10 +44,14 @@ public:
   void handleStep(flowInfo& fi);
  public:
   template< typename T >
-    void step(const string& inst, const T& data, const string& extra){
+  void step(const string& inst, const T& data, const string& extra){
     flowInfo fi = decode( inst, data, extra );
     handleStep(fi);
-}
+  }
+  bool
+  isInKernel() const {
+    return inKernel;
+  }
 
 
  private:
