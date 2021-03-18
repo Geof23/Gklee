@@ -1,4 +1,4 @@
-== GKLEE
+## GKLEE
 
 GKLEE is a symbolic analyser and test generator tailored for CUDA C++ programs,
 it supports many CUDA intrinsic functions in kernel code and CUDA runtimes in host code.
@@ -10,7 +10,7 @@ https://github.com/Geof23/Gklee/wiki/flows_tutorial
 
 This is a fork of the original Github version of GKLEE, https://github.com/PengPengHub/Gklee
 
-=== Prerequisites for GKLEE
+### Prerequisites for GKLEE
 
 * a *unix* type system
 * CMake, version 3.3+
@@ -23,7 +23,7 @@ This is a fork of the original Github version of GKLEE, https://github.com/PengP
 Many package managers have suitable versions of the prerequisits for your distro.
 (see below for a quick config example)
 
-=== Building GKLEE
+### Building GKLEE
 
 1. clone GKLEE
 2. make an out-of-source directory to build in
@@ -42,8 +42,8 @@ cmake ..
 make -j
 ```
 
-=== Running GKLEE
-==== Required environment variables
+### Running GKLEE
+#### Required environment variables
 Another quick example, in a *bash* shell:
 ```bash
 	export KLEE_HOME_DIR=/Path/To/Gklee
@@ -75,7 +75,7 @@ After building GKLEE and setting environment variables properly, you could run G
 3. The test cases will be generated in the same dir where you execute gklee, 
    and appear as 'klee-out-[number]' and 'klee-last'.
 
-==== TaintAnalysis: Gklee 'SESA'
+#### TaintAnalysis: Gklee 'SESA'
 
 taint analyser consists of three *clang* compiler passes, which perform a combination of 
 use-def chain analysis and alias analysis to enable taint analysis on CUDA kernels.
