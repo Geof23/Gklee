@@ -8,8 +8,8 @@ find_program(PATCH patch)
 find_program(BASH bash)
 
 set(
-  PCMD 
-  cd ${LLVM_SRC}/src/LLVM/tools && if [ ! -e clang ]$<SEMICOLON> then ${DOWNLOAD} http://www.llvm.org/releases/3.2/clang-3.2.src.tar.gz && ${EXTRACT} -zxf clang-3.2.src.tar.gz && mv -f clang-3.2.src clang && rm clang-3.2.src.tar.gz && cd clang && cp ${CMAKE_SOURCE_DIR}/patch/clang.patch ./ && ${PATCH} -p1 -N < clang.patch$<SEMICOLON> fi && cd ${LLVM_SRC}/src/LLVM/projects && if [ ! -e compiler-rt ]$<SEMICOLON> then ${DOWNLOAD} http://www.llvm.org/releases/3.2/compiler-rt-3.2.src.tar.gz && ${EXTRACT} -zxf compiler-rt-3.2.src.tar.gz && mv compiler-rt-3.2.src compiler-rt && rm compiler-rt-3.2.src.tar.gz && cd compiler-rt/lib/asan && cp ${LLVM_SRC}/patch/compiler-rt_lib_asan.patch . && ${PATCH} -p1 -N compiler-rt_lib_asan.patch$<SEMICOLON> fi
+  PCMD
+  cd ${LLVM_SRC}/src/LLVM/tools && if [ ! -e clang ]$<SEMICOLON> then ${DOWNLOAD} http://www.llvm.org/releases/3.2/clang-3.2.src.tar.gz && ${EXTRACT} -zxf clang-3.2.src.tar.gz && mv -f clang-3.2.src clang && rm clang-3.2.src.tar.gz && cd clang && cp ${CMAKE_SOURCE_DIR}/patch/clang.patch ./ && ${PATCH} -p1 -N < clang.patch$<SEMICOLON> fi && cd ${LLVM_SRC}/src/LLVM/projects && if [ ! -e compiler-rt ]$<SEMICOLON> then ${DOWNLOAD} http://www.llvm.org/releases/3.2/compiler-rt-3.2.src.tar.gz && ${EXTRACT} -zxf compiler-rt-3.2.src.tar.gz && mv compiler-rt-3.2.src compiler-rt && rm compiler-rt-3.2.src.tar.gz && cd compiler-rt/lib/asan && cp ${LLVM_SRC}/../patch/compiler-rt_lib_asan_linux.patch . && ${PATCH} -p1 -N < compiler-rt_lib_asan_linux.patch$<SEMICOLON> fi
   )
 string(REPLACE ";" " " PCMD "${PCMD}")
 ExternalProject_add(
@@ -18,8 +18,8 @@ ExternalProject_add(
   URL http://www.llvm.org/releases/3.2/llvm-3.2.src.tar.gz
   URL_MD5 71610289bbc819e3e15fdd562809a2d7
   PATCH_COMMAND ${BASH} -c ${PCMD}
-  CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_SOURCE_DIR} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} 
-  -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_FLAGS=${GLIBCXX} 
+  CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_SOURCE_DIR} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+  -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_FLAGS=${GLIBCXX}
   -std=c++11 -DCMAKE_EXPORT_COMPILE_COMMANDS=${CMAKE_EXPORT_COMPILE_COMMANDS} -DLLVM_TARGETS_TO_BUILD=X86
   )
 
